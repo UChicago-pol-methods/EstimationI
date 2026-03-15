@@ -176,10 +176,8 @@ The variance depends on $X_i$ by construction. The LPM \textbf{always} requires 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Limitations of the Linear Probability Model}
-
 \begin{columns}
 \begin{column}{0.48\textwidth}
-
 \textbf{Problems:}
 \begin{itemize}
     \item Predictions outside $[0,1]$
@@ -204,7 +202,7 @@ where $G: \mathbb{R} \to [0,1]$ is a known link function.
 
 \begin{tikzpicture}
 \begin{axis}[
-  width=7cm, height=6cm,
+  width=6.5cm, height=4.8cm,
   domain=-3:3, samples=100,
   xlabel={$X'\beta$}, ylabel={$P(Y=1 \mid X)$},
   ymin=-0.15, ymax=1.15,
@@ -264,7 +262,6 @@ Both map $\mathbb{R} \to (0,1)$, are symmetric about $1/2$, and produce nearly i
 \begin{frame}{Latent Variable Representation}
 
 Suppose there exists an unobserved variable:
-
 \[
 Y_i^* = X_i'\beta + \varepsilon_i
 \]
@@ -272,23 +269,13 @@ Y_i^* = X_i'\beta + \varepsilon_i
 \pause
 
 Observed outcome:
-
 \[
 Y_i = \mathbf{1}\{Y_i^* > 0\}
 \]
 
 \pause
 
-Assume:
-
-\[
-\varepsilon_i \sim N(0,1)
-\]
-
-\pause
-
-Then:
-
+Assume $\varepsilon_i \sim N(0,1)$. Then:\pause
 \[
 P(Y_i=1 \mid X_i)
 =
@@ -306,16 +293,7 @@ This is the \textbf{Probit model}.
 
 \begin{frame}{Identification and Scale Normalization}
 
-In the latent model:
-
-\[
-Y_i^* = X_i'\beta + \varepsilon_i, \qquad \varepsilon_i \sim N(0,\sigma^2)
-\]
-
-\pause
-
-Then:
-
+In the latent model $Y_i^* = X_i'\beta + \varepsilon_i$, $\varepsilon_i \sim N(0,\sigma^2)$:\pause
 \[
 P(Y_i=1 \mid X_i)
 =
@@ -492,13 +470,13 @@ Setting $S_n(\hat\beta) = 0$ defines the MLE. This is a \textbf{nonlinear} syste
 
 \pause
 
-\bigskip
+\medskip
 
 Compare three estimating equations side by side:
 
-\medskip
+\smallskip
 
-\renewcommand{\arraystretch}{1.8}
+\renewcommand{\arraystretch}{1.6}
 \begin{tabular}{lll}
 \toprule
 \textbf{Model} & \textbf{Estimating Equation} & \textbf{Mean Function} \\
@@ -556,7 +534,8 @@ In practice, \texttt{glm()} in R handles this automatically via Fisher scoring (
 \begin{frame}{Why Not Just Use OLS?}
 
 \begin{center}
-\renewcommand{\arraystretch}{1.4}
+\renewcommand{\arraystretch}{1.3}
+\small
 \begin{tabular}{lcc}
 \toprule
 & \textbf{LPM (OLS)} & \textbf{Probit (MLE)} \\
@@ -570,11 +549,12 @@ Efficiency & Lower & Higher (if correct) \\
 \bottomrule
 \end{tabular}
 \renewcommand{\arraystretch}{1.0}
+\normalsize
 \end{center}
 
 \pause
 
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
 \textbf{Practical guidance:} LPM is a robust baseline. Probit gains efficiency if the model is correct, but misspecification has consequences.
 \end{tcolorbox}
 
@@ -614,7 +594,7 @@ Compare with OLS: $\mathbb{E}[X X'] / \sigma^2$. In Probit, the effective ``vari
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Hessian and Information Matrix Equality}
+\begin{frame}{Hessian and Outer Product of Scores}
 
 The expected Hessian:
 \[
@@ -625,6 +605,8 @@ The expected Hessian:
 
 \pause
 
+\bigskip
+
 The outer product of scores:
 \[
 \mathbb{E}[s_i s_i']
@@ -634,10 +616,39 @@ The outer product of scores:
 
 \pause
 
-Since $\mathbb{E}[(Y_i - \Phi)^2 \mid X_i] = \Phi(1-\Phi)$, one factor cancels, giving the \textbf{information matrix equality} (under correct specification):
+\bigskip
+
+These two expressions \emph{look} different. Are they equal?
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Information Matrix Equality}
+
+Since $\mathbb{E}[(Y_i - \Phi)^2 \mid X_i] = \Phi(1-\Phi)$, one factor of $\Phi(1-\Phi)$ in the denominator cancels:
+
+\[
+\mathbb{E}[s_i s_i']
+=
+\mathbb{E}\!\left[\frac{\phi(X'\beta)^2}{\Phi(X'\beta)(1-\Phi(X'\beta))} X X'\right]
+= -\mathbb{E}\!\left[\frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]
+\]
+
+\pause
+
+\bigskip
+
+This gives the \textbf{information matrix equality} (under correct specification):
 \[
 \boxed{\mathbb{E}[s_i s_i'] = -\mathbb{E}\!\left[\frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]}
 \]
+
+\pause
+
+\bigskip
+
+When this equality holds, model-based SEs and sandwich SEs agree. When it fails (misspecification), only the sandwich is valid.
 
 \end{frame}
 
@@ -751,6 +762,26 @@ Same problem as LPM: a linear model $\mathbb{E}[Y \mid X] = X'\beta$ can predict
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{Why $\exp(X'\beta)$? Invariance}
+
+Positivity is not the only reason. The exponential mean is natural when the \textbf{mechanism} implies scale invariance:\pause
+
+\begin{itemize}
+    \item \textbf{Proportional change} (population growth, compounding returns): effects should be stable under rescaling $\to$ a semi-elasticity, not an absolute change\pause
+    \item \textbf{Event arrival} (conflicts, patent filings): expected counts should add when you double the observation window\pause
+    \item Both imply $\mathbb{E}[Y\mid X]=\exp(X'\beta)$, not $X'\beta$
+\end{itemize}
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
+The choice between $X'\beta$ and $\exp(X'\beta)$ is not just about the data format---it reflects a claim about what transformation of the world leaves the effect unchanged.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{The Poisson Quasi-Log-Likelihood}
 
 The Poisson log-likelihood for a single observation:
@@ -788,26 +819,23 @@ Same structure --- a \textbf{nonlinear moment condition}. No observation-specifi
 
 \begin{frame}{QMLE: Consistency Without the Distribution}
 
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Key Result (Gourieroux et al.~1984; Wooldridge 2010{,} 2023)]
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Key Result (Gourieroux et al.~1984; Wooldridge 2010{,} 2023), boxsep=2pt, top=2pt, bottom=2pt]
 Poisson QMLE is \textbf{consistent for $\beta$} whenever $\mathbb{E}[Y \mid X] = \exp(X'\beta)$ is correctly specified.
-
-\medskip
-
 $Y$ need \textbf{not} be Poisson. It need not even be integer-valued.
 \end{tcolorbox}
 
 \pause
 
-\bigskip
+\smallskip
 
 This is \textbf{quasi-MLE}: use a likelihood as an estimation device, not as a distributional assumption.
 
 \pause
 
-\bigskip
+\smallskip
 
 \textbf{What can $Y$ be?}
-\begin{itemize}
+\begin{itemize}\setlength{\itemsep}{1pt}
     \item Integer counts (patents, murders, votes)
     \item Continuous nonneg (income, expenditure, trade flows)
     \item Corner solutions (zero with positive mass, then continuous)
@@ -831,15 +859,15 @@ Because $\mathbb{E}[Y \mid X] = \exp(X'\beta)$:
 
 \pause
 
-\bigskip
+\medskip
 
 $\beta_j$ is a \textbf{semi-elasticity}: a one-unit increase in $x_j$ changes $\mathbb{E}[Y \mid X]$ by approximately $100 \times \beta_j$ percent.
 
 \pause
 
-\bigskip
+\medskip
 
-\renewcommand{\arraystretch}{1.4}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lll}
 \toprule
 \textbf{Model} & \textbf{$\beta_j$ measures} & \textbf{Interpretation} \\
@@ -853,7 +881,7 @@ Poisson QMLE & $\approx 100\beta_j\%$ change & Semi-elasticity \\
 
 \pause
 
-\bigskip
+\medskip
 
 Poisson coefficients are directly interpretable --- no marginal effect computation needed.
 
@@ -867,7 +895,7 @@ The Poisson variance assumption: $\operatorname{Var}(Y \mid X) = \mathbb{E}[Y \m
 
 \pause
 
-\bigskip
+\medskip
 
 This is almost \textbf{never correct} in practice. With overdispersion:
 \[
@@ -880,19 +908,16 @@ The information matrix equality \textbf{fails} $\Rightarrow$ model-based SEs are
 
 \pause
 
-\bigskip
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Practical Rule]
-\textbf{Always} use sandwich standard errors with Poisson QMLE. The model-based SEs from \texttt{summary(glm(...))} are not valid.
-
 \medskip
 
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Practical Rule, boxsep=2pt, top=2pt, bottom=2pt]
+\textbf{Always} use sandwich standard errors with Poisson QMLE. The model-based SEs from \texttt{summary(glm(...))} are not valid.
 This is the same sandwich from Lectures 5--6, applied to a nonlinear model.
 \end{tcolorbox}
 
 \pause
 
-\bigskip
+\smallskip
 
 Contrast with probit: sandwich SEs are \emph{optional} under correct specification, \textbf{mandatory} for Poisson QMLE.
 
@@ -900,7 +925,7 @@ Contrast with probit: sandwich SEs are \emph{optional} under correct specificati
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Best Practices: The LEF Framework (Wooldridge 2023)}
+\begin{frame}{The LEF Framework (Wooldridge 2023)}
 
 \textbf{Linear exponential family} (LEF) distributions provide a unified framework:
 
@@ -922,7 +947,20 @@ Exponential & Poisson & $Y \geq 0$, no upper bound & \texttt{glm(, poisson)} \\
 
 \bigskip
 
-\textbf{Applied workflow:}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
+In each case, consistency requires only that the \textbf{conditional mean} is correctly specified---not the full distribution. Use sandwich SEs in all cases.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Applied Workflow}
+
+\textbf{When estimating models for nonnegative outcomes:}
+
+\bigskip
+
 \begin{enumerate}
     \item Estimate OLS (linear) as a baseline
     \item Estimate Poisson QMLE (exponential mean) for $Y \geq 0$
@@ -1069,7 +1107,8 @@ exp(coef(pois))  # multiplicative effects
 \begin{frame}{Comparison Table}
 
 \begin{center}
-\renewcommand{\arraystretch}{1.4}
+\renewcommand{\arraystretch}{1.25}
+\small
 \begin{tabular}{lcccc}
 \toprule
 & \textbf{OLS} & \textbf{LPM} & \textbf{Probit} & \textbf{Poisson QMLE} \\
@@ -1079,9 +1118,11 @@ CEF & $X'\beta$ & $X'\beta$ & $\Phi(X'\beta)$ & $\exp(X'\beta)$ \\
 $\beta_j$ means & $\Delta Y$ & $\Delta P$ & needs ME & $\approx \%\Delta Y$ \\
 Moment cond. & $\sum Xe = 0$ & $\sum Xe = 0$ & $\sum ws = 0$ & $\sum X(Y-e^{X'\beta})=0$ \\
 Sandwich SEs & Rec. & Mandatory & Optional & \alert{Mandatory} \\
+Invariance & Translation & Translation & Monotone latent & Scale \\
 \bottomrule
 \end{tabular}
 \renewcommand{\arraystretch}{1.0}
+\normalsize
 \end{center}
 
 \pause

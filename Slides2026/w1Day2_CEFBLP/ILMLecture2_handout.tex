@@ -181,7 +181,7 @@ text}{fg=darkpurple}
 \item $\mathbb{E}[e|X]=0$
 \item $\mathbb{E}[e]=0$
 \item If the rth moment of Y exists, the rth moment of $e$ exists. [Technical]
-\item For \emph{any measurable function} h(X) where the expected covariance with $e$ exists [$\mathbb{E}[|h(X)e|]< \infty$], then, $\mathbb{E}[h(X)e]=0$
+\item For \emph{any measurable function} h(X) where the expected product with $e$ exists [$\mathbb{E}[|h(X)e|]< \infty$], then, $\mathbb{E}[h(X)e]=0$
 \end{enumerate}
 \bigskip
 
@@ -300,7 +300,7 @@ The diagram on the previous slide is an \emph{analogy}, not a literal picture.  
 Vector $\mathbf{v}$ & $\longleftrightarrow$ & Random variable $Y$\\
 Dot product $\mathbf{u}\cdot\mathbf{v}$ & $\longleftrightarrow$ & $\mathbb{E}[UV]$ (inner product)\\
 Length $\|\mathbf{v}\|^2$ & $\longleftrightarrow$ & $\mathbb{E}[Y^2]$ (second moment)\\
-Perpendicularity $\mathbf{u}\cdot\mathbf{v}=0$ & $\longleftrightarrow$ & Uncorrelatedness $\operatorname{Cov}(U,V)=0$\\
+Perpendicularity $\mathbf{u}\cdot\mathbf{v}=0$ & $\longleftrightarrow$ & Orthogonality $\mathbb{E}[UV]=0$\\
 Projection onto subspace & $\longleftrightarrow$ & Conditional expectation\\
 \bottomrule
 \end{tabular}
@@ -356,13 +356,13 @@ If $\sigma(X)$ varies with $X$: \textbf{heteroskedastic} errors.
 Let $e_1=Y-m(X_1)$ and $e_{12}=Y-m(X_1, X_2)$.  Then:
 $$\operatorname{Var}[Y]\geq \operatorname{Var}[e_1]\geq \operatorname{Var}[e_{12}]$$
 \end{tcolorbox}
-\medskip
-You will always explain (weakly) more of the variance with more variables.\\
+\smallskip
+You will always explain (weakly) more of the variance with more variables.
 This is why $R^2$ is a poor measure of model fit.
 
-\medskip\pause
-\textbf{Proof strategy:} We will not work with the errors directly.  Instead, we show that $\operatorname{Var}[m(X_1)] \leq \operatorname{Var}[m(X_1,X_2)]$---the finer CEF has (weakly) larger variance.  Then the \textbf{CEF decomposition}
-$$\operatorname{Var}[Y] = \operatorname{Var}[m(X)] + \mathbb{E}[\operatorname{Var}[Y|X]]$$
+\smallskip\pause
+\textbf{Proof strategy:} Show $\operatorname{Var}[m(X_1)] \leq \operatorname{Var}[m(X_1,X_2)]$---the finer CEF has (weakly) larger variance.  Then the \textbf{CEF decomposition}
+$\operatorname{Var}[Y] = \operatorname{Var}[m(X)] + \mathbb{E}[\operatorname{Var}[Y|X]]$
 converts this into the result about error variances.
 \end{frame}
 
@@ -396,12 +396,12 @@ $$\operatorname{Var}[e_1] \;\geq\; \operatorname{Var}[e_{12}] \qquad \square$$
 
 
 \begin{frame}{Hansen Theorem 2.7: CEF as Best Predictor}
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Theorem 2.7 (CEF Is the Best Predictor)]
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Theorem 2.7 (CEF Is the Best Predictor), boxsep=2pt, top=2pt, bottom=2pt]
 If $\mathbb{E}[Y^2]<\infty$, then for any measurable function $g(X)$:
-$$\mathbb{E}\!\left[(Y-m(X))^2\right] \;\leq\; \mathbb{E}\!\left[(Y-g(X))^2\right]$$
+$\mathbb{E}\!\left[(Y-m(X))^2\right] \leq \mathbb{E}\!\left[(Y-g(X))^2\right]$.
 The CEF $m(X)=\mathbb{E}[Y|X]$ minimizes mean squared prediction error.
 \end{tcolorbox}
-\vspace{-2pt}
+\vspace{-4pt}
 {\small\textbf{Proof:}}\pause
 {\footnotesize
 \begin{align*}
@@ -448,7 +448,7 @@ If homoskedastic: $\mathbb{E}[e^2|X]=\sigma^2$.\\
 \item Exception: CEF is always linear if X is discrete and all interactions are included.
 \end{itemize}\pause
 \item We will instead approximate the CEF using a \textbf{Best Linear Predictor} (BLP).
-\item Later we will show that OLS estimates are optimal \textbf{if} the CEF is linear and the residuals are homogeneous.
+\item Later we will show that OLS estimates are optimal \textbf{if} the CEF is linear and the residuals are homoskedastic.
 \end{itemize}
 \end{frame}
 
@@ -496,14 +496,14 @@ $$M= \mathbb{E}[(Y-(a+bX))^2]$$
 \begin{frame}{Solving for Best Linear Predictor ($a$ and $b$)}
 \textbf{FOC w.r.t.\ $a$:}\pause
 \begin{align*}
-0&=  -2 \mathbb{E}[Y]+2 \mathbb{E}(a+bX) \implies a= \mathbb{E}(Y)-b \mathbb{E}(X)
+0&=  -2 \mathbb{E}[Y]+2 \mathbb{E}[a+bX] \implies a= \mathbb{E}[Y]-b \mathbb{E}[X]
 \end{align*}
 \pause
 \textbf{FOC w.r.t.\ $b$:}\pause
 \begin{align*}
 0&= -2 \mathbb{E}[YX]+2 \mathbb{E}[(a+bX)(X)]\\
- \mathbb{E}(YX)&= [ \mathbb{E}(Y)-b \mathbb{E}(X)] \mathbb{E}(X)+b \mathbb{E}(X^2)\\\pause
- \mathbb{E}(YX)- \mathbb{E}(Y)E(X)&= b[ \mathbb{E}(X^2)- \mathbb{E}(X)^2]\\\pause
+ \mathbb{E}[YX]&= [ \mathbb{E}[Y]-b \mathbb{E}[X]] \mathbb{E}[X]+b \mathbb{E}[X^2]\\\pause
+ \mathbb{E}[YX]- \mathbb{E}[Y]\mathbb{E}[X]&= b[ \mathbb{E}[X^2]- \mathbb{E}[X]^2]\\\pause
 b&=\frac{Cov(X,Y)}{Var(X)}\\
 \end{align*}
 \end{frame}
@@ -522,7 +522,7 @@ Y&=\beta_0+\beta_1X+e
 \item The slope $\beta =\frac{Cov(X,Y)}{Var(X)}$
 \item The intercept $\alpha=\mathbb{E}(Y)-\beta \mathbb{E}(X)$
 \end{itemize}
-\item $\mathcal{P}(Y|X)= \mathbb{E}(Y)+\frac{Cov(X,Y)}{Var(X)}*(X-\mathbb{E}(X))$
+\item $\mathcal{P}(Y|X)= \mathbb{E}[Y]+\frac{\text{Cov}(X,Y)}{\text{Var}(X)}\cdot(X-\mathbb{E}[X])$
 \end{itemize}
 \end{frame}
 
@@ -550,8 +550,8 @@ Example: $Y=X+X^2$, $X\sim N(0,1)$, $\mathbb{E}[X]=\mathbb{E}[X^3]=0$, $\mathbb{
 True CEF: $m(X)=X+X^2$\\
  Population Linear Projection: $Y=\alpha+\beta X+e$.
 \begin{align*}
-\alpha&=E(Y)-\beta E(X)=E(X+X^2)-\beta*0=0+1-0\\
-\beta&=Cov(X,Y)/Var(X)=Cov(X,X+X^2)/1=1/1\\
+\alpha&=\mathbb{E}[Y]-\beta \mathbb{E}[X]=\mathbb{E}[X+X^2]-\beta\cdot 0=0+1-0\\
+\beta&=\text{Cov}(X,Y)/\text{Var}(X)=\text{Cov}(X,X+X^2)/1=1/1\\
 \mathcal{P}(Y|X)&=1+1*X\\\pause
 e&=m(X)-\mathcal{P}(Y|X)=X^2-1\\
 \mathbb{E}[eX]&=\mathbb{E}[(X^2-1)X]=\mathbb{E}[X^3-X]=0
@@ -627,8 +627,6 @@ Every empirical model in this course follows the same logic:
 
 \smallskip\pause
 \textbf{Counterexample:} If subjects self-select into treatment based on expected benefits, $\mathbb{E}[D_i e_i]\neq 0$.  OLS is inconsistent---you need a \emph{different} moment condition (e.g., from an instrument).
-
-\smallskip
 \textbf{The question is always:} \alert{Why should this moment condition hold?}
 \end{frame}
 
@@ -731,7 +729,7 @@ If $X$ does not include a constant, the moment conditions are only $\mathbb{E}[X
 
 $\beta = \mathbb{E}[XX']^{-1}\mathbb{E}[XY]$ exists and is unique \emph{if} $\mathbf{Q}_{XX}=\mathbb{E}[XX']$ is invertible.\\
 \bigskip
-$\mathbf{Q}_{XX}$ is called the design matrix.\\
+$\mathbf{Q}_{XX}$ is the population second moment matrix of $X$.\\
 \bigskip
 For any non-zero $\alpha \in \mathbb{R}^k$
 $$\alpha'\bm{Q}_{XX}\alpha=\mathbb{E}[\alpha'XX'\alpha]=\mathbb{E}[(\alpha'X)^2] \geq 0$$
@@ -746,7 +744,7 @@ P(Y=1|X)&=\beta_0+\beta_1X
 \begin{itemize}
 \item Suppose we have a binary outcome: $Y=\mathbb{I}(\omega\in B)$
 \item $\beta_0$ is the probability that $Y=1$ if $X=0$
-\item $\beta_1$ is the the change in probability that $Y=1$ given a one unit change in $X$.
+\item $\beta_1$ is the change in probability that $Y=1$ given a one unit change in $X$.
 \item The BLP is still the best linear predictor: $\beta=\mathbb{E}[XX']^{-1}\mathbb{E}[XY]$.
 \item However, it is an approximation to a probability, not itself a probability.
 \end{itemize}

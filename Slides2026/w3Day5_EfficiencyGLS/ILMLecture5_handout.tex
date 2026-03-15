@@ -89,7 +89,7 @@ text}{fg=darkpurple}
 \setbeamertemplate{navigation symbols}{}
 
 \useoutertheme{miniframes}
-\title[PLSC 30700]{Linear Models Lecture 6: Finite Sample Properties}
+\title[PLSC 30700]{Linear Models Lecture 5: Finite Sample Properties}
 
 \author{Robert Gulotty}
 \institute[Chicago]{University of Chicago}
@@ -135,7 +135,7 @@ text}{fg=darkpurple}
 
 \begin{frame}{Finite Sample Assumptions of OLS estimator}
 \begin{itemize}
-\item Assumption 1: The random variables $\{(Y_1,\ X_1),\ (Y_2,\ X_2), \ldots, (Y_n,\ X_n)$ are independent and identically distributed.
+\item Assumption 1: The random variables $\{(Y_1,\ X_1),\ (Y_2,\ X_2), \ldots, (Y_n,\ X_n)\}$ are independent and identically distributed.
 \item Assumption 2: $Y=\bm{X}'\beta+e$, where $\mathbb{E}(e|\bm{X})=0$. 
 \item Assumption 3: $\mathbb{E}(\bm{X}\bm{X}')>0$ is invertible (with probability 1).
 \item Assumption 4*: $\mathbb{E}[e^2|\bm{X}]=\sigma^2(\bm{X})=\sigma^2$. 
@@ -178,13 +178,14 @@ $$\mathbb{E}[g(\bm{X})Y]=\mathbb{E}[g(\bm{X})\mathbb{E}[Y|\bm{X}]]$$
 \end{frame}
 
 \begin{frame}{Unbiasedness (shown in summation operation)}
-\small
+\vspace{-0.3em}
+\footnotesize
 \begin{align*}
-\mathbb{E}[\hat{\beta}|\bm{x}_1,\ldots \bm{x}_n]&=\mathbb{E}[(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}(\sum_{i=1}^n\bm{x}_iY_i)|\bm{x}_1,\ldots \bm{x}_n]\\\pause
-&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\mathbb{E}[(\sum_{i=1}^n\bm{x}_iY_i)|\bm{x}_1,\ldots \bm{x}_n] \tag{Conditioning Theorem}\\ \pause
-&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\sum_{i=1}^n \mathbb{E}[\bm{x}_iY_i|\bm{x}_1,\ldots \bm{x}_n] \tag{Linearity of Expectations}\\ \pause
-&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\sum_{i=1}^n \bm{x}_i\mathbb{E}[Y_i|\bm{x}_i] \tag{Conditioning Theorem, and independence}\\ \pause
-&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\sum_{i=1}^n \bm{x}_i\bm{x}_i'\beta \tag{Linear conditional expectation}\\ \pause
+\mathbb{E}[\hat{\beta}|\bm{x}_1,\ldots \bm{x}_n]&=\mathbb{E}\!\left[(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}(\sum_{i=1}^n\bm{x}_iY_i)\;\middle|\;\bm{x}_1,\ldots \bm{x}_n\right]\\\pause
+&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\mathbb{E}[(\sum_{i=1}^n\bm{x}_iY_i)|\bm{x}_1,\ldots \bm{x}_n] \tag{Cond.\ Theorem}\\ \pause
+&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\sum_{i=1}^n \mathbb{E}[\bm{x}_iY_i|\bm{x}_1,\ldots \bm{x}_n] \tag{Linearity}\\ \pause
+&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\sum_{i=1}^n \bm{x}_i\mathbb{E}[Y_i|\bm{x}_i] \tag{Cond.\ Theorem + indep.}\\ \pause
+&=(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}\sum_{i=1}^n \bm{x}_i\bm{x}_i'\beta \tag{Linear CEF}\\ \pause
 &=\beta \tag{Inverse}\\
 \end{align*}
 \end{frame}
@@ -250,7 +251,7 @@ var[\bm{\hat{\beta}}|\bm{X}]&=(\bm{X'X})^{-1}\bm{X'}\bm{D}\bm{X}(\bm{X'X})^{-1}\
 &=\sigma^2(\bm{X'X})^{-1}\bm{X'}\bm{X}(\bm{X'X})^{-1}\\ \pause
 &=\sigma^2(\bm{X'X})^{-1} \pause
 \end{align*}
-\item Homoskedasticity is a convenient assumption, but it also has played an important role in offering intellectual support for the linear model.
+\item Homoskedasticity is a convenient assumption, but it also justifies relying on OLS: under $\bm{D}=\sigma^2\bm{I}$, Gauss-Markov guarantees no linear estimator can do better.
 \end{itemize}
 \end{frame}
 
@@ -270,15 +271,17 @@ By (A2) and (A3), $\bm{A'Y}=\bm{\tilde{\beta}}$ is an \emph{unbiased} estimator 
 
 \begin{frame}{Proof of Gauss Markov Theorem}
 Set $\bm{C}=\bm{A}-\bm{X(X'X)}^{-1}$, and note that $\bm{X}'\bm{C}=0$, \pause
+\small
 \begin{align*}
 \bm{A'A}-\bm{(X'X)}^{-1}&=(\bm{C}+\bm{X(X'X)}^{-1})'(\bm{C}+\bm{X(X'X)}^{-1}) -\bm{(X'X)}^{-1}\\\pause
-&=\bm{C}'\bm{C}+\bm{C'X}(\bm{X'X})^{-1}+(\bm{X'X})^{-1}\bm{X'C} +(\bm{X'X})^{-1}\bm{X'X}(\bm{X'X})^{-1}-(\bm{X'X})^{-1} \\\pause
+&=\bm{C}'\bm{C}+\underbrace{\bm{C'X}}_{=0}(\bm{X'X})^{-1}+(\bm{X'X})^{-1}\underbrace{\bm{X'C}}_{=0}\\
+&\qquad +\bm{(X'X)}^{-1}\bm{X'X(X'X)}^{-1}-\bm{(X'X)}^{-1} \\\pause
 &=\bm{C}'\bm{C}
 \end{align*}
+\normalsize
 \begin{enumerate}[4]\pause
-\item Any matrix that can be written as a product $\bm{C}'\bm{C}$ is positive semi-definite:\\\pause
-If $\bm{M}=\bm{C}'\bm{C}$, then $\bm{x}'\bm{M}\bm{x}=\bm{x'C}'\bm{Cx}=||\bm{Cx}||^2\geq0$.\\\pause
-So $\bm{A'A}- \bm{(X'X)}^{-1}$ is positive semidefinite and \pause
+\item Any matrix $\bm{C}'\bm{C}$ is positive semi-definite: $\bm{x}'\bm{C}'\bm{Cx}=||\bm{Cx}||^2\geq0$.\\\pause
+So $\bm{A'A}- \bm{(X'X)}^{-1}\geq 0$ and \pause
 $$\text{var}(\bm{\tilde{\beta}}|\bm{X})\geq \sigma^2\bm{(X'X)}^{-1} \qed$$
 \end{enumerate}
 No linear estimator will get a lower variance! OLS is the \textbf{b}est among \textbf{l}inear \textbf{u}nbiased \textbf{e}stimators (BLUE).
@@ -399,32 +402,38 @@ $$\mathbb{E}[Z_i\, e_i]=0 \quad\text{(e.g., random assignment, world prices for 
 \item \textbf{Estimator:} Solve the sample analog.
 \end{enumerate}
 \end{tcolorbox}
+\end{frame}
 
-\medskip\pause
-\textbf{OLS through this lens:}
+\begin{frame}{OLS and GLS Through This Lens}
+\textbf{OLS:}
 \begin{itemize}
 \item \textbf{Mechanism:} $Y$ is a linear function of $X$ plus noise.
 \item \textbf{Exogenous feature:} No omitted variable correlated with $X$ affects $Y$.
 \item \textbf{Moment condition:} $\mathbb{E}[X_i(Y_i - X_i'\beta)]=0$.
 \item \textbf{Estimator:} $\hat{\beta}=(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}$.
 \end{itemize}
+\pause
+\textbf{GLS:}
+\begin{itemize}
+\item \textbf{Mechanism:} Same linear model, but we claim to know which observations are noisier. (GLS assumes the functional form is already correct---invariance guides that prior choice.)
+\item \textbf{Moment condition:} $\mathbb{E}[\Sigma^{-1/2}X_i(\Sigma^{-1/2}Y_i - \Sigma^{-1/2}X_i'\beta)]=0$
+\item \textbf{Estimator:} $\hat{\beta}_{GLS}=(\bm{X}'\Sigma^{-1}\bm{X})^{-1}\bm{X}'\Sigma^{-1}\bm{Y}$.
+\end{itemize}
 \end{frame}
 
-\begin{frame}{GLS Through the Same Lens}
+\begin{frame}{The GLS Assumption}
 \begin{itemize}
 \item Switching from OLS to GLS is not just an algebraic trick---it reflects a \textbf{substantive claim about the error structure}.\pause
 
-\item \textbf{Mechanism:} The same linear model $Y = X'\beta + e$, but now we claim to know \emph{which observations are noisier than others}.\pause
-
 \item \textbf{Exogenous feature:} We observe (or can estimate) the error covariance $\Sigma$---e.g., cross-country data where richer countries have more variable outcomes.\pause
 
-\item \textbf{Moment condition:}
-$$\mathbb{E}[\Sigma^{-1/2}X_i(\Sigma^{-1/2}Y_i - \Sigma^{-1/2}X_i'\beta)]=0$$
-Weight observations inversely to their noise.\pause
+\item The claim ``I know $\Sigma$'' is itself a substantive assumption---if wrong, GLS can be \emph{worse} than OLS.\pause
 
-\item \textbf{Estimator:} $\hat{\beta}_{GLS}=(\bm{X}'\Sigma^{-1}\bm{X})^{-1}\bm{X}'\Sigma^{-1}\bm{Y}$.
-
-\item The claim ``I know $\Sigma$'' is itself a substantive assumption---if wrong, GLS can be worse than OLS.
+\item Two things can go wrong with GLS:
+\begin{enumerate}
+\item Wrong $\Sigma$: you down-weight the wrong observations $\to$ efficiency loss.
+\item Wrong functional form: if the process is scale-invariant, you should take logs \emph{before} worrying about $\Sigma$ (recall the invariance slide).
+\end{enumerate}
 \end{itemize}
 \end{frame}
 
@@ -464,6 +473,22 @@ Weight observations inversely to their noise.\pause
 \item Spatial data: neighboring counties share unobserved shocks (weather, policy spillovers).
 \end{itemize}\pause
 \item In all these cases, OLS $\hat{\beta}$ is still unbiased, but its variance is \emph{not} $\sigma^2(\bm{X'X})^{-1}$---classical standard errors are wrong.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Before GLS: Is the Specification Right?}
+\begin{itemize}
+\item Heteroskedasticity sometimes signals a \textbf{misspecified functional form}, not just a variance problem.\pause
+\item If GDP growth variance increases with GDP level, the underlying process may be \emph{multiplicative}:
+$$P_{t+1}=P_t(1+g_t)\quad\Rightarrow\quad \Delta\log P_t\approx g_t$$
+A log specification makes effects proportional---and may eliminate the heteroskedasticity.\pause
+\item The key question: \textbf{what transformation leaves the effect unchanged?}
+\begin{itemize}
+\item \emph{Translation-invariant} mechanism (additive accumulation) $\to$ levels, $\mathbb{E}[Y\mid X]=X'\beta$
+\item \emph{Scale-invariant} mechanism (proportional growth) $\to$ logs, $\mathbb{E}[\log Y\mid X]=X'\beta$
+\end{itemize}\pause
+\item In a diff-in-diff design, this distinction matters directly: parallel trends in \emph{levels} vs.\ parallel trends in \emph{growth rates} are different identifying assumptions.
+\item GLS addresses heterogeneity that remains \emph{after} the right specification is chosen.
 \end{itemize}
 \end{frame}
 
@@ -559,10 +584,10 @@ var(b)&=\sigma^2[(\bm{X'\Sigma^{-1} X})^{-1}\bm{X}'\bm{\Sigma}^{-1}+\bm{A}]\bm{\
 
 \begin{frame}{GLS Properties}
 \begin{itemize}
-\item GLS estimators are unbiased and efficient
-\item Small difference, $P_*=\bm{X}(\bm{X}'\bm{\Sigma}^{-1}\bm{X})^{-1}\bm{X}'\bm{\Sigma}^{-1}$ is not symmetric, but otherwise, it is OLS.
-\item However, it requires knowing $\Sigma$, which makes it infeasible.
-\item Later we will show how to use a two-step procedure to estimate $\Sigma$.
+\item GLS is unbiased ($\mathbb{E}[\hat{\beta}_{GLS}|\bm{X}]=\beta$) and BLUE under the correct $\Sigma$.\pause
+\item Algebraically, GLS is OLS on the transformed data $(\tilde{\bm{y}}, \tilde{\bm{X}})$. The only structural difference is that the GLS ``hat matrix'' $\bm{X}(\bm{X}'\bm{\Sigma}^{-1}\bm{X})^{-1}\bm{X}'\bm{\Sigma}^{-1}$ is not symmetric.\pause
+\item \textbf{Feasibility problem:} GLS requires knowing $\Sigma$, which is rarely available in practice.\pause
+\item \textbf{Solution:} Feasible GLS (FGLS) estimates $\Sigma$ in a first step (e.g.\ from OLS residuals), then applies GLS with $\hat{\Sigma}$. Asymptotically equivalent to GLS under regularity conditions.
 \end{itemize}
 \end{frame}
 
@@ -659,7 +684,7 @@ $$\mathbb{E}[\bm{\tilde{e}}|\bm{X}]=\bm{M^*M}\mathbb{E}[\bm{e}|\bm{X}]=0$$
 
 \begin{frame}{Standardized Residuals}
 \begin{itemize}
-\item $\var[\bm{\hat{e}}|\bm{X}]=(1-h_{ii})^{-1}\sigma^2$ varies with $\bm{X}$
+\item $\var[\hat{e}_i|\bm{X}]=(1-h_{ii})\sigma^2$ varies with $\bm{X}$
 \item To make it constant, we can scale the residuals by $(1-h_{ii})^{-1/2}$
 $$\bar{e}_i=(1-h_{ii})^{-1/2}\hat{e}_i$$
 \item $\bm{\bar{e}}=\bm{M}^{*1/2}\bm{Me}$
@@ -690,7 +715,7 @@ $$\bar{e}_i=(1-h_{ii})^{-1/2}\hat{e}_i$$
 \item Estimator (1) $\hat{\sigma}^2$ takes the average of the squared residuals: $\hat{\sigma}^2=\frac{1}{n}\sum_{i=1}^n \hat{e}^2$
 
 \item The expectation of the estimator uses the following fact:
-$$\hat{\sigma}^2=\frac{1}{n}\bm{e'}\bm{M}\bm{e}=\frac{1}{n}tr(\bm{e'}\bm{M}\bm{e})=tr(\bm{Mee'})$$
+$$\hat{\sigma}^2=\frac{1}{n}\bm{e'}\bm{M}\bm{e}=\frac{1}{n}\text{tr}(\bm{e'}\bm{M}\bm{e})=\frac{1}{n}\text{tr}(\bm{Mee'})$$
 \begin{align*}
 \mathbb{E}[\hat{\sigma}^2|\bm{X}]&=\frac{1}{n}tr(\mathbb{E}[\bm{Mee'}|\bm{X}])\\
 &=\frac{1}{n}tr(\bm{M}\mathbb{E}[\bm{ee'}|\bm{X}])\\ \pause

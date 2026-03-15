@@ -123,7 +123,7 @@ text}{fg=darkpurple}
 
 \begin{frame}{Review: From Population to Inference}
 \begin{itemize}
-\item The CEF and linear projection are facts about \textbf{populations}---we derived $\beta=[\mathbb{E}(XX')]^{-1}\mathbb{E}[XY]$ last time.\pause
+\item The CEF and linear projection are facts about \textbf{populations}---we derived $\beta=[\mathbb{E}[XX']]^{-1}\mathbb{E}[XY]$ last time.\pause
 \item But we don't observe populations. We observe \textbf{samples}.\pause
 \end{itemize}
 \vspace{0.5em}
@@ -164,7 +164,7 @@ text}{fg=darkpurple}
 &=\begin{bmatrix}1 &X_{21}& X_{31} \\\vdots &\vdots& \vdots  \\1  &X_{2n}& X_{3n} \end{bmatrix} \begin{bmatrix} \beta_1\\ \beta_2 \\ \beta_3 \end{bmatrix}+\begin{bmatrix}e_1 \\ \vdots \\ e_n\end{bmatrix}\\
 \bm{y}&=\bm{X}\bm{\beta}+\bm{e}
 \end{align*}
-\item Note, $E(Y_1)\neq E(Y_2)$.
+\item Note, $\mathbb{E}[Y_1|\bm{x}_1]\neq \mathbb{E}[Y_2|\bm{x}_2]$ in general (different covariates imply different conditional means).
 \end{itemize}
 \end{frame}
 
@@ -197,7 +197,7 @@ $$\hat{S}(\beta)=\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bm{x}_i'\beta)^2$$
 
 \begin{frame}{Finite Sample Assumptions of OLS estimator}
 \begin{itemize}
-\item Assumption 1: The random variables $\{(Y_1,\ X_1),\ (Y_2,\ X_2), \ldots, (Y_n,\ X_n)$ are independent and identically distributed.
+\item Assumption 1: The random variables $\{(Y_1,\ X_1),\ (Y_2,\ X_2), \ldots, (Y_n,\ X_n)\}$ are independent and identically distributed.
 \item Assumption 2: $Y=\bm{X}'\beta+e$, where $\mathbb{E}(e|\bm{X})=0$. 
 \item Assumption 3: $\mathbb{E}(\bm{X}\bm{X}')>0$ is invertible (with probability 1).
 \item Assumption 4*: $\mathbb{E}[e^2|\bm{X}]=\sigma^2(\bm{X})=\sigma^2$. 
@@ -226,7 +226,7 @@ SSE(\beta)&=(\bm{y}-\bm{X\beta})'(\bm{y}-\bm{X\beta}) \tag{Definition of $\bm{e}
 
 \begin{frame}{Calculus Derivation of Least Squares Estimator}
 \begin{align*}
-\frac{\partial\bm{y}'\bm{y}-\bm{\beta'X'Y}-\bm{y}'\bm{X\beta}+\bm{\beta'X'X\beta}}{\partial\bm{\beta}}&=\bm{0}-\bm{X'Y}-\bm{Y'X}+(\bm{X'X+X'X})\bm{\hat{\beta}}\\
+\frac{\partial\bm{y}'\bm{y}-\bm{\beta'X'y}-\bm{y}'\bm{X\beta}+\bm{\beta'X'X\beta}}{\partial\bm{\beta}}&=\bm{0}-\bm{X'y}-\bm{y'X}+(\bm{X'X+X'X})\bm{\hat{\beta}}\\
 &=-2\bm{X}'\bm{y}+2\bm{X}'\bm{X}\bm{\hat{\beta}} \tag{Symmetric}\\
 -2\bm{X}'\bm{y}+2\bm{X}'\bm{X}\bm{\hat{\beta}}&=\bm{0} \tag{find critical point}\\
 \bm{X}'\bm{X}\bm{\hat{\beta}}&=\bm{X}'\bm{y}. \tag{normal equations}\\
@@ -239,7 +239,7 @@ Take second derivative, and check that it is positive
 \begin{align*}
 \frac{\partial -2\bm{X}'\bm{y}+2\bm{X}'\bm{X}\bm{\hat{\beta}}}{\partial \bm{\hat{\beta}'}}&=2(\bm{X}'\bm{X})'
 \end{align*}
-Which is positive so long as $\bm{X}'\bm{X}$ is positive definite (same assumption as A1).\\
+Which is positive so long as $\bm{X}'\bm{X}$ is positive definite (Assumption A3).\\
 $\bm{\hat{\beta}}$ minimizes the sum of squared errors, assuming $\bm{X}$ is of full rank.
 \end{frame}
 
@@ -419,7 +419,7 @@ Distribution & $E[e_i|\bm{X}]=0$,\ $\text{Var}(e_i)=\sigma^2$ & $\hat{e}_i = \bm
 \item Natural idea: plug the residuals $\hat{e}_i$ into the sample variance formula:
 $$\hat{\sigma}^2=n^{-1}\bm{\hat{e}'\hat{e}}=n^{-1}(\bm{My})'(\bm{My})=n^{-1}\bm{y'My}=n^{-1}\bm{e'Me}$$
 where the last step uses $\bm{M}=\bm{M'M}$ and $\bm{MX}=0$.\pause
-\item But this underestimates $\sigma^2 = n^{-1}\bm{e'e}$:
+\item But $\bm{\hat{e}'\hat{e}} \leq \bm{e'e}$, so residuals underestimate the true sum of squared errors:
 \begin{align*}
 n^{-1}\bm{e'e}-n^{-1}\bm{e'Me}=n^{-1}\bm{e'Pe}\geq 0
 \end{align*}
