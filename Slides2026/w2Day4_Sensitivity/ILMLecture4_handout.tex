@@ -127,7 +127,7 @@ text}{fg=darkpurple}
 \begin{align*}
 \bm{y}&=\bm{X}_1\bm{\beta}_1 +\bm{X}_2\bm{\beta}_2+\bm{e}\\ \pause
 \bm{X}&=\begin{bmatrix}\bm{X}_1& \bm{X}_2 \end{bmatrix}\\\pause
-\bm{X}'\bm{X}&=\begin{bmatrix} \bm{X}_1\\ \bm{X}_2 \end{bmatrix} \begin{bmatrix} \bm{X}_1& \bm{X}_2 \end{bmatrix}=\begin{bmatrix} \bm{X}_1'\bm{X}_1& \bm{X}_1'\bm{X}_2\\ \bm{X}_2'\bm{X}_1 &\bm{X}_2'\bm{X}_2 \end{bmatrix}\\ \pause 
+\bm{X}'\bm{X}&=\begin{bmatrix} \bm{X}_1'\\ \bm{X}_2' \end{bmatrix} \begin{bmatrix} \bm{X}_1& \bm{X}_2 \end{bmatrix}=\begin{bmatrix} \bm{X}_1'\bm{X}_1& \bm{X}_1'\bm{X}_2\\ \bm{X}_2'\bm{X}_1 &\bm{X}_2'\bm{X}_2 \end{bmatrix}\\ \pause 
 \bm{\beta}&=\begin{pmatrix} \bm{\beta}_1 \\ \bm{\beta}_2 \end{pmatrix}\\\pause
 \end{align*}
 \item We used this partition to study how including (or failing to include) control variables affects a multivariate regression.
@@ -183,8 +183,8 @@ The Schur complement isolates the \emph{unique} information in $\bm{X}_1$ after 
 
 
 \begin{frame}{Finding Inverse of Partitioned Matrix}
-Call the $n\times n$ partitioned matrix $\bm{A}$ and its inverse $\bm{A}^{-1}$, $\bm{B}$:
-$$\begin{bmatrix} \bm{X}_1'\bm{X}_1& \bm{X}_2'\bm{X}_1\\  \bm{X}_2'\bm{X}_1 &\bm{X}_2'\bm{X}_2 \end{bmatrix}=\bm{A}=\begin{pmatrix} \bm{A}_{11} & \bm{A}_{12}\\ \bm{A}_{21} & \bm{A}_{22} \end{pmatrix} \quad \bm{B}=\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}$$\pause
+Call the $k\times k$ partitioned matrix $\bm{A}$ and its inverse $\bm{A}^{-1}$, $\bm{B}$:
+$$\begin{bmatrix} \bm{X}_1'\bm{X}_1& \bm{X}_1'\bm{X}_2\\  \bm{X}_2'\bm{X}_1 &\bm{X}_2'\bm{X}_2 \end{bmatrix}=\bm{A}=\begin{pmatrix} \bm{A}_{11} & \bm{A}_{12}\\ \bm{A}_{21} & \bm{A}_{22} \end{pmatrix} \quad \bm{B}=\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}$$\pause
 We know that if $\bm{B}=\bm{A}^{-1}$, then $\bm{AB}=\bm{I}$\pause
 \begin{align*}
 \bm{AB}&=\begin{pmatrix} \bm{A}_{11} & \bm{A}_{12}\\ \bm{A}_{21} & \bm{A}_{22} \end{pmatrix}\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}\\\pause
@@ -342,8 +342,8 @@ coef(mod0)
 \begin{itemize}
 \item The projection matrix is \textbf{idempotent}: $\bm{P}=\bm{P}^2$.
 \item If $\lambda$ is an eigenvalue of $\bm{P}$, $\bm{P}v=\lambda v$
-\item Applying P again: $\bm{P}^2v=\lambda \bm{P}v$, which means that $\bm{P}^2v=\lambda\lambda v$.
-\item $\bm{P}^2v=\bm{P}v=\lambda^2v$, or $\lambda=\lambda^2$.  Only true for $\lambda=0$ or $\lambda=1$.
+\item Applying $\bm{P}$ again: $\bm{P}^2v=\bm{P}(\bm{P}v)=\bm{P}(\lambda v)=\lambda^2 v$.
+\item But $\bm{P}^2=\bm{P}$, so $\lambda^2 v=\bm{P}v=\lambda v$, giving $\lambda^2=\lambda$.  Only true for $\lambda=0$ or $\lambda=1$.
 \item The eigenvalue 1 corresponds to a direction preserved by the projection, the dimension of the column space of $\bm{X}$.
 \end{itemize}
 \item $tr(\bm{M})=tr(\bm{I})-tr(\bm{P})=n-k$
@@ -615,7 +615,7 @@ cor(prestige, education)^2
 \begin{frame}{Cinelli Hazlett (2020) formulation}
 We model $Y=\hat{\beta}_1D+e$, so $\hat{\beta}_1=\frac{cov(D,\ Y)}{var(D)}$.\\
 \bigskip
-What if there is regression of $Y$ on $D$ and there is a a single omitted variable $Z$?
+What if there is regression of $Y$ on $D$ and there is a single omitted variable $Z$?
 \begin{align*}
 \widehat{\text{bias}} &= (\bm{X}_1'\bm{X}_1)^{-1}(\bm{X}_1'\bm{X}_2)\bm{\hat{\beta}}_2\\
  &=\left(\frac{cov(D, Z)}{var(D)}\right)\left(\frac{cov(Z^{\perp D},\ Y^{\perp D})}{var(Z^{\perp D})}\right)
@@ -687,8 +687,7 @@ Rearranging, this becomes:
 \]
 Replacing partial $R^2$:
 \[
-|\widehat{\text{bias}}| = \sqrt{\left(\frac{R^2_{D\sim Z}R^2_{Y\sim Z|D}}{1 - R^2_{D\sim Z}}\right)
-\left(\frac{sd(Y^{\perp D})}{sd(D)}\right)}.
+|\widehat{\text{bias}}| = \sqrt{\frac{R^2_{D\sim Z}\,R^2_{Y\sim Z|D}}{1 - R^2_{D\sim Z}}}\cdot\frac{sd(Y^{\perp D})}{sd(D)}.
 \]
 \end{frame}
 

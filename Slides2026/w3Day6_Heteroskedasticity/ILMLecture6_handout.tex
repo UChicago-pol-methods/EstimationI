@@ -136,12 +136,23 @@ $\mathbb{E}[e|X]=0$ guarantees that $e$ has no \emph{systematic} pattern with $X
 \end{tcolorbox}
 \end{frame}
 
-\begin{frame}{Theory based vs "Agnostic" strategies}
+\begin{frame}{Theory-Based vs.\ Agnostic Strategies}
 \begin{itemize}
-\item Two approaches to handling heteroskedasticity:
-\item[1)] Use theoretical knowledge to specify a corrected model.
-\item[2)] Use statistical estimators that perform well even when assumptions are violated.
-\item Which of these two approaches works for you will depend on the complexity of your problem and the development of theory in your field.
+\item Two approaches to handling heteroskedasticity:\pause
+\begin{enumerate}
+\item \textbf{Theory-based (GLS):} Model the variance structure $\Sigma$ and use it to improve efficiency.
+\begin{itemize}
+\item Requires knowing (or estimating) \emph{why} some observations are noisier.
+\item Example: if the mechanism is proportional growth, take logs---this may eliminate heteroskedasticity at the source (recall the invariance discussion from Lecture 5).
+\item If correct, GLS is more efficient than OLS with robust SEs.
+\end{itemize}\pause
+\item \textbf{Agnostic (robust SEs):} Use OLS but correct the standard errors for unknown heteroskedasticity.
+\begin{itemize}
+\item Requires no model for $\Sigma$---valid under any form of heteroskedasticity.
+\item Sacrifices efficiency for robustness.
+\end{itemize}
+\end{enumerate}\pause
+\item In practice, most applied work uses robust SEs as the default and reserves GLS for settings where theory strongly constrains $\Sigma$.
 \end{itemize}
 \end{frame}
 
@@ -174,6 +185,27 @@ var(\hat{\beta})&=(\bm{X'X})^{-1}\bm{X'}\bm{D}\bm{X}(\bm{X'X})^{-1}\\
 If we knew $e_1^2,\ldots e_n^2$, then we could just plug them in:
 $$\tilde{var}(\hat{\beta})=(\bm{X'X})^{-1}(\sum_{i=1}^n \bm{x}_i\bm{x}_i'e_i^2)(\bm{X'X})^{-1}$$
 If we use observed $\hat{e}^2$, then this is called the HC0 (heteroskedasticity consistent) estimator, or White covariance matrix estimator.  
+\end{frame}
+
+\begin{frame}{From the Sandwich to HC Estimators}
+Recall from Lecture 5: the true variance under heteroskedasticity is the \textbf{sandwich}:
+$$\bm{V}_{\hat{\beta}}=(\bm{X'X})^{-1}\underbrace{\left(\sum_{i=1}^n \bm{x}_i\bm{x}_i'\sigma_i^2\right)}_{\text{``meat'' } \bm{X'DX}}(\bm{X'X})^{-1}$$\pause
+We never observe $\sigma_i^2=\text{Var}(e_i|\bm{X})$.  Each HC variant estimates it differently:
+\smallskip
+
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lll}
+\toprule
+\textbf{Estimator} & \textbf{Plug-in for $\sigma_i^2$} & \textbf{Rationale} \\
+\midrule
+HC0 & $\hat{e}_i^2$ & Simplest; biased downward \\
+HC1 & $\frac{n}{n-k}\hat{e}_i^2$ & Degrees-of-freedom correction \\
+HC2 & $\frac{\hat{e}_i^2}{1-h_{ii}}$ & Unbiased: $\mathbb{E}[\hat{e}_i^2|\bm{X}]=(1-h_{ii})\sigma_i^2$ \\
+HC3 & $\frac{\hat{e}_i^2}{(1-h_{ii})^2}$ & Conservative (jackknife-like) \\
+\bottomrule
+\end{tabular}
+\renewcommand{\arraystretch}{1.0}
 \end{frame}
 
 \begin{frame}{Problems with White covariance estimators}
@@ -238,6 +270,24 @@ cbind(Classical = se_classical, HC0 = se_hc0,
 Note: HC0 $<$ HC2 $<$ HC3 always holds.  The differences grow when observations have high leverage ($h_{ii}$ close to 1).
 \end{frame}
 
+\begin{frame}[fragile]{Simulation: Classical SEs Undercover}
+\begin{lstlisting}
+set.seed(1); B <- 5000; n <- 100; cover_cl <- cover_hc2 <- 0
+for (b in 1:B) {
+  x <- rexp(n, 1);  e <- rnorm(n, 0, sd = x)  # sigma_i = x_i
+  y <- 1 + 2*x + e;  m <- lm(y ~ x)
+  ci_cl  <- confint(m)["x",]                      # classical
+  ci_hc2 <- coefci(m, vcov.=vcovHC(m,"HC2"))["x",] # robust
+  cover_cl  <- cover_cl  + (2 > ci_cl[1]  & 2 < ci_cl[2])
+  cover_hc2 <- cover_hc2 + (2 > ci_hc2[1] & 2 < ci_hc2[2])
+}
+c(Classical = cover_cl/B, HC2 = cover_hc2/B)
+# Classical ~ 0.83    HC2 ~ 0.95
+\end{lstlisting}
+\vspace{0.5em}
+Classical 95\% CIs cover the true $\beta$ only $\sim$83\% of the time.  HC2 CIs achieve the nominal 95\% coverage.
+\end{frame}
+
 \begin{frame}[fragile]{Notes on Interpretation}
 \begin{itemize}
 \item Robust SEs do \textbf{not} affect coefficient estimates or $R^2$/RMSE.
@@ -254,15 +304,16 @@ linearHypothesis(model, c("x1 = 0", "x2 = 0"),
 \end{frame}
 
 
-\begin{frame}{HC1 does not work with Sparse Dummy Variabes}
+\begin{frame}{HC1 does not work with Sparse Dummy Variables}
+\small
 \begin{itemize}
 \item Suppose $Y=\beta_1D+\beta_2+e$, where $D_i=1$ for $n_1$ cases.
 \item In the extreme case, $n_1=1$:
 $$V_{\hat{\beta}}=\sigma^2(\bm{X'X})^{-1}=\sigma^2\begin{pmatrix}1&1\\1&n\end{pmatrix}^{-1}=\sigma^2\frac{1}{n-1}\begin{pmatrix}n&-1\\-1&1\end{pmatrix}$$
 $$V_{\hat{\beta}_1}=\sigma^2\frac{n}{n-1}$$
 \item Consider the estimator $\hat{\theta}=\hat{\beta}_1+\hat{\beta}_2$, with variance $\sigma^2\frac{n}{n-1}+\sigma^2\frac{1}{n-1}-\sigma^2\frac{2}{n-1}=\sigma^2$
-$$\hat{V}^{HCI}_\beta=s^2\frac{n}{(n-1)^2}\begin{pmatrix}1&-1\\-1&1\end{pmatrix}$$
-$$\hat{V}^{HCI}_\theta=s^2\frac{n}{(n-1)^2}+s^2\frac{n}{(n-1)^2}-s^2\frac{n}{(n-1)^2}-s^2\frac{n}{(n-1)^2}+s^2\frac{n}{(n-1)^2}=0$$
+$$\hat{V}^{HC1}_\beta=s^2\frac{n}{(n-1)^2}\begin{pmatrix}1&-1\\-1&1\end{pmatrix}$$
+$$\hat{V}^{HC1}_\theta=\underbrace{s^2\frac{n}{(n-1)^2}}_{V_{11}}\underbrace{-s^2\frac{n}{(n-1)^2}}_{V_{12}}\underbrace{-s^2\frac{n}{(n-1)^2}}_{V_{21}}+\underbrace{s^2\frac{n}{(n-1)^2}}_{V_{22}}=0$$
 \end{itemize}
 \end{frame}
 
@@ -309,7 +360,7 @@ Ignoring clustering would vastly overstate the precision of the estimated treatm
 \begin{frame}{Formalism for Clustered Regression}
 \begin{itemize}
 \item $(Y_{ig},\ \bm{x}_{ig})$ where $g=1, \ldots, G$ indexes a cluster and $i=1,\ldots, n_g$ indexes individuals in cluster g. \pause
-\item $\bm{Y}_g=(Y_{1g},\ldots Y_{ng})'$, $\bm{X}_g=(\bm{x}_{1g},\ldots \bm{x}_{ng})'$ at the group level. \pause
+\item $\bm{Y}_g=(Y_{1g},\ldots, Y_{n_g,g})'$, $\bm{X}_g=(\bm{x}_{1g},\ldots, \bm{x}_{n_g,g})'$ at the group level. \pause
 \begin{align*}
 Y_{ig}&=\bm{x}_{ig}'\beta+e_{ig}\\ \pause
 \bm{\hat{\beta}}&=\left(\sum_{g=1}^G \sum_{i=1}^{n_g}\bm{x}_{ig}\bm{x}_{ig}'\right)^{-1}\left(\sum_{g=1}^G \sum_{i=1}^{n_g}\bm{x}_{ig}Y_{ig}\right)\\ \pause
@@ -379,14 +430,13 @@ $$\Omega_g =\begin{bmatrix} \lambda^2+\omega^2 & \lambda^2& \ldots& \lambda^2\\
   
 \begin{frame}{Intra-cluster dependence that survives fixed effects}
 \begin{itemize}
-\item Contrast the random effects model with a factor model
-$$u_{gi}=\lambda_{gi} e_g+e_{gi}$$
-\item Where $e_{gi}\sim f(0,\ \omega^2)$ is individual specific, $e_g\sim f(0,1)$ is cluster wide and the two are independent, but now $\lambda_{gi}$ depends on the individual. \pause
-\item For example, some students may be affected more by teacher quality than others. \pause
-\item Now if we use cluster fixed effects:
+\item Contrast the random effects model with a factor model:
+$u_{gi}=\lambda_{gi} e_g+e_{gi}$,
+where now $\lambda_{gi}$ depends on the individual (e.g., some students are affected more by teacher quality than others). \pause
+\item If we use cluster fixed effects:
 $$u_{gi}-\bar{u}_g=(\lambda_{gi}-\bar{\lambda}_g) e_g+e_{gi}-\bar{e}_g$$ \pause
-$$cov(u_{gi}-\bar{u}_g, u_{gl}-\bar{u}_g)=(\lambda_{gi}-\bar{\lambda}_g)(\lambda_{gl}-\bar{\lambda}_g)$$ \pause
-\item Which is zero only if $\lambda_{gi}$ is the same for all $i$. \pause
+$$\text{cov}(u_{gi}-\bar{u}_g,\, u_{gl}-\bar{u}_g)=(\lambda_{gi}-\bar{\lambda}_g)(\lambda_{gl}-\bar{\lambda}_g)$$ \pause
+\item This is zero only if $\lambda_{gi}$ is the same for all $i$ --- fixed effects remove the common shock but not heterogeneous exposure to it.\pause
 \item Unfortunately, it is not obvious how to implement this model.
 \end{itemize}
 \end{frame}
@@ -396,7 +446,7 @@ $$cov(u_{gi}-\bar{u}_g, u_{gl}-\bar{u}_g)=(\lambda_{gi}-\bar{\lambda}_g)(\lambda
 The squared error $e_i^2$ is an unbiased estimate for $E[e_i^2]$, $\bm{e}_g\bm{e}_g'$ is unbiased for $E[\bm{e}_g\bm{e}_g']$.  As with White, we can estimate $e_i^2$ with  $\hat{e}_i^2$:
 \begin{align*}
 \hat{\Omega}_n&=\sum_{g=1}^G\bm{X}_g'\bm{\hat{e}}_g\bm{\hat{e}}_g'\bm{X}_g\\
-\hat{\bm{V}}_{\hat{\beta}}&=a_n\left(\bm{X}\bm{X}'\right)^{-1}\hat{\Omega}_n\left(\bm{X}\bm{X}'\right)^{-1}\\
+\hat{\bm{V}}_{\hat{\beta}}&=a_n\left(\bm{X}'\bm{X}\right)^{-1}\hat{\Omega}_n\left(\bm{X}'\bm{X}\right)^{-1}\\
 a_n&=\left(\frac{n-1}{n-k}\right)\left(\frac{G}{G-1}\right)
 \end{align*}
  $a_n$ is the small sample correction used by STATA, recommended by Hansen (2007).
@@ -480,18 +530,16 @@ As $\rho\to 1$, the variance $\to\infty$.  \pause
  \end{frame}
 
 
- \begin{frame}{Ridge Regression}
+ \begin{frame}{Ridge Regression: Trading Bias for Variance}
 \begin{itemize}
-\item Suppose $\mathbb{E}[\bm{y}|\bm{X}]=\bm{X\beta}$.
-\item The Ridge regression estimator, given a constant $\lambda>0$ is 
+\item Near-multicollinearity inflates $\text{Var}(\hat{\beta})$ because $(\bm{X'X})^{-1}$ has large entries. Ridge adds a penalty that shrinks coefficients toward zero:\pause
 \begin{align*}
-\hat{\beta}&=(\bm{X}'\bm{X}+\bm{I}_k \lambda)^{-1}\bm{X}'\bm{y}\\ \pause
-\mathbb{E}[\hat{\beta}|\bm{X}]&=\mathbb{E}[(\bm{X}'\bm{X}+\bm{I}_k \lambda)^{-1}\bm{X}'\bm{y}|\bm{X}]\\ \pause
-&=(\bm{X}'\bm{X}+\bm{I}_k \lambda)^{-1}\bm{X}'\mathbb{E}[\bm{y}|\bm{X}]\\ \pause
-&=(\bm{X}'\bm{X}+\bm{I}_k \lambda)^{-1}\bm{X}'\bm{X\beta}
-\end{align*}
-\item Ridge purposefully introduces bias to reduce variance (MASS::lm.ridge)
-\item Note $\bm{X}'\bm{X}+\bm{I}_k \lambda$ is always full rank, so you can use ridge even if $k>n$.
+\hat{\beta}_{ridge}&=(\bm{X}'\bm{X}+\lambda\bm{I}_k)^{-1}\bm{X}'\bm{y}
+\end{align*}\pause
+\item This is \textbf{biased}: $\mathbb{E}[\hat{\beta}_{ridge}|\bm{X}]=(\bm{X}'\bm{X}+\lambda\bm{I}_k)^{-1}\bm{X}'\bm{X}\beta \neq \beta$.\pause
+\item But the variance is smaller: adding $\lambda\bm{I}_k$ ensures $(\bm{X'X}+\lambda\bm{I}_k)$ is always well-conditioned, even if $\bm{X'X}$ is nearly singular.\pause
+\item The tradeoff: $\lambda=0$ gives OLS (unbiased, high variance); large $\lambda$ gives heavy shrinkage (biased, low variance). Choose $\lambda$ by cross-validation.
+\item In R: \texttt{glmnet::glmnet(X, y, alpha=0)} or \texttt{MASS::lm.ridge}.
 \end{itemize}
  \end{frame}
  
