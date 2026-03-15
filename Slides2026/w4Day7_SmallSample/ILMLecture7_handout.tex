@@ -128,7 +128,7 @@ text}{fg=darkpurple}
 \item A parametric model for $X$ is a complete probability function that depends on an unknown parameter vector $\theta$.\pause
 \item In the continuous case, we can write it as a probability density function $f(x|\theta)$.\pause
 \item E.g. If $X\sim N(\mu,\sigma^2)$, $f(x|\mu,\sigma^2)=\sigma^{-1}\phi((x-\mu)/\sigma)$, the parameters are $\mu\in \mathbb{R}$ and $\sigma^2>0$.
-\item Recall, $\phi(z)$ is the density for the standard normal, $N(0,1)=\frac{1}{\sqrt{2\pi}}\exp(-\frac{z^2}{2})$
+\item Recall, $\phi(z)$ is the density for the standard normal, $\phi(z)=\frac{1}{\sqrt{2\pi}}\exp(-\frac{z^2}{2})$
 \end{itemize}
 \end{frame}
 
@@ -137,8 +137,8 @@ text}{fg=darkpurple}
 \item A model is called \textbf{correctly specified} when there is a unique parameter value $\theta_0$ such that $f(x|\theta_0)=f(x)$, the true data distribution.\pause
 \item For example, if the true density is $$f(x)=2\exp(-2x)$$
 \begin{itemize}
-\item the exponential model $f(x|\lambda)=\lambda^{-1}\exp(-x/\lambda)$ is a correctly specific model with $\lambda_0=1/2$\pause
-\item the lognormal model $f(x|\mu,\ \sigma^2)=\frac{1}{x\sigma\sqrt{2\pi}}\exp(-\frac{(\ln x-\mu)^2}{2\sigma^2})$ is mispecified, cannot equal $2 \exp(-2x)$ under any parameter value.
+\item the exponential model $f(x|\lambda)=\lambda^{-1}\exp(-x/\lambda)$ is a correctly specified model with $\lambda_0=1/2$\pause
+\item the lognormal model $f(x|\mu,\ \sigma^2)=\frac{1}{x\sigma\sqrt{2\pi}}\exp(-\frac{(\ln x-\mu)^2}{2\sigma^2})$ is misspecified, cannot equal $2 \exp(-2x)$ under any parameter value.
 \end{itemize}
 \end{itemize}
 
@@ -163,7 +163,7 @@ P(\bm{x}|\ p)&={2\choose 1}p^{1}(1-p)^{1} {2\choose 0}p^{0}(1-p)^{2} {2\choose 1
 
 \begin{frame}{Likelihood for Binomial $\bm{x}$}
 \begin{center}
-\includegraphics[width=2.7 in]{Likelihood.pdf}
+\includegraphics[width=2.5in, height=0.75\textheight, keepaspectratio]{Likelihood.pdf}
 \end{center}
 \end{frame}
 
@@ -197,7 +197,7 @@ p^*&=\frac{2}{5}
 
 \begin{frame}{Invariance Example  $f(X|\lambda)=\lambda^{-1}\exp(-X/\lambda)$.}
 \begin{align*}
-\mathcal{L}_n(\lambda)&=\prod_{i=1}^n \lambda^{-1}\exp(-X_i/\lambda)=\lambda^{-n}\exp(\frac{1}{\lambda}\sum_{i=1}^n X_i)\\\pause
+\mathcal{L}_n(\lambda)&=\prod_{i=1}^n \lambda^{-1}\exp(-X_i/\lambda)=\lambda^{-n}\exp(-\frac{1}{\lambda}\sum_{i=1}^n X_i)\\\pause
 \log \mathcal{L}_n(\lambda)&=-n\log\lambda - \frac{1}{\lambda}\sum_{i=1}^n X_i\\\pause
 \frac{d\mathcal{l}_n(\lambda)}{d\lambda}&=-\frac{n}{\lambda}+\frac{1}{\lambda^2}\sum_{i=1}^n X_i\\\pause
 \sum_{i=1}^n X_i&=n\lambda\pause
@@ -250,15 +250,27 @@ $$\mathcal{I}_\theta=\mathbb{E}[SS']$$\pause
 $$\mathcal{H}_\theta=-\mathbb{E}[\frac{\partial^2}{\partial \theta \partial \theta'}\log f(X|\theta)]$$\pause
 \item If the model is correctly specified:
 $$\mathcal{I}_\theta=\mathcal{H}_\theta$$
+\item \textbf{Intuition}: At $\theta_0$, the score has mean zero. Both $\mathcal{I}$ (score variance) and $\mathcal{H}$ (expected curvature) measure second-order properties of the same density---they agree because these are two ways of measuring the same thing.
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}{Cram\'{e}r-Rao Lower Bound}
-
 \begin{itemize}
-\item The term efficient refers to an estimator which has minimum variance.
-\item If $\tilde{\theta}$ is an unbiased estimator of $\theta$, then $var[\tilde{\theta}]\geq (n\mathcal{I}_\theta)^{-1}$
+\item If $\tilde{\theta}$ is \emph{any} unbiased estimator of $\theta$, then:
+$$\text{Var}[\tilde{\theta}]\geq (n\mathcal{I}_\theta)^{-1}$$
+No unbiased estimator can have variance below the inverse of the total Fisher information.\pause
+\item \textbf{Intuition}: More informative data (higher $\mathcal{I}_\theta$) $\to$ tighter bound $\to$ more precise estimation is possible. The bound is an information-theoretic limit on what the data can tell you.\pause
+\item An estimator that achieves the bound is called \textbf{efficient}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cram\'{e}r-Rao vs.\ Gauss-Markov}
+\begin{itemize}
+\item \textbf{Gauss-Markov} (Lecture 5): OLS is the best \emph{linear} unbiased estimator, under homoskedasticity. The proof is a clever algebraic trick specific to the linear model.\pause
+\item \textbf{Cram\'{e}r-Rao}: No unbiased estimator---linear or not---can beat the information bound. This is a general result for \emph{any parametric model}.\pause
+\item Under normality, OLS achieves the CR bound $\to$ it is efficient among \alert{all} unbiased estimators, not just linear ones. A strictly stronger result.\pause
+\item \textbf{The broader lesson}: The CR bound applies to probit, Poisson, duration models, and any other parametric model. It is the universal benchmark for estimator precision. Gauss-Markov is a special case.
 \end{itemize}
 \end{frame}
 
@@ -310,7 +322,7 @@ $$var[S]=\frac{\mathbb{E}[(X^2-\theta_0)^2]}{4\theta_0^4}=\frac{\mathbb{E}[X^4-2
 
 
 
-\begin{frame}{expected Hessian}
+\begin{frame}{Expected Hessian}
 
 $$\mathcal{H}_\theta=\mathbb{E}[-\frac{d}{d\theta^2} \log f(X|\theta_0)]=\mathbb{E}[-\frac{d}{d\theta}\frac{x^2-\theta_0}{2\theta_0^2}]=\mathbb{E}[\frac{2x^2-\theta_0}{2\theta_0^3}]=\frac{1}{2\theta_0^2}$$
 
@@ -320,7 +332,7 @@ The variance of $\hat{\theta}$ is $\frac{1}{I_n(\theta_0)}=2\theta^2_0/n$\\
 So we can get the plug in estimator for the standard error as $\sqrt{2\hat{\theta}^2_0/n}$.
 \end{frame}
 
-\begin{frame}[fragile]{expected Hessian}
+\begin{frame}[fragile]{Expected Hessian}
 \begin{lstlisting}[style=Rstyle]
 for(i in 1:100000){
  x <- rnorm(100, sd=sqrt(5))
@@ -384,7 +396,7 @@ $$log \mathcal{L}_n(\beta, \sigma^2) = -\frac{n}{2}log(2\pi \sigma^2)-\frac{1}{2
 \begin{itemize}
 \item The Classic Normal Regression Model consists of the following assumptions:
 \begin{enumerate}
-\item $\bm{y}=\bm{X'\beta}+\bm{e}$
+\item $\bm{y}=\bm{X\beta}+\bm{e}$
 \item $\bm{e}|\bm{X} \sim N(\bm{0},\ \sigma^2\bm{I})$
 \begin{itemize}
 \item or equivalently: $\bm{y}\sim N(\bm{X\beta},\ \sigma^2\bm{I})$
@@ -461,7 +473,7 @@ This is the kernel of a normal density with:
 \begin{frame}{Overall Likelihood}
 \begin{itemize}
 \item $\hat{\beta}_{MLE}=(\sum_{i=1}^n\bm{x}_i\bm{x}'_i)^{-1}(\sum_{i=1}^n\bm{x}_iY_i)=\hat{\beta}_{ols}$.\pause
-\item $\hat{\sigma}^2_{MLE}=\frac{1}{n}\sum_{i=1}^n(Y_i-\bm{x}'_i\hat{\beta}_{mle})^{2}=\hat{\sigma}_{ols}$.\pause
+\item $\hat{\sigma}^2_{MLE}=\frac{1}{n}\sum_{i=1}^n(Y_i-\bm{x}'_i\hat{\beta}_{MLE})^{2}=\hat{\sigma}^2_{OLS}$.\pause
 \item $\log\mathcal{L}(\hat{\beta}_{MLE},\ \hat{\sigma}^2_{MLE})=-\frac{n}{2}\log(2\pi \hat{\sigma}^2_{mle})-n/2$\pause
 \item You will see the "log likelihood" reported as a measure of fit, logLik$()$\pause
 \item The Akaike's AIC is $-2$log-likehood$+2n_{par}$, weighing model performance versus complexity.\pause
@@ -606,14 +618,13 @@ Since they are jointly normal and uncorrelated, they are independent.\\\pause
 \begin{frame}{Distribution of residual sum of squares $s_{\hat{e}}^2=\frac{\bm{\hat{e}'\hat{e}}}{(N-K)}$  in CNRM}
 Thm: Let $\bm{z}\sim N(\bm{0},\ \bm{I})$, let $\bm{A}$ be idempotent.  Then $\bm{z}'\bm{A}\bm{z}\sim \chi^2(\nu)$ where $\nu=\text{Rank}(\bm{A})$.
 \begin{align*}\pause
-\bm{\hat{e}}|\bm{X} &\sim N(\bm{0},\ \sigma^2\bm{I})\\
-\bm{\hat{e}}/\sigma|\bm{X} &\sim N(\bm{0},\ \bm{I}) \pause
+\bm{e}|\bm{X} &\sim N(\bm{0},\ \sigma^2\bm{I})\\
+\bm{e}/\sigma|\bm{X} &\sim N(\bm{0},\ \bm{I}) \pause
 \end{align*}
-Recall
+Recall $\bm{\hat{e}}=\bm{Me}$, so:
 \begin{align*}
-(N-K)s_{\hat{e}}^2&=\bm{\hat{e}}'\bm{\hat{e}}\\
-&=\bm{\hat{e}}\bm{M}\bm{\hat{e}}\\
-\frac{\bm{\hat{e}}'}{\sigma}\bm{M}\frac{\bm{\hat{e}}}{\sigma}&\sim \chi^2(N-K) \tag{$\bm{M}$ is idempotent}
+(N-K)s_{\hat{e}}^2&=\bm{\hat{e}}'\bm{\hat{e}}=\bm{e}'\bm{M}\bm{e}\\
+\frac{\bm{e}'}{\sigma}\bm{M}\frac{\bm{e}}{\sigma}&\sim \chi^2(N-K) \tag{$\bm{M}$ is idempotent, rank $N-K$}
 \end{align*}
 That is, in a linear regression model, $\frac{(N-K)s_{\hat{e}}^2}{\sigma^2}\sim \chi^2_{n-k}$
 \end{frame}
@@ -662,6 +673,19 @@ Therefore, the standardized version is:
 \end{frame}
 
 
+\begin{frame}{Why Heavier Tails? Intuition for the $t$-Distribution}
+\begin{itemize}
+\item If we knew $\sigma$, the standardized estimator $\frac{\hat{\beta}_j-\beta_j}{\sigma\sqrt{[(\bm{X'X})^{-1}]_{jj}}}$ would be exactly $N(0,1)$.\pause
+\item But we replace $\sigma$ with $s$, which is itself random:
+\begin{itemize}
+\item When $s$ happens to be \emph{too small} (underestimates the noise), the ratio is \emph{inflated} --- producing occasional large values.
+\item When $s$ is too large, the ratio is compressed.
+\end{itemize}\pause
+\item The net effect: \alert{heavier tails} than the normal, especially when $n-k$ is small (because $s$ is noisy with few degrees of freedom).\pause
+\item As $n-k\to\infty$, $s\to\sigma$ and $t_{n-k}\to N(0,1)$. With $n-k\geq 30$, the difference is small.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{From Normal to $t$: Estimated Variance}
 In practice, we do not know the true error variance \( \sigma^2 \).  
 The unbiased estimator is:
@@ -700,13 +724,39 @@ T = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s_{\hat{e}}^2 \left[(\bm{X'X})^{-1}\rig
 \end{frame}
 
 
-\begin{frame}{Limits of t-statistic}
+\begin{frame}[fragile]{Simulation: $t$-Statistics Match the $t$-Distribution}
+\begin{lstlisting}[style=Rstyle]
+set.seed(1); n <- 15; k <- 3; sigma2 <- 4; B <- 10000
+X <- cbind(1, matrix(rnorm(n*(k-1)), n, k-1))
+beta <- c(2, -1, 0.5)
+t_stats <- replicate(B, {
+  y <- X %*% beta + rnorm(n, sd = sqrt(sigma2))
+  summary(lm(y ~ X - 1))$coefficients[2, "t value"]
+})
+\end{lstlisting}\pause
+\begin{columns}
+\begin{column}{0.55\textwidth}
+\begin{lstlisting}[style=Rstyle]
+# Compare empirical to t(n-k)
+mean(abs(t_stats) > 2)       # ~0.067
+2*pt(-2, df = n-k)           # 0.065
+# Compare to normal (too narrow)
+2*pnorm(-2)                  # 0.046
+\end{lstlisting}
+\end{column}
+\begin{column}{0.42\textwidth}
+With $n{-}k=12$, using normal critical values would reject 4.6\% instead of 6.5\% --- understating uncertainty.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Limits of the $t$-Statistic}
 \begin{itemize}
-\item The T statistic follows the t distribution under homoskedasticity (by using $s^2$) and i.i.d. normality of $e$.
-\item Without normality, we can still say the OLS estimators are unbiased, but our exact distributions will not apply.
-\item The generic T statistic is $\frac{\hat{\beta}-\beta_0}{SE(\hat{\beta})}$.
-\item We will not have an exact finite-sample distribution of T when we use HC0-HC3 errors.
-\item Instead, we will use large sample approximations.
+\item The $t$-statistic $T=\frac{\hat{\beta}-\beta_0}{s(\hat{\beta})}$ follows $t_{n-k}$ \textbf{exactly} under two conditions: homoskedasticity and i.i.d.\ normality of $e$.\pause
+\item Without normality, OLS is still unbiased, but the exact $t_{n-k}$ distribution no longer holds.\pause
+\item With HC0--HC3 robust standard errors, we do not have an exact finite-sample distribution for $T$.\pause
+\item \textbf{What do we do instead?} We rely on \emph{large-sample approximations}: the CLT guarantees that $T\overset{d}{\to} N(0,1)$ as $n\to\infty$, regardless of the error distribution. This is the subject of Lectures 10--11 (Asymptotics).\pause
+\item For now: the normal model gives exact, clean results. Relaxing normality requires asymptotic tools.
 \end{itemize}
 \end{frame}
 
@@ -746,7 +796,7 @@ These \alert{exact} results hold in finite samples.  Without normality, we rely 
 \item An interval estimate $\hat{C}$ is called a $1-\alpha$ confidence interval when $Pr(\beta \in \hat{C})=1-\alpha$.  The value $1-\alpha$ is called the \textbf{coverage probability}. \pause
 \item The key mistake is in thinking that the above statement treats $\beta$ is random and $\hat{C}$ is fixed, (the probability that $\beta$ is in $\hat{C}$).   \pause
 \item $Pr(\beta \in \hat{C})$ is the probability that the random set $\hat{C}$ covers or contains $\beta$.  \pause
-$$\hat{C}=[\hat{\beta}-c*s(\hat{\beta}),\ \hat{\beta}+c*s(\hat{\beta})]$$
+$$\hat{C}=[\hat{\beta}-c\cdot s(\hat{\beta}),\ \hat{\beta}+c\cdot s(\hat{\beta})]$$
 \end{itemize}
 \end{frame}
 
@@ -755,9 +805,9 @@ $$\hat{C}=[\hat{\beta}-c*s(\hat{\beta}),\ \hat{\beta}+c*s(\hat{\beta})]$$
 Pr(\beta\in \hat{C})&=Pr(-c\leq T(\beta)\leq c)\\
 Pr(\beta\in \hat{C})&=2F(c)-1
 \end{align*}
-Our goal is to set this coverage probablity equal to $1-\alpha$, or $F(c)=1-\alpha/2$.\\
+Our goal is to set this coverage probability equal to $1-\alpha$, or $F(c)=1-\alpha/2$.\\
 If $\alpha=.05$, we solve $c=F^{-1}(1-.05/2)$.  In case of a normal, c=$1.96\approx 2$
-$$\hat{C}=[\hat{\beta}-2*s(\hat{\beta}),\ \hat{\beta}+2*s(\hat{\beta})]$$
+$$\hat{C}=[\hat{\beta}-2\cdot s(\hat{\beta}),\ \hat{\beta}+2\cdot s(\hat{\beta})]$$
 \end{frame}
 
 \begin{frame}{t test and p-values}
@@ -773,56 +823,60 @@ $$\text{Reject }\mathbb{H}_0\text{ if } |T|>c$$
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Example}
+\begin{frame}{Example: Swiss Fertility Data}
 \begin{columns}
 \begin{column}{0.4\textwidth}
 \tiny{
-\begin{table}[!htbp] \centering 
-
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable: Fertility}} \\ 
-\cline{2-2} 
-\\[-1.8ex] 
- Education (\%) & $-$0.98$^{***}$ \\ 
-  & (0.15) \\ 
-  & \\ 
- Agriculture  (\%) & $-$0.15$^{**}$ \\ 
-  & (0.07) \\ 
-  & \\ 
- Catholic (\%) & 0.12$^{***}$ \\ 
-  & (0.03) \\ 
-  & \\ 
- Infant.Mortality  (\%) & 1.08$^{***}$ \\ 
-  & (0.38) \\ 
-  & \\ 
- Constant & 62.10$^{***}$ \\ 
-  & (9.60) \\ 
-  & \\ 
-\hline \\[-1.8ex] 
-Observations & 47 \\ 
-R$^{2}$ & 0.70 \\ 
-Adjusted R$^{2}$ & 0.67 \\ 
-Residual Std. Error & 7.17 (df = 42) \\ 
-F Statistic & 24.42$^{***}$ (df = 4; 42) \\ 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-\end{tabular} 
-\end{table} }
+\begin{tabular}{@{\extracolsep{5pt}}lc}
+\hline \hline \\[-1.8ex]
+ & \textit{Dep.\ var: Fertility} \\
+\cline{2-2} \\[-1.8ex]
+ Education (\%) & $-$0.98$^{***}$ \\
+  & (0.15) \\
+ Agriculture  (\%) & $-$0.15$^{**}$ \\
+  & (0.07) \\
+ Catholic (\%) & 0.12$^{***}$ \\
+  & (0.03) \\
+ Infant.Mortality  (\%) & 1.08$^{***}$ \\
+  & (0.38) \\
+ Constant & 62.10$^{***}$ \\
+  & (9.60) \\
+\hline \\[-1.8ex]
+Observations & 47 \\
+$R^{2}$ & 0.70 \\
+Residual Std. Error & 7.17 (df = 42) \\
+\hline \\[-1.8ex]
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\
+\end{tabular}}
     \end{column}
     \begin{column}{0.58\textwidth}
- Did education share predict the average fertility across Swiss districts in 1888?\pause
-\begin{align*}
-\hat{\beta}&=-.98, \pause\quad \beta_0=0, \pause\quad se(\hat{\beta})=0.15, \quad Df=47-5\\\pause
-t&=\frac{\hat{\beta}-\beta_0}{se(\hat{\beta})}=\frac{-.98-0}{0.15}=-6.61\\\pause
- c&=F^{-1}(1-.05/2)=\texttt{qt}(1-.025,41)=2.02\\\pause
-  |t|&>2.02\\\pause
-  p&=2(1-F_{n-k}(|T|))=2*(1-\texttt{pt}(6.61, 42))=5.2\times 10^{-8}\pause
-  \end{align*}
-  For each 1 percentage point of post-primary attendance, fertility rate is (.7, 1.3) percentage points lower
-        \end{column}
+Did education share predict the average fertility across Swiss districts in 1888?
+
+\medskip
+
+Focus on the Education coefficient: $\hat{\beta}=-0.98$, $se(\hat{\beta})=0.15$.
+
+\medskip
+
+The $t$-statistic is $-0.98/0.15=-6.61$, with 42 degrees of freedom.
+
+\medskip
+
+Is this large enough to reject $\mathbb{H}_0: \beta=0$?
+    \end{column}
 \end{columns}
+\end{frame}
+
+\begin{frame}{Example: Hypothesis Test}
+\begin{align*}
+\hat{\beta}&=-0.98, \quad \beta_0=0, \quad se(\hat{\beta})=0.15, \quad Df=47-5=42\\\pause
+t&=\frac{\hat{\beta}-\beta_0}{se(\hat{\beta})}=\frac{-0.98-0}{0.15}=-6.61\\\pause
+ c&=\texttt{qt}(1-.025,42)=2.02\\\pause
+  |t|=6.61&>2.02=c \quad\Longrightarrow\quad \text{Reject } \mathbb{H}_0\\\pause
+  p&=2(1-\texttt{pt}(6.61, 42))=5.2\times 10^{-8}
+  \end{align*}\pause
+\medskip
+For each 1 percentage point increase in post-primary attendance, fertility is estimated to be 0.98 pp lower, with a 95\% CI of approximately $(0.7, 1.3)$.
 \end{frame}
 
 \end{document}
