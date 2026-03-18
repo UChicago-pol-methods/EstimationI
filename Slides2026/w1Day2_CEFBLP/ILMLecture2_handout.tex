@@ -162,7 +162,8 @@ text}{fg=darkpurple}
 
 \begin{frame}{CEF Error and Mean Independence}
 \begin{itemize}
-\item Define the CEF error: $e=Y-m(X)$, so $Y=m(X)+e$.
+\item Define the CEF error: $e\equiv Y-m(X)$, so 
+$$Y=Y+(m(X)-m(X))=m(X)+(Y-m(X))=m(X)+e$$
 \item The CEF error has conditional mean zero (by construction):
 \begin{align*}
 \mathbb{E}[e|X]&=\mathbb{E}[Y-m(X)|X]=m(X)-m(X)=0
@@ -171,7 +172,7 @@ text}{fg=darkpurple}
 \begin{align*}
 \mathbb{E}[e]&=\mathbb{E}[\mathbb{E}[e|X]]=0
 \end{align*}
-\item $\mathbb{E}[e|X]=0$ is called \emph{mean independence}---true by construction, this is \textbf{not} full independence.
+\item $\mathbb{E}[e|X]=0$ is called \emph{mean independence}.
 \end{itemize}
 \end{frame}
 
@@ -203,7 +204,7 @@ $$\operatorname{Var}(Y)=\operatorname{Var}(S)+\operatorname{Var}(N)+2\operatorna
 \begin{itemize}
 \item If $\operatorname{Cov}(S,N)\neq 0$, there is no clean separation: signal and noise share variation, and we cannot attribute variance to one or the other.
 \pause
-\item If $\operatorname{Cov}(S,N)= 0$, we get a \textbf{clean ANOVA-style decomposition}:
+\item If $\operatorname{Cov}(S,N)= 0$, we get a \textbf{clean decomposition}:
 $$\operatorname{Var}(Y)=\operatorname{Var}(S)+\operatorname{Var}(N)$$
 \end{itemize}
 \pause
@@ -289,7 +290,7 @@ The CEF is the closest point in $L^2(X)$ to $Y$.  The residual $e$ is orthogonal
 
 
 \begin{frame}{A Note on the Geometry}
-The diagram on the previous slide is an \emph{analogy}, not a literal picture.  Random variables do not live in $\mathbb{R}^2$---they live in an abstract \textbf{Hilbert space} $L^2$.
+The diagram on the previous slide is an \emph{analogy}, not a literal picture.  Random variables do not live in $\mathbb{R}^3$---they live in an abstract \textbf{Hilbert space} $L^2$.
 
 \medskip
 \begin{center}
@@ -442,7 +443,7 @@ If homoskedastic: $\mathbb{E}[e^2|X]=\sigma^2$.\\
 
 \begin{frame}{From CEF to Linear Predictors}
 \begin{itemize}
-\item The CEF provides: summarization, MMSE prediction, and ANOVA decomposition.\pause
+\item The CEF provides: summarization, MMSE prediction, and decomposition.\pause
 \item But the CEF requires knowing the conditional distribution $f_{Y|x}(y|x)$.
 \begin{itemize}
 \item Exception: CEF is always linear if X is discrete and all interactions are included.
@@ -599,13 +600,13 @@ $\mathbb{E}[Xe]=0$ holds, but $\mathbb{E}[e|X]=0$ fails---the error has a system
 \end{frame}
 
 
-\begin{frame}{Why Write $\mathbb{E}[X_i e_i]=0$?}
+\begin{frame}{Why Write $\mathbb{E}[Xe]=0$?}
 \begin{itemize}
-\item Saying ``$X$ is exogenous'' is intuitive but vague.  Writing $\mathbb{E}[X_i e_i]=0$ buys you three things:\pause
+\item Saying ``$X$ is exogenous'' is intuitive but vague.  Writing $\mathbb{E}[Xe]=0$ buys you three things:\pause
 \begin{enumerate}
-\item \textbf{It makes assumptions precise and testable.}  ``Exogenous'' could mean many things.  $\mathbb{E}[X_i e_i]=0$ says \emph{exactly} what must hold---and you can check whether the data are consistent with it.\pause
-\item \textbf{It generalizes.}  Swap $X_i$ for an instrument $Z_i$ and you get IV: $\mathbb{E}[Z_i e_i]=0$.  Add more conditions and you get GMM.  Every estimator in this course is defined by \emph{which} moment conditions it solves.\pause
-\item \textbf{It tells you what your estimator is doing.}  OLS finds the $\hat{\beta}$ that makes $\frac{1}{n}\sum X_i(Y_i - X_i'\hat{\beta})=0$.  The formula $(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}$ \emph{is} the solution to this system of equations.
+\item \textbf{It makes assumptions precise.}  ``Exogenous'' could mean many things.  $\mathbb{E}[Xe]=0$ says \emph{exactly} what must hold: the prediction error $e = Y - X'\beta$ is uncorrelated with $X$.\pause
+\item \textbf{It generalizes.}  Swap $X$ for an instrument $Z$ and you get IV: $\mathbb{E}[Ze]=0$.  Add more conditions and you get GMM.  Every estimator in this course is defined by \emph{which} moment conditions it solves.\pause
+\item \textbf{It defines the parameter.}  The population $\beta$ is the value that makes $\mathbb{E}[X(Y - X'\beta)]=0$.  The OLS formula $(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}$ solves the sample analog of this condition.
 \end{enumerate}
 \end{itemize}
 \end{frame}
@@ -616,22 +617,22 @@ Every empirical model in this course follows the same logic:
 \vspace{-2pt}
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
 \begin{enumerate}
-\item \textbf{Substantive claim:}  A mechanism, institution, or design feature creates a restriction on the data.
-\item \textbf{Moment condition:}  Translate that claim into $\mathbb{E}[g(W_i, \theta)]=0$.
+\item \textbf{Substantive claim:}  A mechanism, institution, or design feature creates a restriction on the joint distribution.
+\item \textbf{Moment condition:}  Translate that claim into $\mathbb{E}[g(W, \theta)]=0$.
 \item \textbf{Estimator:}  Find $\hat{\theta}$ that solves the sample analog.
 \end{enumerate}
 \end{tcolorbox}
 
 \smallskip\pause
-\textbf{Example:} In a randomized experiment, random assignment means potential outcomes are independent of treatment.  This implies $\mathbb{E}[D_i e_i]=0$, and OLS consistently estimates the ATE.
+\textbf{Example:} In a randomized experiment, random assignment means potential outcomes are independent of treatment.  This implies $\mathbb{E}[De]=0$, and OLS consistently estimates the ATE.
 
 \smallskip\pause
-\textbf{Counterexample:} If subjects self-select into treatment based on expected benefits, $\mathbb{E}[D_i e_i]\neq 0$.  OLS is inconsistent---you need a \emph{different} moment condition (e.g., from an instrument).
+\textbf{Counterexample:} If subjects self-select into treatment based on expected benefits, $\mathbb{E}[De]\neq 0$.  OLS is inconsistent; you need a \emph{different} moment condition (e.g., from an instrument).
 \textbf{The question is always:} \alert{Why should this moment condition hold?}
 \end{frame}
 
 
-\begin{frame}[fragile]{BLP in R: From Formula to Code}
+\begin{frame}[fragile]{BLP in R: Bivariate Case}
 \begin{lstlisting}[language=R]
 # Population formula: beta = Cov(X,Y) / Var(X)
 beta_formula <- cov(x, y) / var(x)
@@ -640,11 +641,6 @@ alpha_formula <- mean(y) - beta_formula * mean(x)
 # OLS estimates the same thing from a sample
 mod <- lm(y ~ x)
 coef(mod)  # compare to c(alpha_formula, beta_formula)
-
-# With multiple regressors: beta = solve(Q_XX) %*% Q_XY
-X <- cbind(1, x1, x2)
-beta_matrix <- solve(t(X) %*% X) %*% t(X) %*% y
-coef(lm(y ~ x1 + x2))  # same answer
 \end{lstlisting}
 \end{frame}
 
@@ -734,6 +730,23 @@ $\mathbf{Q}_{XX}$ is the population second moment matrix of $X$.\\
 For any non-zero $\alpha \in \mathbb{R}^k$
 $$\alpha'\bm{Q}_{XX}\alpha=\mathbb{E}[\alpha'XX'\alpha]=\mathbb{E}[(\alpha'X)^2] \geq 0$$
 This must be strictly $>0$ to be invertible, if not, there is no unique solution to $\mathbf{Q}_{XY}=\mathbf{Q}_{XX}\beta$, and we say $\beta$ is not identified.
+\end{frame}
+
+
+\begin{frame}[fragile]{BLP in R: Multiple Regressors}
+Now that we have the matrix formula $\beta = \mathbb{E}[XX']^{-1}\mathbb{E}[XY]$, we can compute it directly:
+\begin{lstlisting}[language=R]
+# Build the design matrix (include a column of 1s)
+X <- cbind(1, x1, x2)
+
+# Solve (X'X) beta = X'y directly, without inverting
+beta_matrix <- solve(t(X) %*% X, t(X) %*% y)
+
+# lm() does the same thing
+coef(lm(y ~ x1 + x2))  # same answer
+\end{lstlisting}
+\small
+\texttt{solve(A, b)} solves $Ax=b$ via matrix factorization without ever computing $A^{-1}$. This is more numerically stable than \texttt{solve(A) \%*\% b}, which explicitly inverts $A$ and amplifies floating-point errors.
 \end{frame}
 
 
