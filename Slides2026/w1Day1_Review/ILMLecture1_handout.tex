@@ -535,7 +535,7 @@ $$f(x,y)=6(1 - x - y)$$
 The density is highest near $(0,0)$: low mobilization by both parties is the most common outcome (6 is a normalizing constant).
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[view={45}{35}, xlabel={$x$}, ylabel={$y$}, zlabel={$f(x,y)$}, domain=0:1, y domain=0:1, samples=30, samples y=30, zmin=0, colormap/cool, width=9cm, height=5.5cm]
+\begin{axis}[view={45}{35}, xlabel={$x$}, ylabel={$y$}, zlabel={$f(x,y)$}, domain=0:1, y domain=0:1, samples=30, samples y=30, zmin=0, colormap/cool, width=9cm, height=5cm]
 \addplot3[surf, shader=interp]
 {(x+y<=1)*(6*(1 - x - y))};
 \end{axis}
@@ -1473,45 +1473,31 @@ If $\bm{Z}$ is symmetric, so $\bm{Z}=\bm{Z}'$ :
 \end{frame}
 
 \begin{frame}{Application: Deriving OLS}
-
 Least squares solves:
-
 \[
 \min_{\bm{\beta}}
 (\bm{y} - \bm{X}\bm{\beta})'
 (\bm{y} - \bm{X}\bm{\beta}).
 \]\pause
-
-\vspace{0.3cm}
-
 Expand (the cross terms $-\bm{y}'\bm{X}\bm{\beta}$ and $-\bm{\beta}'\bm{X}'\bm{y}$ are both $1\times 1$ scalars, so they equal their own transpose and combine):
-
 \[
 =
 \bm{y}'\bm{y}
 - 2\bm{\beta}'\bm{X}'\bm{y}
 + \bm{\beta}'\bm{X}'\bm{X}\bm{\beta}.
 \]\pause
-
-\vspace{0.3cm}
-
 Take gradient using our linear and quadratic form rules, set equal to zero:
-
 \[
 -2\bm{X}'\bm{y}
 + 2\bm{X}'\bm{X}\bm{\beta}
 = \bm{0}.
 \]\pause
-
-\vspace{0.2cm}
-
 Pre-multiply both sides by $(\bm{X}'\bm{X})^{-1}$:
 \[
 \Rightarrow
 \hat{\bm{\beta}} =
 (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}.
 \]
-
 \end{frame}
 
 \begin{frame}{Second-Order Condition: Verifying a Minimum}
