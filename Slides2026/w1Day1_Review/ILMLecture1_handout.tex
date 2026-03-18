@@ -138,7 +138,7 @@ text}{fg=darkpurple}
 
 \textbf{Implication:}
 \begin{center}
-\emph{The question is answerable — but your numerical answer or reported certainty may be wrong.}
+\emph{Your numerical answer or reported certainty may be wrong.}
 \end{center}
 
 \end{frame}
@@ -176,7 +176,7 @@ text}{fg=darkpurple}
 \vspace{0.1cm}
 
 \begin{center}
-\emph{The research question is answerable — but the reported certainty may be false.}
+\emph{The reported certainty may be false.}
 \end{center}
 
 \end{frame}
@@ -201,6 +201,29 @@ text}{fg=darkpurple}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[E and Var]{Expectation and Variance}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Summarizing a Population}
+Suppose $Y$ is a random variable with a known distribution. You need a single number $\mu$ to stand in for $Y$. Which number is ``best''?\pause
+
+\vspace{0.3cm}
+
+The answer depends on how you measure error, your \textbf{loss function}:
+\begin{itemize}
+\item \textbf{Squared-error loss} $(Y-\mu)^2$ $\;\Rightarrow\;$ best summary is $\mathbb{E}[Y]$ (the mean)\pause
+\item Absolute loss $|Y-\mu|$ $\;\Rightarrow\;$ best summary is the median
+\end{itemize}\pause
+
+\vspace{0.3cm}
+
+\textbf{Why squared-error loss in this course?} The minimized squared error \emph{is} the variance: $\mathbb{E}[(Y-\mathbb{E}[Y])^2] = \text{Var}(Y)$. \\ 
+Variance leads to covariance, covariance defines an inner product, and inner products give us orthogonal projection, these are the geometric foundation of OLS. 
+\pause
+
+\vspace{0.3cm}
+
+\emph{Next:} we define $\mathbb{E}[Y]$, then prove it minimizes squared-error loss.
+\end{frame}
+
 
 \begin{frame}
 \frametitle{Expectation}
@@ -231,7 +254,7 @@ The fact that expected values are sums/integrals gives us the following properti
 
 
 \begin{frame}{Expectation Minimizes Mean Squared Prediction Error}
-If we want to predict $Y$ with no other information, and our prediction is $\mu$, minimize:
+Now we prove the claim: under squared-error loss, $\mathbb{E}[Y]$ is the best single-number summary of $Y$. Our prediction is $\mu$; minimize:
 \begin{align*}
 M &= \mathbb{E}[(Y-\mu)^2]\\
 &=\mathbb{E}[Y^2]-2\mu \mathbb{E}[Y]+ \mu^2
@@ -298,12 +321,20 @@ Key properties:
 \end{frame}
 
 
+\begin{frame}{The Variance-Covariance Matrix}
+\begin{itemize}
+\item Scalar case: $\text{Var}(aX+bY)=a^2\text{Var}(X)+b^2\text{Var}(Y)+2ab\,\text{Cov}(X,Y)$\pause
+\item To generalize, we need a way to collect all variances and covariances in one object.\pause
+\item For a random vector $\bm{X}=(X_1,\ldots,X_k)'$, define the \textbf{variance-covariance matrix}:
+$$\text{Var}(\bm{X})=\mathbb{E}[(\bm{X}-\mathbb{E}[\bm{X}])(\bm{X}-\mathbb{E}[\bm{X}])']=\bm{\Sigma}$$\pause
+\item $\bm{\Sigma}$ is $k\times k$, symmetric, and positive semi-definite.
+\item Diagonal entries are variances; off-diagonal entries are covariances.
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}{Variance of Linear Combinations (Matrix Form)}
 \begin{itemize}
-\item Scalar: $\text{Var}(aX+bY)=a^2\text{Var}(X)+b^2\text{Var}(Y)+2ab\,\text{Cov}(X,Y)$\pause
-\item For a random vector $\bm{X}=(X_1,\ldots,X_k)'$, define the \textbf{variance-covariance matrix}:
-$$\text{Var}(\bm{X})=\mathbb{E}[(\bm{X}-\mathbb{E}[\bm{X}])(\bm{X}-\mathbb{E}[\bm{X}])']=\bm{\Sigma}$$
-This is a $k\times k$ symmetric, positive semi-definite matrix.\pause
 \item For any fixed matrix $\bm{A}$ ($m\times k$) and vector $\bm{b}$ ($m \times 1$):
 \[\text{Var}(\bm{A}\bm{X}+\bm{b})=\bm{A}\,\text{Var}(\bm{X})\,\bm{A}'=\bm{A}\bm{\Sigma}\bm{A}'\]\pause
 \item This formula appears throughout the course:
@@ -399,32 +430,40 @@ Let $X \sim N(\mu, \sigma^2)$.
 \end{frame}
 
 
-\begin{frame}{Moment Conditions}
+\begin{frame}{What Is a Parameter?}
 
-A parameter can be defined by an expectation it must satisfy.
+A \textbf{parameter} is a fixed, unknown number that summarizes something about the population --- for example, a mean, a variance, or a regression slope.\pause
 
-\vspace{0.4cm}
+\vspace{0.3cm}
+
+We have already seen one way to define a parameter: as the solution to an optimization problem (e.g.\ $\mu^* = \arg\min \mathbb{E}[(Y-\mu)^2]$).\pause
+
+\vspace{0.3cm}
+
+There is an equivalent approach: define a parameter as the value that makes a certain population expectation equal zero. These are called \textbf{moment conditions}.
+
+\end{frame}
+
+
+\begin{frame}{Moment Conditions: Examples}
 
 \textbf{Example 1: Mean}
-
 \[
 \mathbb{E}[X - \mu] = 0.
 \]
-
-The true value of $\mu$ is the one that makes this expectation zero.
+The true $\mu$ is the unique value that makes this expectation zero.\pause
 
 \vspace{0.4cm}
 
-\textbf{Example 2: Linear Regression slope coefficients}
-
+\textbf{Example 2: Linear Regression slope}
 \[
 \mathbb{E}\left[X (Y - X'\beta)\right] = 0.
 \]
-
-The true $\beta$ is the one that makes the regressors, X, uncorrelated
-with the error $(Y-X'\beta).$
+The true $\beta$ is the value that makes the regressors $X$ uncorrelated with the residual $(Y-X'\beta).$\pause
 
 \vspace{0.4cm}
+
+In both cases, the parameter is \emph{defined} by the condition --- not estimated from data (yet).
 
 \end{frame}
 
@@ -452,6 +491,28 @@ Identification requires that these conditions determine a unique $\theta$.
 \section[CEF]{Joint, Marginal, and Conditional Distributions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{Roadmap: From Joint Distributions to the CEF}
+So far we have summarized a single random variable $Y$ using $\mathbb{E}[Y]$.\pause
+
+\vspace{0.3cm}
+
+But in practice we want to summarize $Y$ \emph{given information about} $X$. We want $\mathbb{E}[Y|X=x]$, the \textbf{conditional expectation function} (CEF).\pause
+
+\vspace{0.3cm}
+
+To get there, we need three building blocks:
+\begin{enumerate}
+\item \textbf{Joint distributions}: how $X$ and $Y$ vary together.
+\item \textbf{Marginal distributions}: the distribution of $X$ alone.
+\item \textbf{Conditional distributions}: the distribution of $Y$ for a fixed value of $X$.
+\end{enumerate}\pause
+
+\vspace{0.3cm}
+
+Once we have the conditional distribution, the CEF is just its expectation, and it will be the \emph{target} that regression approximates.
+\end{frame}
+
+
 \begin{frame}
 \frametitle{Joint Distributions}
 Recall,
@@ -463,16 +524,15 @@ The joint density is
 $f(x,y)=\frac{\partial^2}{\partial x \partial y} F(x,y).$
 \end{defn}\pause
 \bigskip
-If our data is continuous, densities and distributions live in 3 (or higher) dimensions.
+Joint densities and distributions live in 3 (or higher) dimensions.
 \end{frame}
 
 
 \begin{frame}{Example: A Joint Density}
 \small
-Consider two parties (A, B) mobilizing voters, with $X+Y\leq 1$:
-$f(x,y)=6(1 - x - y),\ x,y\geq 0.$
-Density is highest at $(0,0)$ and decreases as either party mobilizes more.
-The 6 ensures $\int\!\int f\,dx\,dy=1$.
+Let $X$ and $Y$ be the fractions of the electorate mobilized by parties A and B, so $X,Y\geq 0$ and $X+Y\leq 1$.
+$$f(x,y)=6(1 - x - y)$$
+The density is highest near $(0,0)$: low mobilization by both parties is the most common outcome (6 is a normalizing constant).
 \begin{center}
 \begin{tikzpicture}
 \begin{axis}[view={45}{35}, xlabel={$x$}, ylabel={$y$}, zlabel={$f(x,y)$}, domain=0:1, y domain=0:1, samples=30, samples y=30, zmin=0, colormap/cool, width=9cm, height=5.5cm]
@@ -484,32 +544,80 @@ The 6 ensures $\int\!\int f\,dx\,dy=1$.
 \end{frame}
 
 
-\begin{frame}{Marginal and Conditional Densities}
+\begin{frame}[c]{Marginal Density}
+\vspace{-0.3cm}
 \begin{defn}
-The \textbf{marginal density} of $X$ is
-$$f_X(x)=\int_{-\infty}^\infty f(x,y)\,dy$$
+The \textbf{marginal density} of $X$ is $\;f_X(x)=\underbrace{\int_{-\infty}^\infty f(x,y)\,dy}_{\text{integrate out } y}$
 \end{defn}
-\begin{defn}
-The \textbf{conditional density} of $Y$ given $X=x$ is
-$$f_{Y|X}(y|x)=\frac{f(x,y)}{f_X(x)}$$
-for any $x$ such that $f_X(x)>0$.
-\end{defn}
-These definitions are the bridge from joint distributions to regression.
+\vspace{-0.1cm}
+\small Fix $x$ and sum the joint density over all possible $y$. The result is a function of $x$ alone.\pause
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.6]
+% Joint density contours
+\draw[->] (-0.3,0) -- (4.3,0) node[right] {\small$x$};
+\draw[->] (0,-0.3) -- (0,3.3) node[above] {\small$y$};
+\node at (2,3.6) {\scriptsize Joint $f(x,y)$};
+\draw[blue!60, thick] (2,1.6) ellipse (0.5 and 0.4);
+\draw[blue!40, thick] (2,1.6) ellipse (1.0 and 0.8);
+\draw[blue!25, thick] (2,1.6) ellipse (1.6 and 1.2);
+\draw[red, thick, dashed] (2.8,0) -- (2.8,3.0);
+\node[red, right] at (2.85,2.7) {\scriptsize fix $x$};
+% Arrow
+\draw[->, thick] (5.0,1.5) -- (6.0,1.5);
+\node[above] at (5.5,1.5) {\scriptsize$\int dy$};
+% Marginal density
+\begin{scope}[xshift=6.5cm]
+\draw[->] (-0.3,0) -- (4.3,0) node[right] {\small$x$};
+\draw[->] (0,-0.3) -- (0,3.3) node[above] {\small$f_X(x)$};
+\draw[blue, thick, domain=0:4, samples=80] plot (\x, {2.8*exp(-(\x-2)^2/0.8)});
+\draw[red, thick, dashed] (2.8,0) -- (2.8,{2.8*exp(-(2.8-2)^2/0.8)});
+\fill[red] (2.8,{2.8*exp(-(2.8-2)^2/0.8)}) circle (2pt);
+\end{scope}
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 
-\begin{frame}{Example: Marginal and Conditional from $f(x,y)=6(1-x-y)$}
-\textbf{Marginal density of $X$} fix x, integrate out $y$:
+\begin{frame}{Conditional Density}
+\begin{defn}
+The \textbf{conditional density} of $Y$ given $X=x$ is
+$$f_{Y|X}(y|x)=\frac{\overbrace{f(x,y)}^{\text{joint}}}{\underbrace{f_X(x)}_{\text{marginal}}}$$
+for any $x$ such that $f_X(x)>0$.
+\end{defn}\pause
+Take a slice of the joint density at a fixed $x$, then rescale so it integrates to 1. This is the distribution of $Y$ for units with that particular value of $X$.
+\end{frame}
+
+
+\begin{frame}{Example: Marginal Density from $f(x,y)=6(1-x-y)$}
+\textbf{Marginal density of $X$:} fix $x$, integrate out $y$.\pause
+
+\vspace{0.2cm}
+
+What are the limits of integration? The density is positive when $x,y\geq 0$ and $x+y\leq 1$, so for a given $x$:
+\begin{itemize}
+\item Lower bound: $y=0$ (mobilization cannot be negative).\pause
+\item Upper bound: $y=1-x$ (the constraint $x+y\leq 1$).\pause
+\end{itemize}
+
 \begin{align*}
-f_X(x)&=\int_0^{1-x}6(1-x-y)\,dy \pause
+f_X(x)&=\int_{\underbrace{0}_{\text{min } y}}^{\overbrace{1-x}^{\text{max } y \text{ given } x}}6(1-x-y)\,dy \pause
 = 6\left[(1-x)y-\frac{y^2}{2}\right]_0^{1-x} \pause
 = 3(1 - x)^2
-\end{align*}\pause
-\textbf{Conditional density of $Y|X=x$:}
+\end{align*}
+\end{frame}
+
+
+\begin{frame}{Example: Conditional Density from $f(x,y)=6(1-x-y)$}
+\textbf{Conditional density of $Y|X=x$:} divide the joint by the marginal.\pause
 \begin{align*}
 f_{Y|X}(y|x)&=\frac{f(x,y)}{f_X(x)}=\frac{6(1-x-y)}{3(1-x)^2}=\frac{2(1-x-y)}{(1-x)^2}
 \end{align*}\pause
-Note: for each fixed $x$, this is a valid density in $y$ on $[0,\,1-x]$.
+For each fixed $x$, this is a valid density in $y$ on $[0,\,1-x]$.\pause
+
+\vspace{0.3cm}
+
+Note the effect of conditioning: the \emph{shape} of the distribution of $Y$ changes depending on the value of $X$. When $x$ is large, the remaining ``room'' for $y$ is small.
 \end{frame}
 
 
@@ -606,6 +714,24 @@ As $X$ increases, $\mathbb{E}[Y|X]$ decreases linearly---this CEF \emph{is} line
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Matrices]{Matrix Algebra for Regression}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Roadmap: Why Matrices?}
+We now have the CEF, $\mathbb{E}[Y|X]$, as our target. In most applications we approximate it with a \emph{linear} function of $X$.\pause
+
+\vspace{0.3cm}
+
+With one regressor this is just a line. But with $k$ regressors we need a compact way to write and manipulate systems of linear equations. That is what matrix algebra provides.\pause
+
+\vspace{0.3cm}
+
+This section reviews the tools we will use repeatedly:
+\begin{enumerate}
+\item \textbf{Matrix notation}: writing $\bm{y}=\bm{X}\bm{\beta}$ instead of $n$ separate equations.
+\item \textbf{Key operations}: transpose, inverse, rank.
+\item \textbf{Projection}: the geometric interpretation of OLS as an orthogonal projection.
+\end{enumerate}
+\end{frame}
 
 
 \begin{frame}{Linear Systems and Matrix Representation}
