@@ -187,9 +187,11 @@ For nonsingular $\A$ and column vector $\bm{b}$, provided $1 + \bm{b}'\Ainv\bm{b
 = \Ainv - \Ainv\bm{b}(1 + \bm{b}'\Ainv\bm{b})^{-1}\bm{b}'\Ainv
 = \Ainv - \frac{\Ainv\bm{b}\bm{b}'\Ainv}{1 + \bm{b}'\Ainv\bm{b}}.
 \]
-The subtraction variant follows by replacing $\bm{b}$ with $i\bm{b}$ (where $i^2 = -1$), giving:
+The subtraction variant follows from Woodbury with $\B = \bm{b}$, $\bm{C} = -1$, $\bm{D} = \bm{b}'$:
 \[
-(\A - \bm{b}\bm{b}')^{-1} = \Ainv + \frac{\Ainv\bm{b}\bm{b}'\Ainv}{1 - \bm{b}'\Ainv\bm{b}},
+(\A - \bm{b}\bm{b}')^{-1}
+= \Ainv - \Ainv\bm{b}(-1 + \bm{b}'\Ainv\bm{b})^{-1}\bm{b}'\Ainv
+= \Ainv + \frac{\Ainv\bm{b}\bm{b}'\Ainv}{1 - \bm{b}'\Ainv\bm{b}},
 \]
 provided $1 - \bm{b}'\Ainv\bm{b} \neq 0$.
 
