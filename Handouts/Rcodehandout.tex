@@ -1,0 +1,275 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{enumitem}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\title{\vspace{-1.5em}R Code Reference}
+\author{Estimation I}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-2.5em}
+
+This handout collects the core R functions used throughout the course, organized by topic. For worked examples, see the companion site.
+
+\section*{Probability and Distributions}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{dnorm(x, mu, sd)} & $\phi(x;\mu,\sigma)$ & Normal PDF \\
+\texttt{pnorm(x, mu, sd)} & $\Phi(x;\mu,\sigma)$ & Normal CDF \\
+\texttt{qnorm(p, mu, sd)} & $\Phi^{-1}(p)$ & Normal quantile function \\
+\texttt{rnorm(n, mu, sd)} & $X \sim N(\mu,\sigma^2)$ & Draw $n$ normal random variables \\
+\addlinespace
+\texttt{dt(x, df)}, \texttt{pt()}, \texttt{qt()} & & Student $t$ density, CDF, quantile \\
+\texttt{dchisq(x, df)}, \texttt{pchisq()}, \texttt{qchisq()} & & $\chi^2$ density, CDF, quantile \\
+\texttt{pf(x, df1, df2)}, \texttt{qf()} & & $F$ distribution CDF, quantile \\
+\texttt{dbinom(x, n, p)}, \texttt{rbinom()} & & Binomial PMF, random draws \\
+\texttt{plogis(x)}, \texttt{qlogis()} & & Logistic CDF, quantile \\
+\addlinespace
+\texttt{integrate(f, lower, upper)} & $\int_a^b f(x)\,dx$ & Numerical integration \\
+\bottomrule
+\end{tabular}
+
+\section*{Descriptive Statistics}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{mean(x)} & $\bar{x} = \frac{1}{n}\sum_i x_i$ & Sample mean \\
+\texttt{var(x)} & $\frac{1}{n-1}\sum_i (x_i - \bar{x})^2$ & Sample variance (Bessel-corrected) \\
+\texttt{sd(x)} & $\sqrt{\widehat{\text{Var}}(x)}$ & Sample standard deviation \\
+\texttt{cov(x, y)} & $\frac{1}{n-1}\sum_i(x_i-\bar{x})(y_i-\bar{y})$ & Sample covariance \\
+\texttt{cor(x, y)} & $\widehat{\text{Cor}}(x,y)$ & Sample correlation \\
+\texttt{quantile(x, p)} & & Sample quantiles \\
+\texttt{length(x)} & $n$ & Number of elements \\
+\bottomrule
+\end{tabular}
+
+\section*{Matrix Operations}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{A \%*\% B} & $\bm{AB}$ & Matrix multiplication \\
+\texttt{t(X)} & $\bm{X}'$ & Transpose \\
+\texttt{crossprod(X)} & $\bm{X}'\bm{X}$ & Cross product (faster than \texttt{t(X) \%*\% X}) \\
+\texttt{solve(A)} & $\bm{A}^{-1}$ & Matrix inverse \\
+\texttt{solve(A, b)} & $\bm{A}^{-1}\bm{b}$ & Solve $\bm{Ax}=\bm{b}$ (preferred over \texttt{solve(A) \%*\% b}) \\
+\texttt{diag(A)} & $\text{diag}(\bm{A})$ & Extract diagonal \\
+\texttt{diag(n)} & $\bm{I}_n$ & $n\times n$ identity matrix \\
+\texttt{det(A)} & $|\bm{A}|$ & Determinant \\
+\texttt{dim(A)} & $n \times m$ & Matrix dimensions \\
+\texttt{qr(A)\$rank} & $\text{rank}(\bm{A})$ & Matrix rank \\
+\texttt{eigen(A)} & & Eigenvalues and eigenvectors \\
+\texttt{cbind(x, y)}, \texttt{rbind()} & & Bind columns or rows \\
+\bottomrule
+\end{tabular}
+
+\section*{OLS Regression}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{lm(y \~{} x1 + x2, data)} & & Fit OLS regression \\
+\texttt{coef(mod)} & $\hat{\bm{\beta}} = (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{y}$ & Coefficient estimates \\
+\texttt{fitted(mod)} & $\hat{\bm{y}} = \bm{X}\hat{\bm{\beta}}$ & Fitted values \\
+\texttt{resid(mod)} & $\bm{e} = \bm{y} - \hat{\bm{y}}$ & Residuals \\
+\texttt{vcov(mod)} & $\hat{\sigma}^2(\bm{X}'\bm{X})^{-1}$ & Variance-covariance of $\hat{\bm{\beta}}$ \\
+\texttt{sigma(mod)} & $\hat{\sigma} = \sqrt{\bm{e}'\bm{e}/(n-k)}$ & Estimated error std.\ deviation \\
+\texttt{confint(mod)} & & Confidence intervals for $\hat{\bm{\beta}}$ \\
+\texttt{predict(mod, newdata, interval)} & & Predictions with optional intervals \\
+\texttt{summary(mod)} & & Full regression summary \\
+\texttt{model.matrix(mod)} & $\bm{X}$ & Extract the design matrix \\
+\texttt{update(mod, . \~{} . + x3)} & & Add/remove terms from a model \\
+\bottomrule
+\end{tabular}
+
+\section*{Diagnostics and Sensitivity}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{hatvalues(mod)} & $h_{ii} = [\bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}']_{ii}$ & Leverage (diagonal of hat matrix) \\
+\texttt{rstudent(mod)} & & Studentized residuals \\
+\texttt{anova(mod1, mod2)} & & $F$-test comparing nested models \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{car}\textit{:}} \\
+\texttt{linearHypothesis(mod, "x1 = 0")} & & Wald test of linear restrictions \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{sensemakr}\textit{:}} \\
+\texttt{sensemakr(mod, treatment)} & & Omitted variable bias sensitivity \\
+\bottomrule
+\end{tabular}
+
+\section*{Robust and GLS Inference}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{From} \texttt{sandwich}\textit{:}} \\
+\texttt{vcovHC(mod, type = "HC1")} & & Heteroskedasticity-robust $\widehat{\text{Var}}(\hat{\bm{\beta}})$ \\
+ & & \small{Types: HC0, HC1, HC2, HC3} \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{lmtest}\textit{:}} \\
+\texttt{coeftest(mod, vcov = vcovHC)} & & Test coefficients with robust SEs \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{estimatr}\textit{:}} \\
+\texttt{lm\_robust(y \~{} x, data, se\_type)} & & OLS with robust SEs in one step \\
+\bottomrule
+\end{tabular}
+
+\section*{Binary Response Models}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{glm(y \~{} x, family = binomial(link = "probit"))} & & Probit regression \\
+\texttt{glm(y \~{} x, family = binomial(link = "logit"))} & & Logit regression \\
+\texttt{predict(mod, type = "response")} & $\hat{P}(Y=1 \mid X)$ & Predicted probabilities \\
+\texttt{logLik(mod)} & $\ell(\hat{\bm{\beta}})$ & Log-likelihood at MLE \\
+\texttt{AIC(mod)}, \texttt{BIC(mod)} & & Model selection criteria \\
+\bottomrule
+\end{tabular}
+
+\section*{Asymptotics and Resampling}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\texttt{replicate(B, expr)} & & Repeat \texttt{expr} $B$ times (simulation) \\
+\texttt{sample(x, n, replace = TRUE)} & & Bootstrap resampling \\
+\texttt{set.seed(123)} & & Set RNG seed for reproducibility \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{car}\textit{:}} \\
+\texttt{deltaMethod(mod, "x1/x2")} & & Delta method for nonlinear functions \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{boot}\textit{:}} \\
+\texttt{boot(data, statistic, R)} & & Bootstrap inference \\
+\texttt{boot.ci(boot.out, type = "perc")} & & Bootstrap confidence intervals \\
+\bottomrule
+\end{tabular}
+
+\section*{Instrumental Variables}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{From} \texttt{estimatr}\textit{:}} \\
+\texttt{iv\_robust(y \~{} x1 | z1, data)} & & 2SLS with robust SEs \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{Manual 2SLS via} \texttt{lm}\textit{:}} \\
+\texttt{stage1 <- lm(x \~{} z)} & & First stage \\
+\texttt{lm(y \~{} fitted(stage1))} & & Second stage (SEs require correction) \\
+\bottomrule
+\end{tabular}
+
+\section*{GMM}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{From} \texttt{gmm}\textit{:}} \\
+\texttt{gmm(g, x, t0)} & & GMM with moment function \texttt{g} \\
+ & & \small{\texttt{g(theta, x)} returns $n \times q$ matrix of moment conditions} \\
+\texttt{summary(gmm\_mod)} & & Estimates, SEs, and $J$-test \\
+\bottomrule
+\end{tabular}
+
+\section*{Panel Data}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{From} \texttt{plm}\textit{:}} \\
+\texttt{pdata.frame(df, index = c("id","t"))} & & Declare panel structure \\
+\texttt{plm(y \~{} x, model = "within")} & & Fixed effects (within) estimator \\
+\texttt{plm(y \~{} x, model = "random")} & & Random effects estimator \\
+\texttt{plm(y \~{} x, model = "between")} & & Between estimator \\
+\texttt{plm(y \~{} x, model = "pooling")} & & Pooled OLS \\
+\texttt{phtest(fe\_mod, re\_mod)} & & Hausman test (FE vs.\ RE) \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{fixest}\textit{:}} \\
+\texttt{feols(y \~{} x | id + t, data)} & & Fast FE with multi-way clustering \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{Dynamic panels from} \texttt{plm}\textit{:}} \\
+\texttt{pgmm(y \~{} lag(y) + x | lag(y, 2:99))} & & Arellano--Bond / system GMM \\
+\texttt{sargan(mod)}, \texttt{mtest(mod)} & & Overidentification and autocorrelation tests \\
+\bottomrule
+\end{tabular}
+
+\section*{Modern Difference-in-Differences}
+
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{R Code} & \textbf{Math} & \textbf{Description} \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{From} \texttt{did}\textit{:}} \\
+\texttt{att\_gt(y \~{} x, data, ...)} & & Callaway--Sant'Anna group-time ATTs \\
+\texttt{aggte(att\_gt\_obj, type = "dynamic")} & & Aggregate to event-study or overall \\
+\texttt{ggdid(aggte\_obj)} & & Plot event-study estimates \\
+\addlinespace
+\multicolumn{3}{@{}l}{\textit{From} \texttt{fect}\textit{:}} \\
+\texttt{fect(y \~{} x, data, method = "ife")} & & Interactive FE / matrix completion \\
+\bottomrule
+\end{tabular}
+
+\section*{Visualization (ggplot2)}
+
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{R Code} & \textbf{Description} \\
+\midrule
+\texttt{ggplot(data, aes(x, y)) + geom\_point()} & Scatterplot \\
+\texttt{+ geom\_smooth(method = "lm")} & Add regression line with CI band \\
+\texttt{+ geom\_histogram()} & Histogram \\
+\texttt{+ geom\_line()} & Line plot \\
+\texttt{+ stat\_function(fun = dnorm)} & Overlay a mathematical function \\
+\texttt{+ facet\_wrap(\~{} group)} & Small multiples by group \\
+\texttt{+ labs(x = ..., y = ..., title = ...)} & Labels \\
+\texttt{+ theme\_minimal()} & Clean theme \\
+\bottomrule
+\end{tabular}
+
+\section*{Data Manipulation Essentials}
+
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{R Code} & \textbf{Description} \\
+\midrule
+\texttt{data.frame(x = ..., y = ...)} & Create a data frame \\
+\texttt{sapply(X, FUN)}, \texttt{lapply()} & Apply a function to each element \\
+\texttt{tapply(y, group, mean)} & Apply a function by group \\
+\texttt{aggregate(y \~{} group, data, mean)} & Group-wise summaries \\
+\texttt{factor(x)}, \texttt{cut(x, breaks)} & Create categorical variables \\
+\texttt{do.call(rbind, list\_of\_dfs)} & Stack a list of data frames \\
+\bottomrule
+\end{tabular}
+
+\bigskip
+
+\noindent\textit{Key packages:} \texttt{sandwich}, \texttt{lmtest}, \texttt{estimatr}, \texttt{car}, \texttt{boot}, \texttt{gmm}, \texttt{plm}, \texttt{fixest}, \texttt{did}, \texttt{MASS}, \texttt{ggplot2}.
+
+\end{document}

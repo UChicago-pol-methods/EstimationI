@@ -1,0 +1,196 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{bm}
+
+\newtheorem{property}{Property}
+
+\newcommand{\Ainv}{\bm{A}^{-1}}
+\newcommand{\Binv}{\bm{B}^{-1}}
+\newcommand{\A}{\bm{A}}
+\newcommand{\B}{\bm{B}}
+\newcommand{\I}{\bm{I}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\rank}{\operatorname{rank}}
+
+\title{\vspace{-1.5em}Matrix Demonstrations}
+\author{Estimation I}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-2.5em}
+
+\noindent Throughout, $\A$ and $\B$ are conformable and nonsingular unless otherwise noted.
+
+\section*{Inverse Properties}
+
+\begin{property}[Scalar Inverse]
+For $\lambda \neq 0$,
+\[
+(\lambda \A)^{-1} = \frac{1}{\lambda}\Ainv.
+\]
+\end{property}
+
+\textbf{Demonstration:}
+\begin{align*}
+(\lambda\A)\left(\tfrac{1}{\lambda}\Ainv\right) &= \A\Ainv = \I, \\
+\left(\tfrac{1}{\lambda}\Ainv\right)(\lambda\A) &= \Ainv\A = \I.
+\end{align*}
+
+\begin{property}[Inverse of a Product]
+\[
+(\A\B)^{-1} = \Binv\Ainv.
+\]
+\end{property}
+
+\textbf{Demonstration:}
+\begin{align*}
+(\A\B)(\Binv\Ainv) &= \A(\B\Binv)\Ainv = \A\Ainv = \I, \\
+(\Binv\Ainv)(\A\B) &= \Binv(\Ainv\A)\B = \Binv\B = \I.
+\end{align*}
+
+\begin{property}[Inverse Transpose]
+\[
+(\Ainv)' = (\A')^{-1}.
+\]
+\end{property}
+
+\textbf{Demonstration:}
+\begin{align*}
+\A'(\Ainv)' &= (\Ainv\A)' = \I' = \I, \\
+(\Ainv)'\A' &= (\A\Ainv)' = \I' = \I.
+\end{align*}
+
+\begin{property}[Sum Inverse]
+\[
+(\A+\B)^{-1} = \Ainv(\Ainv + \Binv)^{-1}\Binv.
+\]
+\end{property}
+
+\textbf{Demonstration:} Factor $\A + \B$ by inserting identity matrices:
+\begin{align*}
+\A + \B &= \B\Binv\A + \B\Ainv\A
+        = \B(\Binv + \Ainv)\A.
+\end{align*}
+Inverting both sides using Property~2:
+\[
+(\A+\B)^{-1} = \bigl(\B(\Ainv+\Binv)\A\bigr)^{-1}
+             = \Ainv(\Ainv+\Binv)^{-1}\Binv.
+\]
+
+\begin{property}[Inverse Difference]
+\[
+\Ainv - (\A+\B)^{-1} = \Ainv(\Binv + \Ainv)^{-1}\Ainv.
+\]
+\end{property}
+
+\textbf{Demonstration:} Factor $\A + \B$ differently:
+\begin{align*}
+\A + \B &= \A\Ainv\B + \A\Binv\B = \A(\Ainv + \Binv)\B.
+\end{align*}
+So $(\A+\B)^{-1} = \Binv(\Ainv+\Binv)^{-1}\Ainv$. Now write $\Binv = (\Binv + \Ainv) - \Ainv$ and expand:
+\begin{align*}
+(\A+\B)^{-1} &= \bigl[(\Binv+\Ainv) - \Ainv\bigr](\Binv+\Ainv)^{-1}\Ainv \\
+              &= \I\cdot\Ainv - \Ainv(\Binv+\Ainv)^{-1}\Ainv \\
+              &= \Ainv - \Ainv(\Binv+\Ainv)^{-1}\Ainv.
+\end{align*}
+Rearranging gives the result.
+
+\section*{Structural Properties}
+
+\begin{property}[Idempotent Matrices]
+If $\bm{H}$ is a $k\times k$ idempotent matrix $(\bm{H}^2 = \bm{H})$, then $\bm{H}$ is either singular or the identity matrix, and $\tr(\bm{H}) = \rank(\bm{H})$.
+\end{property}
+
+\textbf{Demonstration (singular or identity):} If $\bm{H}$ is nonsingular, multiply $\bm{H}^2 = \bm{H}$ on the left by $\bm{H}^{-1}$:
+\[
+\bm{H}^{-1}\bm{H}^2 = \bm{H}^{-1}\bm{H} \implies \bm{H} = \I.
+\]
+So the only nonsingular idempotent matrix is $\I$.
+
+\medskip
+
+\textbf{Demonstration (trace equals rank):} Since $\bm{H}^2 = \bm{H}$, the eigenvalues of $\bm{H}$ must satisfy $\lambda^2 = \lambda$, so each eigenvalue is $0$ or $1$. The number of eigenvalues equal to $1$ is $\rank(\bm{H})$, and the trace is the sum of all eigenvalues, so $\tr(\bm{H}) = \rank(\bm{H})$.
+
+\medskip
+
+\textbf{Example:} The OLS projection matrix $\bm{P} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is idempotent:
+\begin{align*}
+\bm{P}^2 &= \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}' \\
+          &= \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}' = \bm{P}.
+\end{align*}
+Note also that $\bm{P}' = \bm{X}((\bm{X}'\bm{X})^{-1})'\bm{X}' = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}' = \bm{P}$, since $(\bm{X}'\bm{X})^{-1}$ is symmetric. So $\bm{P}$ is both idempotent and symmetric.
+
+\begin{property}[Orthogonal Matrices]
+If a $k\times k$ matrix $\bm{H}$ satisfies $\bm{H}'\bm{H} = \I$, then:
+\begin{enumerate}
+\item $\bm{H}$ is nonsingular with $\bm{H}^{-1} = \bm{H}'$,
+\item $\bm{H}\bm{H}' = \I$,
+\item $(\bm{H}')^{-1} = \bm{H}$.
+\end{enumerate}
+\end{property}
+
+\textbf{Demonstration:}
+
+(1) The equation $\bm{H}'\bm{H} = \I$ says that $\bm{H}'$ is a left inverse of $\bm{H}$. Taking determinants: $\det(\bm{H}')^2 = \det(\bm{H})^2 = 1$, so $\det(\bm{H}) \neq 0$ and $\bm{H}$ is nonsingular. Since the left inverse of a nonsingular matrix equals its inverse, $\bm{H}^{-1} = \bm{H}'$.
+
+\medskip
+
+(2) Multiply $\bm{H}'\bm{H} = \I$ on the left by $\bm{H}$ and on the right by $\bm{H}^{-1} = \bm{H}'$:
+\[
+\bm{H}\bm{H}'\bm{H}\bm{H}' = \bm{H}\bm{H}' \implies (\bm{H}\bm{H}')^2 = \bm{H}\bm{H}'.
+\]
+But more directly: $\bm{H}\bm{H}' = \bm{H}\bm{H}^{-1} = \I$.
+
+\medskip
+
+(3) From (1), $\bm{H}^{-1} = \bm{H}'$. By the inverse transpose property (Property~3), $(\bm{H}')^{-1} = (\bm{H}^{-1})^{-1} = \bm{H}$.
+
+\section*{Matrix Inversion Lemmas}
+
+The following identities are useful for updating inverses when a matrix is perturbed. Each is demonstrated by verifying that the proposed inverse, when multiplied by the original matrix, yields $\I$.
+
+\begin{property}[Woodbury Matrix Identity]
+For nonsingular $n\times n$ matrix $\A$, $n\times k$ matrix $\B$, nonsingular $k\times k$ matrix $\bm{C}$, and $k\times n$ matrix $\bm{D}$:
+\[
+(\A + \B\bm{C}\bm{D})^{-1} = \Ainv - \Ainv\B(\bm{C}^{-1} + \bm{D}\Ainv\B)^{-1}\bm{D}\Ainv.
+\]
+\end{property}
+
+\textbf{Demonstration:} Let $\bm{R} = \Ainv - \Ainv\B(\bm{C}^{-1} + \bm{D}\Ainv\B)^{-1}\bm{D}\Ainv$. We verify $(\A + \B\bm{C}\bm{D})\bm{R} = \I$. Write $\bm{S} = \bm{C}^{-1} + \bm{D}\Ainv\B$ for brevity.
+\begin{align*}
+(\A + \B\bm{C}\bm{D})\bm{R}
+&= \I - \B\bm{S}^{-1}\bm{D}\Ainv + \B\bm{C}\bm{D}\Ainv - \B\bm{C}\bm{D}\Ainv\B\bm{S}^{-1}\bm{D}\Ainv \\
+&= \I + \B\bigl[\bm{C}\bm{D}\Ainv - \bm{S}^{-1}\bm{D}\Ainv - \bm{C}\bm{D}\Ainv\B\bm{S}^{-1}\bm{D}\Ainv\bigr] \\
+&= \I + \B\bigl[\bm{C}\bm{D}\Ainv - (\I + \bm{C}\bm{D}\Ainv\B)\bm{S}^{-1}\bm{D}\Ainv\bigr].
+\end{align*}
+Now $\I + \bm{C}\bm{D}\Ainv\B = \bm{C}(\bm{C}^{-1} + \bm{D}\Ainv\B) = \bm{C}\bm{S}$, so:
+\begin{align*}
+&= \I + \B\bigl[\bm{C}\bm{D}\Ainv - \bm{C}\bm{S}\bm{S}^{-1}\bm{D}\Ainv\bigr] \\
+&= \I + \B\bigl[\bm{C}\bm{D}\Ainv - \bm{C}\bm{D}\Ainv\bigr] = \I. \qed
+\end{align*}
+
+\begin{property}[Sherman--Morrison Formula]
+For nonsingular $\A$ and column vector $\bm{b}$, provided $1 + \bm{b}'\Ainv\bm{b} \neq 0$:
+\[
+(\A + \bm{b}\bm{b}')^{-1} = \Ainv - \frac{\Ainv\bm{b}\bm{b}'\Ainv}{1 + \bm{b}'\Ainv\bm{b}}.
+\]
+\end{property}
+
+\textbf{Demonstration:} This is the Woodbury identity with $\B = \bm{b}$, $\bm{C} = 1$, $\bm{D} = \bm{b}'$:
+\[
+(\A + \bm{b}\cdot 1\cdot\bm{b}')^{-1}
+= \Ainv - \Ainv\bm{b}(1 + \bm{b}'\Ainv\bm{b})^{-1}\bm{b}'\Ainv
+= \Ainv - \frac{\Ainv\bm{b}\bm{b}'\Ainv}{1 + \bm{b}'\Ainv\bm{b}}.
+\]
+The subtraction variant follows by replacing $\bm{b}$ with $i\bm{b}$ (where $i^2 = -1$), giving:
+\[
+(\A - \bm{b}\bm{b}')^{-1} = \Ainv + \frac{\Ainv\bm{b}\bm{b}'\Ainv}{1 - \bm{b}'\Ainv\bm{b}},
+\]
+provided $1 - \bm{b}'\Ainv\bm{b} \neq 0$.
+
+\end{document}
