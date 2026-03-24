@@ -323,18 +323,29 @@ Key properties:
 
 \begin{frame}{The Variance-Covariance Matrix}
 \begin{itemize}
-\item Scalar case: $\text{Var}(aX+bY)=a^2\text{Var}(X)+b^2\text{Var}(Y)+2ab\,\text{Cov}(X,Y)$\pause
-\item To generalize, we need a way to collect all variances and covariances in one object.\pause
-\item For a random vector $\bm{X}=(X_1,\ldots,X_k)'$, define the \textbf{variance-covariance matrix}:
-$$\text{Var}(\bm{X})=\mathbb{E}[(\bm{X}-\mathbb{E}[\bm{X}])(\bm{X}-\mathbb{E}[\bm{X}])']=\bm{\Sigma}$$\pause
+\item For a random vector $\bm{X}=\begin{bmatrix} X_1 \\ X_2 \\ \vdots \\ X_k \end{bmatrix}$, define the \textbf{variance-covariance matrix}:
+\begin{align*}
+\text{Var}(\bm{X})&=\mathbb{E}[(\bm{X}-\mathbb{E}[\bm{X}])(\bm{X}-\mathbb{E}[\bm{X}])']\\
+&=\mathbb{E}\!\left[\left(\begin{bmatrix} X_1 \\ X_2 \\ \vdots \\ X_k \end{bmatrix}-\begin{bmatrix} \mathbb{E}[X_1] \\ \mathbb{E}[X_2] \\ \vdots \\ \mathbb{E}[X_k] \end{bmatrix}\right)\left(\begin{bmatrix} X_1 \\ X_2 \\ \vdots \\ X_k \end{bmatrix}-\begin{bmatrix} \mathbb{E}[X_1] \\ \mathbb{E}[X_2] \\ \vdots \\ \mathbb{E}[X_k] \end{bmatrix}\right)'\right]
+\end{align*}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{The Variance-Covariance Matrix (continued)}
+\begin{itemize}
+\item Writing $\mathbb{E}[(\bm{X}-\mathbb{E}[\bm{X}])(\bm{X}-\mathbb{E}[\bm{X}])']$ as an outer product:\pause
+$$\mathbb{E}[\begin{bmatrix} X_1-\mathbb{E}[X_1] \\ X_2-\mathbb{E}[X_2] \\ \vdots \\ X_k-\mathbb{E}[X_k] \end{bmatrix}\begin{bmatrix} X_1-\mathbb{E}[X_1] & X_2-\mathbb{E}[X_2] & \cdots & X_k-\mathbb{E}[X_k] \end{bmatrix}]$$\pause
+\item Taking the expectation entry by entry:
+$$\text{Var}(\bm{X})=\begin{bmatrix} \text{Var}(X_1) & \text{Cov}(X_1,X_2) & \cdots & \text{Cov}(X_1,X_k) \\ \text{Cov}(X_2,X_1) & \text{Var}(X_2) & \cdots & \text{Cov}(X_2,X_k) \\ \vdots & \vdots & \ddots & \vdots \\ \text{Cov}(X_k,X_1) & \text{Cov}(X_k,X_2) & \cdots & \text{Var}(X_k) \end{bmatrix}=\bm{\Sigma}$$\pause
 \item $\bm{\Sigma}$ is $k\times k$, symmetric, and positive semi-definite.
-\item Diagonal entries are variances; off-diagonal entries are covariances.
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}{Variance of Linear Combinations (Matrix Form)}
 \begin{itemize}
+\item Scalar case: $\text{Var}(aX+bY+d)=a^2\text{Var}(X)+b^2\text{Var}(Y)+2ab\,\text{Cov}(X,Y)$\pause
 \item For any fixed matrix $\bm{A}$ ($m\times k$) and vector $\bm{b}$ ($m \times 1$):
 \[\text{Var}(\bm{A}\bm{X}+\bm{b})=\bm{A}\,\text{Var}(\bm{X})\,\bm{A}'=\bm{A}\bm{\Sigma}\bm{A}'\]\pause
 \item This formula appears throughout the course:
