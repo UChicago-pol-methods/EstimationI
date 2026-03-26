@@ -742,11 +742,11 @@ X <- cbind(1, x1, x2)
 # Solve (X'X) beta = X'y directly, without inverting
 beta_matrix <- solve(t(X) %*% X, t(X) %*% y)
 
-# lm() does the same thing
-coef(lm(y ~ x1 + x2))  # same answer
+# lm() gives the same coefficients, but uses QR
+coef(lm(y ~ x1 + x2))
 \end{lstlisting}
 \small
-\texttt{solve(A, b)} solves $Ax=b$ via matrix factorization without ever computing $A^{-1}$. This is more numerically stable than \texttt{solve(A) \%*\% b}, which explicitly inverts $A$ and amplifies floating-point errors.
+\texttt{solve(A, b)} solves $Ax=b$ via LU factorization without computing $A^{-1}$, which is more stable than \texttt{solve(A) \%*\% b}. But \texttt{lm()} is even better: it uses QR decomposition on $X$ directly, avoiding the formation of $X'X$ entirely (which squares the condition number).
 \end{frame}
 
 
@@ -817,25 +817,44 @@ Y&=X_1'\beta_1+X_2'\beta_2+e, \quad \mathbb{E}[Xe]=0
 \end{itemize}
 \end{frame}
 
-%
-%\begin{frame}{Schur Complement}
-%\begin{align}
-%\bm{Mz}\equiv \begin{bmatrix} \bm{A} & \bm{B}\\\bm{C} & \bm{D}\end{bmatrix}\begin{bmatrix} x\\y\end{bmatrix}&=0 \iff \nonumber\\\pause
-%\bm{A}x+\bm{B}y&=0 \\
-%\bm{C}x+\bm{D}y&=0\\\pause
-%-\bm{CA}^{-1}(\bm{A}x+\bm{B}y)&=0 \tag{Multiply (5.1) by $-\bm{CA}^{-1}$}\\\pause
-%\bm{C}x+\bm{D}y-\bm{CA}^{-1}(\bm{A}x+\bm{B}y)&=0 \tag{Add to (5.2)}\\\pause
-%(\bm{D}-\bm{CA}^{-1}\bm{B})y&=0 \nonumber
-%\end{align}\pause
-%$\bm{D}-\bm{CA}^{-1}\bm{B}$ is the Schur complement of $\bm{A}$ in $\bm{M}$.
-%\end{frame}
+
+\begin{frame}{Solving the Partitioned Normal Equations}
+The normal equation $\mathbf{Q}_{XY}=\mathbf{Q}_{XX}\beta$ expands into two block rows:
+\begin{align}
+\mathbf{Q}_{1Y}&=\mathbf{Q}_{11}\beta_1+\mathbf{Q}_{12}\beta_2 \tag{Row 1}\\
+\mathbf{Q}_{2Y}&=\mathbf{Q}_{21}\beta_1+\mathbf{Q}_{22}\beta_2 \tag{Row 2}
+\end{align}
+\pause
+\textbf{Goal:} Eliminate $\beta_2$ to isolate $\beta_1$.\\
+\medskip
+\textbf{Step 1.} Solve Row 2 for $\beta_2$:
+$$\beta_2=\mathbf{Q}_{22}^{-1}\bigl(\mathbf{Q}_{2Y}-\mathbf{Q}_{21}\beta_1\bigr)$$
+\end{frame}
+
+
+\begin{frame}{Solving the Partitioned Normal Equations (cont.)}
+\textbf{Step 2.} Substitute $\beta_2$ into Row 1:
+\begin{align*}
+\mathbf{Q}_{1Y}&=\mathbf{Q}_{11}\beta_1+\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\bigl(\mathbf{Q}_{2Y}-\mathbf{Q}_{21}\beta_1\bigr)\\\pause
+\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}&=\bigl(\mathbf{Q}_{11}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)\beta_1
+\end{align*}
+\pause
+\textbf{Step 3.} Recognize the residualized quantities from the previous slide:
+\begin{align*}
+\underbrace{\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}}_{\mathbf{Q}_{1Y\cdot 2}}&=\underbrace{\bigl(\mathbf{Q}_{11}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)}_{\mathbf{Q}_{11\cdot 2}}\beta_1
+\end{align*}
+\pause
+\textbf{Step 4.} Premultiply by $\mathbf{Q}_{11\cdot 2}^{-1}$:
+$$\boxed{\beta_1=\mathbf{Q}_{11\cdot 2}^{-1}\,\mathbf{Q}_{1Y\cdot 2}}$$
+By symmetry: $\beta_2=\mathbf{Q}_{22\cdot 1}^{-1}\,\mathbf{Q}_{2Y\cdot 1}$.
+\end{frame}
 
 
 \begin{frame}{Partitioned Matrix Inversion and Regression}
 \begin{itemize}
-\item By similar reasoning:
+\item The block elimination we just performed is equivalent to inverting $\bm{Q}_{XX}$ in blocks:
 $$\bm{Q}_{XX}^{-1}=\begin{bmatrix} \mathbf{Q}_{11\cdot 2}^{-1} &-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\\ -\mathbf{Q}_{22\cdot 1}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11}^{-1}&\mathbf{Q}_{22\cdot 1}^{-1}\end{bmatrix}$$
-\item As a result:
+\item Multiplying $\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$ confirms our result:
 \begin{align*}
 \begin{bmatrix}\beta_1\\\beta_2\end{bmatrix}&=\begin{bmatrix} \mathbf{Q}_{11\cdot 2}^{-1} \mathbf{Q}_{1Y\cdot 2}\\ \mathbf{Q}_{22\cdot 1}^{-1} \mathbf{Q}_{2Y\cdot 1} \end{bmatrix}
 \end{align*}
