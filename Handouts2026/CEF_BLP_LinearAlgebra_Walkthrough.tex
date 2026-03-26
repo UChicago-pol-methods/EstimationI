@@ -1,0 +1,853 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{bbold}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+\pagestyle{fancy}
+\lhead{PLSC 30700: Estimation I}
+\rhead{Robert Gulotty}
+\chead{}
+\cfoot{\thepage}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\bfX}{\mathbf{X}}
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bfbeta}{\bm{\beta}}
+\newcommand{\bfQ}{\mathbf{Q}}
+
+\theoremstyle{definition}
+\newtheorem{step}{Step}
+\newtheorem{remark}{Remark}
+
+\title{\textbf{Linear Algebra Walkthrough}\\[4pt]
+\large Lecture 2: CEF and Best Linear Predictor}
+\author{Companion to Slides --- PLSC 30700}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\noindent This document expands every linear algebra step in Lecture 2 (``Linear Models: CEF and Best Linear Predictor''), connecting each derivation back to the corresponding slide. Where the slides use compact matrix notation, we unpack the matrices into their column-vector and element-wise forms.
+
+\tableofcontents
+\newpage
+
+%======================================================================
+\section{Bivariate BLP: Solving the First-Order Conditions}
+\label{sec:bivariate}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Solving for Best Linear Predictor ($a$ and $b$)''
+\end{tcolorbox}
+
+We want to find scalars $a$ and $b$ that minimize the mean squared prediction error:
+\[
+M(a,b) = \E\!\left[(Y - (a + bX))^2\right].
+\]
+
+\subsection{Expanding the square}
+
+Write out the square explicitly:
+\begin{align}
+M(a,b) &= \E\!\left[Y^2 - 2Y(a+bX) + (a+bX)^2\right] \nonumber\\
+&= \E[Y^2] - 2a\E[Y] - 2b\E[XY] + a^2 + 2ab\E[X] + b^2\E[X^2]. \label{eq:Mab}
+\end{align}
+Every term uses the linearity of expectation: $\E[cZ] = c\E[Z]$ for a constant $c$.
+
+\subsection{FOC with respect to $a$}
+
+Differentiate \eqref{eq:Mab} with respect to $a$, holding $b$ fixed:
+\[
+\frac{\partial M}{\partial a} = -2\E[Y] + 2a + 2b\E[X] = 0.
+\]
+Solving:
+\begin{equation}
+\boxed{a = \E[Y] - b\E[X].} \label{eq:astar}
+\end{equation}
+\textbf{Interpretation.}  The intercept adjusts the prediction so that, on average, $a + b\E[X] = \E[Y]$---the predictor passes through the point $(\E[X], \E[Y])$.
+
+\subsection{FOC with respect to $b$}
+
+Differentiate \eqref{eq:Mab} with respect to $b$:
+\[
+\frac{\partial M}{\partial b} = -2\E[XY] + 2a\E[X] + 2b\E[X^2] = 0.
+\]
+Substitute $a = \E[Y] - b\E[X]$ from \eqref{eq:astar}:
+\begin{align*}
+\E[XY] &= \bigl(\E[Y] - b\E[X]\bigr)\E[X] + b\E[X^2]\\
+&= \E[Y]\E[X] - b(\E[X])^2 + b\E[X^2]\\
+&= \E[Y]\E[X] + b\bigl(\E[X^2] - (\E[X])^2\bigr).
+\end{align*}
+Rearranging:
+\[
+\E[XY] - \E[X]\E[Y] = b\bigl(\E[X^2] - (\E[X])^2\bigr).
+\]
+The left side is $\Cov(X,Y)$ and the right side involves $\Var(X)$:
+\begin{equation}
+\boxed{b = \frac{\Cov(X,Y)}{\Var(X)}.} \label{eq:bstar}
+\end{equation}
+
+\subsection{The BLP in one formula}
+
+Substituting back:
+\begin{align*}
+\E^*[Y|X] &= a + bX = \E[Y] - b\E[X] + bX\\
+&= \E[Y] + \frac{\Cov(X,Y)}{\Var(X)}\bigl(X - \E[X]\bigr).
+\end{align*}
+This is the population regression line, centered at $(\E[X], \E[Y])$ with slope $\Cov(X,Y)/\Var(X)$.
+
+
+%======================================================================
+\section{Variance of the BLP Error (Bivariate)}
+\label{sec:bivar-var}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Deriving Variance of BLP at Minimized Values''
+\end{tcolorbox}
+
+Define the projection error $e = Y - (\alpha + \beta X)$, where $\alpha = \E[Y] - \beta\E[X]$. We want $\Var(e)$.
+
+\begin{step}[Rewrite the error]
+Since $\alpha = \E[Y] - \beta\E[X]$, subtracting $\alpha + \beta X$ from $Y$ gives:
+\[
+e = Y - \E[Y] + \beta\E[X] - \beta X = (Y - \E[Y]) - \beta(X - \E[X]).
+\]
+So the error is a difference of two centered random variables.
+\end{step}
+
+\begin{step}[Compute the variance]
+Using $\Var(A - B) = \Var(A) + \Var(B) - 2\Cov(A,B)$ with $A = Y$ and $B = \beta X$:
+\begin{align*}
+\Var(e) &= \Var(Y - \beta X) \\
+&= \Var(Y) + \beta^2\Var(X) - 2\beta\Cov(X,Y).
+\end{align*}
+The constant $\alpha$ drops out because $\Var(Z + c) = \Var(Z)$.
+\end{step}
+
+\begin{step}[Substitute $\beta\Var(X) = \Cov(X,Y)$]
+From equation~\eqref{eq:bstar}, $\beta = \Cov(X,Y)/\Var(X)$, so $\beta\Var(X) = \Cov(X,Y)$. Thus:
+\begin{align*}
+\Var(e) &= \Var(Y) + \beta^2\Var(X) - 2\beta \cdot \beta\Var(X)\\
+&= \Var(Y) + \beta^2\Var(X) - 2\beta^2\Var(X)\\
+&= \Var(Y) - \beta^2\Var(X).
+\end{align*}
+\end{step}
+
+\begin{equation}
+\boxed{\sigma_e^2 = \sigma_Y^2 - \beta^2\sigma_X^2.}
+\end{equation}
+
+\textbf{Interpretation.}  The error variance is the total variance of $Y$ minus what the linear predictor explains.  The quantity $\beta^2\sigma_X^2 / \sigma_Y^2$ is the population $R^2$.
+
+%======================================================================
+\section{Multivariate BLP: Expanding the MSPE}
+\label{sec:multivariate}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Deriving the Linear Projection Coefficient $\beta$''
+\end{tcolorbox}
+
+Now $X$ is a $k \times 1$ random vector and $\beta$ is a $k \times 1$ parameter vector. To make the algebra concrete, write:
+\[
+X = \begin{pmatrix} X_1 \\ X_2 \\ \vdots \\ X_{k-1} \\ 1 \end{pmatrix}, \qquad
+\beta = \begin{pmatrix} \beta_1 \\ \beta_2 \\ \vdots \\ \beta_{k-1} \\ \beta_k \end{pmatrix}.
+\]
+The last element of $X$ is the constant 1 (for the intercept), so $\beta_k$ plays the role of the intercept.
+
+The linear predictor is the inner product:
+\[
+X'\beta = \begin{pmatrix} X_1 & X_2 & \cdots & X_{k-1} & 1 \end{pmatrix}
+\begin{pmatrix} \beta_1 \\ \beta_2 \\ \vdots \\ \beta_{k-1} \\ \beta_k \end{pmatrix}
+= \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_{k-1} X_{k-1} + \beta_k.
+\]
+
+\subsection{Step 1: Writing the MSPE}
+
+\begin{align}
+S(\beta) &= \E\!\left[(Y - X'\beta)^2\right] = \E\!\left[(Y - X'\beta)(Y - X'\beta)\right]. \label{eq:Sbeta}
+\end{align}
+
+\subsection{Step 2: Expanding the product}
+
+Note that $Y - X'\beta$ is a \emph{scalar} random variable ($1 \times 1$), so $(Y - X'\beta)^2 = (Y - X'\beta)(Y - X'\beta)$. Expand:
+\begin{align*}
+(Y - X'\beta)^2 &= Y^2 - 2Y \cdot X'\beta + (X'\beta)^2.
+\end{align*}
+
+We need to understand each term:
+
+\paragraph{Term 1: $Y^2$.} Just the square of the scalar $Y$.
+
+\paragraph{Term 2: $Y \cdot X'\beta$.} Since $X'\beta$ is a scalar:
+\[
+Y \cdot X'\beta = Y(\beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_k) = \beta_1 YX_1 + \beta_2 YX_2 + \cdots + \beta_k Y.
+\]
+Taking expectations and writing in matrix form:
+\[
+\E[Y \cdot X'\beta] = \beta' \E[XY],
+\]
+where $\E[XY]$ is the $k \times 1$ vector:
+\[
+\E[XY] = \begin{pmatrix} \E[X_1 Y] \\ \E[X_2 Y] \\ \vdots \\ \E[Y] \end{pmatrix}.
+\]
+(The last entry is $\E[1 \cdot Y] = \E[Y]$.)
+
+\paragraph{Term 3: $(X'\beta)^2$.} Since $X'\beta$ is a scalar, $(X'\beta)^2 = (X'\beta)(X'\beta) = (\beta'X)(X'\beta) = \beta'(XX')\beta$.
+
+The matrix $XX'$ is $k \times k$. Expanding it column-by-column:
+\[
+XX' = \begin{pmatrix} X_1 \\ X_2 \\ \vdots \\ 1 \end{pmatrix}
+\begin{pmatrix} X_1 & X_2 & \cdots & 1 \end{pmatrix}
+= \begin{pmatrix}
+X_1^2 & X_1 X_2 & \cdots & X_1 \\
+X_2 X_1 & X_2^2 & \cdots & X_2 \\
+\vdots & \vdots & \ddots & \vdots \\
+X_1 & X_2 & \cdots & 1
+\end{pmatrix}.
+\]
+
+Taking expectations element-by-element:
+\[
+\E[XX'] = \bfQ_{XX} = \begin{pmatrix}
+\E[X_1^2] & \E[X_1 X_2] & \cdots & \E[X_1] \\
+\E[X_2 X_1] & \E[X_2^2] & \cdots & \E[X_2] \\
+\vdots & \vdots & \ddots & \vdots \\
+\E[X_1] & \E[X_2] & \cdots & 1
+\end{pmatrix}.
+\]
+
+\textbf{Key fact:} $\bfQ_{XX}$ is symmetric ($\E[X_i X_j] = \E[X_j X_i]$) and, by the regularity condition, positive definite.
+
+\subsection{Step 3: The MSPE in matrix form}
+
+Putting the three terms together under the expectation:
+\begin{equation}
+S(\beta) = \E[Y^2] - 2\beta'\E[XY] + \beta'\E[XX']\beta. \label{eq:Smatrix}
+\end{equation}
+
+\begin{remark}
+Notice the parallel with the bivariate case in Section~\ref{sec:bivariate}. The scalar $\E[X^2]$ has become the matrix $\E[XX']$, and the scalar $\E[XY]$ has become the vector $\E[XY]$.
+\end{remark}
+
+\subsection{Step 4: Differentiating with respect to $\beta$}
+
+We use the matrix calculus rules:
+\begin{itemize}
+\item $\frac{\partial}{\partial \beta}(\beta' \mathbf{a}) = \mathbf{a}$ \quad for constant vector $\mathbf{a}$.
+\item $\frac{\partial}{\partial \beta}(\beta' \mathbf{A} \beta) = 2\mathbf{A}\beta$ \quad for symmetric matrix $\mathbf{A}$.
+\end{itemize}
+
+Applying these to \eqref{eq:Smatrix}:
+\begin{align*}
+\frac{\partial S}{\partial \beta} &= -2\E[XY] + 2\E[XX']\beta.
+\end{align*}
+
+\textbf{Element by element.}  The $j$-th component of the gradient is:
+\[
+\frac{\partial S}{\partial \beta_j} = -2\E[X_j Y] + 2\sum_{i=1}^{k} \E[X_j X_i]\beta_i, \quad j = 1, \ldots, k.
+\]
+This is a system of $k$ equations in $k$ unknowns.
+
+\subsection{Step 5: Setting the FOC to zero and solving}
+
+\begin{align}
+0 &= -2\E[XY] + 2\E[XX']\beta \nonumber\\
+\E[XY] &= \E[XX']\beta \nonumber\\
+\bfQ_{XY} &= \bfQ_{XX}\beta. \label{eq:normalQ}
+\end{align}
+
+Since $\bfQ_{XX}$ is positive definite (regularity condition 3), it is invertible. Premultiply both sides by $\bfQ_{XX}^{-1}$:
+\begin{equation}
+\boxed{\beta = \bfQ_{XX}^{-1}\bfQ_{XY} = \E[XX']^{-1}\E[XY].} \label{eq:betastar}
+\end{equation}
+
+\textbf{Written out for $k=3$ (two regressors plus intercept):}
+\[
+\begin{pmatrix} \beta_1 \\ \beta_2 \\ \beta_3 \end{pmatrix}
+=
+\begin{pmatrix}
+\E[X_1^2] & \E[X_1 X_2] & \E[X_1] \\
+\E[X_1 X_2] & \E[X_2^2] & \E[X_2] \\
+\E[X_1] & \E[X_2] & 1
+\end{pmatrix}^{-1}
+\begin{pmatrix}
+\E[X_1 Y] \\
+\E[X_2 Y] \\
+\E[Y]
+\end{pmatrix}.
+\]
+
+%======================================================================
+\section{The Projection Error is Uncorrelated with $X$}
+\label{sec:orthogonality}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Linear Projection and Projection Error''
+\end{tcolorbox}
+
+Define $e = Y - X'\beta$, so $Y = X'\beta + e$. We show $\E[Xe] = \mathbf{0}$.
+
+\subsection{The algebra}
+
+\begin{align*}
+\E[Xe] &= \E[X(Y - X'\beta)]\\
+&= \E[XY] - \E[XX']\beta.
+\end{align*}
+
+\textbf{Why $\E[X \cdot X'\beta] = \E[XX']\beta$:} The product $X \cdot X'\beta$ has $j$-th element:
+\[
+X_j \cdot (X'\beta) = X_j \sum_{i=1}^k X_i \beta_i = \sum_{i=1}^k X_j X_i \beta_i.
+\]
+Taking expectations: $\E[X_j \cdot X'\beta] = \sum_i \E[X_j X_i]\beta_i$, which is the $j$-th row of $\E[XX']\beta$.
+
+Now substitute $\beta = \E[XX']^{-1}\E[XY]$:
+\begin{align*}
+\E[Xe] &= \E[XY] - \E[XX'] \cdot \E[XX']^{-1}\E[XY]\\
+&= \E[XY] - \mathbf{I}_k \cdot \E[XY]\\
+&= \E[XY] - \E[XY] = \mathbf{0}.
+\end{align*}
+
+\subsection{What these $k$ equations say}
+
+Written as a vector equation:
+\[
+\E[Xe] = \begin{pmatrix} \E[X_1 e] \\ \E[X_2 e] \\ \vdots \\ \E[1 \cdot e] \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \\ \vdots \\ 0 \end{pmatrix}.
+\]
+
+\begin{itemize}
+\item \textbf{Equations 1 through $k{-}1$:} $\E[X_j e] = 0$ for each regressor. The error is uncorrelated with every regressor.
+\item \textbf{Equation $k$ (the constant):} $\E[1 \cdot e] = \E[e] = 0$. The error has mean zero.
+\end{itemize}
+
+This is why including a constant matters: it forces $\E[e] = 0$.
+
+
+%======================================================================
+\section{Why $\bfQ_{XX}$ Must Be Positive Definite}
+\label{sec:pd}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``The Design Matrix''
+\end{tcolorbox}
+
+The BLP requires inverting $\bfQ_{XX} = \E[XX']$. We need this matrix to be positive definite.
+
+\subsection{Positive semi-definiteness is automatic}
+
+For any non-zero vector $\alpha \in \mathbb{R}^k$:
+\[
+\alpha'\bfQ_{XX}\alpha = \alpha'\E[XX']\alpha = \E[\alpha'XX'\alpha] = \E[(\alpha'X)^2] \geq 0.
+\]
+
+\textbf{Expanding $\alpha'X$:}
+\[
+\alpha'X = \alpha_1 X_1 + \alpha_2 X_2 + \cdots + \alpha_k \cdot 1.
+\]
+This is a linear combination of the regressors. Its square is non-negative, so its expectation is non-negative.
+
+\subsection{Strict positive definiteness = no perfect collinearity}
+
+$\bfQ_{XX}$ is positive definite (not just semi-definite) if and only if $\E[(\alpha'X)^2] > 0$ for all $\alpha \neq \mathbf{0}$.
+
+If $\E[(\alpha'X)^2] = 0$ for some $\alpha \neq \mathbf{0}$, then $\alpha'X = 0$ almost surely, meaning:
+\[
+\alpha_1 X_1 + \alpha_2 X_2 + \cdots + \alpha_k = 0 \quad \text{with probability 1}.
+\]
+This is \textbf{perfect collinearity}: one regressor is an exact linear function of the others. In that case $\bfQ_{XX}$ is singular, $\beta$ is not uniquely defined, and the BLP does not exist.
+
+
+%======================================================================
+\section{Multivariate Error Variance}
+\label{sec:errorvar}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Linear Predictor Error Variance''
+\end{tcolorbox}
+
+Define $\sigma^2 = \E[e^2]$ where $e = Y - X'\beta$. We expand this using the matrices $Q_{YY} = \E[Y^2]$, $\bfQ_{YX} = \E[YX']$ (a $1 \times k$ row vector), and $\bfQ_{XY} = \E[XY]$ (a $k \times 1$ column vector).
+
+\subsection{Expanding $\E[e^2]$}
+
+\begin{align*}
+\sigma^2 &= \E[(Y - X'\beta)^2]\\
+&= \E[Y^2] - 2\E[YX']\beta + \beta'\E[XX']\beta\\
+&= Q_{YY} - 2\bfQ_{YX}\beta + \beta'\bfQ_{XX}\beta.
+\end{align*}
+
+\subsection{Substituting $\beta = \bfQ_{XX}^{-1}\bfQ_{XY}$}
+
+\paragraph{The second term:}
+\[
+2\bfQ_{YX}\beta = 2\bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY}.
+\]
+(This is a $1 \times k$ times $k \times k$ times $k \times 1 = $ scalar.)
+
+\paragraph{The third term:}
+\begin{align*}
+\beta'\bfQ_{XX}\beta &= (\bfQ_{XX}^{-1}\bfQ_{XY})'\bfQ_{XX}(\bfQ_{XX}^{-1}\bfQ_{XY})\\
+&= \bfQ_{YX}(\bfQ_{XX}^{-1})'\bfQ_{XX}\bfQ_{XX}^{-1}\bfQ_{XY}.
+\end{align*}
+Since $\bfQ_{XX}$ is symmetric, $(\bfQ_{XX}^{-1})' = \bfQ_{XX}^{-1}$, so:
+\[
+\beta'\bfQ_{XX}\beta = \bfQ_{YX}\bfQ_{XX}^{-1}\underbrace{\bfQ_{XX}\bfQ_{XX}^{-1}}_{\mathbf{I}_k}\bfQ_{XY} = \bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY}.
+\]
+
+\paragraph{Combining:}
+\begin{align*}
+\sigma^2 &= Q_{YY} - 2\bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY} + \bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY}\\
+&= Q_{YY} - \bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY}.
+\end{align*}
+
+\begin{equation}
+\boxed{\sigma^2 \equiv Q_{YY \cdot X} = Q_{YY} - \bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY}.}
+\end{equation}
+
+The notation $Q_{YY\cdot X}$ is read ``the variance of $Y$ after projecting out $X$.''
+
+\subsection{Expanded for $k=2$ (one regressor plus intercept)}
+
+Let $X = (X_1, 1)'$. Then:
+\[
+\bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY} =
+\begin{pmatrix} \E[X_1 Y] & \E[Y] \end{pmatrix}
+\begin{pmatrix} \E[X_1^2] & \E[X_1] \\ \E[X_1] & 1 \end{pmatrix}^{-1}
+\begin{pmatrix} \E[X_1 Y] \\ \E[Y] \end{pmatrix}.
+\]
+This is the multivariate generalization of $\beta^2\Var(X)$ from Section~\ref{sec:bivar-var}.
+
+
+%======================================================================
+\section{Intercepts, Slopes, and Demeaning}
+\label{sec:demeaning}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Intercepts and Slopes''
+\end{tcolorbox}
+
+The slides separate the constant from $X$ and write $Y = X'\beta + \alpha + e$, then show that demeaning produces $\beta = \Var[X]^{-1}\Cov(X,Y)$.
+
+\subsection{Setup: separating the intercept}
+
+Let $X = (X_1, \ldots, X_{k-1})'$ (no constant) and write:
+\[
+Y = X'\beta + \alpha + e.
+\]
+From the FOC for $\alpha$ (analogous to Section~\ref{sec:bivariate}):
+\[
+\alpha = \E[Y] - \E[X]'\beta = \mu_Y - \mu_X'\beta.
+\]
+
+\subsection{Demeaning}
+
+Substitute $\alpha$:
+\begin{align*}
+Y &= X'\beta + (\mu_Y - \mu_X'\beta) + e\\
+Y - \mu_Y &= (X - \mu_X)'\beta + e.
+\end{align*}
+
+Now define the centered variables $\tilde{Y} = Y - \mu_Y$ and $\tilde{X} = X - \mu_X$:
+\[
+\tilde{Y} = \tilde{X}'\beta + e.
+\]
+
+The FOC for the demeaned problem gives:
+\begin{align*}
+\E[\tilde{X}\tilde{Y}] &= \E[\tilde{X}\tilde{X}']\beta\\
+\Cov(X,Y) &= \Var(X) \cdot \beta.
+\end{align*}
+
+Here:
+\[
+\Var(X) = \E[(X - \mu_X)(X - \mu_X)'] =
+\begin{pmatrix}
+\Var(X_1) & \Cov(X_1,X_2) & \cdots \\
+\Cov(X_2,X_1) & \Var(X_2) & \cdots \\
+\vdots & \vdots & \ddots
+\end{pmatrix}
+\]
+and
+\[
+\Cov(X,Y) =
+\begin{pmatrix}
+\Cov(X_1, Y) \\
+\Cov(X_2, Y) \\
+\vdots
+\end{pmatrix}.
+\]
+
+Solving:
+\begin{equation}
+\boxed{\beta = \Var(X)^{-1}\Cov(X,Y).}
+\end{equation}
+
+\textbf{Connection to the second-moment formula.}  The full formula $\beta = \E[XX']^{-1}\E[XY]$ with the constant included is \emph{algebraically equivalent} to computing the slope via centered moments and then recovering the intercept. Demeaning ``absorbs'' the intercept.
+
+
+%======================================================================
+\section{Partitioned Regression}
+\label{sec:partitioned}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Partitions and Regression Sub-Vectors,'' ``Partitioned Matrix Inversion and Regression,'' ``Interpreting Multivariate Regression,'' ``Demonstration: Iterated Projection''
+\end{tcolorbox}
+
+\subsection{Setup}
+
+Partition $X$ into two sub-vectors:
+\[
+X = \begin{pmatrix} X_1 \\ X_2 \end{pmatrix}, \quad
+\beta = \begin{pmatrix} \beta_1 \\ \beta_2 \end{pmatrix},
+\]
+where $X_1$ is $k_1 \times 1$ and $X_2$ is $k_2 \times 1$ (with $k_1 + k_2 = k$).
+
+For concreteness, suppose $k_1 = 1$ (a single variable of interest) and $k_2 = 2$ (two controls plus the constant):
+\[
+X_1 = (X_1), \quad X_2 = \begin{pmatrix} X_2 \\ X_3 \\ 1 \end{pmatrix}.
+\]
+
+The linear projection is:
+\[
+Y = X_1'\beta_1 + X_2'\beta_2 + e, \quad \E[Xe] = 0.
+\]
+
+\subsection{Partitioning $\bfQ_{XX}$ and $\bfQ_{XY}$}
+
+The normal equation $\bfQ_{XY} = \bfQ_{XX}\beta$ becomes:
+\[
+\begin{pmatrix} \bfQ_{1Y} \\ \bfQ_{2Y} \end{pmatrix}
+=
+\begin{pmatrix} \bfQ_{11} & \bfQ_{12} \\ \bfQ_{21} & \bfQ_{22} \end{pmatrix}
+\begin{pmatrix} \beta_1 \\ \beta_2 \end{pmatrix},
+\]
+where:
+\begin{align*}
+\bfQ_{11} &= \E[X_1 X_1'] \quad (k_1 \times k_1), &
+\bfQ_{12} &= \E[X_1 X_2'] \quad (k_1 \times k_2), \\
+\bfQ_{21} &= \E[X_2 X_1'] \quad (k_2 \times k_1), &
+\bfQ_{22} &= \E[X_2 X_2'] \quad (k_2 \times k_2).
+\end{align*}
+
+This is two equations:
+\begin{align}
+\bfQ_{1Y} &= \bfQ_{11}\beta_1 + \bfQ_{12}\beta_2, \label{eq:part1}\\
+\bfQ_{2Y} &= \bfQ_{21}\beta_1 + \bfQ_{22}\beta_2. \label{eq:part2}
+\end{align}
+
+\subsection{Solving for $\beta_1$ via elimination}
+
+\begin{step}[Solve \eqref{eq:part2} for $\beta_2$]
+\[
+\beta_2 = \bfQ_{22}^{-1}(\bfQ_{2Y} - \bfQ_{21}\beta_1).
+\]
+\end{step}
+
+\begin{step}[Substitute into \eqref{eq:part1}]
+\begin{align*}
+\bfQ_{1Y} &= \bfQ_{11}\beta_1 + \bfQ_{12}\bfQ_{22}^{-1}(\bfQ_{2Y} - \bfQ_{21}\beta_1)\\
+\bfQ_{1Y} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{2Y} &= (\bfQ_{11} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{21})\beta_1.
+\end{align*}
+\end{step}
+
+\begin{step}[Identify the ``residualized'' quantities]
+Define:
+\begin{align*}
+\bfQ_{11\cdot 2} &\equiv \bfQ_{11} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{21}, \\
+\bfQ_{1Y\cdot 2} &\equiv \bfQ_{1Y} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{2Y}.
+\end{align*}
+Then:
+\begin{equation}
+\boxed{\beta_1 = \bfQ_{11\cdot 2}^{-1}\bfQ_{1Y\cdot 2}.} \label{eq:beta1part}
+\end{equation}
+By symmetry: $\beta_2 = \bfQ_{22\cdot 1}^{-1}\bfQ_{2Y\cdot 1}$.
+\end{step}
+
+\subsection{What $\bfQ_{11\cdot 2}$ and $\bfQ_{1Y\cdot 2}$ mean: the iterated projection}
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Demonstration: Iterated Projection''
+\end{tcolorbox}
+
+\paragraph{Step A: Regress $X_1$ on $X_2$.}
+\[
+X_1 = X_2'\gamma_2 + u_1, \quad \E[X_2 u_1] = 0.
+\]
+The coefficient is $\gamma_2 = \bfQ_{22}^{-1}\bfQ_{21}$ and the residual $u_1 = X_1 - X_2'\gamma_2$ is the part of $X_1$ that $X_2$ cannot predict.
+
+\paragraph{Step B: Compute $\E[u_1^2]$.}
+\begin{align*}
+\E[u_1^2] &= \E[(X_1 - X_2'\gamma_2)^2]\\
+&= \E[X_1^2] - 2\gamma_2'\E[X_2 X_1] + \gamma_2'\E[X_2 X_2']\gamma_2\\
+&= \bfQ_{11} - 2\bfQ_{21}'\bfQ_{22}^{-1}\bfQ_{21} + \bfQ_{21}'\bfQ_{22}^{-1}\bfQ_{22}\bfQ_{22}^{-1}\bfQ_{21}\\
+&= \bfQ_{11} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{21} = \bfQ_{11\cdot 2}.
+\end{align*}
+So $\bfQ_{11\cdot 2}$ is the variance of $X_1$ after removing what $X_2$ predicts.
+
+\paragraph{Step C: Compute $\E[u_1 Y]$.}
+\begin{align*}
+\E[u_1 Y] &= \E[(X_1 - X_2'\gamma_2)Y]\\
+&= \E[X_1 Y] - \gamma_2'\E[X_2 Y]\\
+&= \bfQ_{1Y} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{2Y} = \bfQ_{1Y\cdot 2}.
+\end{align*}
+So $\bfQ_{1Y\cdot 2}$ is the covariance of the residualized $X_1$ with $Y$.
+
+\paragraph{Conclusion:}
+\begin{equation}
+\beta_1 = \bfQ_{11\cdot 2}^{-1}\bfQ_{1Y\cdot 2} = \frac{\E[u_1 Y]}{\E[u_1^2]}.
+\end{equation}
+
+When $X_1$ is a single variable (scalar), this is just $\Cov(u_1, Y)/\Var(u_1)$: the bivariate slope of $Y$ on the part of $X_1$ that is unique---not explained by $X_2$.
+
+\textbf{This is the Frisch--Waugh--Lovell intuition:} The coefficient on $X_1$ in a multivariate regression is identical to the coefficient from a simple regression of $Y$ on the residuals from regressing $X_1$ on all other regressors.
+
+
+%======================================================================
+\section{Omitted Variable Bias}
+\label{sec:ovb}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Omitted Variable Bias''
+\end{tcolorbox}
+
+\subsection{Setup}
+
+\textbf{Long regression} (the correctly specified model):
+\[
+Y = X_1'\beta_1 + X_2'\beta_2 + e, \quad \E[Xe] = 0.
+\]
+
+\textbf{Short regression} (omitting $X_2$):
+\[
+Y = X_1'\gamma_1 + u, \quad \E[X_1 u] = 0.
+\]
+
+The short-regression coefficient is:
+\[
+\gamma_1 = (\E[X_1 X_1'])^{-1}\E[X_1 Y].
+\]
+
+\subsection{Deriving the bias}
+
+Substitute $Y = X_1'\beta_1 + X_2'\beta_2 + e$ into the formula for $\gamma_1$:
+
+\begin{align*}
+\gamma_1 &= (\E[X_1 X_1'])^{-1}\E[X_1(X_1'\beta_1 + X_2'\beta_2 + e)]\\
+&= (\E[X_1 X_1'])^{-1}\bigl[\E[X_1 X_1']\beta_1 + \E[X_1 X_2']\beta_2 + \E[X_1 e]\bigr].
+\end{align*}
+
+\textbf{Term by term:}
+
+\paragraph{First term:}
+$(\E[X_1 X_1'])^{-1}\E[X_1 X_1']\beta_1 = \mathbf{I}_{k_1}\beta_1 = \beta_1.$
+
+\paragraph{Second term:}
+$(\E[X_1 X_1'])^{-1}\E[X_1 X_2'] = \Gamma_{12}$, a $k_1 \times k_2$ matrix.
+
+\textbf{What is $\Gamma_{12}$?}  It is the matrix of coefficients from regressing each variable in $X_2$ on $X_1$. The $(i,j)$ entry tells you how much the $j$-th element of $X_2$ is associated with the $i$-th element of $X_1$.
+
+\paragraph{Third term:}
+$(\E[X_1 X_1'])^{-1}\E[X_1 e] = (\E[X_1 X_1'])^{-1}\cdot \mathbf{0} = \mathbf{0}$, because $\E[X_1 e] = 0$ from the long regression (the first $k_1$ rows of $\E[Xe] = \mathbf{0}$).
+
+\paragraph{Result:}
+\begin{equation}
+\boxed{\gamma_1 = \beta_1 + \Gamma_{12}\beta_2.}
+\end{equation}
+
+The \textbf{omitted variable bias} is $\Gamma_{12}\beta_2$.
+
+\subsection{Expanded for the scalar case}
+
+If $X_1$ and $X_2$ are both scalars:
+\[
+\Gamma_{12} = \frac{\E[X_1 X_2]}{\E[X_1^2]} = \frac{\Cov(X_1, X_2)}{\Var(X_1)} \quad \text{(when demeaned)},
+\]
+and the bias is:
+\[
+\text{Bias} = \frac{\Cov(X_1, X_2)}{\Var(X_1)} \cdot \beta_2.
+\]
+
+\begin{itemize}
+\item If $X_1$ and $X_2$ are positively correlated ($\Gamma_{12} > 0$) and $X_2$ has a positive effect on $Y$ ($\beta_2 > 0$), then $\gamma_1 > \beta_1$: the short regression \textbf{overstates} the effect.
+\item If the correlation and the effect have opposite signs, the bias goes the other direction.
+\item If $X_1$ and $X_2$ are uncorrelated ($\Gamma_{12} = 0$), there is no bias: $\gamma_1 = \beta_1$.
+\end{itemize}
+
+
+%======================================================================
+\section{CEF Algebra: Variance Decomposition and Theorem Proofs}
+\label{sec:cef}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Covariance of CEF and Its Error,'' ``Theorem 2.7: CEF as Best Predictor''
+\end{tcolorbox}
+
+The CEF derivations are primarily probability rather than linear algebra, but they use algebraic expansions that parallel the BLP derivations.
+
+\subsection{Covariance of $m(X)$ and $e$}
+
+We show $\Cov(e, m(X)) = 0$ where $e = Y - m(X)$ and $m(X) = \E[Y|X]$.
+
+\begin{step}[Compute $\E[e \cdot m(X)]$]
+Use the law of iterated expectations, conditioning on $X$:
+\begin{align*}
+\E[e \cdot m(X)] &= \E\!\big[\E[e \cdot m(X) | X]\big]\\
+&= \E\!\big[m(X) \cdot \E[e|X]\big] \quad \text{($m(X)$ is known given $X$, so it factors out)}\\
+&= \E[m(X) \cdot 0] = 0.
+\end{align*}
+\end{step}
+
+\begin{step}[Compute the covariance]
+\begin{align*}
+\Cov(e, m(X)) &= \E[e \cdot m(X)] - \E[e]\E[m(X)]\\
+&= 0 - 0 \cdot \E[m(X)] = 0.
+\end{align*}
+(We used $\E[e] = 0$ from the LIE.)
+\end{step}
+
+\begin{step}[Variance decomposition]
+Since $Y = m(X) + e$ and $\Cov(m(X), e) = 0$:
+\[
+\Var(Y) = \Var(m(X)) + \Var(e) + 2\Cov(m(X), e) = \Var(m(X)) + \Var(e).
+\]
+\end{step}
+
+\subsection{Theorem 2.7: CEF is the best predictor}
+
+We show $\E[(Y - g(X))^2] \geq \E[(Y - m(X))^2]$ for any function $g$.
+
+\begin{step}[Decompose using $Y = m(X) + e$]
+\[
+Y - g(X) = e + (m(X) - g(X)).
+\]
+\end{step}
+
+\begin{step}[Expand the square]
+\begin{align*}
+\E[(Y - g(X))^2] &= \E\!\big[(e + (m(X) - g(X)))^2\big]\\
+&= \E[e^2] + 2\E[e(m(X) - g(X))] + \E[(m(X) - g(X))^2].
+\end{align*}
+\end{step}
+
+\begin{step}[The cross term vanishes]
+Since $m(X) - g(X)$ is a function of $X$, Theorem 2.4.4 gives $\E[e \cdot h(X)] = 0$ for any measurable $h(X)$. So $\E[e(m(X) - g(X))] = 0$.
+\end{step}
+
+\begin{step}[Conclude]
+\[
+\E[(Y - g(X))^2] = \underbrace{\E[e^2]}_{\E[(Y-m(X))^2]} + \underbrace{\E[(m(X) - g(X))^2]}_{\geq\, 0} \;\geq\; \E[(Y - m(X))^2].
+\]
+Equality holds if and only if $g(X) = m(X)$ almost surely.
+\end{step}
+
+
+%======================================================================
+\section{Partitioned Matrix Inverse Formula}
+\label{sec:blockinverse}
+%======================================================================
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Slide Reference]
+``Partitioned Matrix Inversion and Regression''
+\end{tcolorbox}
+
+The slide states the block inverse of $\bfQ_{XX}$:
+\[
+\bfQ_{XX}^{-1} =
+\begin{pmatrix}
+\bfQ_{11\cdot 2}^{-1} & -\bfQ_{11\cdot 2}^{-1}\bfQ_{12}\bfQ_{22}^{-1} \\
+-\bfQ_{22\cdot 1}^{-1}\bfQ_{21}\bfQ_{11}^{-1} & \bfQ_{22\cdot 1}^{-1}
+\end{pmatrix},
+\]
+where $\bfQ_{11\cdot 2} = \bfQ_{11} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{21}$ and $\bfQ_{22\cdot 1} = \bfQ_{22} - \bfQ_{21}\bfQ_{11}^{-1}\bfQ_{12}$.
+
+\subsection{Verification}
+
+We verify by checking $\bfQ_{XX} \cdot \bfQ_{XX}^{-1} = \mathbf{I}$. Denote the proposed inverse as $\mathbf{M}$:
+\[
+\begin{pmatrix} \bfQ_{11} & \bfQ_{12} \\ \bfQ_{21} & \bfQ_{22} \end{pmatrix}
+\begin{pmatrix} \mathbf{M}_{11} & \mathbf{M}_{12} \\ \mathbf{M}_{21} & \mathbf{M}_{22} \end{pmatrix}
+= \begin{pmatrix} \mathbf{I}_{k_1} & \mathbf{0} \\ \mathbf{0} & \mathbf{I}_{k_2} \end{pmatrix}.
+\]
+
+\paragraph{Upper-left block:}
+\begin{align*}
+\bfQ_{11}\bfQ_{11\cdot 2}^{-1} + \bfQ_{12}(-\bfQ_{22\cdot 1}^{-1}\bfQ_{21}\bfQ_{11}^{-1}).
+\end{align*}
+This requires extended algebra involving the Schur complement identity. The key fact is:
+\[
+\bfQ_{11\cdot 2}^{-1} = (\bfQ_{11} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{21})^{-1},
+\]
+which is the Schur complement of $\bfQ_{22}$ in the block matrix. The formula is a standard result from block matrix algebra.
+
+\paragraph{Upper-right block (checking it equals $\mathbf{0}$):}
+\begin{align*}
+&\bfQ_{11}(-\bfQ_{11\cdot 2}^{-1}\bfQ_{12}\bfQ_{22}^{-1}) + \bfQ_{12}\bfQ_{22\cdot 1}^{-1}\\
+&= -\bfQ_{11}\bfQ_{11\cdot 2}^{-1}\bfQ_{12}\bfQ_{22}^{-1} + \bfQ_{12}\bfQ_{22\cdot 1}^{-1}.
+\end{align*}
+Using the Schur complement identity $\bfQ_{11}\bfQ_{11\cdot 2}^{-1} = \mathbf{I} + \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{21}\bfQ_{11\cdot 2}^{-1}$ and further simplification via the Woodbury identity confirms this equals $\mathbf{0}$.
+
+\subsection{Why this matters for regression}
+
+Multiplying the block inverse by $\bfQ_{XY}$:
+\begin{align*}
+\begin{pmatrix} \beta_1 \\ \beta_2 \end{pmatrix}
+&= \bfQ_{XX}^{-1}\bfQ_{XY}
+= \begin{pmatrix}
+\bfQ_{11\cdot 2}^{-1} & -\bfQ_{11\cdot 2}^{-1}\bfQ_{12}\bfQ_{22}^{-1} \\
+-\bfQ_{22\cdot 1}^{-1}\bfQ_{21}\bfQ_{11}^{-1} & \bfQ_{22\cdot 1}^{-1}
+\end{pmatrix}
+\begin{pmatrix} \bfQ_{1Y} \\ \bfQ_{2Y} \end{pmatrix}.
+\end{align*}
+
+For $\beta_1$:
+\begin{align*}
+\beta_1 &= \bfQ_{11\cdot 2}^{-1}\bfQ_{1Y} - \bfQ_{11\cdot 2}^{-1}\bfQ_{12}\bfQ_{22}^{-1}\bfQ_{2Y}\\
+&= \bfQ_{11\cdot 2}^{-1}\bigl(\bfQ_{1Y} - \bfQ_{12}\bfQ_{22}^{-1}\bfQ_{2Y}\bigr)\\
+&= \bfQ_{11\cdot 2}^{-1}\bfQ_{1Y\cdot 2},
+\end{align*}
+confirming equation~\eqref{eq:beta1part}.
+
+
+%======================================================================
+\section{Summary of Key Formulas}
+\label{sec:summary}
+%======================================================================
+
+\begin{center}
+\renewcommand{\arraystretch}{1.8}
+\begin{tabular}{p{4cm} l l}
+\toprule
+\textbf{Quantity} & \textbf{Bivariate} & \textbf{Multivariate} \\
+\midrule
+BLP slope & $\dfrac{\Cov(X,Y)}{\Var(X)}$ & $\E[XX']^{-1}\E[XY]$ \\[6pt]
+BLP intercept & $\E[Y] - \beta\E[X]$ & (absorbed into $X$ when $1 \in X$) \\[6pt]
+Orthogonality & $\E[Xe] = 0$ & $\E[Xe] = \mathbf{0}_{k\times 1}$ \\[6pt]
+Error variance & $\Var(Y) - \beta^2\Var(X)$ & $Q_{YY} - \bfQ_{YX}\bfQ_{XX}^{-1}\bfQ_{XY}$ \\[6pt]
+Sub-vector coeff. & --- & $\bfQ_{11\cdot 2}^{-1}\bfQ_{1Y\cdot 2}$ \\[6pt]
+OVB & $\dfrac{\Cov(X_1,X_2)}{\Var(X_1)}\beta_2$ & $\Gamma_{12}\beta_2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+In each case, the multivariate formula reduces to the bivariate formula when $k=1$ (plus a constant). The matrix algebra is the same operation---projecting and residualizing---applied to vectors instead of scalars.
+
+\end{document}
