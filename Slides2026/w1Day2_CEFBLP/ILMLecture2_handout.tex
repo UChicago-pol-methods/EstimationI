@@ -850,14 +850,49 @@ By symmetry: $\beta_2=\mathbf{Q}_{22\cdot 1}^{-1}\,\mathbf{Q}_{2Y\cdot 1}$.
 \end{frame}
 
 
-\begin{frame}{Partitioned Matrix Inversion and Regression}
-\begin{itemize}
-\item The block elimination we just performed is equivalent to inverting $\bm{Q}_{XX}$ in blocks:
-$$\bm{Q}_{XX}^{-1}=\begin{bmatrix} \mathbf{Q}_{11\cdot 2}^{-1} &-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\\ -\mathbf{Q}_{22\cdot 1}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11}^{-1}&\mathbf{Q}_{22\cdot 1}^{-1}\end{bmatrix}$$
-\item Multiplying $\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$ confirms our result:
+\begin{frame}{From Block Elimination to Block Inverse}
+The block elimination gave us $\beta=\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$.  What does $\bm{Q}_{XX}^{-1}$ itself look like?\\
+\medskip
+We want a matrix $\begin{bmatrix} \mathbf{M}_{11} & \mathbf{M}_{12}\\ \mathbf{M}_{21} & \mathbf{M}_{22}\end{bmatrix}$ such that:
+$$\begin{bmatrix} \mathbf{Q}_{11} & \mathbf{Q}_{12}\\ \mathbf{Q}_{21} & \mathbf{Q}_{22}\end{bmatrix}\begin{bmatrix} \mathbf{M}_{11} & \mathbf{M}_{12}\\ \mathbf{M}_{21} & \mathbf{M}_{22}\end{bmatrix}=\begin{bmatrix} \mathbf{I} & \mathbf{0}\\ \mathbf{0} & \mathbf{I}\end{bmatrix}$$
+\pause
+Multiplying out gives four equations.  Focus on the first column ($\mathbf{M}_{11}$ and $\mathbf{M}_{21}$):
+\begin{align}
+\mathbf{Q}_{11}\mathbf{M}_{11}+\mathbf{Q}_{12}\mathbf{M}_{21}&=\mathbf{I} \tag{A}\\
+\mathbf{Q}_{21}\mathbf{M}_{11}+\mathbf{Q}_{22}\mathbf{M}_{21}&=\mathbf{0} \tag{B}
+\end{align}
+\end{frame}
+
+
+\begin{frame}{Block Inverse: Solving for $\mathbf{M}_{11}$}
+From (B), solve for $\mathbf{M}_{21}$:
+$$\mathbf{M}_{21}=-\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{M}_{11}$$
+\pause
+Substitute into (A):
 \begin{align*}
-\begin{bmatrix}\beta_1\\\beta_2\end{bmatrix}&=\begin{bmatrix} \mathbf{Q}_{11\cdot 2}^{-1} \mathbf{Q}_{1Y\cdot 2}\\ \mathbf{Q}_{22\cdot 1}^{-1} \mathbf{Q}_{2Y\cdot 1} \end{bmatrix}
+\mathbf{Q}_{11}\mathbf{M}_{11}+\mathbf{Q}_{12}\bigl(-\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{M}_{11}\bigr)&=\mathbf{I}\\
+\bigl(\mathbf{Q}_{11}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)\mathbf{M}_{11}&=\mathbf{I}\\\pause
+\mathbf{Q}_{11\cdot 2}\;\mathbf{M}_{11}&=\mathbf{I}
 \end{align*}
+\pause
+$$\boxed{\mathbf{M}_{11}=\mathbf{Q}_{11\cdot 2}^{-1}}$$
+And substituting back: $\;\mathbf{M}_{21}=-\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11\cdot 2}^{-1}$.\\ \medskip
+\pause
+The same procedure on the second column ($\mathbf{M}_{12}$, $\mathbf{M}_{22}$) gives $\mathbf{M}_{22}=\mathbf{Q}_{22\cdot 1}^{-1}$ and $\mathbf{M}_{12}=-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}$.
+\end{frame}
+
+
+\begin{frame}{The Complete Block Inverse}
+Collecting all four blocks:
+$$\bm{Q}_{XX}^{-1}=\begin{bmatrix} \mathbf{Q}_{11\cdot 2}^{-1} &-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\\ -\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11\cdot 2}^{-1}&\mathbf{Q}_{22\cdot 1}^{-1}\end{bmatrix}$$
+\pause
+Now multiply $\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$ to recover our earlier result:
+\begin{align*}
+\beta_1&=\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y}-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}\\
+&=\mathbf{Q}_{11\cdot 2}^{-1}\bigl(\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}\bigr)=\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y\cdot 2}\quad\checkmark
+\end{align*}
+\pause
+\begin{itemize}
 \item We can use $\beta_1=\mathbf{Q}_{11\cdot 2}^{-1} \mathbf{Q}_{1Y\cdot 2}$ to understand multivariate regression.
 \end{itemize}
 \end{frame}
