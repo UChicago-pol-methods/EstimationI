@@ -37,10 +37,6 @@ text}{fg=darkpurple}
 \usetikzlibrary{arrows}
 \usepackage{colortbl}
 
-\renewcommand{\familydefault}{cmss}
-%\usepackage[all]{xy}
-
-\usepackage{tikz}
 \usepackage{lipsum}
 
  \newenvironment{changemargin}[3]{%
@@ -54,7 +50,6 @@ text}{fg=darkpurple}
  \setlength{\parsep}{\parskip}%
  }%
 \item[]}{\end{list}}
-\usetikzlibrary{arrows}
 
 \usecolortheme{lily}
 
@@ -72,7 +67,7 @@ text}{fg=darkpurple}
   basicstyle=\ttfamily\small,
   keywordstyle=\color{blue},
   commentstyle=\color{gray},
-  stringstyle=\color{red},
+  stringstyle=\color{darkpurple},
   breaklines=true,
   numbers=left,
   numberstyle=\tiny,
@@ -93,7 +88,6 @@ text}{fg=darkpurple}
 
 \author{Robert Gulotty}
 \institute[Chicago]{University of Chicago}
-\vspace{0.3in}
 
 
 \begin{document}
@@ -148,7 +142,7 @@ text}{fg=darkpurple}
 Here is what we are going to derive:
 \begin{align*}
 (\bm{X}'\bm{X})^{-1}&=\begin{bmatrix} (\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}&-(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_2 (\bm{X}_2'\bm{X}_2)^{-1} \\
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1'\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 (\bm{X}_1'\bm{X}_1)^{-1} & (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \end{bmatrix}
+-(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 (\bm{X}_1'\bm{X}_1)^{-1} & (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \end{bmatrix}
 \end{align*}
 Where
 \begin{align*}
@@ -189,7 +183,7 @@ We know that if $\bm{B}=\bm{A}^{-1}$, then $\bm{AB}=\bm{I}$\pause
 \begin{align*}
 \bm{AB}&=\begin{pmatrix} \bm{A}_{11} & \bm{A}_{12}\\ \bm{A}_{21} & \bm{A}_{22} \end{pmatrix}\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}\\\pause
 &=\begin{pmatrix} \bm{A}_{11}\bm{B}_{11}+\bm{A}_{12}\bm{B}_{21}&\bm{A}_{11}\bm{B}_{12}+\bm{A}_{12}\bm{B}_{22}\\\bm{A}_{21}\bm{B}_{11}+\bm{A}_{22}\bm{B}_{21}&\bm{A}_{21}\bm{B}_{12}+\bm{A}_{22}\bm{B}_{22} \end{pmatrix}\pause
-&=\begin{pmatrix}\bm{I}_k & \bm{0}_{k,n-k}\\ \bm{0}_{n-k,k} & \bm{I}_{n-k} \end{pmatrix}
+&=\begin{pmatrix}\bm{I}_{k_1} & \bm{0}\\ \bm{0} & \bm{I}_{k_2} \end{pmatrix}
 \end{align*}
 \end{frame}
 
@@ -239,9 +233,9 @@ Regressing $\bm{X}_1$ onto $\bm{X}$ gives us the identity matrix and 0:\pause
 (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{X}_1 &=(\bm{X}'\bm{X})^{-1} \begin{bmatrix} \bm{X}_1'\bm{X}_1\\ \bm{X}_2'\bm{X}_1\end{bmatrix} \\\pause
 &=\begin{bmatrix} \bm{B}_{11}\bm{X}_1'\bm{X}_1 +\bm{B}_{12}\bm{X}_2'\bm{X}_1\\ \bm{B}_{21}\bm{X}_1'\bm{X}_1 +\bm{B}_{22}\bm{X}_2'\bm{X}_1\end{bmatrix}\\\pause
 &=\begin{bmatrix} \alert{(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}}\bm{X}_1'\bm{X}_1 -\alert{(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}}\bm{X}_1'\bm{X}_2 (\bm{X}_2'\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \\
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1'\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 \alert{(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_1} + (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \end{bmatrix}\\\pause
+-(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 \alert{(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_1} + (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \end{bmatrix}\\\pause
 &=\begin{bmatrix} (\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}[\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1] \\ 	
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1'\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 + (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \end{bmatrix}\\\pause
+-(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 + (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \end{bmatrix}\\\pause
 &=\begin{bmatrix}\bm{I}\\\bm{0} \end{bmatrix}
 \end{align*}
 \end{frame}
@@ -297,12 +291,12 @@ This is the FWL result: $\hat{\beta}_2$ from the full regression equals the coef
 \begin{itemize}
 \item Under $\bm{y} = \bm{X\beta}+\bm{e}$,
 \begin{align*}
-\bm{\hat{y}} &=b_0+ b_1\bm{x}_1+\ldots + b_{k-1} \bm{x}_{k-1} + b_{k} \bm{x}_{k}\quad + b_{k+1} \bm{x}_{k+1}+  \ldots+b_{n} \bm{x}_{n}\\\pause
-\bm{\tilde{y}} &= d_0+ d_1\bm{x}_1+\ldots + d_{k-1} \bm{x}_{k-1} + \quad0\quad \ + d_{k+1} \bm{x}_{k+1}+  \ldots+d_{n} \bm{x}_{n}\\
-\bm{\hat{x}_k} &= c_0+ c_1\bm{x}_1+\ldots + c_{k-1} \bm{x}_{k-1}+ \quad0\quad \ +  c_{k+1} \bm{x}_{k+1}+ \ldots+c_{n} \bm{x}_{n}\pause
+\bm{\hat{y}} &=b_0+ b_1\bm{x}_1+\ldots + b_{j-1} \bm{x}_{j-1} + b_{j} \bm{x}_{j}\quad + b_{j+1} \bm{x}_{j+1}+  \ldots+b_{K} \bm{x}_{K}\\\pause
+\bm{\tilde{y}} &= d_0+ d_1\bm{x}_1+\ldots + d_{j-1} \bm{x}_{j-1} + \quad0\quad \ + d_{j+1} \bm{x}_{j+1}+  \ldots+d_{K} \bm{x}_{K}\\
+\bm{\hat{x}_j} &= c_0+ c_1\bm{x}_1+\ldots + c_{j-1} \bm{x}_{j-1}+ \quad0\quad \ +  c_{j+1} \bm{x}_{j+1}+ \ldots+c_{K} \bm{x}_{K}\pause
 \end{align*}
-\item FWL: The regression coefficient $b_k$ is equivalent to a regression coefficient $b^{*}_1$ produced by regressing the residualised outcome $\bm{e_y}=\bm{y}-\bm{\tilde{y}}$ on the residualised $\bm{x_k}$: $\bm{e_{x_k}}=\bm{x_k}-\bm{\hat{x}}_k$.
-$$\bm{e}_y= b^*_0+ b^*_1\bm{e}_{x_k}+\bm{e}$$
+\item FWL: The regression coefficient $b_j$ is equivalent to a regression coefficient $b^{*}_1$ produced by regressing the residualised outcome $\bm{e_y}=\bm{y}-\bm{\tilde{y}}$ on the residualised $\bm{x_j}$: $\bm{e_{x_j}}=\bm{x_j}-\bm{\hat{x}}_j$.
+$$\bm{e}_y= b^*_0+ b^*_1\bm{e}_{x_j}+\bm{e}$$
 \end{itemize}
 \end{frame}
 
@@ -549,7 +543,7 @@ $$\widehat{\text{bias}} = \underbrace{(\bm{X}_1'\bm{X}_1)^{-1}(\bm{X}_1'\bm{X}_2
 \end{itemize}
 \end{frame}
 
-\section{Partial $R^2$}
+\section{Partial \texorpdfstring{$R^2$}{R-squared}}
 
 \begin{frame}{From Matrix Bias to a Scalar: Partial $R^2$}
 \begin{itemize}
@@ -596,7 +590,7 @@ cor(prestige, education)^2
 \item Using Residual Sum of Squares:
 \begin{itemize}
 \item $R^2_{\bm{Y}\sim \bm{X}_2|\bm{X}_1}=1-\frac{\text{RSS}(\bm{X}_1,\bm{X}_2)}{\text{RSS}(\bm{X}_1)}$
-\item $\text{RSS}(\bm{X}_1)=||\bm{M}_1Y||^2=Y\bm{M_1}'\bm{M}_1Y=Y'\bm{M_1}Y$
+\item $\text{RSS}(\bm{X}_1)=||\bm{M}_1Y||^2=Y'\bm{M_1}'\bm{M}_1Y=Y'\bm{M_1}Y$
 \item $\text{RSS}(\bm{X}_{1},\bm{X}_2)=||\bm{M}_{1,2}Y||^2=Y'\bm{M}_{1,2}Y$
 \end{itemize}\pause
 \item Using Sum of Squared Residuals:
