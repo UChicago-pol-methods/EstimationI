@@ -48,10 +48,6 @@ text}{fg=darkpurple}
 \usetikzlibrary{arrows,positioning}
 \usepackage{colortbl}
 
-\renewcommand{\familydefault}{cmss}
-%\usepackage[all]{xy}
-
-\usepackage{tikz}
 \usepackage{lipsum}
 
  \newenvironment{changemargin}[3]{%
@@ -65,7 +61,6 @@ text}{fg=darkpurple}
  \setlength{\parsep}{\parskip}%
  }%
 \item[]}{\end{list}}
-\usetikzlibrary{arrows}
 
 \usecolortheme{lily}
 
@@ -93,7 +88,6 @@ text}{fg=darkpurple}
 
 \author{Robert Gulotty}
 \institute[Chicago]{University of Chicago}
-\vspace{0.3in}
 
 
 \begin{document}
@@ -172,7 +166,7 @@ text}{fg=darkpurple}
 \begin{frame}{Least Squares Estimator}
 \begin{itemize}
 \item The linear projection coefficient $\beta$ is the minimizer of the expected squared error 
-$$S(\beta)=\mathbb{E}[(Y-X'\beta)^2]$$
+$$S(\beta)=\mathbb{E}[(Y-\bm{x}'\beta)^2]$$
 \item The \emph{moment estimator} of $S(\beta)$ is the sample average:
 $$\hat{S}(\beta)=\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bm{x}_i'\beta)^2$$
 \item $\sum_{i=1}^{n}(Y_i-\bm{x}_i'\beta)^2$ is called SSE($\beta$), the \textbf{sum of squared errors}.
@@ -191,7 +185,7 @@ $$\hat{S}(\beta)=\frac{1}{n}\sum_{i=1}^{n}(Y_i-\bm{x}_i'\beta)^2$$
 \item \textbf{Understand} $\hat{\beta}$ geometrically: projection matrices $\bm{P}$ and $\bm{M}$.\pause
 \item \textbf{Quantify uncertainty}: estimate $\sigma^2$ from residuals, then get standard errors for $\hat{\beta}$.
 \end{enumerate}\pause
-\item Step 3 is where things get subtle: residuals $\neq$ disturbances, so estimating the noise level requires care.
+\item Note, residuals $\neq$ disturbances.  The former is estimated.
 \end{itemize}
 \end{frame}
 
@@ -226,7 +220,7 @@ SSE(\beta)&=(\bm{y}-\bm{X\beta})'(\bm{y}-\bm{X\beta}) \tag{Definition of $\bm{e}
 
 \begin{frame}{Calculus Derivation of Least Squares Estimator}
 \begin{align*}
-\frac{\partial\bm{y}'\bm{y}-\bm{\beta'X'y}-\bm{y}'\bm{X\beta}+\bm{\beta'X'X\beta}}{\partial\bm{\beta}}&=\bm{0}-\bm{X'y}-\bm{y'X}+(\bm{X'X+X'X})\bm{\hat{\beta}}\\
+\frac{\partial\bm{y}'\bm{y}-\bm{\beta'X'y}-\bm{y}'\bm{X\beta}+\bm{\beta'X'X\beta}}{\partial\bm{\beta}}&=\bm{0}-\bm{X'y}-\bm{X'y}+(\bm{X'X+X'X})\bm{\hat{\beta}}\\
 &=-2\bm{X}'\bm{y}+2\bm{X}'\bm{X}\bm{\hat{\beta}} \tag{Symmetric}\\
 -2\bm{X}'\bm{y}+2\bm{X}'\bm{X}\bm{\hat{\beta}}&=\bm{0} \tag{find critical point}\\
 \bm{X}'\bm{X}\bm{\hat{\beta}}&=\bm{X}'\bm{y}. \tag{normal equations}\\
@@ -278,9 +272,7 @@ $$\bm{P}=\bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$$
 \end{itemize}\pause
 \item $\bm{P}$ is \textbf{symmetric}: $\bm{P}=\bm{P}'$.\pause
 \item $\bm{P}$ is \textbf{idempotent}: $\bm{P}\bm{P}=\bm{P}$.
-\begin{itemize}
-\item Once you've projected, projecting again does nothing---you're already there.
-\end{itemize}\pause
+\pause
 \item These two properties (symmetric + idempotent) will do a lot of work for us in the rest of the course.
 \end{itemize}
 \end{frame}
@@ -349,17 +341,17 @@ all.equal(as.vector(P %*% y), fitted(mod))  # TRUE
 all.equal(as.vector(M %*% y), resid(mod))   # TRUE
 \end{lstlisting}
 \vspace{1ex}
-$\bm{P}$ and $\bm{M}$ are not abstract notation---they are the matrices R uses to compute \texttt{fitted()} and \texttt{resid()}.
+$\bm{P}$ and $\bm{M}$ are used by R to compute \texttt{fitted()} and \texttt{resid()}.
 \end{frame}
 
-\section{Estimation of $\sigma^2$}
+\section{Estimation of \texorpdfstring{$\sigma^2$}{the error variance}}
 
 \begin{frame}{Where We Stand}
 \begin{itemize}
 \item We have $\hat{\beta}=(\bm{X'X})^{-1}\bm{X'y}$ and the geometry behind it ($\bm{P}$, $\bm{M}$).\pause
 \item But how precise is $\hat{\beta}$? To answer that, we need $\text{Var}(\hat{\beta}|\bm{X})=\sigma^2(\bm{X'X})^{-1}$.\pause
 \item Problem: $\sigma^2$ is \emph{unknown}---it's a population quantity, just like $\beta$.\pause
-\item So we need a second estimator, $s^2_e$, built from the residuals. This is step 3 of our plan.
+\item So we need a second estimator, $s^2_e$, built from the residuals. This is step 3.
 \end{itemize}
 \end{frame}
 
@@ -600,8 +592,7 @@ R^2&\equiv \frac{\text{SSR}}{\text{SST}}= 1-\frac{\text{SSE}}{\text{SST}}
 
 \begin{frame}{$R^2$ in Practice}
 \begin{itemize}
-\item $R^2$ measures \emph{descriptive fit}, not causal validity. A high $R^2$ does not mean the coefficients are unbiased; a low $R^2$ does not mean the model is useless.\pause
-\item Typical values vary by field:
+\item Typical values of $R^2$ vary by field:
 \begin{itemize}
 \item Cross-sectional micro data (e.g.\ earnings regressions): $R^2\approx 0.2$--$0.4$
 \item Aggregate time-series (e.g.\ GDP growth models): $R^2\approx 0.7$--$0.9$
@@ -631,7 +622,7 @@ $\sum \hat{e}_i^2$ & SSE (error) & RSS or SSE\\
 \begin{frame}{Regression to the Mean: The Setup}
 \begin{itemize}
 \item Francis Galton (1886) measured fathers' and sons' heights. Tall fathers had sons who were tall---but \emph{less} tall than their fathers. Short fathers had sons who were short---but \emph{less} short.\pause
-\item This isn't biology. It's projection. Let's show why.\pause
+\item This is a natural result of projection.\pause
 \item We proved that $\text{SST}=\text{SSR}+\text{SSE}$. Divide everything by $n$:
 \begin{align*}
 \frac{1}{n}\sum(Y_i-\bar{Y})^2 &= \frac{1}{n}\sum(\hat{Y}_i-\bar{Y})^2 + \frac{1}{n}\sum\hat{e}_i^2\\[4pt]
@@ -655,17 +646,14 @@ $\sum \hat{e}_i^2$ & SSE (error) & RSS or SSE\\
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Regression to the Mean Is Not a Causal Force}
+\begin{frame}{Examples of Regression to the Mean}
 \begin{itemize}
 \item A student scores in the 95th percentile on Midterm 1, then the 80th on Midterm 2. Did they get lazy?\pause
-\item Probably not. Their first score had a large positive $\hat{e}_i$---good luck. The projection predicts they'll be closer to the mean next time.\pause
-\item The same logic explains:
 \begin{itemize}
 \item The ``Sports Illustrated jinx'' (athletes on the cover then underperform)
 \item ``Sophomore slumps'' in politics, sports, music
 \item Why the worst-performing schools improve and the best-performing schools decline, even without any intervention
-\end{itemize}\pause
-\item The lesson: whenever you select units based on an extreme outcome, expect them to look less extreme next time. This is arithmetic, not causation.
+\end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -679,7 +667,6 @@ $\sum \hat{e}_i^2$ & SSE (error) & RSS or SSE\\
 \end{itemize}\pause
 \item In each case, the group would have improved on average \emph{even without the treatment}, because you selected them at an extreme.\pause
 \item This is why we need control groups, and why ``before--after'' comparisons on selected samples are unreliable.
-\item We now have the algebra to see why: it's $\hat{y} = Py$, and $P$ shrinks.
 \end{itemize}
 \end{frame}
 
