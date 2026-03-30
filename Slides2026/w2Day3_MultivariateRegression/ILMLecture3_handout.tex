@@ -619,11 +619,43 @@ $\sum \hat{e}_i^2$ & SSE (error) & RSS or SSE\\
 \end{itemize}
 \end{frame}
 
+\begin{frame}{The Cauchy--Schwarz Inequality}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50!black, title=Cauchy--Schwarz Inequality]
+For any two random variables $U$ and $V$ with finite variances:
+$$\bigl|\text{Cov}(U,V)\bigr| \;\leq\; \text{sd}(U)\;\text{sd}(V)$$
+with equality if and only if $V = aU + b$ for some constants $a,b$.
+\end{tcolorbox}\pause
+\begin{itemize}
+\item Dividing both sides by $\text{sd}(U)\,\text{sd}(V)$ gives
+$$-1 \;\leq\; \text{corr}(U,V) \;\leq\; 1$$
+with $|\text{corr}(U,V)| = 1$ only if the relationship is perfectly linear.\pause
+\item This is an \textbf{algebraic fact}, not a statistical assumption. It holds for \emph{any} joint distribution.\pause
+\item Implication for the BLP slope: since $\beta = \text{Cov}(X,Y)/\text{Var}(X)$, we can write
+$$|\beta| = \frac{|\text{Cov}(X,Y)|}{\text{Var}(X)} \leq \frac{\text{sd}(X)\,\text{sd}(Y)}{\text{Var}(X)} = \frac{\text{sd}(Y)}{\text{sd}(X)}.$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cauchy--Schwarz Applied: When $\text{Var}(Y)=\text{Var}(X)$}
+\begin{itemize}
+\item Suppose $Y$ and $X$ have the \textbf{same marginal variance}: $\text{Var}(Y) = \text{Var}(X)$.\pause
+\item Then the BLP slope simplifies:
+$$\beta = \frac{\text{Cov}(X,Y)}{\text{Var}(X)} = \frac{\text{Cov}(X,Y)}{\text{sd}(X)\,\text{sd}(Y)} = \text{corr}(X,Y)$$\pause
+\item By Cauchy--Schwarz: $|\beta| \leq 1$, with equality only if $Y = aX+b$.\pause
+\item If we also assume $\mathbb{E}[Y] = \mathbb{E}[X] = \mu$ (same mean), then
+$$\alpha = \mu - \beta\mu = (1-\beta)\mu$$
+so the BLP becomes:
+\begin{tcolorbox}[colback=green!5, colframe=darkgreen, title=Regression to the Mean]
+$$P(Y \mid X) = \mu + \beta(X - \mu), \qquad |\beta| < 1$$
+\end{tcolorbox}
+The predicted deviation from the mean is \emph{always shrunk} by a factor $\beta$.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Regression to the Mean: The Setup}
 \begin{itemize}
 \item Francis Galton (1886) measured fathers' and sons' heights. Tall fathers had sons who were tall---but \emph{less} tall than their fathers. Short fathers had sons who were short---but \emph{less} short.\pause
-\item This is a natural result of projection.\pause
-\item We proved that $\text{SST}=\text{SSR}+\text{SSE}$. Divide everything by $n$:
+\item This is a natural result of the equal-variance projection we just derived: when $\text{Var}(Y) = \text{Var}(X)$, the slope is the correlation, and $|\beta| < 1$.\pause
+\item The same structure appears in sample quantities. We proved $\text{SST}=\text{SSR}+\text{SSE}$. Divide by $n$:
 \begin{align*}
 \frac{1}{n}\sum(Y_i-\bar{Y})^2 &= \frac{1}{n}\sum(\hat{Y}_i-\bar{Y})^2 + \frac{1}{n}\sum\hat{e}_i^2\\[4pt]
 \text{Var}(Y) &= \text{Var}(\hat{Y}) + \text{Var}(\hat{e})
@@ -646,6 +678,17 @@ $\sum \hat{e}_i^2$ & SSE (error) & RSS or SSE\\
 \end{itemize}
 \end{frame}
 
+\begin{frame}{The Regression Fallacy}
+\begin{itemize}
+\item We showed $\beta < 1$ under the assumption that $\text{Var}(Y) = \text{Var}(X)$ (a \emph{stable} distribution).\pause
+\item \textbf{Common error:} observing $\beta < 1$ and concluding that $\text{Var}(Y) < \text{Var}(X)$---that the distribution is \emph{converging}.\pause
+\item But from the projection $Y = \alpha + \beta X + e$ with $\text{Cov}(X,e)=0$:
+$$\text{Var}(Y) = \beta^2\,\text{Var}(X) + \text{Var}(e)$$
+$\text{Var}(Y) < \text{Var}(X)$ requires $\beta^2 < 1 - \text{Var}(e)/\text{Var}(X)$, which is much stronger than $|\beta|<1$.\pause
+\item The variance of the projection error $e$ \textbf{replenishes the spread} that regression to the mean appears to remove.
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Examples of Regression to the Mean}
 \begin{itemize}
 \item A student scores in the 95th percentile on Midterm 1, then the 80th on Midterm 2. Did they get lazy?\pause
@@ -653,7 +696,8 @@ $\sum \hat{e}_i^2$ & SSE (error) & RSS or SSE\\
 \item The ``Sports Illustrated jinx'' (athletes on the cover then underperform)
 \item ``Sophomore slumps'' in politics, sports, music
 \item Why the worst-performing schools improve and the best-performing schools decline, even without any intervention
-\end{itemize}
+\end{itemize}\pause
+\item In 1933, Horace Secrist published \emph{The Triumph of Mediocrity in Business}, documenting that department stores sorted by 1920 profits ``converged toward mediocrity'' over the next decade. There was no discovery---regression to the mean is a necessary feature of stable distributions.
 \end{itemize}
 \end{frame}
 
