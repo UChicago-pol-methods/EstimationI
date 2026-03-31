@@ -115,46 +115,43 @@ text}{fg=darkpurple}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Partitioned Regression}
-\begin{itemize}
-\item We have seen that it is possible to partition the matrix $\bm{X}$ and $\bm{\beta}$ into subcomponents:
+
+\begin{frame}{Recap: From Population to Sample Partitions}
+In Lecture 2 we derived the partitioned regression result using population moments ($\mathbf{Q}$).
+Now we apply the same logic to \textbf{sample} matrices:\pause
 \begin{align*}
-\bm{y}&=\bm{X}_1\bm{\beta}_1 +\bm{X}_2\bm{\beta}_2+\bm{e}\\ \pause
-\bm{X}&=\begin{bmatrix}\bm{X}_1& \bm{X}_2 \end{bmatrix}\\\pause
-\bm{X}'\bm{X}&=\begin{bmatrix} \bm{X}_1'\\ \bm{X}_2' \end{bmatrix} \begin{bmatrix} \bm{X}_1& \bm{X}_2 \end{bmatrix}=\begin{bmatrix} \bm{X}_1'\bm{X}_1& \bm{X}_1'\bm{X}_2\\ \bm{X}_2'\bm{X}_1 &\bm{X}_2'\bm{X}_2 \end{bmatrix}\\ \pause 
-\bm{\beta}&=\begin{pmatrix} \bm{\beta}_1 \\ \bm{\beta}_2 \end{pmatrix}\\\pause
-\end{align*}
-\item We used this partition to study how including (or failing to include) control variables affects a multivariate regression.
-\end{itemize}
+\bm{y}&=\bm{X}_1\bm{\beta}_1+\bm{X}_2\bm{\beta}_2+\bm{e},\qquad
+\bm{X}=\begin{bmatrix}\bm{X}_1& \bm{X}_2\end{bmatrix}
+\end{align*}\pause
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{lcc}
+& \textbf{Population (Lecture 2)} & \textbf{Sample}\\
+\hline
+Moment matrix & $\mathbf{Q}_{XX}=\mathbb{E}[\bm{x}\bm{x}']$ & $\bm{X}'\bm{X}=\sum X_iX_i'$\\
+Cross-moment & $\mathbf{Q}_{XY}=\mathbb{E}[\bm{x}Y]$ & $\bm{X}'\bm{y}=\sum X_iY_i$\\
+Residual variation & $\mathbf{Q}_{11\cdot 2}$ & $\bm{X}_1'\bm{M}_2\bm{X}_1$\\
+Key result & $\bm{\beta}_1=\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y\cdot 2}$
+  & $\hat{\bm{\beta}}_1=(\bm{X}_1'\bm{M}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{M}_2\bm{y}$
+\end{tabular}
+\end{center}
+\onslide<4->{%
+where $\bm{M}_2=\bm{I}-\bm{P}_2$ and $\bm{P}_2=\bm{X}_2(\bm{X}_2'\bm{X}_2)^{-1}\bm{X}_2'$.}
 \end{frame}
 
 
 \begin{frame}{Why Open Up $(\bm{X'X})^{-1}$?}
 \begin{itemize}
-\item One of the virtues of OLS is that it never hides where its answers come from. Every coefficient can be traced back to specific variation in the data.\pause
-\item When you run a multivariate regression, the estimate of $\beta_1$ does \emph{not} use all the variation in $X_1$. It uses only the part of $X_1$ that the other regressors cannot explain.\pause
-\item The next few slides prove this with matrix algebra. The derivation is the hardest in the course---you do not need to memorize the steps.\pause
-\item What you need to take away: \alert{the Schur complement tells you exactly which variation in the data identifies each coefficient.} That transparency is why we study this estimator.
+\item Every OLS coefficient can be traced back to specific variation in the data.\pause
+\item $\hat{\beta}_1$ does \emph{not} use all the variation in $X_1$---only the part that the other regressors cannot explain.\pause
+\item \alert{The Schur complement tells you exactly which variation in the data identifies each coefficient.}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Formula for Inverse of $\bm{X}'\bm{X}$}
-Here is what we are going to derive:
-\begin{align*}
-(\bm{X}'\bm{X})^{-1}&=\begin{bmatrix} (\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}&-(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_2 (\bm{X}_2'\bm{X}_2)^{-1} \\
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 (\bm{X}_1'\bm{X}_1)^{-1} & (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \end{bmatrix}
-\end{align*}
-Where
-\begin{align*}
-\bm{P}_1&=\bm{X}_1(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'\\
-\bm{P}_2&=\bm{X}_2(\bm{X}_2'\bm{X}_2)^{-1}\bm{X}_2'
-\end{align*}
-
-\end{frame}
 
 \begin{frame}{Schur Complement: A $2\times 2$ Example}
 \begin{itemize}\setlength{\itemsep}{2pt}
-\item Before diving into the general derivation, let's see what the formula does with two scalar regressors (education, experience):
+\item Two scalar regressors (education, experience):
 $\bm{X}'\bm{X}=\begin{psmallmatrix} 10 & 3 \\ 3 & 8 \end{psmallmatrix}$\pause
 \item Direct inversion: $(\bm{X}'\bm{X})^{-1}=\frac{1}{10\cdot 8-3^2}\begin{psmallmatrix} 8 & -3 \\ -3 & 10 \end{psmallmatrix}=\frac{1}{71}\begin{psmallmatrix} 8 & -3 \\ -3 & 10 \end{psmallmatrix}$\pause
 \item Schur complement for $B_{11}$: $\left(10-\frac{3^2}{8}\right)^{-1}=\left(\frac{71}{8}\right)^{-1}=\frac{8}{71}$ \checkmark\pause
@@ -176,69 +173,21 @@ The Schur complement isolates the \emph{unique} information in $\bm{X}_1$ after 
 \end{frame}
 
 
-\begin{frame}{Finding Inverse of Partitioned Matrix}
-Call the $k\times k$ partitioned matrix $\bm{A}$ and its inverse $\bm{A}^{-1}$, $\bm{B}$:
-$$\begin{bmatrix} \bm{X}_1'\bm{X}_1& \bm{X}_1'\bm{X}_2\\  \bm{X}_2'\bm{X}_1 &\bm{X}_2'\bm{X}_2 \end{bmatrix}=\bm{A}=\begin{pmatrix} \bm{A}_{11} & \bm{A}_{12}\\ \bm{A}_{21} & \bm{A}_{22} \end{pmatrix} \quad \bm{B}=\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}$$\pause
-We know that if $\bm{B}=\bm{A}^{-1}$, then $\bm{AB}=\bm{I}$\pause
-\begin{align*}
-\bm{AB}&=\begin{pmatrix} \bm{A}_{11} & \bm{A}_{12}\\ \bm{A}_{21} & \bm{A}_{22} \end{pmatrix}\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}\\\pause
-&=\begin{pmatrix} \bm{A}_{11}\bm{B}_{11}+\bm{A}_{12}\bm{B}_{21}&\bm{A}_{11}\bm{B}_{12}+\bm{A}_{12}\bm{B}_{22}\\\bm{A}_{21}\bm{B}_{11}+\bm{A}_{22}\bm{B}_{21}&\bm{A}_{21}\bm{B}_{12}+\bm{A}_{22}\bm{B}_{22} \end{pmatrix}\pause
-&=\begin{pmatrix}\bm{I}_{k_1} & \bm{0}\\ \bm{0} & \bm{I}_{k_2} \end{pmatrix}
-\end{align*}
+\begin{frame}{The Sample Block Inverse}
+Applying the block inverse (derived in Lecture 2) to $\bm{X}'\bm{X}$:\pause
+$$(\bm{X}'\bm{X})^{-1}=\begin{bmatrix}
+  (\bm{X}_1'\bm{M}_2\bm{X}_1)^{-1}
+  & -(\bm{X}_1'\bm{M}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_2(\bm{X}_2'\bm{X}_2)^{-1}\\[6pt]
+  -(\bm{X}_2'\bm{M}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1(\bm{X}_1'\bm{X}_1)^{-1}
+  & (\bm{X}_2'\bm{M}_1\bm{X}_2)^{-1}
+\end{bmatrix}$$\pause
+\begin{itemize}
+\item The diagonal blocks are \textbf{Schur complements}: residual variation after projecting out the other group.\pause
+\item Multiplying by $\bm{X}'\bm{y}$ recovers:
+$$\hat{\bm{\beta}}_1=(\bm{X}_1'\bm{M}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{M}_2\bm{y}$$
+\end{itemize}
 \end{frame}
 
-
-\begin{frame}{Finding $\bm{B}_{11}$: Setting Up Two Equations}
-The top-left and bottom-left blocks of $\bm{AB}=\bm{I}$ give us two equations in two unknowns ($\bm{B}_{11}$ and $\bm{B}_{21}$):
-\begin{align*}
-\bm{A}_{11}\bm{B}_{11}+\bm{A}_{12}\bm{B}_{21} &= \bm{I}_{k} \tag{from top-left block}\\
-\bm{A}_{21}\bm{B}_{11}+\bm{A}_{22}\bm{B}_{21}&=\bm{0}_{n-k,k} \tag{from bottom-left block}
-\end{align*}
-Strategy: solve the second equation for $\bm{B}_{21}$, then substitute into the first.
-\end{frame}
-
-\begin{frame}{Finding $\bm{B}_{11}$: Substitution}
-\begin{align*}
-\bm{B}_{21}&=-\bm{A}_{22}^{-1}\bm{A}_{21}\bm{B}_{11} \tag{solve 2nd equation for $\bm{B}_{21}$}\\[6pt]
-\bm{A}_{11}\bm{B}_{11}+\bm{A}_{12}\bigl[-\bm{A}_{22}^{-1}\bm{A}_{21}\bm{B}_{11}\bigr] &= \bm{I}_{k} \tag{substitute into 1st equation}\\[6pt]
-(\bm{A}_{11}-\bm{A}_{12}\bm{A}_{22}^{-1}\bm{A}_{21})\bm{B}_{11}&= \bm{I}_{k} \tag{factor out $\bm{B}_{11}$}
-\end{align*}
-The expression $\bm{A}_{11}-\bm{A}_{12}\bm{A}_{22}^{-1}\bm{A}_{21}$ is the \textbf{Schur complement}---it will turn out to be the residual variance of $\bm{X}_1$ after removing $\bm{X}_2$.
-\end{frame}
-
-
-\begin{frame}{Inverse of Partitioned Matrix (finding $\bm{B}_{11}$)}
-\begin{align*}
-(\bm{A}_{11}-\bm{A}_{12}\bm{A}_{22}^{-1}\bm{A}_{21}) \bm{B}_{11} &= \bm{I}_{k}  \pause \\ 
-(\bm{A}_{11}-\bm{A}_{12}\bm{A}_{22}^{-1}\bm{A}_{21})^{-1} &= \bm{B}_{11} \tag{inverse of Schur complement} \pause  \\ 
-(\bm{X}_1'\bm{X}_1-\bm{X}_1'\bm{X}_2(\bm{X}_2'\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1)^{-1}&= \bm{B}_{11} \tag{plugging in for $\bm{A}$s}\pause  \\
-(\bm{X}_1'\bm{X}_1-\bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}&= \bm{B}_{11}  \tag{Sub in notation for $\bm{P}_2$.}
-\end{align*}
-\end{frame}
-
-
-
-\begin{frame}{Result: Formula for Inverse of Partitioned Matrix}
-\begin{align*}
-(\bm{X}'\bm{X})^{-1}&=\begin{pmatrix} \bm{B}_{11} & \bm{B}_{12}\\\bm{B}_{21} & \bm{B}_{22} \end{pmatrix}\\
-(\bm{X}'\bm{X})^{-1}&=\begin{bmatrix} (\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}&-(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_2 (\bm{X}_2'\bm{X}_2)^{-1} \\ 
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 (\bm{X}_1'\bm{X}_1)^{-1} & (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \end{bmatrix}
-\end{align*}
-\end{frame}
-
-
-\begin{frame}{Using Inverse of Partitioned Matrix formula}
-Regressing $\bm{X}_1$ onto $\bm{X}$ gives us the identity matrix and 0:\pause
-\begin{align*}
-(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{X}_1 &=(\bm{X}'\bm{X})^{-1} \begin{bmatrix} \bm{X}_1'\bm{X}_1\\ \bm{X}_2'\bm{X}_1\end{bmatrix} \\\pause
-&=\begin{bmatrix} \bm{B}_{11}\bm{X}_1'\bm{X}_1 +\bm{B}_{12}\bm{X}_2'\bm{X}_1\\ \bm{B}_{21}\bm{X}_1'\bm{X}_1 +\bm{B}_{22}\bm{X}_2'\bm{X}_1\end{bmatrix}\\\pause
-&=\begin{bmatrix} \alert{(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}}\bm{X}_1'\bm{X}_1 -\alert{(\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}}\bm{X}_1'\bm{X}_2 (\bm{X}_2'\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \\
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 \alert{(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'\bm{X}_1} + (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \end{bmatrix}\\\pause
-&=\begin{bmatrix} (\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1)^{-1}[\bm{X}_1'\bm{X}_1- \bm{X}_1'\bm{P}_2\bm{X}_1] \\ 	
--(\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1} \bm{X}_2'\bm{X}_1 + (\bm{X}_2'\bm{X}_2- \bm{X}_2'\bm{P}_1\bm{X}_2)^{-1}\bm{X}_2'\bm{X}_1 \end{bmatrix}\\\pause
-&=\begin{bmatrix}\bm{I}\\\bm{0} \end{bmatrix}
-\end{align*}
-\end{frame}
 
 
 \section{Proof of FWL}
