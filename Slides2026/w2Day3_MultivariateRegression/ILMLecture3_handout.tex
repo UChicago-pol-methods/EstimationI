@@ -626,12 +626,17 @@ $$\bigl|\text{Cov}(U,V)\bigr| \;\leq\; \text{sd}(U)\;\text{sd}(V)$$
 with equality if and only if $V = aU + b$ for some constants $a,b$.
 \end{tcolorbox}\pause
 \begin{itemize}
-\item Dividing both sides by $\text{sd}(U)\,\text{sd}(V)$ gives
-$$-1 \;\leq\; \text{corr}(U,V) \;\leq\; 1$$
-with $|\text{corr}(U,V)| = 1$ only if the relationship is perfectly linear.\pause
-\item This is an \textbf{algebraic fact}, not a statistical assumption. It holds for \emph{any} joint distribution.\pause
-\item Implication for the BLP slope: since $\beta = \text{Cov}(X,Y)/\text{Var}(X)$, we can write
-$$|\beta| = \frac{|\text{Cov}(X,Y)|}{\text{Var}(X)} \leq \frac{\text{sd}(X)\,\text{sd}(Y)}{\text{Var}(X)} = \frac{\text{sd}(Y)}{\text{sd}(X)}.$$
+\item Dividing both sides by $\text{sd}(U)\,\text{sd}(V)$ gives $-1 \leq \text{corr}(U,V) \leq 1$, with equality only if the relationship is perfectly linear.\pause
+\item This is an \textbf{algebraic fact}, not a statistical assumption. It holds for \emph{any} joint distribution.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cauchy--Schwarz Bounds the BLP Slope}
+\begin{itemize}
+\item Since $\beta = \text{Cov}(X,Y)/\text{Var}(X)$, Cauchy--Schwarz gives us
+$$|\beta| = \frac{|\text{Cov}(X,Y)|}{\text{Var}(X)} \leq \frac{\text{sd}(X)\,\text{sd}(Y)}{\text{Var}(X)} = \frac{\text{sd}(Y)}{\text{sd}(X)}.$$\pause
+\item The BLP slope is bounded by the ratio of standard deviations.\pause
+\item When $\text{Var}(Y) = \text{Var}(X)$, this simplifies to $|\beta| \leq 1$.
 \end{itemize}
 \end{frame}
 
@@ -639,11 +644,9 @@ $$|\beta| = \frac{|\text{Cov}(X,Y)|}{\text{Var}(X)} \leq \frac{\text{sd}(X)\,\te
 \begin{itemize}
 \item Suppose $Y$ and $X$ have the \textbf{same marginal variance}: $\text{Var}(Y) = \text{Var}(X)$.\pause
 \item Then the BLP slope simplifies:
-$$\beta = \frac{\text{Cov}(X,Y)}{\text{Var}(X)} = \frac{\text{Cov}(X,Y)}{\text{sd}(X)\,\text{sd}(Y)} = \text{corr}(X,Y)$$\pause
-\item By Cauchy--Schwarz: $|\beta| \leq 1$, with equality only if $Y = aX+b$.\pause
-\item If we also assume $\mathbb{E}[Y] = \mathbb{E}[X] = \mu$ (same mean), then
-$$\alpha = \mu - \beta\mu = (1-\beta)\mu$$
-so the BLP becomes:
+$$\beta = \frac{\text{Cov}(X,Y)}{\text{Var}(X)} = \frac{\text{Cov}(X,Y)}{\text{sd}(X)\,\text{sd}(Y)} = \text{corr}(X,Y)$$
+By Cauchy--Schwarz: $|\beta| \leq 1$, with equality only if $Y = aX+b$.\pause
+\item If we also assume $\mathbb{E}[Y] = \mathbb{E}[X] = \mu$, then $\alpha = (1-\beta)\mu$ and the BLP becomes:
 \begin{tcolorbox}[colback=green!5, colframe=darkgreen, title=Regression to the Mean]
 $$P(Y \mid X) = \mu + \beta(X - \mu), \qquad |\beta| < 1$$
 \end{tcolorbox}
