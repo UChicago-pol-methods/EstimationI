@@ -34,7 +34,7 @@ text}{fg=darkpurple}
 \font\domino=domino
 \def\die#1{{\domino#1}}
 \usepackage{tikz}
-\usetikzlibrary{arrows}
+\usetikzlibrary{arrows,fit,positioning,calc,decorations.pathreplacing}
 \usepackage{colortbl}
 \renewcommand{\familydefault}{cmss}
 %\usepackage[all]{xy}
@@ -795,106 +795,272 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
 \section{Omitted Variable Bias}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Partitions and Regression Sub-Vectors}
-\begin{itemize}
-\item Divide our regressors into $X=\begin{pmatrix} X_1\\ X_2\end{pmatrix}$, so the linear projection is:
-\begin{align*}
-Y&=X_1'\beta_1+X_2'\beta_2+e, \quad \mathbb{E}[Xe]=0
-\end{align*}
-\item We can partition $\mathbf{Q}_{XX}$ and $\mathbf{Q}_{XY}$:
-\begin{align*}
-\mathbf{Q}_{XX}&=\begin{bmatrix} \mathbf{Q}_{11} &\mathbf{Q}_{12}\\\mathbf{Q}_{21}&\mathbf{Q}_{22}\end{bmatrix} \quad
-\mathbf{Q}_{XY}=\begin{bmatrix} \mathbf{Q}_{1Y}\\\mathbf{Q}_{2Y}\end{bmatrix}
-\end{align*}
-\end{itemize}
+%% ── Animated partitioned regression sequence ──────────────────────────
+\begin{frame}{From Scalar to Partitioned Regression}
+\begin{center}
+\begin{tikzpicture}[
+  every node/.style={inner sep=1pt},
+  termbox/.style={rounded corners=3pt, thick, inner sep=4pt},
+]
+% --- Overlay 1-2: full scalar equation with named nodes for each group ---
+\node<1-2>[anchor=base west] (lhs) at (0,0) {$Y ={}$};
+\node<1-2>[anchor=base west] (grpA) at (lhs.base east) {$\beta_0 + \beta_1 x_1 + \beta_2 x_2$};
+\node<1-2>[anchor=base west] (plus1) at (grpA.base east) {${}+{}$};
+\node<1-2>[anchor=base west] (grpB) at (plus1.base east) {$\beta_3 x_3 + \beta_4 x_4 + \beta_5 x_5$};
+\node<1-2>[anchor=base west] (err) at (grpB.base east) {${}+ e$};
+
+% --- Overlay 2: draw grouping boxes using fit ---
+\only<2>{%
+  \node[termbox, draw=blue, fit=(grpA)] {};
+  \node[blue, font=\footnotesize, above=2pt of grpA] {$\bm{X}_1$};
+  \node[termbox, draw=darkgreen, fit=(grpB)] {};
+  \node[darkgreen, font=\footnotesize, above=2pt of grpB] {$\bm{X}_2$};
+}
+
+% --- Overlay 3: collapsed vector form ---
+\only<3>{%
+  \node[anchor=base west] at (0,0) {%
+    $Y = \textcolor{blue}{\bm{X}_1'\bm{\beta}_1}
+        + \textcolor{darkgreen}{\bm{X}_2'\bm{\beta}_2} + e,
+        \qquad \mathbb{E}[\bm{X}e]=\bm{0}$};
+}
+
+% --- Overlay 4: show what X looks like ---
+\only<4>{%
+  \node[anchor=base west] at (0,0.8) {%
+    $Y = \textcolor{blue}{\bm{X}_1'\bm{\beta}_1}
+        + \textcolor{darkgreen}{\bm{X}_2'\bm{\beta}_2} + e$};
+  \node[anchor=west] at (0,-0.3) {%
+    $\bm{X}_1 = \textcolor{blue}{\begin{pmatrix} 1\\[2pt] x_1\\[2pt] x_2\end{pmatrix}}, \qquad
+    \bm{X}_2 = \textcolor{darkgreen}{\begin{pmatrix} x_3\\[2pt] x_4\\[2pt] x_5\end{pmatrix}}, \qquad
+    \bm{X} = \begin{pmatrix} \textcolor{blue}{\bm{X}_1}\\[2pt]
+    \textcolor{darkgreen}{\bm{X}_2}\end{pmatrix}$};
+}
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
-\begin{frame}{A Useful Formula}
-\begin{itemize}
-\item Recall the error variance was: $Q_{YY\cdot X}\equiv Q_{YY}-\bm{Q}_{YX}\bm{Q}^{-1}_{XX}\bm{Q}_{XY}$
-\item Analogously $\mathbf{Q}_{11\cdot 2}\equiv \mathbf{Q}_{11}-\bm{Q}_{12}\bm{Q}^{-1}_{22}\bm{Q}_{21}$,and $\mathbf{Q}_{22\cdot 1}\equiv \mathbf{Q}_{22}-\bm{Q}_{21}\bm{Q}^{-1}_{11}\bm{Q}_{12}$, etc.
-\item In each case, $\mathbf{Q}_{a\cdot b}$ is the variation in $a$ not predicted by the linear projection of $b$.
-\end{itemize}
+
+\begin{frame}{Building the Moment Matrices}
+\begin{center}
+\begin{tikzpicture}
+% --- Overlay 1: Q_XX in expectations ---
+\only<1>{%
+  \node at (0,0) {$\mathbf{Q}_{XX} = \mathbb{E}[\bm{X}\bm{X}']
+    = \mathbb{E}\!\left[\begin{pmatrix} \bm{X}_1\\[2pt] \bm{X}_2\end{pmatrix}
+    \begin{pmatrix} \bm{X}_1' & \bm{X}_2'\end{pmatrix}\right]
+    = \begin{bmatrix}
+    \mathbb{E}[\bm{X}_1\bm{X}_1'] & \mathbb{E}[\bm{X}_1\bm{X}_2']\\[4pt]
+    \mathbb{E}[\bm{X}_2\bm{X}_1'] & \mathbb{E}[\bm{X}_2\bm{X}_2']
+    \end{bmatrix}$};
+}
+% --- Overlay 2: replace with Q notation ---
+\only<2>{%
+  \node at (0,0) {$\mathbf{Q}_{XX}
+    = \begin{bmatrix}
+    \mathbb{E}[\bm{X}_1\bm{X}_1'] & \mathbb{E}[\bm{X}_1\bm{X}_2']\\[4pt]
+    \mathbb{E}[\bm{X}_2\bm{X}_1'] & \mathbb{E}[\bm{X}_2\bm{X}_2']
+    \end{bmatrix}
+    \;\equiv\;
+    \begin{bmatrix}
+    \textcolor{blue}{\mathbf{Q}_{11}} & \mathbf{Q}_{12}\\[4pt]
+    \mathbf{Q}_{21} & \textcolor{darkgreen}{\mathbf{Q}_{22}}
+    \end{bmatrix}$};
+}
+% --- Overlay 3: compact form + Q_XY ---
+\only<3->{%
+  \node at (0,0.5) {$\mathbf{Q}_{XX}
+    = \begin{bmatrix}
+    \textcolor{blue}{\mathbf{Q}_{11}} & \mathbf{Q}_{12}\\[4pt]
+    \mathbf{Q}_{21} & \textcolor{darkgreen}{\mathbf{Q}_{22}}
+    \end{bmatrix}$};
+  \node at (0,-1.0) {$\mathbf{Q}_{XY}
+    = \mathbb{E}[\bm{X}Y]
+    = \begin{bmatrix}
+    \mathbb{E}[\bm{X}_1 Y]\\[4pt] \mathbb{E}[\bm{X}_2 Y]
+    \end{bmatrix}
+    \;\equiv\;
+    \begin{bmatrix}
+    \textcolor{blue}{\mathbf{Q}_{1Y}}\\[4pt]
+    \textcolor{darkgreen}{\mathbf{Q}_{2Y}}
+    \end{bmatrix}$};
+}
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 
-\begin{frame}{Solving the Partitioned Normal Equations}
-The normal equation $\mathbf{Q}_{XY}=\mathbf{Q}_{XX}\beta$ expands into two block rows:
-\begin{align}
-\mathbf{Q}_{1Y}&=\mathbf{Q}_{11}\beta_1+\mathbf{Q}_{12}\beta_2 \tag{Row 1}\\
-\mathbf{Q}_{2Y}&=\mathbf{Q}_{21}\beta_1+\mathbf{Q}_{22}\beta_2 \tag{Row 2}
-\end{align}
-\pause
-\textbf{Goal:} Eliminate $\beta_2$ to isolate $\beta_1$.\\
-\medskip
-\textbf{Step 1.} Solve Row 2 for $\beta_2$:
-$$\beta_2=\mathbf{Q}_{22}^{-1}\bigl(\mathbf{Q}_{2Y}-\mathbf{Q}_{21}\beta_1\bigr)$$
+\begin{frame}{The Dot Notation: Variation ``Left Over''}
+\onslide<1->{%
+Recall the projection error variance: $\;\sigma^2_e = Q_{YY} - \bm{Q}_{YX}\bm{Q}_{XX}^{-1}\bm{Q}_{XY} \;\equiv\; Q_{YY\cdot X}$\\[8pt]}
+\onslide<2->{%
+The same pattern works for \emph{any} partition block:}
+\begin{center}
+\begin{tikzpicture}
+\only<3>{%
+  \node at (0,0) {$\mathbf{Q}_{11\cdot 2}
+    \;\equiv\; \underbrace{\mathbf{Q}_{11}}_{\text{total var of }\bm{X}_1}
+    \;-\; \underbrace{\mathbf{Q}_{12}\,\mathbf{Q}_{22}^{-1}\,\mathbf{Q}_{21}}_%
+    {\text{part predicted by }\bm{X}_2}$};
+}
+\only<4->{%
+  \node at (0,0.3) {$\mathbf{Q}_{11\cdot 2}
+    \;\equiv\; \underbrace{\mathbf{Q}_{11}}_{\text{total}}
+    \;-\; \underbrace{\mathbf{Q}_{12}\,\mathbf{Q}_{22}^{-1}\,\mathbf{Q}_{21}}_%
+    {\text{predicted by }\bm{X}_2}$};
+  \node at (0,-1.1) {$\mathbf{Q}_{1Y\cdot 2}
+    \;\equiv\; \underbrace{\mathbf{Q}_{1Y}}_{\text{total}}
+    \;-\; \underbrace{\mathbf{Q}_{12}\,\mathbf{Q}_{22}^{-1}\,\mathbf{Q}_{2Y}}_%
+    {\text{predicted by }\bm{X}_2}$};
+}
+\end{tikzpicture}
+\end{center}
+\onslide<5->{%
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50!black]
+$\mathbf{Q}_{a\cdot b}$ = the variation in $a$ that $b$ \textbf{cannot predict}.
+\end{tcolorbox}}
 \end{frame}
 
 
-\begin{frame}{Solving the Partitioned Normal Equations (cont.)}
-\textbf{Step 2.} Substitute $\beta_2$ into Row 1:
-\begin{align*}
-\mathbf{Q}_{1Y}&=\mathbf{Q}_{11}\beta_1+\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\bigl(\mathbf{Q}_{2Y}-\mathbf{Q}_{21}\beta_1\bigr)\\\pause
-\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}&=\bigl(\mathbf{Q}_{11}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)\beta_1
-\end{align*}
-\pause
-\textbf{Step 3.} Recognize the residualized quantities from the previous slide:
-\begin{align*}
-\underbrace{\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}}_{\mathbf{Q}_{1Y\cdot 2}}&=\underbrace{\bigl(\mathbf{Q}_{11}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)}_{\mathbf{Q}_{11\cdot 2}}\beta_1
-\end{align*}
-\pause
-\textbf{Step 4.} Premultiply by $\mathbf{Q}_{11\cdot 2}^{-1}$:
-$$\boxed{\beta_1=\mathbf{Q}_{11\cdot 2}^{-1}\,\mathbf{Q}_{1Y\cdot 2}}$$
-By symmetry: $\beta_2=\mathbf{Q}_{22\cdot 1}^{-1}\,\mathbf{Q}_{2Y\cdot 1}$.
+\begin{frame}{Two Equations, Two Unknowns}
+The normal equation $\mathbf{Q}_{XY}=\mathbf{Q}_{XX}\bm{\beta}$ expands to:
+\begin{center}
+\begin{tikzpicture}
+% --- Overlay 1: matrix form ---
+\only<1>{%
+  \node at (0,0) {$\begin{bmatrix} \mathbf{Q}_{1Y}\\[4pt] \mathbf{Q}_{2Y}\end{bmatrix}
+    = \begin{bmatrix} \mathbf{Q}_{11} & \mathbf{Q}_{12}\\[4pt]
+    \mathbf{Q}_{21} & \mathbf{Q}_{22}\end{bmatrix}
+    \begin{bmatrix} \bm{\beta}_1\\[4pt] \bm{\beta}_2\end{bmatrix}$};
+}
+% --- Overlay 2: two separate equations ---
+\only<2->{%
+  \node[anchor=west] (r1) at (-4,0.5) {%
+    $\mathbf{Q}_{1Y}=\mathbf{Q}_{11}\bm{\beta}_1+\mathbf{Q}_{12}\bm{\beta}_2$};
+  \node[anchor=west, right=4pt of r1, blue, font=\footnotesize] {(Row 1)};
+  \node[anchor=west] (r2) at (-4,-0.5) {%
+    $\mathbf{Q}_{2Y}=\mathbf{Q}_{21}\bm{\beta}_1+\mathbf{Q}_{22}\bm{\beta}_2$};
+  \node[anchor=west, right=4pt of r2, darkgreen, font=\footnotesize] {(Row 2)};
+}
+% --- Overlay 3: highlight it's substitution ---
+\only<3->{%
+  \node[anchor=west, font=\small] at (-4,-1.5)
+    {This is just two simultaneous equations---solve by \textbf{substitution}.};
+}
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Eliminate $\bm{\beta}_2$}
+\textbf{Step 1.}\; Solve \textcolor{darkgreen}{Row 2} for $\bm{\beta}_2$:\par
+\onslide<1->{%
+$$\bm{\beta}_2=\mathbf{Q}_{22}^{-1}\bigl(\mathbf{Q}_{2Y}
+  -\mathbf{Q}_{21}\bm{\beta}_1\bigr)$$}
+\onslide<2->{%
+\textbf{Step 2.}\; Substitute into \textcolor{blue}{Row 1}:
+$$\mathbf{Q}_{1Y}=\mathbf{Q}_{11}\bm{\beta}_1
+  +\mathbf{Q}_{12}\,\textcolor{darkgreen}{\mathbf{Q}_{22}^{-1}
+  \bigl(\mathbf{Q}_{2Y}-\mathbf{Q}_{21}\bm{\beta}_1\bigr)}$$}
+\onslide<3->{%
+\textbf{Step 3.}\; Collect $\bm{\beta}_1$ terms and move the rest left:
+$$\underbrace{\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}}_%
+  {\textcolor{blue}{\mathbf{Q}_{1Y\cdot 2}}}
+  =\underbrace{\bigl(\mathbf{Q}_{11}
+  -\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)}_%
+  {\textcolor{blue}{\mathbf{Q}_{11\cdot 2}}}\;\bm{\beta}_1$$}
+\end{frame}
+
+
+\begin{frame}{The Key Result}
+\begin{center}
+\begin{tikzpicture}
+% --- Overlay 1: full expression ---
+\only<1>{%
+  \node at (0,1) {From the previous slide:};
+  \node at (0,0) {$\bigl(\mathbf{Q}_{11}
+    -\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)\bm{\beta}_1
+    = \mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}$};
+}
+% --- Overlay 2: replace with dot notation ---
+\only<2>{%
+  \node at (0,1) {Substitute the dot notation:};
+  \node at (0,0) {$\mathbf{Q}_{11\cdot 2}\;\bm{\beta}_1
+    = \mathbf{Q}_{1Y\cdot 2}$};
+}
+% --- Overlay 3: solve ---
+\only<3->{%
+  \node at (0,1) {Premultiply by $\mathbf{Q}_{11\cdot 2}^{-1}$:};
+  \node at (0,0) {$\boxed{\bm{\beta}_1
+    = \mathbf{Q}_{11\cdot 2}^{-1}\;\mathbf{Q}_{1Y\cdot 2}}$};
+  \node[anchor=north, text width=10cm, align=center, font=\small] at (0,-0.8)
+    {By symmetry:\;
+    $\bm{\beta}_2=\mathbf{Q}_{22\cdot 1}^{-1}\;\mathbf{Q}_{2Y\cdot 1}$};
+}
+% --- Overlay 4: interpretation ---
+\only<4->{%
+  \node[anchor=north] at (0,-1.6) {%
+    \begin{tcolorbox}[colback=blue!5, colframe=blue!50!black, width=11cm]
+    $\bm{\beta}_1$ depends only on the variation in $\bm{X}_1$ and $Y$
+    that $\bm{X}_2$ \textbf{cannot explain}.
+    \end{tcolorbox}};
+}
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 
 \begin{frame}{From Block Elimination to Block Inverse}
-The block elimination gave us $\beta=\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$.  What does $\bm{Q}_{XX}^{-1}$ itself look like?\\
+The block elimination gave us $\bm{\beta}=\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$.\; What does $\bm{Q}_{XX}^{-1}$ itself look like?\\
 \medskip
-We want a matrix $\begin{bmatrix} \mathbf{M}_{11} & \mathbf{M}_{12}\\ \mathbf{M}_{21} & \mathbf{M}_{22}\end{bmatrix}$ such that:
-$$\begin{bmatrix} \mathbf{Q}_{11} & \mathbf{Q}_{12}\\ \mathbf{Q}_{21} & \mathbf{Q}_{22}\end{bmatrix}\begin{bmatrix} \mathbf{M}_{11} & \mathbf{M}_{12}\\ \mathbf{M}_{21} & \mathbf{M}_{22}\end{bmatrix}=\begin{bmatrix} \mathbf{I} & \mathbf{0}\\ \mathbf{0} & \mathbf{I}\end{bmatrix}$$
-\pause
-Multiplying out gives four equations.  Focus on the first column ($\mathbf{M}_{11}$ and $\mathbf{M}_{21}$):
+\onslide<1->{%
+We want $\begin{bmatrix} \mathbf{M}_{11} & \mathbf{M}_{12}\\ \mathbf{M}_{21} & \mathbf{M}_{22}\end{bmatrix}$ such that
+$\begin{bmatrix} \mathbf{Q}_{11} & \mathbf{Q}_{12}\\ \mathbf{Q}_{21} & \mathbf{Q}_{22}\end{bmatrix}\begin{bmatrix} \mathbf{M}_{11} & \mathbf{M}_{12}\\ \mathbf{M}_{21} & \mathbf{M}_{22}\end{bmatrix}=\begin{bmatrix} \mathbf{I} & \mathbf{0}\\ \mathbf{0} & \mathbf{I}\end{bmatrix}$}\\[6pt]
+\onslide<2->{%
+\textbf{Same elimination trick.}\; Focus on the first column:
 \begin{align}
 \mathbf{Q}_{11}\mathbf{M}_{11}+\mathbf{Q}_{12}\mathbf{M}_{21}&=\mathbf{I} \tag{A}\\
 \mathbf{Q}_{21}\mathbf{M}_{11}+\mathbf{Q}_{22}\mathbf{M}_{21}&=\mathbf{0} \tag{B}
-\end{align}
-\end{frame}
-
-
-\begin{frame}{Block Inverse: Solving for $\mathbf{M}_{11}$}
-From (B), solve for $\mathbf{M}_{21}$:
-$$\mathbf{M}_{21}=-\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{M}_{11}$$
-\pause
-Substitute into (A):
-\begin{align*}
-\mathbf{Q}_{11}\mathbf{M}_{11}+\mathbf{Q}_{12}\bigl(-\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{M}_{11}\bigr)&=\mathbf{I}\\
-\bigl(\mathbf{Q}_{11}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)\mathbf{M}_{11}&=\mathbf{I}\\\pause
-\mathbf{Q}_{11\cdot 2}\;\mathbf{M}_{11}&=\mathbf{I}
-\end{align*}
-\pause
-$$\boxed{\mathbf{M}_{11}=\mathbf{Q}_{11\cdot 2}^{-1}}$$
-And substituting back: $\;\mathbf{M}_{21}=-\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11\cdot 2}^{-1}$.\\ \medskip
-\pause
-The same procedure on the second column ($\mathbf{M}_{12}$, $\mathbf{M}_{22}$) gives $\mathbf{M}_{22}=\mathbf{Q}_{22\cdot 1}^{-1}$ and $\mathbf{M}_{12}=-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}$.
+\end{align}}
+\onslide<3->{%
+Solve (B) for $\mathbf{M}_{21}$, substitute into (A)\;---\;exactly the same steps as before:
+$$\mathbf{Q}_{11\cdot 2}\;\mathbf{M}_{11}=\mathbf{I}
+  \qquad\Longrightarrow\qquad
+  \boxed{\mathbf{M}_{11}=\mathbf{Q}_{11\cdot 2}^{-1}}$$}
 \end{frame}
 
 
 \begin{frame}{The Complete Block Inverse}
+\onslide<1->{%
 Collecting all four blocks:
-$$\bm{Q}_{XX}^{-1}=\begin{bmatrix} \mathbf{Q}_{11\cdot 2}^{-1} &-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\\ -\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11\cdot 2}^{-1}&\mathbf{Q}_{22\cdot 1}^{-1}\end{bmatrix}$$
-\pause
-Now multiply $\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$ to recover our earlier result:
-\begin{align*}
-\beta_1&=\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y}-\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}\\
-&=\mathbf{Q}_{11\cdot 2}^{-1}\bigl(\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}\bigr)=\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y\cdot 2}\quad\checkmark
-\end{align*}
-\pause
-\begin{itemize}
-\item We can use $\beta_1=\mathbf{Q}_{11\cdot 2}^{-1} \mathbf{Q}_{1Y\cdot 2}$ to understand multivariate regression.
-\end{itemize}
+$$\bm{Q}_{XX}^{-1}=\begin{bmatrix}
+  \textcolor{blue}{\mathbf{Q}_{11\cdot 2}^{-1}}
+  & -\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\\[6pt]
+  -\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\mathbf{Q}_{11\cdot 2}^{-1}
+  & \textcolor{darkgreen}{\mathbf{Q}_{22\cdot 1}^{-1}}
+\end{bmatrix}$$}
+\onslide<2->{%
+Multiply $\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$ to recover $\bm{\beta}_1$:}
+\begin{center}
+\begin{tikzpicture}
+\only<2>{%
+  \node at (0,0) {$\bm{\beta}_1
+    = \mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y}
+    -\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}$};
+}
+\only<3>{%
+  \node at (0,0) {$\bm{\beta}_1
+    = \mathbf{Q}_{11\cdot 2}^{-1}
+    \bigl(\mathbf{Q}_{1Y}
+    -\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}\bigr)$};
+}
+\only<4->{%
+  \node at (0,0) {$\bm{\beta}_1
+    = \mathbf{Q}_{11\cdot 2}^{-1}\;\mathbf{Q}_{1Y\cdot 2}
+    \qquad\checkmark$};
+}
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 \begin{frame}{Interpreting Multivariate Regression}
