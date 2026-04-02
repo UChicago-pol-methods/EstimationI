@@ -34,7 +34,7 @@ text}{fg=darkpurple}
 \font\domino=domino
 \def\die#1{{\domino#1}}
 \usepackage{tikz}
-\usetikzlibrary{arrows}
+\usetikzlibrary{arrows,decorations.pathreplacing}
 \usepackage{colortbl}
 
 \usepackage{lipsum}
@@ -140,12 +140,19 @@ where $\bm{M}_2=\bm{I}-\bm{P}_2$ and $\bm{P}_2=\bm{X}_2(\bm{X}_2'\bm{X}_2)^{-1}\
 \end{frame}
 
 
-\begin{frame}{Why Open Up $(\bm{X'X})^{-1}$?}
+\begin{frame}{Why Open Up $(\bm{X}'\bm{X})^{-1}$?}
 \begin{itemize}
 \item Every OLS coefficient can be traced back to specific variation in the data.\pause
-\item $\hat{\beta}_1$ does \emph{not} use all the variation in $X_1$---only the part that the other regressors cannot explain.\pause
+\item $\bm{\hat{\beta}}_1$ does \emph{not} use all the variation in $\bm{X}_1$---only the part that the other regressors cannot explain.\pause
 \item \alert{The Schur complement tells you exactly which variation in the data identifies each coefficient.}
 \end{itemize}
+\pause
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
+\textbf{Definition.} For a conformably partitioned matrix
+$\bm{A}=\begin{bmatrix}\bm{A}_{11}&\bm{A}_{12}\\\bm{A}_{21}&\bm{A}_{22}\end{bmatrix}$
+with $\bm{A}_{22}$ invertible, the \textbf{Schur complement} of $\bm{A}_{22}$ in $\bm{A}$ is
+$$\bm{A}/\bm{A}_{22}\;\equiv\;\bm{A}_{11}-\bm{A}_{12}\bm{A}_{22}^{-1}\bm{A}_{21}.$$
+\end{tcolorbox}
 \end{frame}
 
 
@@ -192,18 +199,80 @@ $$\hat{\bm{\beta}}_1=(\bm{X}_1'\bm{M}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{M}_2\bm{y}$$
 
 \section{Proof of FWL}
 \setcounter{subsection}{1}
-\begin{frame}{Frisch Waugh Lovell in Matrix Terms}
+\begin{frame}{Frisch-Waugh-Lovell: The Claim}
 \begin{itemize}
-\item FWL claim is that the regression coefficient $\bm{\hat{\beta}}_2$ is the same as the result of first regressing $\bm{y}$ and $\bm{X}_2$ on $\bm{X}_1$ and then on one another.  That is, we can first project $\bm{y}$ into the orthogonal complement of the column space of $\bm{X}_1$, then project it onto $\bm{X}_2$.
-\begin{align*}
-\bm{y}&=\bm{X}_1 \bm{\hat{\beta}}_1+\bm{X}_2 \bm{\hat{\beta}}_2+e \tag{full model}\\\pause
-\bm{M}_1\bm{y}&=\bm{M}_1 \bm{X}_2 \bm{\hat{\beta}}_2+\bm{M}_1e \tag{premultiply by $\bm{M}_1$; note $\bm{M}_1\bm{X}_1=0$}\\\pause
- \bm{\hat{\beta}}_2&=((\bm{M}_1\bm{X}_2)'\bm{M}_1\bm{X}_2)^{-1}(\bm{M}_1\bm{X}_2)'\bm{M}_1\bm{y} \tag{OLS on residualized data}\\\pause
-&=(\bm{X}_2'\bm{M}_1\bm{X}_2)^{-1}\bm{X}'_2\bm{M}_1\bm{y} \tag{$\bm{M}_1$ symmetric and idempotent}\pause
-\end{align*}
-\item Where $\bm{M}_1\bm{q}$ produces the residuals of any variable $\bm{q}$ regressed on $\bm{X}_1$ 
+\item FWL claim: the coefficient $\bm{\hat{\beta}}_2$ from the full regression is \emph{identical} to the coefficient from regressing residualized $\bm{y}$ on residualized $\bm{X}_2$.\pause
+\item That is, we can first project $\bm{y}$ and $\bm{X}_2$ into the orthogonal complement of the column space of $\bm{X}_1$, then regress one on the other.\pause
+\item Recall: $\bm{M}_1 = \bm{I} - \bm{X}_1(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'$ is the ``residual maker''---$\bm{M}_1\bm{q}$ produces the residuals of any variable $\bm{q}$ regressed on $\bm{X}_1$.
 \end{itemize}
 \end{frame}
+
+\begin{frame}{Frisch-Waugh-Lovell: Removing $\bm{X}_1$}
+Start from the full model and premultiply both sides by $\bm{M}_1$:
+\begin{align*}
+\bm{y}&=\bm{X}_1 \bm{\hat{\beta}}_1+\bm{X}_2 \bm{\hat{\beta}}_2+\bm{e} \tag{full model}\\\pause
+\bm{M}_1\bm{y}&=\bm{M}_1\bm{X}_1 \bm{\hat{\beta}}_1+\bm{M}_1 \bm{X}_2 \bm{\hat{\beta}}_2+\bm{M}_1\bm{e} \tag{premultiply by $\bm{M}_1$}\\\pause
+\bm{M}_1\bm{y}&=\bm{M}_1 \bm{X}_2 \bm{\hat{\beta}}_2+\bm{M}_1\bm{e} \tag{$\bm{M}_1\bm{X}_1=\bm{0}$ by construction}
+\end{align*}\pause
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
+\textbf{One trick:} $\bm{M}_1$ annihilates $\bm{X}_1$, so $\hat{\beta}_1$ drops out entirely.
+\end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Frisch-Waugh-Lovell: Solving for $\hat{\beta}_2$}
+The residualized equation $\bm{M}_1\bm{y}=\bm{M}_1 \bm{X}_2 \bm{\hat{\beta}}_2+\bm{M}_1\bm{e}$ is just a regression---apply OLS:
+\begin{align*}
+\bm{\hat{\beta}}_2&=((\bm{M}_1\bm{X}_2)'\bm{M}_1\bm{X}_2)^{-1}(\bm{M}_1\bm{X}_2)'\bm{M}_1\bm{y} \tag{OLS on residualized data}\\\pause
+&=(\bm{X}_2'\bm{M}_1'\bm{M}_1\bm{X}_2)^{-1}\bm{X}'_2\bm{M}_1'\bm{M}_1\bm{y} \tag{expand transpose}\\\pause
+&=(\bm{X}_2'\bm{M}_1\bm{X}_2)^{-1}\bm{X}'_2\bm{M}_1\bm{y} \tag{$\bm{M}_1'=\bm{M}_1$, \ $\bm{M}_1\bm{M}_1=\bm{M}_1$}
+\end{align*}\pause
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
+\textbf{One trick:} $\bm{M}_1$ is symmetric and idempotent, so $\bm{M}_1'\bm{M}_1 = \bm{M}_1$.
+\end{tcolorbox}
+\end{frame}
+
+\begin{frame}{FWL Geometry: Projecting Out $\bm{X}_1$}
+\centering
+\begin{tikzpicture}[>=stealth, scale=0.95, every node/.style={font=\small}]
+  % --- Geometry ---
+  % y  = (2.4, 4.2)   X2 = (4.8, 2.2)
+  % Projections onto col(X1) (horizontal): P1 y = (2.4, 0), P1 X2 = (4.8, 0)
+  % Residuals (vertical legs): M1 y = height 4.2,  M1 X2 = height 2.2
+
+  % Column space of X1 (horizontal line)
+  \draw[gray, thick] (-0.3,0) -- (5.8,0);
+  \node[gray, anchor=north west] at (5.8,0) {$\mathrm{col}(\bm{X}_1)$};
+
+  % --- y decomposition ---
+  \draw[->, blue!70!black, very thick] (0,0) -- (2.4,4.2)
+    node[anchor=south] {$\bm{y}$};
+  \draw[->, blue!40, thick] (0,0) -- (2.4,0)
+    node[anchor=north, yshift=-2pt] {$\bm{P}_1\bm{y}$};
+  \draw[->, blue!70!black, very thick, densely dashed] (2.4,0) -- (2.4,4.2)
+    node[anchor=west, xshift=2pt, yshift=-6pt] {$\bm{M}_1\bm{y}$};
+  \draw[blue!40, thin] (2.4,0.3) -- (2.1,0.3) -- (2.1,0);
+
+  % --- X2 decomposition ---
+  \draw[->, darkgreen, very thick] (0,0) -- (4.8,2.2)
+    node[anchor=south west] {$\bm{X}_2$};
+  \draw[->, darkgreen!50, thick] (0,0) -- (4.8,0)
+    node[anchor=north, yshift=-2pt] {$\bm{P}_1\bm{X}_2$};
+  \draw[->, darkgreen, very thick, densely dashed] (4.8,0) -- (4.8,2.2)
+    node[anchor=west, xshift=2pt, yshift=-4pt] {$\bm{M}_1\bm{X}_2$};
+  \draw[darkgreen!50, thin] (4.8,0.3) -- (4.5,0.3) -- (4.5,0);
+
+  % Annotation
+  \node[anchor=north west, text width=5.2cm, align=left] at (6.0,4.2) {%
+    Decompose each vector into\\
+    projection $+$ residual:\\[3pt]
+    $\bm{y} = \underbrace{\bm{P}_1\bm{y}}_{\text{in } \mathrm{col}(\bm{X}_1)}
+            + \underbrace{\bm{M}_1\bm{y}}_{\perp\, \mathrm{col}(\bm{X}_1)}$\\[8pt]
+    Same for $\bm{X}_2$.\\[4pt]
+    $\bm{M}_1$ removes the part of each\\
+    vector explained by $\bm{X}_1$.};
+\end{tikzpicture}
+\end{frame}
+
 
 \begin{frame}{FWL Proof Part I: Deriving $\hat{\beta}_1$}
 Start from the normal equations $\bm{X'X}\hat{\beta}=\bm{X'y}$ and take the first row:
