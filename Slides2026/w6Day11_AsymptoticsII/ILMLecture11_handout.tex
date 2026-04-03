@@ -138,12 +138,8 @@ text}{fg=red}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Asymptotic Normality of $\bm{b}$ (Preview)}
-\textbf{Claim} (proved later this lecture): if the errors are independently distributed with mean zero and finite variance and $\bm{X}$ is of full rank, the CLT gives us:
-$$\bm{b}\overset{a}{\sim} N[\bm{\beta},\ \frac{\sigma^2}{n}  [\text{plim}\frac{\bm{X'X}}{n}]^{-1}]$$
-That is:
-$$\text{Asy. Var}(\bm{b}-\bm{\beta})=\sigma^2 \frac{[\text{plim}\frac{\bm{X'X}}{n}]^{-1}}{n}$$
-Which we will estimate with:
-$$s^2(\bm{X}'\bm{X})^{-1}=\frac{\bm{e'e}}{n-K}(\bm{X}'\bm{X})^{-1}$$
+\textbf{Claim} (proved later this lecture): if errors are iid with mean zero and finite variance and $\bm{X}$ is full rank, the CLT gives:
+$$\bm{b}\overset{a}{\sim} N\!\left[\bm{\beta},\ \frac{\sigma^2}{n}  \left[\text{plim}\frac{\bm{X'X}}{n}\right]^{-1}\right], \qquad \text{estimated by } s^2(\bm{X}'\bm{X})^{-1}$$
 
 \pause
 
@@ -452,27 +448,21 @@ Now we need the distribution of $\frac{1}{\sqrt{n}} \sum X_i e_i$. This is a sum
 &= \underbrace{\bm{\hat{Q}}_{XX}^{-1}}_{\overset{p}{\to}\, \bm{Q}_{XX}^{-1}}
     \cdot \underbrace{\frac{1}{\sqrt{n}} \sum_{i=1}^n X_i e_i}_{\overset{d}{\to}\, N(0, \Omega)}
 \end{align*}
+where $\Omega = \mathbb{E}[X_i X_i' e_i^2]$.
 
 \pause
 
-where $\Omega = \mathbb{E}[X_i e_i e_i' X_i'] = \mathbb{E}[X_i X_i' e_i^2]$.
-
-\pause
-
-By Slutsky's theorem (convergent in probability $\times$ convergent in distribution):
+By Slutsky's theorem ($\overset{p}{\to} \times \overset{d}{\to}$):
 \begin{align*}
 \sqrt{n}(\bm{\hat{\beta}} - \bm{\beta})
-&\xrightarrow{d} \bm{Q}_{XX}^{-1} \cdot N(0, \Omega)
-    \tag{4} \\
-&= N\left( 0, \bm{Q}_{XX}^{-1} \Omega \bm{Q}_{XX}^{-1} \right)
-    \equiv \bm{V}_{\beta}
-    \tag{5}
+\xrightarrow{d}\; N\!\left( 0,\, \bm{Q}_{XX}^{-1} \Omega\, \bm{Q}_{XX}^{-1} \right)
+    \equiv N(0,\, \bm{V}_{\beta})
 \end{align*}
 
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-Same structure as Probit MLE (Lecture 9): $\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} N(0, \mathcal{I}^{-1})$. In both cases, CLT gives the numerator; WLLN/CMT stabilize the denominator; Slutsky combines them.
+Same structure as Probit MLE: CLT gives the numerator, WLLN/CMT stabilize the denominator, Slutsky combines them.
 \end{tcolorbox}
 
 \end{frame}
@@ -511,17 +501,20 @@ This is the HC0 estimator. Recall from Lecture 6: HC1, HC2, HC3 apply finite-sam
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Consistency of $\hat{\Omega}$}
+Add and subtract population errors:
 \begin{align*}
-\hat{\Omega}&=\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'\hat{e}_i^2\\
-&=\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'\hat{e}_i^2+\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'e_i^2-\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'e_i^2\\
-&=\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'e_i^2+\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'(\hat{e}_i^2-e_i^2)\\
-\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'e_i^2&\underset{p}{\to}\mathbb{E}[\bm{x}\bm{x}'e^2]=\Omega \tag{WLLN}\\
-\hat{\Omega}&\underset{p}{\to}\Omega
+\hat{\Omega}
+&=\underbrace{\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'e_i^2}_{\overset{p}{\to}\,\Omega \text{ (WLLN)}}+\underbrace{\frac{1}{n}\sum_{i=1}^n \bm{x}_i\bm{x}_i'(\hat{e}_i^2-e_i^2)}_{\overset{p}{\to}\, 0}
 \end{align*}
 
 \pause
 
-(The remainder term $\frac{1}{n}\sum \bm{x}_i\bm{x}_i'(\hat{e}_i^2-e_i^2) \overset{p}{\to} 0$ since $\hat{e}_i - e_i = X_i'(\beta - \hat\beta) \overset{p}{\to} 0$ by consistency.)
+The remainder vanishes: $\hat{e}_i - e_i = X_i'(\beta - \hat\beta) \overset{p}{\to} 0$ by consistency of $\hat\beta$.
+
+\pause
+
+Therefore $\hat{\Omega}\overset{p}{\to}\Omega$, and by CMT:
+$$\hat{\bm{V}}_\beta^{HC0}=\hat{\bm{Q}}_{XX}^{-1} \hat{\Omega}\, \hat{\bm{Q}}_{XX}^{-1} \overset{p}{\to} \bm{Q}_{XX}^{-1}\Omega\,\bm{Q}_{XX}^{-1} = \bm{V}_\beta$$
 
 \end{frame}
 
@@ -948,20 +941,17 @@ $$\hat{\beta}_R=\left(\sum_{i=1}^n X_iX_i'+\lambda \bm{I}_k\right)^{-1}\left(\su
 \begin{frame}{Ridge is Consistent (via CMT)}
 \begin{align*}
 \text{plim}\ \hat{\beta}_R
-&= \text{plim} \left( \frac{1}{n} \sum_{i=1}^n X_i X_i' + \frac{1}{n} \lambda \bm{I}_k \right)^{-1}
-\left( \frac{1}{n} \sum_{i=1}^n X_i Y_i \right) \\
-\\
-&= \left( \text{plim} \frac{1}{n} \sum_{i=1}^n X_i X_i' + \text{plim} \frac{1}{n} \lambda \bm{I}_k \right)^{-1}
-\left( \text{plim} \frac{1}{n} \sum_{i=1}^n X_i Y_i \right) \\
-\\
-&= \left( \mathbb{E}[X_i X_i'] \right)^{-1} \mathbb{E}[X_i Y_i]
-\quad \text{since } \frac{\lambda}{n} \to 0 \text{ as } n \to \infty
+&= \text{plim} \left( \frac{1}{n} \sum_{i=1}^n X_i X_i' + \frac{\lambda}{n} \bm{I}_k \right)^{-1}
+\left( \frac{1}{n} \sum_{i=1}^n X_i Y_i \right) \\[4pt]
+&= \left( \mathbb{E}[X_i X_i'] + \underbrace{\text{plim}\,\frac{\lambda}{n}}_{\to\, 0}\, \bm{I}_k \right)^{-1}
+\mathbb{E}[X_i Y_i] \\[4pt]
+&= \left( \mathbb{E}[X_i X_i'] \right)^{-1} \mathbb{E}[X_i Y_i] = \beta
 \end{align*}
 
 \pause
 \begin{itemize}
-  \item As \( n \to \infty \), the Ridge estimator converges in probability to the same plim as OLS.
-  \item Biased in finite samples, consistent asymptotically --- the canonical example of a biased-but-consistent estimator (recall Lecture 10's discussion).
+  \item As $n \to \infty$, Ridge converges to the same plim as OLS.
+  \item Biased in finite samples, consistent asymptotically --- the canonical biased-but-consistent estimator.
 \end{itemize}
 \end{frame}
 

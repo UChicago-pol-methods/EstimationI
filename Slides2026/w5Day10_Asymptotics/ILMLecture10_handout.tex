@@ -291,8 +291,6 @@ for (n in c(20, 50, 200, 2000)) {
 }
 \end{lstlisting}
 
-\pause
-
 Errors are \textbf{skewed and non-normal}, yet $\hat{\beta}_1$ concentrates around the true value $\beta_1 = 3$ as $n$ grows. This is consistency in action.
 
 \end{frame}
@@ -468,18 +466,10 @@ P(|X - \mu| \geq k) & \leq & \frac{\sigma^2}{k^2} \nonumber
 \begin{frame}
 \frametitle{Chebyshev's Inequality}
 
-
 \begin{proof}
-Define the random variable
-\begin{eqnarray}
- Y & = & (X - \mu)^2 \nonumber
-\end{eqnarray}
+Define $Y = (X - \mu)^2$ where $\mu = E[X]$. Then $Y \geq 0$. \pause
 
-Where $\mu = E[X]$.
-
-\pause
-
-Then we know $Y$ is a non-negative random variable.  Set $a = k^2$ in Markov's inequality \pause
+Set $a = k^2$ in Markov's inequality: \pause
 \begin{align*}
 P(Y \geq k^2) &\leq \frac{E[Y]}{k^2} \\ \pause
 P( (X- \mu)^2 \geq k^2) &\leq \frac{E[(X - \mu)^2]}{k^2} = \frac{\sigma^2}{k^2} \\ \pause
@@ -589,12 +579,11 @@ or  $$\bar{X}_n\underset{p}{\to} \mathbb{E}[X]$$
 
 \pause
 
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Immediate Consequence]
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
 Any sample moment converges to its population counterpart:
-\[
-\frac{1}{n}\sum_{i=1}^n X_i X_i' \overset{p}{\to} \mathbb{E}[X_i X_i'], \qquad \frac{1}{n}\sum_{i=1}^n X_i Y_i \overset{p}{\to} \mathbb{E}[X_i Y_i]
-\]
-This is the foundation for OLS consistency (Lecture 11) and for the Probit Hessian convergence (Lecture 9).
+$\frac{1}{n}\sum_{i=1}^n X_i X_i' \overset{p}{\to} \mathbb{E}[X_i X_i']$, \;
+$\frac{1}{n}\sum_{i=1}^n X_i Y_i \overset{p}{\to} \mathbb{E}[X_i Y_i]$.
+This is the foundation for OLS consistency (Lecture 11).
 \end{tcolorbox}
 
 \end{frame}
@@ -676,7 +665,7 @@ Note: little $o$ is a \emph{stronger} statement than big $O$. If $a_n = o(b_n)$ 
 
 \begin{frame}{Examples: $O$ and $o$ with Sequences}
 
-\renewcommand{\arraystretch}{1.6}
+\renewcommand{\arraystretch}{1.4}
 \begin{tabular}{lll}
 \toprule
 \textbf{Statement} & \textbf{Check} & \textbf{Why} \\
@@ -692,10 +681,9 @@ $1/n^2 = o(1/n)$ & $\frac{1/n^2}{1/n} = 1/n \to 0$ \checkmark & $1/n^2$ vanishes
 \renewcommand{\arraystretch}{1.0}
 
 \pause
+\medskip
 
-\bigskip
-
-\textbf{The punchline for this course:} When we write $f(x) = g(x) + O(x^3)$, we mean the leftover terms are \emph{at most} on the order of $x^3$. When $x$ is small (like $t/\sqrt{n}$), these terms are negligible.
+\textbf{The punchline:} When we write $f(x) = g(x) + O(x^3)$, the leftover terms are \emph{at most} on the order of $x^3$. When $x$ is small (like $t/\sqrt{n}$), these terms are negligible.
 
 \end{frame}
 
@@ -1027,23 +1015,16 @@ We need to evaluate $M_W(t/\sqrt{n})$ for large $n$, i.e., for small argument. T
 
 \begin{frame}{Proof of the CLT: Taylor Expansion of the MGF}
 
-\textbf{Step 3.} Taylor-expand $M_W(s)$ around $s = 0$:
-$$M_W(s) = M_W(0) + M_W'(0)\,s + \frac{M_W''(0)}{2}\,s^2 + O(s^3)$$
+\textbf{Step 3.} Taylor-expand $M_W(s)$ around $s = 0$, using $M_W^{(k)}(0) = \mathbb{E}[W^k]$:
+$$M_W(s) = \underbrace{1}_{M_W(0)} + \underbrace{0}_{E[W]}\cdot s + \frac{1}{2}\,s^2 + O(s^3) = 1 + \frac{s^2}{2} + O(s^3)$$
 
 \pause
 
-Recall: $M_W^{(k)}(0) = \mathbb{E}[W^k]$. Since $\mathbb{E}[W] = 0$ and $\mathbb{E}[W^2] = 1$:
-$$M_W(s) = 1 + 0 \cdot s + \frac{1}{2}\,s^2 + O(s^3) = 1 + \frac{s^2}{2} + O(s^3)$$
-
-\pause
-
-\textbf{Step 4.} Substitute $s = t/\sqrt{n}$:
-$$M_W\!\left(\frac{t}{\sqrt{n}}\right) = 1 + \frac{t^2}{2n} + O(n^{-3/2})$$
-
-\pause
-
-\textbf{Step 5.} Raise to the $n$-th power:
-$$M_{Z_n}(t) = \left[1 + \frac{t^2}{2n} + O(n^{-3/2})\right]^n$$
+\textbf{Step 4.} Substitute $s = t/\sqrt{n}$ and raise to the $n$-th power (by independence):
+\begin{align*}
+M_W\!\left(\frac{t}{\sqrt{n}}\right) &= 1 + \frac{t^2}{2n} + O(n^{-3/2}) \\
+M_{Z_n}(t) &= \left[M_W\!\left(\frac{t}{\sqrt{n}}\right)\right]^n = \left[1 + \frac{t^2}{2n} + O(n^{-3/2})\right]^n
+\end{align*}
 
 \end{frame}
 
@@ -1051,26 +1032,22 @@ $$M_{Z_n}(t) = \left[1 + \frac{t^2}{2n} + O(n^{-3/2})\right]^n$$
 
 \begin{frame}{Proof of the CLT: The Exponential Limit}
 
-\textbf{Step 6.} Apply the limit $(1 + x/n)^n \to e^x$:
-
+\textbf{Step 5.} Apply the limit $(1 + x/n)^n \to e^x$:
 $$M_{Z_n}(t) = \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n \longrightarrow e^{t^2/2}$$
 
 \pause
 
-\begin{itemize}
-  \item The $O(n^{-3/2})$ remainder vanishes faster than $1/n$, so it does not affect the limit.
-  \item The limit $e^{t^2/2}$ is precisely the MGF of $N(0,1)$.
-\end{itemize}
+The $O(n^{-3/2})$ remainder vanishes faster than $1/n$, so it does not affect the limit. The limit $e^{t^2/2}$ is the MGF of $N(0,1)$.
 
 \pause
 
-\textbf{Step 7.} By the continuity theorem for MGFs:
+\textbf{Step 6.} By the continuity theorem for MGFs:
 $$Z_n = \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma} \overset{d}{\to} N(0,1) \qquad \blacksquare$$
 
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{What made this work:} Taylor expansion gave us $1 + t^2/(2n) + \text{small}$; the exponential limit turned a product of $n$ terms into $e^{t^2/2}$; the MGF continuity theorem converted convergence of transforms into convergence in distribution.
+Taylor expansion $\to$ $1 + t^2/(2n) + \text{small}$; \;exponential limit $\to$ $e^{t^2/2}$; \;MGF continuity theorem $\to$ convergence in distribution.
 \end{tcolorbox}
 
 \end{frame}
@@ -1079,20 +1056,16 @@ $$Z_n = \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma} \overset{d}{\to} N(0,1) \qquad 
 
 \begin{frame}{CLT Sample Size Calculation}
 \begin{itemize}
-\item U.S. wages are distributed $\mu=24$ and $\sigma^2=430$, so $\bar{X}_n\underset{a}{\to} N(24, .43)$ for n=1000.
-\item How large does $n$ have to be so that $\bar{X}_n$ is within \$1 of the true mean with 99\% probability?
+\item U.S.\ wages: $\mu=24$, $\sigma^2=430$. How large must $n$ be so $\bar{X}_n$ is within \$1 of $\mu$ with 99\% probability?
 \begin{align*}
-\mathbb{P}\left[ |\bar{X}_n-\mu|\geq 1\right] &\underset{a}{\sim} \mathbb{P}\left[ |N(0,1)|\geq 1/\sqrt{var(\bar{X}_n)}\right]=\mathbb{P}\left[ |N(0,1)|\geq 1/\sqrt{\frac{430}{n}}\right]=.01\\
-\mathbb{P}(|Z| \geq z)&=.01\rightarrow qnorm(.005)= -2.576\\
-\frac{1}{\sqrt{430/n}}&=2.576\\
-n&=\frac{430}{(1/2.576)^2}\\
-n&\geq 2{,}862
+\mathbb{P}\!\left[ |\bar{X}_n-\mu|\geq 1\right] &\underset{a}{\sim} \mathbb{P}\!\left[ |Z|\geq \sqrt{n/430}\right]=.01\\
+\sqrt{n/430}&=2.576 \quad\Rightarrow\quad n=430\times 2.576^2 \geq 2{,}862
 \end{align*}
 \end{itemize}
 
 \pause
 
-Compare with Chebyshev: $n = 43{,}000$. The CLT is far more efficient because it uses the shape of the distribution, not just the variance.
+Compare with Chebyshev: $n = 43{,}000$. The CLT is \textbf{15$\times$ more efficient} because it uses the shape of the distribution, not just the variance.
 
 \end{frame}
 
