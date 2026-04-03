@@ -104,7 +104,7 @@ text}{fg=red}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Consistency of OLS}
+\section{The Delta Method}
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -120,10 +120,201 @@ text}{fg=red}
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Strategy:} Apply the tools from Lecture 10 --- WLLN, CLT, CMT, delta method --- to derive the asymptotic properties of OLS.
+\textbf{Strategy:} Apply the tools from Lecture 10 --- WLLN, CLT, CMT --- plus the delta method (introduced today) to derive the asymptotic properties of OLS.
 \end{tcolorbox}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Motivation: Distribution of a Function of Estimators}
+\begin{itemize}
+\item Suppose we want to estimate some function of parameters $f(b_1, b_2)=b_1/b_2$.\pause
+\item What is the distribution of $\bm{f(b)}$?\pause
+\item We can use the \textbf{Delta Method} (Asymptotic Normality + Taylor Expansion) to approximate it.\pause
+\item The idea: if $\bm{b}$ is approximately normal (by the CLT), then a smooth function $\bm{f(b)}$ is also approximately normal, with variance determined by the derivatives of $f$.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Asymptotic Normality of $\bm{b}$ (Preview)}
+\textbf{Claim} (proved later this lecture): if the errors are independently distributed with mean zero and finite variance and $\bm{X}$ is of full rank, the CLT gives us:
+$$\bm{b}\overset{a}{\sim} N[\bm{\beta},\ \frac{\sigma^2}{n}  [\text{plim}\frac{\bm{X'X}}{n}]^{-1}]$$
+That is:
+$$\text{Asy. Var}(\bm{b}-\bm{\beta})=\sigma^2 \frac{[\text{plim}\frac{\bm{X'X}}{n}]^{-1}}{n}$$
+Which we will estimate with:
+$$s^2(\bm{X}'\bm{X})^{-1}=\frac{\bm{e'e}}{n-K}(\bm{X}'\bm{X})^{-1}$$
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+For now, take this as given. Once $\bm{b}$ is approximately normal, we can ask: what is the distribution of a \emph{function} of $\bm{b}$?
+\end{tcolorbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The Delta Method}
+\begin{itemize}
+\item Define a $J\times K$ matrix of partial derivatives across $J$ functions and $K$ variables.
+\begin{align*}
+\bm{C}(\bm{b})&=\frac{\partial \bm{f(b)}}{\partial \bm{b}'}\\
+\text{plim}\bm{C}(\bm{b})&=\text{plim}\frac{\partial \bm{f(b)}}{\partial \bm{b}'}\\
+&=\frac{\partial \bm{f(\beta)}}{\partial \bm{\beta}'}\equiv \bm{\Gamma} \tag{Slutsky}
+\end{align*}
+\item The Taylor approximation from $\bm{\beta}$ to $\bm{b}$ is then
+$$\bm{f(b)}=\bm{f}(\bm{\beta})+\bm{\Gamma}\times(\bm{b}-\bm{\beta})+O_p(n^{-1})$$\pause
+\item The asymptotic distribution is: $\bm{f(b)}\overset{a}{\sim} N(\bm{f}(\bm{\beta}),\ \bm{\Gamma}[\text{Asy. Var}(\bm{b}-\bm{\beta})]\bm{\Gamma}')$\pause
+\item We can estimate this approximation with: $\bm{C}[s^2(\bm{X}'\bm{X})^{-1}]\bm{C}'$
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Application: Greene Example 4.4}
+\begin{itemize}
+\item Suppose we think effects persist through time:
+$$y_{it}=\beta_0+\beta_1 x_{it}+\gamma y_{it-1}+\epsilon_{it}$$\pause
+\item In the long run we expect stability:
+\begin{align*}
+\bar{y}&=\beta_0+\beta_1 \bar{x}+\gamma \bar{y}\\\pause
+\bar{y}-\gamma \bar{y}&=\beta_0+\beta_1 \bar{x}\\\pause
+\bar{y}(1-\gamma)&=\beta_0+\beta_1 \bar{x}\\\pause
+\bar{y}&=\frac{\beta_0}{(1-\gamma)}+\frac{\beta_1}{(1-\gamma)} \bar{x}
+\end{align*}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Long Run Effects with Lagged DV}
+\begin{itemize}
+\item Suppose we raise $x_{it}$ by 1:
+\begin{align*}
+y^{*}_{it}&=\beta_0+\beta_1 (\bar{x}+1)+\gamma \bar{y}&=\bar{y}+\beta_1\\\pause
+y^{*}_{it+1}&=\beta_0+\beta_1\bar{x}+\gamma (\bar{y}+\beta_1)&=\bar{y}+\gamma \beta_1\\\pause
+y^{*}_{it+2}&=\beta_0+\beta_1\bar{x}+\gamma (\bar{y}+\gamma (\beta_1))&=\bar{y}+\gamma^2\beta_1
+\end{align*}\pause
+\item The long run effect of a temporary one unit increase in x is thereby:
+\begin{align*}
+&=\beta_1+\gamma \beta_1+\gamma^2\beta_1+\gamma^3\beta_1+\ldots\\
+&=\beta_1(1+\gamma +\gamma^2+\gamma^3+\ldots)=\beta_1\frac{1}{1-\gamma}
+\end{align*}
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example: Gas Consumption}
+\begin{itemize}
+\item Demand for gasoline is based on the kind of vehicle consumers choose to buy and how much they drive.
+\item We can model consumer demand for gas (G=gas expenditures/gas price) as a function of gas prices, income (Y) and past car purchasing decisions, which are themselves a function of gas prices and income.
+\end{itemize}
+\begin{align*}
+ln(G/pop)_t&=\hat{\beta}_1 + \hat{\beta}_2ln P_{G,t} +\hat{\beta}_3 ln(Y/pop)_t+ \hat{\beta}_4 ln(G/Pop)_{t-1}+e_t
+\end{align*}
+\begin{itemize}
+\item $\hat{\beta}_2$ is the short run price elasticity. $\hat{\beta}_3$ is the short run income elasticity.
+\item $\frac{\hat{\beta}_2}{1-\hat{\beta}_4 }$ is the long run price elasticity, $\frac{\hat{\beta}_3}{1-\hat{\beta}_4 }$ is the long run income elasticity.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Delta Method Applied to Gas Consumption}
+\begin{itemize}
+\item Call $\bm{b}=(\hat{\beta}_1,\ \hat{\beta}_2,\  \hat{\beta}_3,\ \hat{\beta}_4)$, $\bm{f(b)}=\begin{bmatrix} \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }\\ \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }\end{bmatrix}$
+\begin{align*}\pause
+\bm{C}(\bm{b})&=\frac{\partial \bm{f(b)}}{\partial \bm{b}'}=\begin{bmatrix} \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_1} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_2} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_3} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_4} \\ \frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_1} &\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_2}&\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_3}&\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_4}   \end{bmatrix}=\begin{bmatrix} 0 & \frac{1}{1-\hat{\beta}_4}&0&\frac{\hat{\beta}_2}{(1-\hat{\beta}_4)^2} \\0&0& \frac{1}{1-\hat{\beta}_4}&\frac{\hat{\beta}_3}{(1-\hat{\beta}_4)^2} \end{bmatrix}
+\end{align*}
+\item The rows of this matrix are called gradient vectors.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \begin{lstlisting}
+USGasG <- read_csv("http://people.stern.nyu.edu/wgreene/Text/
+		Edition7/TableF2-2.csv")
+USGasG <- USGasG %>%
+	mutate(	logG 	= log(GASEXP/(GASP*POP)),
+		logGlag = lag(logG),
+		logGASP	= log(GASP))
+fm <- lm(logG ~ logGASP+log(INCOME)+log(PNC)+log(PUC)+logGlag,
+	      data= USGasG )
+xprimex <- vcov(fm)
+sigmasq <- sigma(fm)^2
+bs <- coef(fm)
+ggas <- 	c(0, 1/(1-bs[6]), 0, 0, 0, bs[2]/(1-bs[6])^2)
+gincome <- 	c(0, 0, 1/(1-bs[6]), 0, 0, bs[3]/(1-bs[6])^2)
+seGpricelongrun <- sqrt(t(ggas)%*%(xprimex)%*%ggas)
+seIncomelongrun <- sqrt(t(gincome)%*%(xprimex)%*%gincome)
+   \end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \begin{lstlisting}
+> cat("Long run elasticity to Gas prices (95% conf. int.):",
+	round(bs[2]/(1-bs[6]), 2), "+/-",
+	round(seGpricelongrun*qnorm(.975),2))
+Long run elasticity to Gas prices (95% conf. int.): -0.41 +/- 0.3
+
+> cat("Long run elasticity to Income (95% conf. intervals):",
+	round(bs[3]/(1-bs[6]), 2),"+/-",
+	round( seIncomelongrun*qnorm(.975),2))
+Long run elasticity to Income (95% conf. int.): 0.97 +/- 0.32
+   \end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \begin{lstlisting}
+Canned Package Methods
+
+In R:
+> car :: deltaMethod(fm, "logGASP/(1-logGlag)")
+                      Estimate       SE    2.5 %  97.5 %
+logGASP/(1 - logGlag) -0.41136  0.15230 -0.70985 -0.1129
+
+In STATA:
+nlcom (_b[x2]/(1-_b[x6]))
+ \end{lstlisting}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Delta Method for Probit: Average Marginal Effects}
+
+Recall from Lecture 9: the Probit average marginal effect is a \textbf{nonlinear function} of $\hat\beta$:
+\[
+\widehat{\text{AME}}_j = \frac{1}{n}\sum_{i=1}^n \phi(X_i'\hat\beta)\,\hat\beta_j
+\]
+
+\pause
+
+This is exactly the kind of problem the delta method solves. Define $h(\beta) = \text{AME}_j(\beta)$. Then:
+\[
+\operatorname{Asy.Var}(\widehat{\text{AME}}_j) = \nabla h(\hat\beta)' \cdot \widehat{\operatorname{Var}}(\hat\beta) \cdot \nabla h(\hat\beta)
+\]
+
+\pause
+
+where $\nabla h$ accounts for both the direct effect ($\hat\beta_j$) and the indirect effect through $\phi(X_i'\hat\beta)$.
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Common pattern:} Estimate $\hat\theta$ by MLE or OLS $\to$ compute a nonlinear function $h(\hat\theta)$ $\to$ use the delta method for its standard error. Same logic for long-run elasticities, marginal effects, or any transformation of coefficients.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Consistency of OLS}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Target of Estimation}
@@ -524,23 +715,33 @@ Both test $H_0: \beta_{ed} = \beta_{women} = 0$ using the sandwich covariance.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Asymptotic Standard Errors and the Delta Method}
+\section{Delta Method Applied to OLS}
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Asymptotic Standard Errors via the Delta Method}
-\begin{itemize}
-\item If $\bm{\hat{V}}_{\hat{\beta}}$ is an estimator of the covariance matrix of $\hat{\beta}$, then the standard errors are the square root of the diagonal elements.
-\item For a function $\theta = r(\beta)$, recall from Lecture 10 the \textbf{delta method}:
-\end{itemize}
+\begin{frame}{Applying the Delta Method to OLS}
+
+Earlier we introduced the delta method in general: if $\hat\theta$ is asymptotically normal, then any smooth function $h(\hat\theta)$ is also asymptotically normal.
 
 \pause
 
+\bigskip
+
+Now we have the specific ingredients for OLS:
+\begin{itemize}
+  \item $\hat\beta$ is asymptotically normal (proved in the previous sections)
+  \item $\bm{\hat{V}}_{\hat\beta}$ is a consistent estimator of its covariance (sandwich or homoskedastic)
+  \item For any differentiable $\theta = r(\beta)$, the gradient $\bm{R} = \frac{\partial r}{\partial \beta}\big|_{\hat\beta}$ gives:
+\end{itemize}
+
 \begin{tcolorbox}
-Given $\bm{R}=\frac{\partial r}{\partial\beta}\bigg|_{\hat\beta}$, the asymptotic standard error is:
 $$s(\hat{\theta})=\sqrt{\bm{R}'\bm{\hat{V}}_{\hat{\beta}}\bm{R}}$$
 This works for \textbf{any} differentiable function of $\hat\beta$ --- linear or nonlinear.
 \end{tcolorbox}
+
+\pause
+
+Let's work through three examples of increasing complexity.
 
 \end{frame}
 
@@ -635,7 +836,7 @@ s(\hat{\theta}_3) = \sqrt{\bm{R}' \bm{\hat{V}}_{\hat{\beta}} \bm{R}}
 \]
 \end{itemize}
 
-This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\beta$. Same logic as the long-run elasticity from Lecture 10.
+This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\beta$. Same logic as the long-run elasticity from the gas consumption example.
 
 \end{frame}
 
@@ -737,7 +938,9 @@ $$\hat{\beta}_R=\left(\sum_{i=1}^n X_iX_i'+\lambda \bm{I}_k\right)^{-1}\left(\su
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Application: Ridge Regression}
-\includegraphics[width=2.5 in]{ridge.png}
+\begin{center}
+\includegraphics[width=2.5in, height=0.75\textheight, keepaspectratio]{ridge.png}
+\end{center}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -775,7 +978,7 @@ The OLS estimator $\bm{\hat{\beta}}=(\bm{X}'\bm{X})^{-1}\bm{X}'y$ is:
 \renewcommand{\arraystretch}{1.4}
 \begin{tabular}{lll}
 \toprule
-\textbf{Property} & \textbf{Tool (from Lecture 10)} & \textbf{Result} \\
+\textbf{Property} & \textbf{Tool (from Lectures 10--11)} & \textbf{Result} \\
 \midrule
 Consistent & WLLN + CMT & $\text{plim}\ \hat\beta = \beta$ \\
 Asy. normal & Multivariate CLT + Slutsky & $\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} N(0, V_\beta)$ \\

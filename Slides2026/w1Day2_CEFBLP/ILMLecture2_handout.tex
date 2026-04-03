@@ -803,14 +803,14 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
   termbox/.style={rounded corners=3pt, thick, inner sep=4pt},
 ]
 % --- Overlay 1-2: full scalar equation with named nodes for each group ---
-\node<1-2>[anchor=base west] (lhs) at (0,0) {$Y ={}$};
-\node<1-2>[anchor=base west] (grpA) at (lhs.base east) {$\beta_0 + \beta_1 x_1 + \beta_2 x_2$};
-\node<1-2>[anchor=base west] (plus1) at (grpA.base east) {${}+{}$};
-\node<1-2>[anchor=base west] (grpB) at (plus1.base east) {$\beta_3 x_3 + \beta_4 x_4 + \beta_5 x_5$};
-\node<1-2>[anchor=base west] (err) at (grpB.base east) {${}+ e$};
+\node<1-2| handout:0>[anchor=base west] (lhs) at (0,0) {$Y ={}$};
+\node<1-2| handout:0>[anchor=base west] (grpA) at (lhs.base east) {$\beta_0 + \beta_1 x_1 + \beta_2 x_2$};
+\node<1-2| handout:0>[anchor=base west] (plus1) at (grpA.base east) {${}+{}$};
+\node<1-2| handout:0>[anchor=base west] (grpB) at (plus1.base east) {$\beta_3 x_3 + \beta_4 x_4 + \beta_5 x_5$};
+\node<1-2| handout:0>[anchor=base west] (err) at (grpB.base east) {${}+ e$};
 
 % --- Overlay 2: draw grouping boxes using fit ---
-\only<2>{%
+\only<2| handout:0>{%
   \node[termbox, draw=blue, fit=(grpA)] {};
   \node[blue, font=\footnotesize, above=2pt of grpA] {$\bm{X}_1$};
   \node[termbox, draw=darkgreen, fit=(grpB)] {};
@@ -818,7 +818,7 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
 }
 
 % --- Overlay 3: collapsed vector form ---
-\only<3>{%
+\only<3| handout:0>{%
   \node[anchor=base west] at (0,0) {%
     $Y = \textcolor{blue}{\bm{X}_1'\bm{\beta}_1}
         + \textcolor{darkgreen}{\bm{X}_2'\bm{\beta}_2} + e,
@@ -826,7 +826,7 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
 }
 
 % --- Overlay 4: show what X looks like ---
-\only<4>{%
+\only<4-| handout:1>{%
   \node[anchor=base west] at (0,0.8) {%
     $Y = \textcolor{blue}{\bm{X}_1'\bm{\beta}_1}
         + \textcolor{darkgreen}{\bm{X}_2'\bm{\beta}_2} + e$};
@@ -845,7 +845,7 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
 \begin{center}
 \begin{tikzpicture}
 % --- Overlay 1: Q_XX in expectations ---
-\only<1>{%
+\only<1| handout:0>{%
   \node at (0,0) {$\mathbf{Q}_{XX} = \mathbb{E}[\bm{X}\bm{X}']
     = \mathbb{E}\!\left[\begin{pmatrix} \bm{X}_1\\[2pt] \bm{X}_2\end{pmatrix}
     \begin{pmatrix} \bm{X}_1' & \bm{X}_2'\end{pmatrix}\right]
@@ -855,7 +855,7 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
     \end{bmatrix}$};
 }
 % --- Overlay 2: replace with Q notation ---
-\only<2>{%
+\only<2| handout:0>{%
   \node at (0,0) {$\mathbf{Q}_{XX}
     = \begin{bmatrix}
     \mathbb{E}[\bm{X}_1\bm{X}_1'] & \mathbb{E}[\bm{X}_1\bm{X}_2']\\[4pt]
@@ -868,7 +868,7 @@ Y-\mu_Y&=(X-\mu_X)'\beta+e\\
     \end{bmatrix}$};
 }
 % --- Overlay 3: compact form + Q_XY ---
-\only<3->{%
+\only<3-| handout:1>{%
   \node at (0,0.5) {$\mathbf{Q}_{XX}
     = \begin{bmatrix}
     \textcolor{blue}{\mathbf{Q}_{11}} & \mathbf{Q}_{12}\\[4pt]
@@ -897,13 +897,13 @@ Recall the projection error variance: $\;\sigma^2_e = Q_{YY} - \bm{Q}_{YX}\bm{Q}
 The same pattern works for \emph{any} partition block:}
 \begin{center}
 \begin{tikzpicture}
-\only<3>{%
+\only<3| handout:0>{%
   \node at (0,0) {$\mathbf{Q}_{11\cdot 2}
     \;\equiv\; \underbrace{\mathbf{Q}_{11}}_{\text{total var of }\bm{X}_1}
     \;-\; \underbrace{\mathbf{Q}_{12}\,\mathbf{Q}_{22}^{-1}\,\mathbf{Q}_{21}}_%
     {\text{part predicted by }\bm{X}_2}$};
 }
-\only<4->{%
+\only<4-| handout:1>{%
   \node at (0,0.3) {$\mathbf{Q}_{11\cdot 2}
     \;\equiv\; \underbrace{\mathbf{Q}_{11}}_{\text{total}}
     \;-\; \underbrace{\mathbf{Q}_{12}\,\mathbf{Q}_{22}^{-1}\,\mathbf{Q}_{21}}_%
@@ -927,14 +927,14 @@ The normal equation $\mathbf{Q}_{XY}=\mathbf{Q}_{XX}\bm{\beta}$ expands to:
 \begin{center}
 \begin{tikzpicture}
 % --- Overlay 1: matrix form ---
-\only<1>{%
+\only<1| handout:0>{%
   \node at (0,0) {$\begin{bmatrix} \mathbf{Q}_{1Y}\\[4pt] \mathbf{Q}_{2Y}\end{bmatrix}
     = \begin{bmatrix} \mathbf{Q}_{11} & \mathbf{Q}_{12}\\[4pt]
     \mathbf{Q}_{21} & \mathbf{Q}_{22}\end{bmatrix}
     \begin{bmatrix} \bm{\beta}_1\\[4pt] \bm{\beta}_2\end{bmatrix}$};
 }
 % --- Overlay 2: two separate equations ---
-\only<2->{%
+\only<2-| handout:1>{%
   \node[anchor=west] (r1) at (-4,0.5) {%
     $\mathbf{Q}_{1Y}=\mathbf{Q}_{11}\bm{\beta}_1+\mathbf{Q}_{12}\bm{\beta}_2$};
   \node[anchor=west, right=4pt of r1, blue, font=\footnotesize] {(Row 1)};
@@ -976,20 +976,20 @@ $$\underbrace{\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}
 \begin{center}
 \begin{tikzpicture}
 % --- Overlay 1: full expression ---
-\only<1>{%
+\only<1| handout:0>{%
   \node at (0,1) {From the previous slide:};
   \node at (0,0) {$\bigl(\mathbf{Q}_{11}
     -\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{21}\bigr)\bm{\beta}_1
     = \mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}$};
 }
 % --- Overlay 2: replace with dot notation ---
-\only<2>{%
+\only<2| handout:0>{%
   \node at (0,1) {Substitute the dot notation:};
   \node at (0,0) {$\mathbf{Q}_{11\cdot 2}\;\bm{\beta}_1
     = \mathbf{Q}_{1Y\cdot 2}$};
 }
 % --- Overlay 3: solve ---
-\only<3->{%
+\only<3-| handout:1>{%
   \node at (0,1) {Premultiply by $\mathbf{Q}_{11\cdot 2}^{-1}$:};
   \node at (0,0) {$\boxed{\bm{\beta}_1
     = \mathbf{Q}_{11\cdot 2}^{-1}\;\mathbf{Q}_{1Y\cdot 2}}$};
@@ -998,7 +998,7 @@ $$\underbrace{\mathbf{Q}_{1Y}-\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}
     $\bm{\beta}_2=\mathbf{Q}_{22\cdot 1}^{-1}\;\mathbf{Q}_{2Y\cdot 1}$};
 }
 % --- Overlay 4: interpretation ---
-\only<4->{%
+\only<4-| handout:1>{%
   \node[anchor=north] at (0,-1.6) {%
     \begin{tcolorbox}[colback=blue!5, colframe=blue!50!black, width=11cm]
     $\bm{\beta}_1$ depends only on the variation in $\bm{X}_1$ and $Y$
@@ -1043,18 +1043,18 @@ $$\bm{Q}_{XX}^{-1}=\begin{bmatrix}
 Multiply $\bm{Q}_{XX}^{-1}\bm{Q}_{XY}$ to recover $\bm{\beta}_1$:}
 \begin{center}
 \begin{tikzpicture}
-\only<2>{%
+\only<2| handout:0>{%
   \node at (0,0) {$\bm{\beta}_1
     = \mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{1Y}
     -\mathbf{Q}_{11\cdot 2}^{-1}\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}$};
 }
-\only<3>{%
+\only<3| handout:0>{%
   \node at (0,0) {$\bm{\beta}_1
     = \mathbf{Q}_{11\cdot 2}^{-1}
     \bigl(\mathbf{Q}_{1Y}
     -\mathbf{Q}_{12}\mathbf{Q}_{22}^{-1}\mathbf{Q}_{2Y}\bigr)$};
 }
-\only<4->{%
+\only<4-| handout:1>{%
   \node at (0,0) {$\bm{\beta}_1
     = \mathbf{Q}_{11\cdot 2}^{-1}\;\mathbf{Q}_{1Y\cdot 2}
     \qquad\checkmark$};

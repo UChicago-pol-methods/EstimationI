@@ -42,6 +42,8 @@ text}{fg=darkpurple}
 \usepackage{tikz}
 \usepackage{lipsum}
 \usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{amssymb}
 
 \lstset{%
   language=R,
@@ -387,7 +389,61 @@ E[X] &\geq \int_{a}^{\infty} x f(x) dx  \geq \int_{a}^{\infty} a f(x)dx = a P(X 
 
 \end{proof}
 
+\end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Markov's Inequality: Visual Intuition}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.85]
+  % Axes
+  \draw[->] (-0.3,0) -- (8.5,0) node[right] {$x$};
+  \draw[->] (0,-0.2) -- (0,3.8) node[above] {};
+
+  % The density f(x) — a chi-squared-like shape
+  \draw[thick, blue, domain=0.01:8, samples=100]
+    plot (\x, {3*\x*exp(-\x)});
+
+  % Shade the full area under x*f(x) lightly
+  \fill[blue!10, domain=0.01:8, samples=100]
+    (0.01,0) -- plot (\x, {3*\x*exp(-\x)}) -- (8,0) -- cycle;
+
+  % Mark threshold a
+  \draw[dashed, red, thick] (4,0) -- (4,3.5);
+  \node[below, red] at (4,-0.1) {$a$};
+
+  % Shade tail area under f(x) for x >= a
+  \fill[red!30, domain=4:8, samples=50]
+    (4,0) -- plot (\x, {3*\x*exp(-\x)}) -- (8,0) -- cycle;
+
+  % Draw the bounding rectangle: height = f evaluated at some point, width from a to ...
+  % Actually, the key insight is: area under xf(x) for x>=a >= a * area under f(x) for x>=a
+  % Let's show the rectangle a * P(X>=a) as a box
+
+  % Height of the density at x=a for reference
+  \pgfmathsetmacro{\fa}{3*4*exp(-4)}
+
+  % Label the tail
+  \node[red!70!black] at (5.5, 0.8) {$P(X \geq a)$};
+
+  % Label the full area
+  \node[blue!70!black] at (1.8, 1.5) {$\mathbb{E}[X]$};
+
+  % The argument arrow
+  \draw[->, thick, darkgreen] (5.5, 0.55) -- (5.5, 0.15);
+
+  % Add annotation
+  \node[right, font=\small] at (6.2, 2.8) {$\displaystyle\int_a^\infty \underbrace{x}_{\geq\, a} f(x)\,dx$};
+  \node[right, font=\small] at (6.2, 1.8) {$\displaystyle\geq\; a \int_a^\infty f(x)\,dx$};
+  \node[right, font=\small] at (6.2, 1.0) {$= a\cdot P(X \geq a)$};
+
+\end{tikzpicture}
+\end{center}
+
+\pause
+
+The full integral $\mathbb{E}[X]$ includes the \textcolor{red!70!black}{tail area}. In the tail, every $x \geq a$, so replacing $x$ with $a$ only makes the integral smaller. Hence $\mathbb{E}[X] \geq a \cdot P(X \geq a)$.
 
 \end{frame}
 
@@ -555,6 +611,322 @@ This is the foundation for OLS consistency (Lecture 11) and for the Probit Hessi
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Asymptotic Order Notation}
+\setcounter{subsection}{1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Big $O$ and Little $o$: The Idea}
+
+When we take limits, we often need to say ``this term is negligible compared to that one.'' Asymptotic notation gives us a precise language for this.
+
+\pause
+
+\begin{itemize}
+\item Consider $f(n) = 3n^2 + 5n + 7$ as $n \to \infty$. \pause
+\item For large $n$, the $3n^2$ term dominates: at $n = 100$, we have $30{,}000 + 500 + 7$. \pause
+\item We want to say: ``$f(n)$ \emph{grows like} $n^2$'' and ``the $5n + 7$ part is \emph{negligible} relative to $n^2$.''
+\end{itemize}
+
+\pause
+
+Two notions of ``negligible'':
+\begin{itemize}
+  \item \textbf{Little $o$} = ``\emph{vanishes} relative to'': \quad $a_n$ shrinks \emph{faster} than $b_n$
+  \item \textbf{Big $O$} = ``\emph{bounded} relative to'': \quad $a_n$ grows \emph{no faster} than $b_n$
+\end{itemize}
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+Analogy: if $b_n$ is a speed limit, then $a_n = o(b_n)$ means $a_n$ is slowing to a stop, while $a_n = O(b_n)$ means $a_n$ is obeying the speed limit (but may still be driving).
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Formal Definitions: $O$ and $o$}
+
+\begin{defn}
+Let $\{a_n\}$ and $\{b_n\}$ be sequences with $b_n > 0$.
+\begin{itemize}
+  \item \textbf{Little $o$:} \quad $a_n = o(b_n)$ \quad means \quad $\displaystyle\frac{a_n}{b_n} \to 0$ \quad as $n \to \infty$.
+
+  \medskip
+
+  \item \textbf{Big $O$:} \quad $a_n = O(b_n)$ \quad means \quad $\displaystyle\left|\frac{a_n}{b_n}\right| \leq C$ \quad for some constant $C$ and all $n$ large enough.
+\end{itemize}
+\end{defn}
+
+\pause
+
+\textbf{In words:}
+\begin{itemize}
+  \item $a_n = o(b_n)$: ``$a_n$ vanishes compared to $b_n$'' \quad (the ratio goes to zero)
+  \item $a_n = O(b_n)$: ``$a_n$ is at most on the order of $b_n$'' \quad (the ratio stays bounded)
+\end{itemize}
+
+\pause
+
+Note: little $o$ is a \emph{stronger} statement than big $O$. If $a_n = o(b_n)$ then $a_n = O(b_n)$, but not vice versa.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Examples: $O$ and $o$ with Sequences}
+
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{lll}
+\toprule
+\textbf{Statement} & \textbf{Check} & \textbf{Why} \\
+\midrule
+$5n = o(n^2)$ & $5n/n^2 = 5/n \to 0$ \checkmark & $n$ grows slower than $n^2$ \\
+$5n = O(n^2)$ & $5n/n^2 = 5/n \leq 5$ \checkmark & also bounded (weaker) \\
+$3n^2 = O(n^2)$ & $3n^2/n^2 = 3$ \checkmark & bounded but doesn't vanish \\
+$3n^2 = o(n^2)$? & $3n^2/n^2 = 3 \not\to 0$ \ding{55} & same order, not negligible \\
+$1/n = o(1)$ & $\frac{1/n}{1} \to 0$ \checkmark & $1/n$ vanishes \\
+$1/n^2 = o(1/n)$ & $\frac{1/n^2}{1/n} = 1/n \to 0$ \checkmark & $1/n^2$ vanishes faster \\
+\bottomrule
+\end{tabular}
+\renewcommand{\arraystretch}{1.0}
+
+\pause
+
+\bigskip
+
+\textbf{The punchline for this course:} When we write $f(x) = g(x) + O(x^3)$, we mean the leftover terms are \emph{at most} on the order of $x^3$. When $x$ is small (like $t/\sqrt{n}$), these terms are negligible.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Application: Taylor Remainder in $O$ Notation}
+
+Consider the Taylor expansion of $\ln(1+x)$ around $x = 0$:
+$$\ln(1 + x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots$$
+
+\pause
+
+We can truncate and describe what we dropped:
+\begin{align*}
+\ln(1+x) &= x + O(x^2) \tag{first-order: remainder $\leq C x^2$} \\
+\ln(1+x) &= x - \frac{x^2}{2} + O(x^3) \tag{second-order: remainder $\leq C x^3$}
+\end{align*}
+
+\pause
+
+\textbf{Why this is useful:} If $x = t/\sqrt{n}$, then:
+\begin{itemize}
+  \item $O(x^2) = O(1/n)$ --- vanishes as $n$ grows
+  \item $O(x^3) = O(n^{-3/2})$ --- vanishes even faster
+\end{itemize}
+
+\pause
+
+This is exactly how we will control the error in the CLT proof: the Taylor remainder in the MGF expansion becomes negligible as $n \to \infty$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Big $O_p$ and Little $o_p$: The Stochastic Versions}
+
+For \emph{random} variables, we add a subscript $p$ (``in probability''):
+
+\begin{defn}
+\begin{itemize}
+  \item $X_n = o_p(a_n)$: \quad $X_n/a_n \overset{p}{\to} 0$ \quad (``vanishes in probability'')
+  \item $X_n = O_p(a_n)$: \quad $X_n/a_n$ stays \emph{bounded in probability}
+\end{itemize}
+\end{defn}
+
+\pause
+
+\textbf{Translations to what we just proved:}
+\begin{itemize}
+  \item $X_n \overset{p}{\to} c$ is the same as writing $X_n - c = o_p(1)$
+  \item WLLN says $\bar{X}_n - \mu = o_p(1)$, and more precisely $\bar{X}_n - \mu = O_p(n^{-1/2})$
+  \item CLT (coming next) says $\sqrt{n}(\bar{X}_n - \mu) = O_p(1)$
+\end{itemize}
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+When you see $o_p(1)$ in a proof, read it as ``a term that vanishes in probability --- we can ignore it.''
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mathematical Tools for the CLT}
+\setcounter{subsection}{1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{What is a Taylor Expansion?}
+
+\textbf{Problem:} We know everything about a function $f$ at a point $a$ (its value, slope, curvature, \ldots), and we want to approximate $f$ at a \emph{nearby} point $b$.
+
+\pause
+
+\textbf{Idea:} Build the approximation one piece at a time:
+\begin{enumerate}
+  \item \textbf{Zeroth order:} Start with $f(b) \approx f(a)$ \quad (constant --- ignore everything)
+  \item \textbf{First order:} Add the slope: $f(b) \approx f(a) + f'(a)(b-a)$ \quad (tangent line)
+  \item \textbf{Second order:} Add the curvature: $f(b) \approx f(a) + f'(a)(b-a) + \frac{f''(a)}{2}(b-a)^2$
+  \item Keep going: each term uses one more derivative and improves the fit near $a$.
+\end{enumerate}
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Key insight:} The closer $b$ is to $a$, the better the approximation. If $b - a$ is small, then $(b-a)^2$ is \emph{very} small, $(b-a)^3$ is \emph{tiny}, etc. --- so the first few terms do most of the work.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Taylor Approximation: First Order}
+
+\begin{itemize}
+\item We know $f(a)$ and $f'(a)$. We want to approximate $f(b)$ for $b$ near $a$. \pause
+\item \textbf{First-order Taylor expansion:}
+$$f(b) = f(a) + f'(a)(b - a) + R_1(b)$$
+where the remainder $R_1(b) = \frac{f''(c)}{2}(b-a)^2$ for some $c$ between $a$ and $b$.
+
+\pause
+
+\item In asymptotic-order notation:
+$$f(b) = f(a) + f'(a)(b - a) + O\!\left((b-a)^2\right)$$
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=3.5in]{approx.png}
+\end{center}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Taylor Approximation: Higher Orders}
+
+The $k$-th order Taylor expansion of $f$ around $a$:
+$$f(b) = \sum_{j=0}^{k} \frac{f^{(j)}(a)}{j!}(b-a)^j + O\!\left((b-a)^{k+1}\right)$$
+
+\pause
+
+\textbf{Second-order expansion} (used constantly in asymptotic theory):
+$$f(b) = f(a) + f'(a)(b-a) + \frac{f''(a)}{2}(b-a)^2 + O\!\left((b-a)^3\right)$$
+
+\pause
+
+\textbf{Why this matters:}
+\begin{itemize}
+  \item The \textbf{Delta Method} uses the first-order expansion to linearize functions of estimators.
+  \item The \textbf{CLT proof} uses the second-order expansion of the moment generating function.
+  \item The $O(\cdot)$ notation tells us exactly which terms we can drop as $n \to \infty$.
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The Exponential Function as a Series}
+
+The most important function in mathematics is $\exp(x)$, \emph{defined} by:
+$$\exp(x) = \sum_{k=0}^{\infty} \frac{x^k}{k!} = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots$$
+
+\pause
+
+\textbf{Key properties (all follow from the series):}
+\begin{enumerate}
+\item $\exp(a)\exp(b) = \exp(a+b)$, so we write $e^x \equiv \exp(x)$ where $e = \exp(1) = 2.718\ldots$
+\item $\frac{d}{dx}e^x = e^x$: differentiate term-by-term and re-index. \pause
+\item The series \emph{is} the Taylor expansion of $e^x$ around 0 (since every derivative is $e^x$ and $e^0=1$).
+\end{enumerate}
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Why this matters now:} We will expand $\mathbb{E}[e^{tX}]$ using this series to extract moments, and then use the Taylor remainder to control the error in the CLT proof.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The Compound Interest Limit}
+
+\begin{prop}
+$\displaystyle\lim_{n \to \infty}\left(1 + \frac{x}{n}\right)^n = e^x$
+\end{prop}
+
+\pause
+
+\textbf{Proof:} Take logs, apply the Taylor expansion $\ln(1+u) = u - \frac{u^2}{2} + O(u^3)$:
+\begin{align*}
+n \ln\!\left(1 + \frac{x}{n}\right) &= n\!\left(\frac{x}{n} - \frac{x^2}{2n^2} + O(n^{-3})\right) = x - \frac{x^2}{2n} + O(n^{-2}) \to x
+\end{align*}
+So $\left(1 + \frac{x}{n}\right)^n = e^{n\ln(1+x/n)} \to e^x$.
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+This converts a product of $n$ nearly-identical terms into an exponential --- the crucial step in the CLT proof: $(1 + t^2/(2n) + \text{small})^n \to e^{t^2/2}$.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Moment Generating Functions}
+
+\begin{defn}
+The \textbf{moment generating function} (MGF) of a random variable $X$ is:
+$$M_X(t) = \mathbb{E}[e^{tX}]$$
+defined for all $t$ in a neighborhood of $0$.
+\end{defn}
+
+\pause
+
+\textbf{Why ``moment generating''?} Expand $e^{tX}$ using the series definition:
+\begin{align*}
+M_X(t) &= \mathbb{E}\!\left[\sum_{k=0}^{\infty} \frac{(tX)^k}{k!}\right] = \sum_{k=0}^{\infty} \frac{t^k}{k!}\,\mathbb{E}[X^k]\\
+&= 1 + t\,\mathbb{E}[X] + \frac{t^2}{2}\,\mathbb{E}[X^2] + \cdots
+\end{align*}
+
+\pause
+
+So $M_X^{(k)}(0) = \mathbb{E}[X^k]$: the $k$-th derivative at zero gives the $k$-th moment.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{MGFs: Key Properties}
+
+\textbf{Why MGFs are useful for proving limit theorems:}
+
+\begin{enumerate}
+  \item \textbf{Uniqueness:} If $M_X(t) = M_Y(t)$ in a neighborhood of $0$, then $X$ and $Y$ have the same distribution. \pause
+  \item \textbf{Independence:} If $X$ and $Y$ are independent, $M_{X+Y}(t) = M_X(t) \cdot M_Y(t)$.
+  \begin{itemize}
+    \item For $n$ iid copies: $M_{X_1 + \cdots + X_n}(t) = [M_{X_1}(t)]^n$
+  \end{itemize} \pause
+  \item \textbf{Continuity theorem:} If $M_{X_n}(t) \to M_X(t)$ for all $t$ near $0$, then $X_n \overset{d}{\to} X$.
+\end{enumerate}
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Standard normal MGF:} If $Z \sim N(0,1)$, then $M_Z(t) = e^{t^2/2}$.\\[4pt]
+\textbf{Proof strategy for CLT:} Show that the MGF of the standardized sample mean converges to $e^{t^2/2}$.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Central Limit Theory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -622,6 +994,84 @@ Equivalently: $\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \overset{d}{\to} N(0, 1)$
 \pause
 
 \textbf{Remarkable fact:} The limit distribution is $N(0,\sigma^2)$ \textbf{regardless} of the distribution of $X_i$. Whether the data are Bernoulli, exponential, or uniform, the sample mean is approximately normal for large $n$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Proof of the CLT: Setup}
+
+\textbf{Goal:} Show $Z_n = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \overset{d}{\to} N(0,1)$.
+
+\pause
+
+\textbf{Strategy:} Show that $M_{Z_n}(t) \to e^{t^2/2}$, the MGF of $N(0,1)$.
+
+\pause
+
+\textbf{Step 1.} Let $W_i = \frac{X_i - \mu}{\sigma}$, so $\mathbb{E}[W_i] = 0$ and $\mathbb{E}[W_i^2] = 1$. Then:
+$$Z_n = \frac{1}{\sqrt{n}} \sum_{i=1}^n W_i$$
+
+\pause
+
+\textbf{Step 2.} By independence:
+$$M_{Z_n}(t) = \left[M_{W}\!\left(\frac{t}{\sqrt{n}}\right)\right]^n$$
+
+\pause
+
+We need to evaluate $M_W(t/\sqrt{n})$ for large $n$, i.e., for small argument. This is where Taylor expansion enters.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Proof of the CLT: Taylor Expansion of the MGF}
+
+\textbf{Step 3.} Taylor-expand $M_W(s)$ around $s = 0$:
+$$M_W(s) = M_W(0) + M_W'(0)\,s + \frac{M_W''(0)}{2}\,s^2 + O(s^3)$$
+
+\pause
+
+Recall: $M_W^{(k)}(0) = \mathbb{E}[W^k]$. Since $\mathbb{E}[W] = 0$ and $\mathbb{E}[W^2] = 1$:
+$$M_W(s) = 1 + 0 \cdot s + \frac{1}{2}\,s^2 + O(s^3) = 1 + \frac{s^2}{2} + O(s^3)$$
+
+\pause
+
+\textbf{Step 4.} Substitute $s = t/\sqrt{n}$:
+$$M_W\!\left(\frac{t}{\sqrt{n}}\right) = 1 + \frac{t^2}{2n} + O(n^{-3/2})$$
+
+\pause
+
+\textbf{Step 5.} Raise to the $n$-th power:
+$$M_{Z_n}(t) = \left[1 + \frac{t^2}{2n} + O(n^{-3/2})\right]^n$$
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Proof of the CLT: The Exponential Limit}
+
+\textbf{Step 6.} Apply the limit $(1 + x/n)^n \to e^x$:
+
+$$M_{Z_n}(t) = \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n \longrightarrow e^{t^2/2}$$
+
+\pause
+
+\begin{itemize}
+  \item The $O(n^{-3/2})$ remainder vanishes faster than $1/n$, so it does not affect the limit.
+  \item The limit $e^{t^2/2}$ is precisely the MGF of $N(0,1)$.
+\end{itemize}
+
+\pause
+
+\textbf{Step 7.} By the continuity theorem for MGFs:
+$$Z_n = \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma} \overset{d}{\to} N(0,1) \qquad \blacksquare$$
+
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{What made this work:} Taylor expansion gave us $1 + t^2/(2n) + \text{small}$; the exponential limit turned a product of $n$ terms into $e^{t^2/2}$; the MGF continuity theorem converted convergence of transforms into convergence in distribution.
+\end{tcolorbox}
 
 \end{frame}
 
@@ -724,229 +1174,21 @@ In each case, a sum of mean-zero random vectors converges to a multivariate norm
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Asymptotic Properties: Delta Method}
-\setcounter{subsection}{1}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Math Aside: Linear Approximation.}
-
-\begin{itemize}
-\item We want to know $f(b)$, we know $f(a)$, $f'(a)$ \pause
-\item Math fact: linear Taylor series lets us approximate a value of a function $f(b)\approx f(a)+\frac{\partial f(a)}{\partial a}(b-a)+\ldots$.\pause
-\item With the slope and the distance between a and b we can calculate the position of $f(b)$:
-$$f(b)\approx f(a)+f'(a)(b-a)$$
-\includegraphics[width=4.5 in]{approx.png}
-\end{itemize}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Big Picture Example}
-\begin{itemize}
-\item Suppose we want to estimate some function of parameters $f(b_1, b_2)=b_1/b_2$.\pause
-\item What is the distribution of $\bm{f(b)}$?\pause
-\item We can use the Delta Method (Asymptotic Normality + Taylor's Expansion) to approximate it.
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Asymptotic Normality}
-If the errors are independently distributed with mean zero and finite variance and $\bm{X}$ is of full rank and well behaved, then the central limit theorem gives us that\\
-$$\bm{b}\overset{a}{\sim} N[\bm{\beta},\ \frac{\sigma^2}{n}  [\text{plim}\frac{\bm{X'X}}{n}]^{-1}]$$
-That is:
-$$\text{Asy. Var}(\bm{b}-\bm{\beta})=\sigma^2 \frac{[\text{plim}\frac{\bm{X'X}}{n}]^{-1}}{n}$$
-Which we will estimate with:
-$$s^2(\bm{X}'\bm{X})^{-1}=\frac{\bm{e'e}}{n-K}(\bm{X}'\bm{X})^{-1}$$
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{The Delta Method}
-\begin{itemize}
-\item Define a $J\times K$ matrix of partial derivatives across $J$ functions and $K$ variables.
-\begin{align*}
-\bm{C}(\bm{b})&=\frac{\partial \bm{f(b)}}{\partial \bm{b}'}\\
-\text{plim}\bm{C}(\bm{b})&=\text{plim}\frac{\partial \bm{f(b)}}{\partial \bm{b}'}\\
-&=\frac{\partial \bm{f(\beta)}}{\partial \bm{\beta}'}\equiv \bm{\Gamma} \tag{Slutsky}
-\end{align*}
-\item The Taylor approximation from $\bm{\beta}$ to $\bm{b}$ is then
-$$\bm{f(b)}=\bm{f}(\bm{\beta})+\bm{\Gamma}\times(\bm{b}-\bm{\beta})+\text{ Higher Order things}$$\pause
-\item The asymptotic distribution is: $\bm{f(b)}\overset{a}{\sim} N(\bm{f}(\bm{\beta}),\ \bm{\Gamma}[\text{Asy. Var}(\bm{b}-\bm{\beta})]\bm{\Gamma}')$\pause
-\item We can estimate this approximation with: $\bm{C}[s^2(\bm{X}'\bm{X})^{-1}]\bm{C}'$
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Application: Greene Example 4.4}
-\begin{itemize}
-\item Suppose we think effects persist through time:
-$$y_{it}=\beta_0+\beta_1 x_{it}+\gamma y_{it-1}+\epsilon_{it}$$\pause
-\item In the long run we expect stability:
-\begin{align*}
-\bar{y}&=\beta_0+\beta_1 \bar{x}+\gamma \bar{y}\\\pause
-\bar{y}-\gamma \bar{y}&=\beta_0+\beta_1 \bar{x}\\\pause
-\bar{y}(1-\gamma)&=\beta_0+\beta_1 \bar{x}\\\pause
-\bar{y}&=\frac{\beta_0}{(1-\gamma)}+\frac{\beta_1}{(1-\gamma)} \bar{x}
-\end{align*}
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Long run effects with Lagged DV}
-\begin{itemize}
-\item Suppose we raise $x_{it}$ by 1:
-\begin{align*}
-y^{*}_{it}&=\beta_0+\beta_1 (\bar{x}+1)+\gamma \bar{y}&=\bar{y}+\beta_1\\\pause
-y^{*}_{it+1}&=\beta_0+\beta_1\bar{x}+\gamma (\bar{y}+\beta_1)&=\bar{y}+\gamma \beta_1\\\pause
-y^{*}_{it+2}&=\beta_0+\beta_1\bar{x}+\gamma (\bar{y}+\gamma (\beta_1))&=\bar{y}+\gamma^2\beta_1
-\end{align*}
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Long run effects with Lagged DV}
-\begin{itemize}
-\item The long run effect of a temporary one unit increase in x is thereby:
-\begin{align*}
-&=\beta_1+\gamma \beta_1+\gamma^2\beta_1+\gamma^3\beta_1+\ldots\\
-&=\beta_1(1+\gamma +\gamma^2+\gamma^3+\ldots)\\
-&=\beta_1\frac{1}{1-\gamma}
-\end{align*}
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Example: Gas Consumption}
-\begin{itemize}
-\item Demand for gasoline is based on the kind of vehicle consumers choose to buy and how much they drive.
-\item We can model consumer demand for gas (G=gas expenditures/gas price) as a function of gas prices, income (Y) and past car purchasing decisions, which are themselves a function of gas prices and income.
-\end{itemize}
-\begin{align*}
-ln(G/pop)_t&=\hat{\beta}_1 + \hat{\beta}_2ln P_{G,t} +\hat{\beta}_3 ln(Y/pop)_t+ \hat{\beta}_4 ln(G/Pop)_{t-1}+e_t
-\end{align*}
-\begin{itemize}
-\item $\hat{\beta}_2$ is the short run price elasticity. $\hat{\beta}_3$ is the short run income elasticity.
-\item $\frac{\hat{\beta}_2}{1-\hat{\beta}_4 }$ is the long run price elasticity, $\frac{\hat{\beta}_3}{1-\hat{\beta}_4 }$ is the long run income elasticity.
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Delta Method}
-\begin{itemize}
-\item The Delta Method tells us that we can estimate the variance of a function $f$ of our parameters by calculating the matrix of derivatives.
-\item Going back to gas consumption, call $\bm{b}=(\hat{\beta}_1,\ \hat{\beta}_2,\  \hat{\beta}_3,\ \hat{\beta}_4)$, $\bm{f(b)}=\begin{bmatrix} \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }\\ \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }\end{bmatrix}$
-\begin{align*}\pause
-\bm{C}(\bm{b})&=\frac{\partial \bm{f(b)}}{\partial \bm{b}'}=\begin{bmatrix} \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_1} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_2} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_3} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_4} \\ \frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_1} &\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_2}&\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_3}&\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_4}   \end{bmatrix}=\begin{bmatrix} 0 & \frac{1}{1-\hat{\beta}_4}&0&\frac{\hat{\beta}_2}{(1-\hat{\beta}_4)^2} \\0&0& \frac{1}{1-\hat{\beta}_4}&\frac{\hat{\beta}_3}{(1-\hat{\beta}_4)^2} \end{bmatrix}
-\end{align*}
-\item The rows of this matrix are called gradient vectors.
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}[fragile]
-  \begin{lstlisting}
-USGasG <- read_csv("http://people.stern.nyu.edu/wgreene/Text/
-		Edition7/TableF2-2.csv")
-USGasG <- USGasG %>%
-	mutate(	logG 	= log(GASEXP/(GASP*POP)),
-		logGlag = lag(logG),
-		logGASP	= log(GASP))
-fm <- lm(logG ~ logGASP+log(INCOME)+log(PNC)+log(PUC)+logGlag,
-	      data= USGasG )
-xprimex <- vcov(fm)
-sigmasq <- sigma(fm)^2
-bs <- coef(fm)
-ggas <- 	c(0, 1/(1-bs[6]), 0, 0, 0, bs[2]/(1-bs[6])^2)
-gincome <- 	c(0, 0, 1/(1-bs[6]), 0, 0, bs[3]/(1-bs[6])^2)
-seGpricelongrun <- sqrt(t(ggas)%*%(xprimex)%*%ggas)
-seIncomelongrun <- sqrt(t(gincome)%*%(xprimex)%*%gincome)
-   \end{lstlisting}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}[fragile]
-  \begin{lstlisting}
-> cat("Long run elasticity to Gas prices (95% conf. int.):",
-	round(bs[2]/(1-bs[6]), 2), "+/-",
-	round(seGpricelongrun*qnorm(.975),2))
-Long run elasticity to Gas prices (95% conf. int.): -0.41 +/- 0.3
-
-> cat("Long run elasticity to Income (95% conf. intervals):",
-	round(bs[3]/(1-bs[6]), 2),"+/-",
-	round( seIncomelongrun*qnorm(.975),2))
-Long run elasticity to Income (95% conf. int.): 0.97 +/- 0.32
-   \end{lstlisting}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}[fragile]
-  \begin{lstlisting}
-Canned Package Methods
-
-In R:
-> car :: deltaMethod(fm, "logGASP/(1-logGlag)")
-                      Estimate       SE    2.5 %  97.5 %
-logGASP/(1 - logGlag) -0.41136  0.15230 -0.70985 -0.1129
-
-In STATA:
-nlcom (_b[x2]/(1-_b[x6]))
- \end{lstlisting}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Delta Method for Probit: Average Marginal Effects}
-
-Recall from Lecture 9: the Probit average marginal effect is a \textbf{nonlinear function} of $\hat\beta$:
-\[
-\widehat{\text{AME}}_j = \frac{1}{n}\sum_{i=1}^n \phi(X_i'\hat\beta)\,\hat\beta_j
-\]
-
-\pause
-
-This is exactly the kind of problem the delta method solves. Define $h(\beta) = \text{AME}_j(\beta)$. Then:
-\[
-\operatorname{Asy.Var}(\widehat{\text{AME}}_j) = \nabla h(\hat\beta)' \cdot \widehat{\operatorname{Var}}(\hat\beta) \cdot \nabla h(\hat\beta)
-\]
-
-\pause
-
-where $\nabla h$ accounts for both the direct effect ($\hat\beta_j$) and the indirect effect through $\phi(X_i'\hat\beta)$.
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Common pattern:} Estimate $\hat\theta$ by MLE or OLS $\to$ compute a nonlinear function $h(\hat\theta)$ $\to$ use the delta method for its standard error. Same logic for long-run elasticities, marginal effects, or any transformation of coefficients.
-\end{tcolorbox}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Summary and Looking Ahead}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{What We Proved Today}
+\begin{frame}{What We Developed Today}
 
 \begin{center}
-\renewcommand{\arraystretch}{1.4}
+\renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lll}
 \toprule
 \textbf{Tool} & \textbf{Statement} & \textbf{Application} \\
 \midrule
 WLLN & $\bar{X}_n \overset{p}{\to} \mu$ & Consistency \\
-CLT & $\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0,\sigma^2)$ & Asymptotic normality \\
 CMT & $\text{plim}\, g(X_n) = g(\text{plim}\, X_n)$ & Functions of estimators \\
-Delta Method & $h(\hat\beta) \overset{a}{\sim} N(h(\beta),\, \Gamma V \Gamma')$ & SEs for transformations \\
+$O_p$, $o_p$ & Rate of convergence & Tracking remainders \\
+CLT & $\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0,\sigma^2)$ & Asymptotic normality \\
 \bottomrule
 \end{tabular}
 \renewcommand{\arraystretch}{1.0}
@@ -954,13 +1196,13 @@ Delta Method & $h(\hat\beta) \overset{a}{\sim} N(h(\beta),\, \Gamma V \Gamma')$ 
 
 \pause
 
-\bigskip
-
-These four tools, combined with the convergence hierarchy
-\[
-X_n \overset{\text{a.s.}}{\to} X \quad \Rightarrow \quad X_n \overset{p}{\to} X \quad \Rightarrow \quad X_n \overset{d}{\to} X,
-\]
-form the complete asymptotic toolkit for this course.
+\textbf{The CLT proof brought together:}
+\begin{enumerate}
+\item Taylor expansion of the MGF (second-order approximation)
+\item $O(\cdot)$ notation to track the remainder
+\item The exponential limit $(1 + x/n)^n \to e^x$
+\item MGF continuity theorem to conclude convergence in distribution
+\end{enumerate}
 
 \end{frame}
 
@@ -968,10 +1210,11 @@ form the complete asymptotic toolkit for this course.
 
 \begin{frame}{Looking Ahead}
 
-\textbf{Lecture 11} applies today's tools to OLS:
+\textbf{Lecture 11} introduces the \textbf{Delta Method} and applies all of today's tools to OLS:
 \begin{itemize}
+    \item \textbf{Delta Method}: Taylor expansion + CLT $\Rightarrow$ distribution of $h(\hat\beta)$
     \item \textbf{Consistency}: WLLN $\Rightarrow$ $\frac{1}{n}\bm{X'X} \overset{p}{\to} Q_{XX}$, CMT $\Rightarrow$ $\hat\beta \overset{p}{\to} \beta$
-    \item \textbf{Asymptotic normality}: Multivariate CLT $\Rightarrow$ $\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} N(0, Q_{XX}^{-1}\Omega Q_{XX}^{-1})$
+    \item \textbf{Asymptotic normality}: Multivariate CLT $\Rightarrow$ $\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} N(0, V_\beta)$
     \item \textbf{Wald tests}: Delta method $\Rightarrow$ test nonlinear hypotheses about $\beta$
 \end{itemize}
 
