@@ -332,6 +332,68 @@ where $\tilde{e}_i=\hat{e}_i/(1-h_{ii})$ are the prediction errors. \pause
 \end{frame}
 
 
+\begin{frame}{$R^2$ from the Projection Decomposition}
+Recall $\bm{P}=\bm{X}(\bm{X'X})^{-1}\bm{X}'$ and $\bm{M}=\bm{I}-\bm{P}$ decompose $\bm{y}$ into orthogonal pieces:
+$$\bm{y}=\underbrace{\bm{P}\bm{y}}_{\hat{\bm{y}}}+\underbrace{\bm{M}\bm{y}}_{\hat{\bm{e}}}, \qquad \hat{\bm{y}}\perp\hat{\bm{e}}$$
+\pause
+Since $\hat{\bm{y}}'\hat{\bm{e}}=\bm{y}'\bm{PM}\bm{y}=0$, the Pythagorean theorem gives
+$\|\bm{y}\|^2=\|\hat{\bm{y}}\|^2+\|\hat{\bm{e}}\|^2$, so:
+$$R^2=\frac{\|\hat{\bm{y}}\|^2}{\|\hat{\bm{y}}\|^2+\|\hat{\bm{e}}\|^2}=1-\frac{\|\hat{\bm{e}}\|^2}{\|\bm{y}\|^2}$$
+\pause
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+This reduces $R^2$ questions to two facts: (1) $\bm{P}$ and $\bm{M}$ are idempotent ($\bm{P}^2=\bm{P}$, $\bm{M}^2=\bm{M}$), and (2) $\bm{PM}=\bm{0}$.
+\end{tcolorbox}
+\end{frame}
+
+
+\begin{frame}{Practice: What Happens When You Regress Residuals on $\bm{X}$?}
+Suppose a colleague takes your OLS residuals $\hat{\bm{e}}=\bm{M}\bm{y}$ and regresses them on $\bm{X}$.
+\pause
+\medskip
+\textbf{Fitted values:}\quad $\bm{P}\hat{\bm{e}}=\bm{P}\bm{M}\bm{y}=\bm{0}$
+\quad (since $\bm{PM}=\bm{P}-\bm{P}^2=\bm{0}$).
+\pause
+
+\medskip
+\textbf{Residuals:}\quad $\bm{M}\hat{\bm{e}}=\bm{M}^2\bm{y}=\bm{M}\bm{y}=\hat{\bm{e}}$
+\quad (by idempotency).
+\pause
+
+\medskip
+\textbf{$R^2$:}\quad The regression explains nothing: $R^2=\frac{\|\bm{0}\|^2}{\|\hat{\bm{e}}\|^2}=0$.
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Key insight:} OLS residuals are already orthogonal to $\bm{X}$. Regressing them on $\bm{X}$ again produces zero fitted values. This is the content of the normal equations $\bm{X}'\hat{\bm{e}}=\bm{0}$.
+\end{tcolorbox}
+\end{frame}
+
+
+\begin{frame}{Practice: Scaling the Residual Component}
+Now consider $\bm{w}=\hat{\bm{y}}+c\,\hat{\bm{e}}$ for some constant $c>0$. Regress $\bm{w}$ on $\bm{X}$:
+\pause
+
+\smallskip
+\textbf{Fitted values:}\quad $\bm{P}\bm{w}=\bm{P}\hat{\bm{y}}+c\,\bm{P}\hat{\bm{e}}=\bm{P}^2\bm{y}+\bm{0}=\hat{\bm{y}}$ \quad (unchanged!)
+\pause
+
+\smallskip
+\textbf{Residuals:}\quad $\bm{M}\bm{w}=\bm{M}\hat{\bm{y}}+c\,\bm{M}\hat{\bm{e}}=\bm{0}+c\,\hat{\bm{e}}=c\,\hat{\bm{e}}$
+\pause
+
+\smallskip
+\textbf{$R^2_w$:}\quad Since $\hat{\bm{y}}\perp c\,\hat{\bm{e}}$:\quad
+$R^2_w=\frac{\|\hat{\bm{y}}\|^2}{\|\hat{\bm{y}}\|^2+c^2\|\hat{\bm{e}}\|^2}$
+\pause
+
+\smallskip
+Writing $\|\hat{\bm{e}}\|^2=\|\hat{\bm{y}}\|^2\cdot\frac{1-R^2}{R^2}$ and simplifying:
+$$\boxed{R^2_w=\frac{R^2}{c^2-(c^2-1)R^2}}$$
+\pause
+When $c=2$: $R^2_w=\frac{R^2}{4-3R^2}<R^2$. Inflating residuals lowers $R^2$ without changing fitted values.
+\end{frame}
+
+
 \section{Clustered Data}
 \begin{frame}{Clustered Standard Errors}
 \begin{itemize}

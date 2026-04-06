@@ -125,8 +125,11 @@ text}{fg=darkpurple}
 \begin{enumerate}
 \item Is $\hat{\beta}$ centered on $\beta$? $\to$ \textbf{Unbiasedness.}
 \item How much does $\hat{\beta}$ vary across samples? $\to$ \textbf{Variance.}
-\item Can we squeeze more precision out of the data? $\to$ \textbf{Efficiency (Gauss-Markov).}
-\item What if $\text{var}[\bm{e}|\bm{X}]\neq\sigma^2\bm{I}$? $\to$ \textbf{GLS.}
+\item Can we squeeze more precision out of the data?
+\begin{itemize}
+\item If $\text{var}[\bm{e}|\bm{X}]=\sigma^2\bm{I}$? $\to$ \textbf{Gauss-Markov}
+\item If $\text{var}[\bm{e}|\bm{X}]\neq\sigma^2\bm{I}$? $\to$ \textbf{GLS.}
+\end{itemize}
 \end{enumerate}\pause
 \item Efficiency matters especially in political science: treatments are often weak and effective sample sizes are small, so every gain in precision counts.
 \item These results provide the theoretical foundation for standard errors, confidence intervals, and hypothesis tests.
@@ -137,7 +140,7 @@ text}{fg=darkpurple}
 \begin{itemize}
 \item Assumption 1: The random variables $\{(Y_1,\ \bm{x}_1),\ (Y_2,\ \bm{x}_2), \ldots, (Y_n,\ \bm{x}_n)\}$ are independent and identically distributed.
 \item Assumption 2: $Y_i=\bm{x}_i'\beta+e_i$, where $\mathbb{E}(e_i|\bm{x}_i)=0$.
-\item Assumption 3: $\mathbb{E}(\bm{x}_i\bm{x}_i')>0$ is invertible (with probability 1).
+\item Assumption 3: $\mathbb{E}(\bm{x}_i\bm{x}_i')>0$ (with probability 1).
 \item Assumption 4*: $\mathbb{E}[e_i^2|\bm{x}_i]=\sigma^2(\bm{x}_i)=\sigma^2$.
 \end{itemize}
 \end{frame}
@@ -237,7 +240,7 @@ Note that $\bm{X'}\bm{D}\bm{X}=\sum_{i=1}^n\bm{x}_i\bm{x}_i'\sigma_i^2$
 \item The variance $(\bm{X'X})^{-1}\bm{X'DX}(\bm{X'X})^{-1}$ is called the \textbf{sandwich formula}: $\bm{(X'X)}^{-1}$ is the ``bread'' and $\bm{X'DX}$ is the ``meat.''\pause
 \item This is the formula behind every ``robust standard error'' you see in applied papers.\pause
 \item In R: \texttt{vcovHC(lm\_model, type="HC2")} computes this variance using $\hat{e}_i^2$ to estimate the diagonal of $\bm{D}$.\pause
-\item Under homoskedasticity ($\bm{D}=\sigma^2\bm{I}$), the sandwich simplifies to $\sigma^2(\bm{X'X})^{-1}$---the classical formula. Robust SEs and classical SEs agree.
+\item Under homoskedasticity ($\bm{D}=\sigma^2\bm{I}$), the sandwich simplifies to $\sigma^2(\bm{X'X})^{-1}$, which is the classical formula. Robust SEs and classical SEs agree.
 \item When they diverge, it signals heteroskedasticity in your data.
 \end{itemize}
 \end{frame}
@@ -256,35 +259,107 @@ var[\bm{\hat{\beta}}|\bm{X}]&=(\bm{X'X})^{-1}\bm{X'}\bm{D}\bm{X}(\bm{X'X})^{-1}\
 \end{frame}
 
 
-\begin{frame}{Proof of Gauss Markov Theorem}
-Formal statement: In the homoskedastic linear model, if $\bm{\tilde{\beta}}$ is a linear unbiased estimator of $\bm{\beta}$, then
-$$\text{var}(\bm{\tilde{\beta}}|\bm{X})\geq \sigma^2\bm{(X'X)}^{-1}$$\pause
-\textbf{Proof (4 steps):}\\
+\begin{frame}{Gauss-Markov Theorem: Statement}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Theorem (Gauss-Markov)]
+In the homoskedastic linear model (A1--A4*), if $\bm{\tilde{\beta}}$ is any linear unbiased estimator of $\bm{\beta}$, then
+$$\text{var}(\bm{\tilde{\beta}}|\bm{X})\geq \sigma^2\bm{(X'X)}^{-1}=\text{var}(\hat{\bm{\beta}}_{OLS}|\bm{X})$$
+\end{tcolorbox}
+\pause
+\medskip
+The proof has three ideas:
 \begin{enumerate}
-\item Let $\bm{A}$ be any $n\times k$ linear function of $\bm{X}$ such that $\bm{A}'\bm{X}=\bm{I}_k$.\\ \pause
-By (A2) and (A3), $\bm{A'Y}=\bm{\tilde{\beta}}$ is an \emph{unbiased} estimator of $\bm{\beta}$, as $E[\bm{\tilde{\beta}}|\bm{X}]=E[\bm{A'Y}|\bm{X}]=\bm{A}'E[\bm{Y}|\bm{X}]=\bm{A}'\bm{X\beta}=\bm{\beta}$.
-
-\item Under (A1) and (A4), the variance of $\bm{\hat{\beta}}$ is $\sigma^2\bm{(X'X)}^{-1}$ and the variance of $\bm{\tilde{\beta}}$ is $\sigma^2 \bm{A'A}\ $. \\ 
-\item Evaluate $\bm{A'A}- \bm{(X'X)}^{-1}$ to show that it is positive semi-definite.  
+\item What does ``linear estimator'' mean, and when is one unbiased?
+\item Compute the variance of any such estimator.
+\item Show the variance difference is always positive semi-definite.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Proof of Gauss Markov Theorem}
-Set $\bm{C}=\bm{A}-\bm{X(X'X)}^{-1}$, and note that $\bm{X}'\bm{C}=0$, \pause
+\begin{frame}{Step 1: What Is a Linear Estimator?}
+Any estimator that is a linear function of $\bm{Y}$ can be written as
+$$\bm{\tilde{\beta}}=\bm{A}'\bm{Y}$$
+for some $n\times k$ matrix $\bm{A}$ (which may depend on $\bm{X}$, but not on $\bm{Y}$).
+\pause
+
+\medskip
+\textbf{Examples:}
+\begin{itemize}
+\item OLS: $\bm{A}'=(\bm{X'X})^{-1}\bm{X}'$, so $\bm{A}=\bm{X}(\bm{X'X})^{-1}$.
+\item Sample mean (when $\bm{X}=\bm{1}$): $\bm{A}'=\frac{1}{n}\bm{1}'$.
+\item Any weighted average of observations is linear in $\bm{Y}$.
+\end{itemize}
+\pause
+
+\medskip
+\textbf{Not linear:} median, trimmed mean, $\hat{\beta}/\|\hat{\beta}\|$, any estimator where $\bm{Y}$ enters nonlinearly.
+\end{frame}
+
+
+\begin{frame}{Step 1 (cont.): When Is $\bm{A'Y}$ Unbiased?}
+Substitute $\bm{Y}=\bm{X\beta}+\bm{e}$:
+$$\mathbb{E}[\bm{A'Y}|\bm{X}]=\bm{A}'\mathbb{E}[\bm{Y}|\bm{X}]=\bm{A}'\bm{X\beta}$$
+\pause
+
+For this to equal $\bm{\beta}$ for \emph{every} value of $\bm{\beta}$, we need:
+$$\bm{A}'\bm{X}=\bm{I}_k$$
+\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Key constraint:} A linear estimator $\bm{A'Y}$ is unbiased for $\bm{\beta}$ if and only if $\bm{A'X}=\bm{I}_k$.  OLS satisfies this: $(\bm{X'X})^{-1}\bm{X}'\bm{X}=\bm{I}_k$. But many other matrices $\bm{A}$ do too---the question is which gives the smallest variance.
+\end{tcolorbox}
+\end{frame}
+
+
+\begin{frame}{Step 2: Variance of Any Linear Unbiased Estimator}
+Since $\bm{\tilde{\beta}}=\bm{A'Y}=\bm{A}'(\bm{X\beta}+\bm{e})=\bm{\beta}+\bm{A}'\bm{e}$:
+$$\text{var}(\bm{\tilde{\beta}}|\bm{X})=\bm{A}'\,\text{var}(\bm{e}|\bm{X})\,\bm{A}=\sigma^2\bm{A'A}$$
+using homoskedasticity (A4*): $\text{var}(\bm{e}|\bm{X})=\sigma^2\bm{I}$.
+\pause
+
+\medskip
+For OLS specifically, $\bm{A}=\bm{X}(\bm{X'X})^{-1}$, so:
+$$\text{var}(\hat{\bm{\beta}}|\bm{X})=\sigma^2(\bm{X'X})^{-1}\bm{X'X}(\bm{X'X})^{-1}=\sigma^2(\bm{X'X})^{-1}$$
+\pause
+
+\medskip
+\textbf{Goal:} Show $\sigma^2\bm{A'A}\geq\sigma^2(\bm{X'X})^{-1}$ for any $\bm{A}$ with $\bm{A'X}=\bm{I}_k$.
+\end{frame}
+
+
+\begin{frame}{Step 3: The Decomposition Trick}
+Define $\bm{C}=\bm{A}-\bm{X(X'X)}^{-1}$, so $\bm{A}=\bm{C}+\bm{X(X'X)}^{-1}$.
+\pause
+
+\smallskip
+\textbf{Why this $\bm{C}$?}  It measures the ``deviation'' of any linear unbiased estimator from OLS.  The constraint $\bm{A'X}=\bm{I}_k$ forces $\bm{X'C}=\bm{X'A}-\bm{I}_k=\bm{0}$.
+\pause
+
+\smallskip
+Now expand $\bm{A'A}$:
 \small
 \begin{align*}
 \bm{A'A}-\bm{(X'X)}^{-1}&=(\bm{C}+\bm{X(X'X)}^{-1})'(\bm{C}+\bm{X(X'X)}^{-1}) -\bm{(X'X)}^{-1}\\\pause
-&=\bm{C}'\bm{C}+\underbrace{\bm{C'X}}_{=0}(\bm{X'X})^{-1}+(\bm{X'X})^{-1}\underbrace{\bm{X'C}}_{=0}\\
-&\qquad +\bm{(X'X)}^{-1}\bm{X'X(X'X)}^{-1}-\bm{(X'X)}^{-1} \\\pause
-&=\bm{C}'\bm{C}
+&=\bm{C'C}+\underbrace{\bm{C'X}}_{=\bm{0}}(\bm{X'X})^{-1}+(\bm{X'X})^{-1}\underbrace{\bm{X'C}}_{=\bm{0}}\\
+&\qquad +\cancel{\bm{(X'X)}^{-1}}-\cancel{\bm{(X'X)}^{-1}} \\\pause
+&=\bm{C'C}
 \end{align*}
 \normalsize
-\begin{enumerate}[4]\pause
-\item Any matrix $\bm{C}'\bm{C}$ is positive semi-definite: $\bm{x}'\bm{C}'\bm{Cx}=||\bm{Cx}||^2\geq0$.\\\pause
-So $\bm{A'A}- \bm{(X'X)}^{-1}\geq 0$ and \pause
-$$\text{var}(\bm{\tilde{\beta}}|\bm{X})\geq \sigma^2\bm{(X'X)}^{-1} \qed$$
-\end{enumerate}
-No linear estimator will get a lower variance! OLS is the \textbf{b}est among \textbf{l}inear \textbf{u}nbiased \textbf{e}stimators (BLUE).
+\pause
+The cross terms vanish because $\bm{X'C}=\bm{0}$---this is why $\bm{C}$ is defined this way.  It produces a \emph{perfect square} on the right-hand side.
+\end{frame}
+
+
+\begin{frame}{Step 3 (cont.): $\bm{C'C}$ Is Positive Semi-Definite}
+For any vector $\bm{v}\in\mathbb{R}^k$:
+$$\bm{v}'\bm{C'C}\bm{v}=\|\bm{Cv}\|^2\geq 0$$
+\pause
+So $\bm{A'A}-(\bm{X'X})^{-1}=\bm{C'C}\geq 0$, and therefore:
+$$\text{var}(\bm{\tilde{\beta}}|\bm{X})=\sigma^2\bm{A'A}\geq \sigma^2(\bm{X'X})^{-1}=\text{var}(\hat{\bm{\beta}}_{OLS}|\bm{X}) \qed$$
+\pause
+
+\medskip
+No linear unbiased estimator can have lower variance than OLS.
+
+OLS is the \textbf{B}est \textbf{L}inear \textbf{U}nbiased \textbf{E}stimator (BLUE).
 \end{frame}
 
 \begin{frame}{What Does BLUE Mean for Applied Work?}
