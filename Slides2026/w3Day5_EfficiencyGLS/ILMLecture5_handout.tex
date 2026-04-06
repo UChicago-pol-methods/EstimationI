@@ -125,20 +125,20 @@ text}{fg=darkpurple}
 \begin{enumerate}
 \item Is $\hat{\beta}$ centered on $\beta$? $\to$ \textbf{Unbiasedness.}
 \item How much does $\hat{\beta}$ vary across samples? $\to$ \textbf{Variance.}
-\item Can any other estimator do better? $\to$ \textbf{Efficiency (Gauss-Markov).}
+\item Can we squeeze more precision out of the data? $\to$ \textbf{Efficiency (Gauss-Markov).}
 \item What if $\text{var}[\bm{e}|\bm{X}]\neq\sigma^2\bm{I}$? $\to$ \textbf{GLS.}
 \end{enumerate}\pause
+\item Efficiency matters especially in political science: treatments are often weak and effective sample sizes are small, so every gain in precision counts.
 \item These results provide the theoretical foundation for standard errors, confidence intervals, and hypothesis tests.
-\item They also reveal \emph{when} OLS is and is not optimal, motivating the alternatives we study in this lecture and beyond.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Finite Sample Assumptions of OLS estimator}
 \begin{itemize}
-\item Assumption 1: The random variables $\{(Y_1,\ X_1),\ (Y_2,\ X_2), \ldots, (Y_n,\ X_n)\}$ are independent and identically distributed.
-\item Assumption 2: $Y=\bm{X}'\beta+e$, where $\mathbb{E}(e|\bm{X})=0$. 
-\item Assumption 3: $\mathbb{E}(\bm{X}\bm{X}')>0$ is invertible (with probability 1).
-\item Assumption 4*: $\mathbb{E}[e^2|\bm{X}]=\sigma^2(\bm{X})=\sigma^2$. 
+\item Assumption 1: The random variables $\{(Y_1,\ \bm{x}_1),\ (Y_2,\ \bm{x}_2), \ldots, (Y_n,\ \bm{x}_n)\}$ are independent and identically distributed.
+\item Assumption 2: $Y_i=\bm{x}_i'\beta+e_i$, where $\mathbb{E}(e_i|\bm{x}_i)=0$.
+\item Assumption 3: $\mathbb{E}(\bm{x}_i\bm{x}_i')>0$ is invertible (with probability 1).
+\item Assumption 4*: $\mathbb{E}[e_i^2|\bm{x}_i]=\sigma^2(\bm{x}_i)=\sigma^2$.
 \end{itemize}
 \end{frame}
 
@@ -178,7 +178,7 @@ $$\mathbb{E}[g(\bm{X})Y]=\mathbb{E}[g(\bm{X})\mathbb{E}[Y|\bm{X}]]$$
 \end{frame}
 
 \begin{frame}{Unbiasedness (shown in summation operation)}
-\vspace{-0.3em}
+\vspace{-0.5em}
 \footnotesize
 \begin{align*}
 \mathbb{E}[\hat{\beta}|\bm{x}_1,\ldots \bm{x}_n]&=\mathbb{E}\!\left[(\sum_{i=1}^n\bm{x}_i\bm{x}_i')^{-1}(\sum_{i=1}^n\bm{x}_iY_i)\;\middle|\;\bm{x}_1,\ldots \bm{x}_n\right]\\\pause
@@ -193,7 +193,7 @@ $$\mathbb{E}[g(\bm{X})Y]=\mathbb{E}[g(\bm{X})\mathbb{E}[Y|\bm{X}]]$$
 \begin{frame}{Unbiasedness of the OLS slope estimator: Version 2}
 Using Matrix notation, $\mathbb{E}[\bm{y}|\bm{X}]=\bm{X}\beta$,  $\mathbb{E}[\bm{e}|\bm{X}]=0$ (by assumption 2)
 \begin{align*} \pause
-\mathbb{E}[\hat{\beta}|\bm{X}]&=\mathbb{E}[(\bm{X'X})^{-1}\bm{X'Y}|\bm{X}]\\ \pause
+\mathbb{E}[\hat{\beta}|\bm{X}]&=\mathbb{E}[(\bm{X'X})^{-1}\bm{X'y}|\bm{X}]\\ \pause
 &=(\bm{X'X})^{-1}\bm{X}'\mathbb{E}[\bm{y}|\bm{X}] \tag{Conditioning Theorem}\\ \pause
 &=(\bm{X'X})^{-1}\bm{X}'\bm{X}\beta \tag{Independence}\\ \pause
 &=\beta \tag{Inverse} \pause
@@ -223,13 +223,13 @@ Where $\sigma_i^2$ gives us the variation in the regression error for observatio
 \begin{frame}{Derivation of Variance of $\hat{\beta}$}
 \begin{align*}
 var[\bm{\hat{\beta}}|\bm{X}]&=E[(\bm{\hat{\beta}}-\bm{\beta})(\bm{\hat{\beta}}-\bm{\beta})'|\bm{X}]\\ \pause
-&=E[((\bm{\beta}+(\bm{X'X})^{-1}\bm{X'e})-\bm{\beta})((\beta+(\bm{X'X})^{-1}\bm{X'e})-\bm{\beta})'|\bm{X}]\\ \pause
+&=E[((\bm{\beta}+(\bm{X'X})^{-1}\bm{X'e})-\bm{\beta})((\bm{\beta}+(\bm{X'X})^{-1}\bm{X'e})-\bm{\beta})'|\bm{X}]\\ \pause
 &=E[((\bm{X'X})^{-1}\bm{X'e})((\bm{X'X})^{-1}\bm{X'e})'|\bm{X}]\\ \pause
 &=E[(\bm{X'X})^{-1}\bm{X'e}\bm{e'X}(\bm{X'X})^{-1}|\bm{X}]\\ \pause
 &=(\bm{X'X})^{-1}\bm{X'}E[\bm{e}\bm{e}'|\bm{X}]\bm{X}(\bm{X'X})^{-1}\\ \pause
 &=(\bm{X'X})^{-1}\bm{X'}\bm{D}\bm{X}(\bm{X'X})^{-1}\\ \pause
 \end{align*}
-Note that $\bm{X'}\bm{D}\bm{X}=\sum_{i=1}^n\bm{x}_i\bm{x}_i\sigma_i^2$
+Note that $\bm{X'}\bm{D}\bm{X}=\sum_{i=1}^n\bm{x}_i\bm{x}_i'\sigma_i^2$
 \end{frame}
 
 \begin{frame}{The Sandwich Formula in Practice}
@@ -289,15 +289,14 @@ No linear estimator will get a lower variance! OLS is the \textbf{b}est among \t
 
 \begin{frame}{What Does BLUE Mean for Applied Work?}
 \begin{itemize}
-\item Under homoskedasticity, OLS gives you the \emph{tightest possible} confidence intervals among linear unbiased estimators.\pause
-\item Practical implication: if $\text{var}[\bm{e}|\bm{X}]=\sigma^2\bm{I}$, there is no reason to search for a cleverer estimator---OLS is already optimal.\pause
-\item What BLUE does \emph{not} guarantee:
+\item OLS is the default starting point \emph{because} under the strongest assumptions no linear unbiased estimator has tighter confidence intervals.\pause
+\item In practice, homoskedasticity rarely holds exactly, so applied work pairs OLS with \textbf{robust standard errors} rather than assuming classical SEs are correct.\pause
+\item The real value of Gauss-Markov is clarifying what \emph{additional structure} you need to beat OLS:
 \begin{itemize}
-\item If errors are heteroskedastic, OLS is no longer efficient $\to$ GLS can do better.
-\item If $\mathbb{E}[e|\bm{X}]\neq 0$ (omitted variables, simultaneity), OLS is biased regardless of efficiency.
+\item Knowledge of $\Sigma$ $\to$ GLS can improve efficiency.
+\item If $\mathbb{E}[e|\bm{X}]\neq 0$ (omitted variables, simultaneity), OLS is biased regardless of efficiency $\to$ need a valid instrument (IV).
 \item BLUE says nothing about nonlinear estimators (MLE may dominate if you know the error distribution).
-\end{itemize}\pause
-\item Bottom line: Gauss-Markov tells you \emph{when you can stop looking} for a better estimator, and when you cannot.
+\end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -409,7 +408,7 @@ $$\mathbb{E}[Z_i\, e_i]=0 \quad\text{(e.g., random assignment, world prices for 
 \begin{itemize}
 \item \textbf{Mechanism:} $Y$ is a linear function of $X$ plus noise.
 \item \textbf{Exogenous feature:} No omitted variable correlated with $X$ affects $Y$.
-\item \textbf{Moment condition:} $\mathbb{E}[X_i(Y_i - X_i'\beta)]=0$.
+\item \textbf{Moment condition:} $\mathbb{E}[\bm{x}_i(Y_i - \bm{x}_i'\beta)]=0$.
 \item \textbf{Estimator:} $\hat{\beta}=(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}$.
 \end{itemize}
 \pause
@@ -423,7 +422,7 @@ $$\mathbb{E}[Z_i\, e_i]=0 \quad\text{(e.g., random assignment, world prices for 
 
 \begin{frame}{The GLS Assumption}
 \begin{itemize}
-\item Switching from OLS to GLS is not just an algebraic trick---it reflects a \textbf{substantive claim about the error structure}.\pause
+\item Switching from OLS to GLS reflects a \textbf{substantive claim about the error structure}.\pause
 
 \item \textbf{Exogenous feature:} We observe (or can estimate) the error covariance $\Sigma$---e.g., cross-country data where richer countries have more variable outcomes.\pause
 
@@ -497,7 +496,7 @@ A log specification makes effects proportional---and may eliminate the heteroske
 \item Consider the following linear regression model:
 $$\bm{y}=\bm{X\beta}+\bm{e}$$
 \item Allow for heteroskedasticity or correlation in the errors:
-$$\mathtt{E}[\bm{e}|\bm{X}]=0$$
+$$\mathbb{E}[\bm{e}|\bm{X}]=0$$
 $$\text{var}[\bm{e}|\bm{X}]=\Sigma\sigma^2$$
 \item Here $\Sigma$ is $n\times n$ and may be a function of $\bm{X}$, $\sigma^2$ is the common component to the diagonals (could be 1).
 \item Recall, Gauss-Markov proves we can do no better than OLS when $\text{var}[\bm{e}|\bm{X}]=\sigma^2\bm{I}$.  But now we can do better.
@@ -522,13 +521,18 @@ $$\text{var}[\tilde{\beta}]\geq\sigma^2(\bm{X}'\Sigma^{-1}\bm{X})^{-1}$$
 All we need is to know $\Sigma^{-1}$, then correct for it.
 \end{frame}
 
-\begin{frame}{Proof: Efficiency Lower Bound for Linear Estimators (Hansen Ex.\ 4.6)}
+\begin{frame}{Efficiency Lower Bound: Setup (Hansen Ex.\ 4.6)}
 \textbf{Theorem:} If $\tilde{\beta}=\bm{A'Y}$ is linear and unbiased, then $\text{var}(\tilde{\beta}|\bm{X})\geq \sigma^2(\bm{X}'\Sigma^{-1}\bm{X})^{-1}$.\\ \medskip\pause
 \textbf{Proof:} Transform to the spherical model via $\Sigma^{-1/2}$:
 \begin{enumerate}
 \item Define $\bm{\tilde{Y}}=\Sigma^{-1/2}\bm{Y}$, $\bm{\tilde{X}}=\Sigma^{-1/2}\bm{X}$, $\bm{\tilde{e}}=\Sigma^{-1/2}\bm{e}$, so $\text{var}[\bm{\tilde{e}}|\bm{X}]=\sigma^2\bm{I}_n$.\pause
 \item Write $\tilde{\beta}=\bm{A'Y}=\bm{A}'\Sigma^{1/2}\bm{\tilde{Y}}\equiv\bm{\tilde{A}}'\bm{\tilde{Y}}$.\pause
-\item Unbiasedness: $\bm{\tilde{A}}'\bm{\tilde{X}}=\bm{A}'\Sigma^{1/2}\Sigma^{-1/2}\bm{X}=\bm{A'X}=\bm{I}_k$.\pause
+\item Unbiasedness: $\bm{\tilde{A}}'\bm{\tilde{X}}=\bm{A}'\Sigma^{1/2}\Sigma^{-1/2}\bm{X}=\bm{A'X}=\bm{I}_k$.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Efficiency Lower Bound: Applying Gauss-Markov}
+\begin{enumerate}\setcounter{enumi}{3}
 \item Apply Gauss-Markov to the transformed (spherical) model:
 $$\text{var}[\tilde{\beta}|\bm{X}]=\sigma^2\bm{\tilde{A}}'\bm{\tilde{A}}\geq \sigma^2(\bm{\tilde{X}}'\bm{\tilde{X}})^{-1}=\sigma^2(\bm{X}'\Sigma^{-1}\bm{X})^{-1} \qed$$
 \end{enumerate}\pause
@@ -635,7 +639,7 @@ c(sd(b_ols), sd(b_wls))   # WLS SE is smaller
 \begin{frame}{Residuals}
 \begin{itemize}
 \item We will be using estimates of the residuals to construct covariance matrix estimators that do not require homoskedasticity.
-\item The residuals $\hat{e}_i=Y_i-\bm{x}_i\hat{\beta}$ can be written in vector notation as $\bm{\hat{e}}=\bm{Me}$.  
+\item The residuals $\hat{e}_i=Y_i-\bm{x}_i'\hat{\beta}$ can be written in vector notation as $\bm{\hat{e}}=\bm{Me}$.  
 \item Recall $\bm{M}=\bm{I}-\bm{X(X'X)^{-1}X'}$
 \item Given $\bm{X}$, the expectation of the residuals is zero :
 $$\mathbb{E}[\bm{\hat{e}}|\bm{X}]=\mathbb{E}[\bm{Me}|\bm{X}]=\bm{M}\mathbb{E}[\bm{e}|\bm{X}]=0$$
@@ -648,10 +652,10 @@ $$\var[\bm{\hat{e}}|\bm{X}]=\var[\bm{Me}|\bm{X}]=\bm{M}\var[\bm{e}|\bm{X}]\bm{M}
  
 \begin{frame}{Homoskedastic Errors}
 \begin{itemize}
- \item If we assume homoskedasticity, $\bm{E}[e^2|X]=\sigma^2$
+ \item If we assume homoskedasticity, $\mathbb{E}[e^2|\bm{X}]=\sigma^2$
 $$\var[\bm{\hat{e}}|\bm{X}]=\var[\bm{Me}|\bm{X}]=\bm{M}\var[\bm{e}|\bm{X}]\bm{M}=\bm{M}\bm{I}\sigma^2 \bm{M}=\bm{M}\sigma^2$$
 \item Note that the $i$th diagonal element of $\bm{M}$ is $1-h_{ii}$, so
-$$\var[\hat{e}_i|\bm{X}]=\mathbb{E}[\hat{e}^2_i|\mathbb{X}]=(1-h_{ii})\sigma^2\neq \sigma^2$$
+$$\var[\hat{e}_i|\bm{X}]=\mathbb{E}[\hat{e}^2_i|\bm{X}]=(1-h_{ii})\sigma^2\neq \sigma^2$$
 \item $\hat{e}^2_i$ is a biased estimator and it is heteroskedastic.
 \end{itemize}
 \end{frame}
@@ -704,7 +708,7 @@ $$\bar{e}_i=(1-h_{ii})^{-1/2}\hat{e}_i$$
 \begin{enumerate}
 \item The method of moments estimator is $\hat{\sigma}^2=\frac{1}{n}\sum\hat{e}_i^2$ (Biased)
 \item The bias-corrected estimator is $s^2=\frac{1}{n-k}\sum\hat{e}_i^2$ (sigma in R.)
-\item The standardized estimator $\bar{\sigma}^2=\frac{1}{n}\sum_{i=1}^n\bar{e}_i^2=\frac{1}{n}\sum_{i=1}(1-h_{ii})^{-1}\hat{e}^2$
+\item The standardized estimator $\bar{\sigma}^2=\frac{1}{n}\sum_{i=1}^n\bar{e}_i^2=\frac{1}{n}\sum_{i=1}^n(1-h_{ii})^{-1}\hat{e}_i^2$
 \end{enumerate}
 \end{itemize}
 \end{frame}  
