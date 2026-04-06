@@ -449,52 +449,6 @@ $$\hat{\sigma}^2_{MM}=\frac{1}{n}\sum_{i=1}^n\hat{e}_i^2$$\pause
 \end{frame}
 
 
-\begin{frame}{Where Do Moment Conditions Come From?}
-Moment conditions are not statistical conveniences---they encode \textbf{substantive claims about the world}.  Three major sources:\pause
-
-\medskip
-\begin{enumerate}
-\item \textbf{Behavioral / equilibrium conditions.}  An optimization or equilibrium model implies a first-order condition:
-$$\mathbb{E}[Z_i\cdot(\text{marginal benefit} - \text{marginal cost})]=0$$
-Variables in the agent's information set must be orthogonal to the residual.\pause
-
-\item \textbf{Institutional or exogenous variation.}  A design feature or natural experiment makes some variable plausibly independent of the error:
-$$\mathbb{E}[Z_i\, e_i]=0 \quad\text{(e.g., random assignment, world prices for a small country)}$$\pause
-
-\item \textbf{Accounting or definitional identities.}  Budget constraints, vote shares summing to one, or flows $=$ stocks $+$ changes impose restrictions without behavioral assumptions.
-\end{enumerate}
-\end{frame}
-
-
-\begin{frame}{The Theory-to-Estimator Workflow}
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=From Mechanism to Estimator]
-\begin{enumerate}
-\item \textbf{Mechanism:} What process links the variables?
-\item \textbf{Exogenous feature:} What institutional rule, randomization, or equilibrium condition creates a restriction?
-\item \textbf{Observable implication:} What pattern must hold in the data if the mechanism and assumptions are correct?
-\item \textbf{Moment condition:} $\mathbb{E}[g(W_i, \theta)]=0$
-\item \textbf{Estimator:} Solve the sample analog.
-\end{enumerate}
-\end{tcolorbox}
-\end{frame}
-
-\begin{frame}{OLS and GLS Through This Lens}
-\textbf{OLS:}
-\begin{itemize}
-\item \textbf{Mechanism:} $Y$ is a linear function of $X$ plus noise.
-\item \textbf{Exogenous feature:} No omitted variable correlated with $X$ affects $Y$.
-\item \textbf{Moment condition:} $\mathbb{E}[\bm{x}_i(Y_i - \bm{x}_i'\beta)]=0$.
-\item \textbf{Estimator:} $\hat{\beta}=(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}$.
-\end{itemize}
-\pause
-\textbf{GLS:}
-\begin{itemize}
-\item \textbf{Mechanism:} Same linear model, but we claim to know which observations are noisier. (GLS assumes the functional form is already correct---invariance guides that prior choice.)
-\item \textbf{Moment condition:} $\mathbb{E}[\Sigma^{-1/2}X_i(\Sigma^{-1/2}Y_i - \Sigma^{-1/2}X_i'\beta)]=0$
-\item \textbf{Estimator:} $\hat{\beta}_{GLS}=(\bm{X}'\Sigma^{-1}\bm{X})^{-1}\bm{X}'\Sigma^{-1}\bm{Y}$.
-\end{itemize}
-\end{frame}
-
 \begin{frame}{The GLS Assumption}
 \begin{itemize}
 \item Switching from OLS to GLS reflects a \textbf{substantive claim about the error structure}.\pause
@@ -681,9 +635,12 @@ var(b)&=\sigma^2[(\bm{X'\Sigma^{-1} X})^{-1}\bm{X}'\bm{\Sigma}^{-1}+\bm{A}]\bm{\
 $$\text{var}(\hat{\beta}_{OLS})\propto \frac{\sigma_A^2+\sigma_B^2}{2}=\frac{101}{2}\qquad \text{var}(\hat{\beta}_{GLS})\propto \frac{1}{1/\sigma_A^2+1/\sigma_B^2}=\frac{100}{101}\approx 1$$
 \vspace{-0.5em}
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
-GLS is just common sense: trust precise observations more. When you know which observations are noisier, use that information.
+GLS Idea: when you know which observations are noisier, use that information.
 \end{tcolorbox}
 \end{frame}
+
+
+
 
 \begin{frame}[fragile]{Comparing OLS and WLS: R Example}
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
@@ -708,6 +665,67 @@ c(sd(b_ols), sd(b_wls))   # WLS SE is smaller
 \item In practice, use \texttt{lm(..., weights = 1/sigma\_hat\^{}2)} when group variances are known or estimable.
 \end{itemize}
 \end{frame}
+
+\section{Lin Regression}
+
+\begin{frame}{Lin (2013) Regression Adjustment}
+\begin{itemize}
+\item Many of you saw Lin's estimator in your causal inference course.  Today we connect it to efficiency.\pause
+\item \textbf{Setup:} Binary treatment $D_i\in\{0,1\}$, outcome $Y_i$, covariates $X_i$.  Estimand: $\tau=\mathbb{E}[Y(1)-Y(0)]$.\pause
+\item \textbf{Difference in means} (no covariates):
+$$\hat{\tau}_{DM}=\bar{Y}_1-\bar{Y}_0$$
+Unbiased under randomization, but ignores covariate information.\pause
+\item \textbf{Lin's interacted estimator:} regress $Y_i$ on $1,\; D_i,\; (X_i-\bar{X}),\; D_i(X_i-\bar{X})$:
+$$Y_i=\alpha+\tau D_i+\gamma(X_i-\bar{X})+\delta\big[D_i(X_i-\bar{X})\big]+u_i$$
+Report $\hat{\tau}_{\text{Lin}}$ (coefficient on $D_i$).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Lin Estimator via FWL}
+\begin{itemize}
+\item The interaction lets treated and control groups have \textbf{separate slopes}.\pause
+\item By Frisch--Waugh--Lovell, $\hat{\tau}_{\text{Lin}}$ equals the difference in means of \textbf{residualized} outcomes:
+\begin{enumerate}
+\item Within treated: regress $Y_i$ on $(X_i-\bar{X})$, get residuals $\tilde{Y}_i^{(1)}$.
+\item Within controls: regress $Y_i$ on $(X_i-\bar{X})$, get residuals $\tilde{Y}_i^{(0)}$.
+\end{enumerate}
+$$\hat{\tau}_{\text{Lin}}=\overline{\tilde{Y}}^{(1)}-\overline{\tilde{Y}}^{(0)}$$\pause
+\item Centering at $\bar{X}$ ensures $\hat{\tau}_{\text{Lin}}$ estimates the ATE (not the effect at some other covariate value).\pause
+\item You will prove this on Homework 2.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Lin as Variance Reduction: The GLS Analogy}
+\begin{itemize}
+\item \textbf{Recall the GLS idea:} OLS ignores heteroskedasticity $\to$ valid but inefficient.  GLS uses the error structure to reduce variance.\pause
+\item \textbf{Same logic here:} Difference-in-means ignores covariates $\to$ valid but leaves explainable variation in the residual.\pause
+\item Lin's estimator absorbs covariate variation \textbf{within each treatment arm}, shrinking the residual variance---analogous to how GLS reweights observations.\pause
+\item Without the interaction (common slopes across groups), you impose a constraint that can distort the estimate when treatment effects are heterogeneous---just as GLS with a wrong $\Sigma$ can lose efficiency.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Where the Analogy Breaks Down}
+\begin{itemize}
+\item \textbf{Source of unbiasedness:}\pause
+\begin{itemize}
+\item GLS: unbiased because the \alert{model is correctly specified} ($\bm{y}=\bm{X\beta}+\bm{e}$, $\mathbb{E}[\bm{e}|\bm{X}]=0$).
+\item Lin: unbiased because \alert{treatment is randomized}---even if $\mathbb{E}[Y|X]$ is nonlinear and the regression is ``wrong.''
+\end{itemize}\pause
+\item \textbf{What gets used:}\pause
+\begin{itemize}
+\item GLS exploits the $n\times n$ error covariance $\Sigma$ to \emph{reweight} observations.
+\item Lin exploits covariates $X$ to \emph{partial out} predictable variation.  It never touches $\Sigma$.
+\end{itemize}\pause
+\item \textbf{What misspecification costs you:}\pause
+\begin{itemize}
+\item Wrong $\Sigma$ in GLS $\to$ you lose the BLUE guarantee (efficiency), but $\hat{\beta}$ is still unbiased.
+\item Wrong functional form in Lin $\to$ you still get an unbiased ATE (randomization protects you), but you leave variance on the table.
+\item Wrong functional form in OLS \emph{without} randomization $\to$ bias.
+\end{itemize}\pause
+\item \textbf{Bottom line:} GLS is a \emph{model-based} efficiency gain.  Lin is a \emph{design-based} efficiency gain.  Randomization does the heavy lifting that correct specification of $\Sigma$ does for GLS.
+\end{itemize}
+\end{frame}
+
 
 \section{Residuals}
 
