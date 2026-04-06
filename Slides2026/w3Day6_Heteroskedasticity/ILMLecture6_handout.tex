@@ -204,12 +204,12 @@ Nominal 95\% CI coverage, varying $n$ and regressor kurtosis:
 
 \begin{frame}{Lessons from the Simulation}
 \begin{itemize}
-\item \textbf{Classical SEs} dramatically under-cover ($\sim$70--60\%) and \emph{get worse} with heavier tails---more data does not help because the variance formula is wrong, not just imprecise.\pause
-\item \textbf{HC0 (White)} improves with $n$ but is noticeably below 95\% at small $n$, especially with heavy-tailed regressors.\pause
-\item \textbf{HC2} reaches nominal coverage faster by correcting the finite-sample bias in $\hat{e}_i^2$.\pause
+\item \textbf{Classical SEs} dramatically under-cover and \emph{get worse} with heavier tails---more data does not help because the variance formula is wrong, not just imprecise.\pause
+\item \textbf{HC0 (White)} improves with $n$ under mild kurtosis, but with kurtosis $\approx 30$ it is still below 80\% coverage even at $n=1{,}000$.\pause
+\item \textbf{HC2} reaches nominal coverage much faster by correcting the finite-sample bias in $\hat{e}_i^2$.\pause
 \end{itemize}
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Takeaway:} Always use heteroskedasticity-robust SEs---but the version matters.  HC2 (or HC3) should be the default, especially with $n < 200$ or heavy-tailed regressors.
+\textbf{Takeaway:} Always use heteroskedasticity-robust SEs---but the version matters.  HC2 (or HC3) should be the default, especially with heavy-tailed regressors or $n < 200$.
 \end{tcolorbox}
 \end{frame}
 

@@ -9,12 +9,16 @@ library(lmtest)
 set.seed(42)
 B <- 5000
 beta_true <- 1
-alpha <- 0.05
 
-# Two regressor distributions: Normal (kurtosis=3) and t(5) (kurtosis=9)
+# Three regressor distributions with increasing kurtosis
+# t(df) kurtosis = 3 + 6/(df-4) for df > 4
+# Normal: kurtosis = 3
+# t(5):   kurtosis = 9
+# t(4.22): kurtosis ≈ 30  (like CPS wages in Hansen's example)
 x_dists <- list(
-  "Normal (kurtosis = 3)" = function(n) rnorm(n),
-  "t(5) (kurtosis = 9)"   = function(n) rt(n, df = 5)
+  "Normal (kurtosis = 3)"            = function(n) rnorm(n),
+  "t(5) (kurtosis = 9)"              = function(n) rt(n, df = 5),
+  "t(4.2) (kurtosis ~ 30, like wages)" = function(n) rt(n, df = 4.2)
 )
 
 sample_sizes <- c(30, 50, 100, 250, 500, 1000)
@@ -60,6 +64,8 @@ for (dist_name in names(x_dists)) {
   }
 }
 
+# Preserve facet order
+results$Distribution <- factor(results$Distribution, levels = names(x_dists))
 results$SE_Type <- factor(results$SE_Type, levels = c("Classical", "HC0 (White)", "HC2"))
 
 p <- ggplot(results, aes(x = n, y = Coverage, color = SE_Type, shape = SE_Type)) +
@@ -67,8 +73,8 @@ p <- ggplot(results, aes(x = n, y = Coverage, color = SE_Type, shape = SE_Type))
   geom_point(size = 2.5) +
   geom_hline(yintercept = 0.95, linetype = "dashed", color = "black", linewidth = 0.5) +
   facet_wrap(~ Distribution) +
-  scale_y_continuous(limits = c(0.5, 1), labels = scales::percent_format()) +
-  scale_x_continuous(breaks = sample_sizes) +
+  scale_y_continuous(limits = c(0.45, 1), labels = scales::percent_format()) +
+  scale_x_log10(breaks = c(30, 100, 300, 1000)) +
   labs(
     x = "Sample size (n)",
     y = "Coverage of nominal 95% CI",
@@ -79,9 +85,9 @@ p <- ggplot(results, aes(x = n, y = Coverage, color = SE_Type, shape = SE_Type))
   theme(
     legend.position = "bottom",
     panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold", size = 13)
+    strip.text = element_text(face = "bold", size = 12)
   )
 
-ggsave("coverage_sim.pdf", p, width = 9, height = 4.5)
-ggsave("coverage_sim.png", p, width = 9, height = 4.5, dpi = 200)
+ggsave("coverage_sim.pdf", p, width = 10, height = 4.2)
+ggsave("coverage_sim.png", p, width = 10, height = 4.2, dpi = 200)
 cat("Done.\n")
