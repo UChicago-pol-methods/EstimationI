@@ -18,6 +18,7 @@
 \useinnertheme{rectangles}
 }
 \usepackage{amsmath}
+\usepackage{graphicx}
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{structure}{fg= blue}
 \definecolor{trial}{cmyk}{1,0,0, 0}
@@ -165,15 +166,51 @@ But the \alert{true} variance under heteroskedasticity is
 $\bm{V}_{\hat{\beta}}=(\bm{X'X})^{-1}(\bm{X'DX})(\bm{X'X})^{-1}$.\pause
 
 \medskip
-\textbf{Example} (Hansen): Suppose $k=1$, $\sigma_i^2=X_i^2$, and $\mathbb{E}[X]=0$. Then:
-$$\frac{V_{\hat{\beta}}}{\mathbb{E}\left[\hat{V}^0_{\hat{\beta}}\right]}\approx \frac{\mathbb{E}[X^4]}{(\mathbb{E}[X^2])^2}\stackrel{\text{def}}{=}\kappa$$\pause
-\begin{itemize}
-\item If $X\sim N(0,\sigma^2)$: $\kappa=3$. True variance is \alert{3$\times$} the homoskedastic estimate.
-\item For \emph{wage} in the CPS: $\kappa=30$. True variance is \alert{30$\times$} the homoskedastic estimate.
-\item The homoskedastic SE understates uncertainty by a factor of $\sqrt{\kappa}$.
-\end{itemize}\pause
+\textbf{How far off can this be?}  To get a scalar we can interpret, consider the simplest case: a single regressor, no intercept ($Y_i=\beta X_i + e_i$), with $\sigma_i^2=X_i^2$.\pause
+
 \smallskip
-\textbf{Takeaway:} The classical covariance estimator can be wildly misleading.  Always use a heteroskedasticity-robust estimator.
+The ratio of the true variance to the classical estimate is:
+$$\frac{V_{\hat{\beta}}}{\mathbb{E}\left[\hat{V}^0_{\hat{\beta}}\right]}\approx \frac{\mathbb{E}[X^4]}{(\mathbb{E}[X^2])^2}$$
+\pause
+This ratio is the \textbf{kurtosis} of $X$---a measure of how heavy-tailed the regressor distribution is.
+\begin{itemize}
+\item $X\sim N(0,\sigma^2)$: kurtosis $= 3$.  Classical SEs off by $\sqrt{3}\approx 1.7\times$.
+\item Heavy-tailed $X$ (e.g.\ wages): kurtosis can be 30+.  Classical SEs off by $\sqrt{30}\approx 5.5\times$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Do Robust SEs Fix the Problem?}
+\begin{itemize}
+\item The White (HC0) estimator is \textbf{consistent}: it converges to the truth as $n\to\infty$.
+\item But convergence is \emph{slow} when kurtosis is high---exactly when you need it most.\pause
+\item HC0 is also biased \emph{downward} in finite samples: it uses $\hat{e}_i^2$, which underestimates $\sigma_i^2$ because OLS residuals shrink toward zero (see midterm Q5).\pause
+\item HC2 corrects this by dividing by $1-h_{ii}$, but still relies on large-sample approximations.
+\end{itemize}
+\pause
+\medskip
+\textbf{Question:} How bad is the finite-sample performance?  We can check by simulation.
+\end{frame}
+
+
+\begin{frame}{Coverage Simulation: Classical vs.\ Robust SEs}
+\textbf{DGP:} $Y_i = \beta X_i + e_i$, $\;\sigma_i = |X_i|$, $\;$5{,}000 replications.
+Nominal 95\% CI coverage, varying $n$ and regressor kurtosis:
+\begin{center}
+\includegraphics[width=0.85\textwidth, height=0.65\textheight, keepaspectratio]{coverage_sim.pdf}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Lessons from the Simulation}
+\begin{itemize}
+\item \textbf{Classical SEs} dramatically under-cover ($\sim$70--60\%) and \emph{get worse} with heavier tails---more data does not help because the variance formula is wrong, not just imprecise.\pause
+\item \textbf{HC0 (White)} improves with $n$ but is noticeably below 95\% at small $n$, especially with heavy-tailed regressors.\pause
+\item \textbf{HC2} reaches nominal coverage faster by correcting the finite-sample bias in $\hat{e}_i^2$.\pause
+\end{itemize}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Takeaway:} Always use heteroskedasticity-robust SEs---but the version matters.  HC2 (or HC3) should be the default, especially with $n < 200$ or heavy-tailed regressors.
+\end{tcolorbox}
 \end{frame}
 
 \begin{frame}{``Agnostic'' Covariance Matrix Estimation under heteroskedasticity}
