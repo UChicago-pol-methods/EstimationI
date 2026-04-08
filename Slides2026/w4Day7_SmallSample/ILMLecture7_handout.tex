@@ -20,7 +20,7 @@
 \useinnertheme{rectangles}
 }
 \usepackage{dutchcal}
-\usepackage{xcolor} % for colors, optio
+\usepackage{xcolor}
 \usepackage{amsmath}
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{structure}{fg= blue}
@@ -28,7 +28,6 @@
 \definecolor{trial2}{cmyk}{0.00,0,1, 0}
 \definecolor{darkgreen}{rgb}{0,.4, 0.1}
 \definecolor{darkpurple}{rgb}{0.4, 0, 0.6}
-\usepackage{array}
 \usepackage{booktabs}
 \beamertemplatesolidbackgroundcolor{white}  \setbeamercolor{alerted
 text}{fg=darkpurple}
@@ -45,18 +44,13 @@ text}{fg=darkpurple}
   frame=single,
   backgroundcolor=\color{gray!10}
 }
-\font\domino=domino
-\def\die#1{{\domino#1}}
 \usepackage{tikz}
-\usetikzlibrary{calc}
-\usetikzlibrary{arrows}
+\usetikzlibrary{calc,arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
 \usepackage{colortbl}
 
 \renewcommand{\familydefault}{cmss}
-%\usepackage[all]{xy}
-
-\usepackage{tikz}
-\usepackage{lipsum}
 
  \newenvironment{changemargin}[3]{%
  \begin{list}{}{%
@@ -69,7 +63,6 @@ text}{fg=darkpurple}
  \setlength{\parsep}{\parskip}%
  }%
 \item[]}{\end{list}}
-\usetikzlibrary{arrows}
 
 \usecolortheme{lily}
 
@@ -102,6 +95,12 @@ text}{fg=darkpurple}
 \pgfmathdeclarefunction{normalpdf}{3}{%
   \pgfmathparse{1/(#3*sqrt(2*pi))*exp(-((#1)-(#2))^2/(2*(#3)^2))}%
 }
+% t-pdf approximation via Gamma ratio: f(x;v) = Gamma((v+1)/2) / (sqrt(v*pi)*Gamma(v/2)) * (1+x^2/v)^(-(v+1)/2)
+% For v=5: constant = 0.37960669, v=12: 0.38949786
+\pgfmathdeclarefunction{tpdf}{2}{%
+  % #1 = x, #2 = df
+  \pgfmathparse{(1 + (#1)^2/(#2))^(-(#2+1)/2)}%
+}
 \begin{document}
 
 \begin{frame}
@@ -112,12 +111,13 @@ text}{fg=darkpurple}
 
 \setcounter{subsection}{1}
 
-
-\begin{frame}{Using Distributional assumptions}
+\begin{frame}{Where Are We? Efficient Estimation}
 \begin{itemize}
-\item Statistical inference aims to make statements about unobserved parameters $\beta$, $\sigma$ etc.
-\item In this lecture, we do so by imposing distributional assumptions on our population with a \emph{parametric model}
-\item In particular, we will be using Maximum Likelihood Estimation (MLE)
+\item So far: OLS estimates $\beta$ and we have its variance, but \emph{how precise can any estimator be?}\pause
+\item The general theory of efficient estimation answers this via \textbf{scores} (derivatives of log-densities) and \textbf{information} (their variance).\pause
+\item These concepts are not specific to MLE --- they underlie influence functions, semiparametric efficiency bounds, and GMM.\pause
+\item \textbf{This lecture}: when we know the full likelihood, MLE is the estimator that achieves the efficiency bound.  We use the normal linear model as the leading case.\pause
+\item \textbf{The punchline}: OLS \emph{is} the MLE under normality, and its score equations are moment conditions --- the same objects that drive GMM and robust inference.
 \end{itemize}
 \end{frame}
 
@@ -150,8 +150,8 @@ text}{fg=darkpurple}
 \begin{itemize}
 \item Call $f(\theta|\bm{X})$ the \textbf{probability density function} of some model and parameters $\theta$, given the data $\bm{X}$.\pause
 \item If we reverse the order $f(\bm{X}|\theta)$ we have a \emph{likelihood}, how probable is the data given the $\theta$.\pause
-\item Example: Binomial model of term lengths of candidates, $P(x,p)={n\choose x}p^{x}(1-p)^{n-x}$.\pause
-\item Suppose we have data $\bm{x}= \{1,\ 0,\ 1,\ 2,\ 0\}$.\pause
+\item Example: Binomial model of how many terms ($x$ out of $n=2$) each of 5 candidates wins.  $P(x|p)={n\choose x}p^{x}(1-p)^{n-x}$.\pause
+\item Suppose we observe $\bm{x}= \{1,\ 0,\ 1,\ 2,\ 0\}$.\pause
 \item The Joint Likelihood of the data is:
 \begin{align*}
 P(\bm{x}|\ p)&={2\choose 1}p^{1}(1-p)^{1} {2\choose 0}p^{0}(1-p)^{2} {2\choose 1}p^{1}(1-p)^{1}  {2\choose 2}p^{2}(1-p)^{0} {2 \choose 0}p^{0}(1-p)^{2}\\\pause
@@ -267,10 +267,10 @@ No unbiased estimator can have variance below the inverse of the total Fisher in
 
 \begin{frame}{Cram\'{e}r-Rao vs.\ Gauss-Markov}
 \begin{itemize}
-\item \textbf{Gauss-Markov} (Lecture 5): OLS is the best \emph{linear} unbiased estimator, under homoskedasticity. The proof is a clever algebraic trick specific to the linear model.\pause
-\item \textbf{Cram\'{e}r-Rao}: No unbiased estimator---linear or not---can beat the information bound. This is a general result for \emph{any parametric model}.\pause
-\item Under normality, OLS achieves the CR bound $\to$ it is efficient among \alert{all} unbiased estimators, not just linear ones. A strictly stronger result.\pause
-\item \textbf{The broader lesson}: The CR bound applies to probit, Poisson, duration models, and any other parametric model. It is the universal benchmark for estimator precision. Gauss-Markov is a special case.
+\item \textbf{Gauss-Markov} (Lecture 5): OLS is the best \emph{linear} unbiased estimator, under homoskedasticity.  A result specific to the linear model.\pause
+\item \textbf{Cram\'{e}r-Rao}: No unbiased estimator---linear or not---can beat the information bound. A general result for \emph{any parametric model}.\pause
+\item Under normality, OLS achieves the CR bound $\to$ efficient among \alert{all} unbiased estimators, not just linear ones.\pause
+\item \textbf{The broader point}: The CR bound is one instance of a \emph{semiparametric efficiency bound}.  In later lectures, we will see that the same logic---scores, information, influence functions---defines efficient estimators even without a full parametric model.
 \end{itemize}
 \end{frame}
 
@@ -324,12 +324,12 @@ $$var[S]=\frac{\mathbb{E}[(X^2-\theta_0)^2]}{4\theta_0^4}=\frac{\mathbb{E}[X^4-2
 
 \begin{frame}{Expected Hessian}
 
-$$\mathcal{H}_\theta=\mathbb{E}[-\frac{d}{d\theta^2} \log f(X|\theta_0)]=\mathbb{E}[-\frac{d}{d\theta}\frac{x^2-\theta_0}{2\theta_0^2}]=\mathbb{E}[\frac{2x^2-\theta_0}{2\theta_0^3}]=\frac{1}{2\theta_0^2}$$
+$$\mathcal{H}_\theta=\mathbb{E}[-\frac{d^2}{d\theta^2} \log f(X|\theta_0)]=\mathbb{E}[-\frac{d}{d\theta}\frac{x^2-\theta_0}{2\theta_0^2}]=\mathbb{E}[\frac{2x^2-\theta_0}{2\theta_0^3}]=\frac{1}{2\theta_0^2}$$
 
 $$\mathcal{I}_\theta=var[S]=\frac{1}{2\theta_0^2}=\mathcal{H}_\theta$$
 The total Fisher information for $n$ observations is $I_n(\theta_0)=n\times \mathcal{I}_\theta=\frac{n}{2\theta^2_0}$\\
 The variance of $\hat{\theta}$ is $\frac{1}{I_n(\theta_0)}=2\theta^2_0/n$\\
-So we can get the plug in estimator for the standard error as $\sqrt{2\hat{\theta}^2_0/n}$.
+So we can get the plug-in estimator for the standard error as $\sqrt{2\hat{\theta}^2/n}$.
 \end{frame}
 
 \begin{frame}[fragile]{Expected Hessian}
@@ -359,16 +359,16 @@ $$\bm{\hat{V}}=\hat{\mathcal{H}}^{-1}\hat{\mathcal{I}}\hat{\mathcal{H}}^{-1}$$
  \end{itemize}
 \end{frame}
 
-\begin{frame}{Summary: The MLE Toolkit}
-We now have four key ingredients:\pause
+\begin{frame}{Summary: Scores, Information, and Efficiency}
+These four concepts are \alert{not specific to MLE} --- they recur throughout estimation theory:\pause
 \begin{enumerate}\setlength{\itemsep}{4pt}
-\item \textbf{Likelihood} $\to$ a model-based measure of how well parameters fit data.\pause
-\item \textbf{Score} $\to$ first derivative of $\ell$; equals zero at the MLE.\pause
-\item \textbf{Fisher Information} $\to$ curvature of $\ell$; determines how precisely we can estimate $\theta$.\pause
-\item \textbf{Cram\'{e}r-Rao bound} $\to$ no unbiased estimator can beat $(n\mathcal{I}_\theta)^{-1}$.
+\item \textbf{Score} $\to$ the derivative of the log-density.  Setting it to zero gives estimating equations --- the same objects that define moment conditions and influence functions.\pause
+\item \textbf{Fisher Information} $\to$ the variance of the score; measures how much the data can tell you about $\theta$.\pause
+\item \textbf{Efficiency bound} $\to$ no unbiased estimator can beat $(n\mathcal{I}_\theta)^{-1}$.  MLE achieves this when the likelihood is correctly specified.\pause
+\item \textbf{Likelihood} $\to$ when a full parametric model is available, the likelihood gives us a concrete score and a concrete bound.
 \end{enumerate}\pause
 \medskip
-\textbf{Next}: apply this machinery to the normal linear regression model and see that OLS \emph{is} the MLE.
+\textbf{Next}: apply this to the normal linear model and show that OLS \emph{is} the MLE.
 \end{frame}
 
 \section{Normal Linear Model}
@@ -447,14 +447,14 @@ This is the kernel of a normal density with:
 \textbf{Key insight}: Under joint normality, the CEF is \alert{linear} and the regression coefficient is $\beta = \text{Cov}(Y,X)/\text{Var}(X)$.  This is a classical motivation for linear regression.
 \end{frame}
 
-\section{MLE estimator}
+\section{MLE in the Normal Linear Model}
 
-\begin{frame}{Roadmap: From Likelihood to Inference}
+\begin{frame}{Roadmap: MLE as a Special Case}
 \begin{itemize}\setlength{\itemsep}{6pt}
 \item We have the normal linear model: $\bm{y}|\bm{X}\sim N(\bm{X\beta},\ \sigma^2\bm{I})$.\pause
-\item Now we solve for the MLE and show it equals OLS.\pause
-\item Then we connect the \alert{score} of the normal model to moment conditions --- the bridge to GMM.\pause
-\item Finally, the distributional results ($t$, $\chi^2$, $F$) that make exact small-sample inference possible.
+\item Solve for the MLE and show it equals OLS --- the full likelihood buys us nothing new for $\hat{\beta}$.\pause
+\item The \alert{score} of the normal model \emph{is} the OLS moment condition $\bm{X'e}=0$.  This is the key link: MLE is just-identified GMM with score moments.\pause
+\item The payoff of normality: exact finite-sample distributions ($t$, $\chi^2$, $F$) that do not require asymptotics.
 \end{itemize}
 \end{frame}
 
@@ -473,7 +473,7 @@ This is the kernel of a normal density with:
 \begin{frame}{Overall Likelihood}
 \begin{itemize}
 \item $\hat{\beta}_{MLE}=(\sum_{i=1}^n\bm{x}_i\bm{x}'_i)^{-1}(\sum_{i=1}^n\bm{x}_iY_i)=\hat{\beta}_{ols}$.\pause
-\item $\hat{\sigma}^2_{MLE}=\frac{1}{n}\sum_{i=1}^n(Y_i-\bm{x}'_i\hat{\beta}_{MLE})^{2}=\hat{\sigma}^2_{OLS}$.\pause
+\item $\hat{\sigma}^2_{MLE}=\frac{1}{n}\sum_{i=1}^n(Y_i-\bm{x}'_i\hat{\beta}_{MLE})^{2}$.  Note: this divides by $n$, not $n{-}k$, so the MLE is \alert{biased} for $\sigma^2$.  The unbiased estimator $s^2$ divides by $n{-}k$.\pause
 \item $\log\mathcal{L}(\hat{\beta}_{MLE},\ \hat{\sigma}^2_{MLE})=-\frac{n}{2}\log(2\pi \hat{\sigma}^2_{mle})-n/2$\pause
 \item You will see the "log likelihood" reported as a measure of fit, logLik$()$\pause
 \item The Akaike's AIC is $-2$log-likehood$+2n_{par}$, weighing model performance versus complexity.\pause
@@ -515,13 +515,14 @@ These are exactly the \alert{OLS normal equations}!  The MLE for $\beta$ equals 
 \begin{frame}{Scores as Moment Conditions}
 The score for $\beta$ evaluated at the true parameter is:
 $$S_i(\beta_0)=\frac{\partial}{\partial \beta}\log f(Y_i|X_i,\beta_0,\sigma^2)=\frac{1}{\sigma^2}X_i e_i$$\pause
-The population moment condition from the CEF is:
-$$\mathbb{E}[X_i e_i]=0$$\pause
+The population moment condition from the CEF is $\mathbb{E}[X_i e_i]=0$.\pause
+
 \medskip
 \textbf{Key observation}: Setting the score to zero in the sample,
 $$\frac{1}{n}\sum_{i=1}^n S_i(\hat{\beta})=0 \quad\Longleftrightarrow\quad \frac{1}{n}\sum_{i=1}^n X_i\hat{e}_i=0$$
-is the \alert{same} as solving the sample moment condition $\frac{1}{n}\sum X_i(Y_i - X_i'\hat{\beta})=0$.\\\pause
-\medskip
+is the \alert{same} as solving the sample moment condition $\frac{1}{n}\sum X_i(Y_i - X_i'\hat{\beta})=0$.\pause
+
+\smallskip
 MLE, OLS, and method of moments all give the \emph{same} estimator for $\beta$ in the normal linear model.
 \end{frame}
 
@@ -553,18 +554,18 @@ This is the \alert{heteroskedasticity-robust variance} from Lecture 6 (HC0--HC3)
 The ``sandwich'' estimator is the likelihood-based variance under misspecification.
 \end{frame}
 
-\begin{frame}{Preview: From MLE Scores to GMM}
+\begin{frame}{MLE as a Special Case of Moment-Based Estimation}
 \textbf{Maximum likelihood} solves $k$ score equations in $k$ unknowns:
 $\frac{1}{n}\sum_{i=1}^n \frac{\partial}{\partial \theta}\log f(Y_i|X_i,\theta)=0$\pause\\[4pt]
-\textbf{Method of moments} solves $m$ moment conditions in $k$ unknowns:
+\textbf{GMM} solves $m$ moment conditions in $k$ unknowns:
 $\frac{1}{n}\sum_{i=1}^n g(Y_i, X_i, \theta)=0$\pause
 \begin{itemize}\setlength{\itemsep}{2pt}
-\item When $m=k$ and $g=$ score: \alert{GMM $=$ MLE}.\pause
+\item When $m=k$ and $g=$ score: \alert{GMM $=$ MLE}.  MLE is just-identified GMM.\pause
 \item When $m>k$: GMM uses an \emph{optimal weighting matrix} to combine them.
 \item IV example: $\mathbb{E}[Z_i e_i]=0$ gives more moment conditions than parameters.\pause
 \end{itemize}
 \smallskip
-\textbf{Takeaway}: MLE $\subset$ GMM.  Score equations are one set of moment conditions.  Robust SEs arise when the likelihood is misspecified.
+\textbf{Key insight}: MLE $\subset$ GMM.  Score equations are one choice of moment conditions.  When the likelihood is misspecified, the sandwich variance replaces the information-based one.
 \end{frame}
 
 \begin{frame}{Summary: The Score-Based View}
@@ -655,35 +656,51 @@ The simulation matches.
 \end{columns}
 \end{frame}
 
-\begin{frame}{Distribution of OLS Estimates}
-Under the classical linear model assumptions, the OLS estimator is normally distributed:
+\begin{frame}{From Known $\sigma$ to Estimated $s$: Why Heavier Tails}
+If $\sigma$ were known, the $j$-th coefficient is exactly normal:
 \[
-\hat{\bm{\beta}} \sim N(\bm{\beta},\ \sigma^2 (\bm{X'X})^{-1})
-\]
-
-Focus on the \( j \)-th coefficient:
-\[
-\hat{\beta}_j \sim N\left(\beta_j,\ \sigma^2 \left[(\bm{X'X})^{-1}\right]_{jj}\right)
-\]
-
-Therefore, the standardized version is:
-\[
-\frac{\hat{\beta}_j - \beta_j}{\sqrt{\sigma^2 \left[(\bm{X'X})^{-1}\right]_{jj}}} \sim N(0, 1)
-\]
+\frac{\hat{\beta}_j - \beta_j}{\sigma\sqrt{[(\bm{X'X})^{-1}]_{jj}}} \sim N(0, 1)
+\]\pause
+But $\sigma$ is unknown.  Replacing it with $s$ introduces extra randomness:\pause
+\begin{itemize}
+\item When $s$ underestimates $\sigma$, the ratio is \emph{inflated} --- producing occasional large values.
+\item When $s$ overestimates, the ratio is compressed.\pause
+\item Net effect: \alert{heavier tails} than the normal, especially when $n{-}k$ is small (because $s$ is noisy with few degrees of freedom).\pause
+\item As $n{-}k\to\infty$, $s\to\sigma$ and $t_{n-k}\to N(0,1)$.
+\end{itemize}
 \end{frame}
 
-
-\begin{frame}{Why Heavier Tails? Intuition for the $t$-Distribution}
-\begin{itemize}
-\item If we knew $\sigma$, the standardized estimator $\frac{\hat{\beta}_j-\beta_j}{\sigma\sqrt{[(\bm{X'X})^{-1}]_{jj}}}$ would be exactly $N(0,1)$.\pause
-\item But we replace $\sigma$ with $s$, which is itself random:
-\begin{itemize}
-\item When $s$ happens to be \emph{too small} (underestimates the noise), the ratio is \emph{inflated} --- producing occasional large values.
-\item When $s$ is too large, the ratio is compressed.
-\end{itemize}\pause
-\item The net effect: \alert{heavier tails} than the normal, especially when $n-k$ is small (because $s$ is noisy with few degrees of freedom).\pause
-\item As $n-k\to\infty$, $s\to\sigma$ and $t_{n-k}\to N(0,1)$. With $n-k\geq 30$, the difference is small.
-\end{itemize}
+\begin{frame}{$t$-Distribution vs.\ Normal: Heavier Tails}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.85\textwidth, height=0.7\textheight,
+  domain=-4.5:4.5, samples=150,
+  axis lines=middle,
+  xlabel={$x$}, ylabel={density},
+  ymax=0.45,
+  every axis x label/.style={at={(ticklabel* cs:1)}, anchor=west},
+  every axis y label/.style={at={(ticklabel* cs:1)}, anchor=south},
+  legend style={at={(0.98,0.95)}, anchor=north east, font=\small},
+  clip=false,
+]
+% N(0,1)
+\addplot[blue, thick] {normalpdf(x,0,1)};
+\addlegendentry{$N(0,1)$}
+% t with df=5 — use precomputed normalizing constant
+% Gamma(3)/[sqrt(5*pi)*Gamma(5/2)] = 2/[sqrt(5*pi)*(3/4)*sqrt(pi)] = 0.37961
+\addplot[darkpurple, thick, dashed] {0.37961 * tpdf(x,5)};
+\addlegendentry{$t_5$}
+% t with df=30 — constant = 0.39563
+\addplot[darkgreen, thick, dotted] {0.39563 * tpdf(x,30)};
+\addlegendentry{$t_{30}$}
+% Shade tails beyond |x|>2 for t_5
+\addplot[fill=darkpurple, fill opacity=0.15, draw=none, domain=2:4.5] {0.37961 * tpdf(x,5)} \closedcycle;
+\addplot[fill=darkpurple, fill opacity=0.15, draw=none, domain=-4.5:-2] {0.37961 * tpdf(x,5)} \closedcycle;
+\end{axis}
+\end{tikzpicture}
+\end{center}
+With few degrees of freedom ($t_5$), the tails carry substantially more mass beyond $\pm 2$ than the normal.
 \end{frame}
 
 \begin{frame}{From Normal to $t$: Estimated Variance}
@@ -698,27 +715,19 @@ We plug in this estimate to standardize:
 T = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s_{\hat{e}}^2 \left[(\bm{X'X})^{-1}\right]_{jj}}}
 \]
 
-This is no longer standard normal, but it has a **t-distribution**.
+This is no longer standard normal, but it has a \textbf{$t$-distribution}.
 \end{frame}
 
 \begin{frame}{The $t$ Statistic and its Distribution}
-Recall from probability theory:
-\[
-\frac{Z}{\sqrt{W/(n - k)}} \sim t(n - k)
-\quad \text{where} \quad Z \sim N(0, 1),\ W \sim \chi^2(n - k),\ Z \perp W
-\]
+Recall: if $Z \sim N(0, 1)$, $W \sim \chi^2(n - k)$, and $Z \perp W$, then $\frac{Z}{\sqrt{W/(n - k)}} \sim t(n - k)$.\pause
 
-In our case:
-\[
-\frac{\hat{\beta}_j - \beta_j}{\sqrt{\sigma^2 \left[(\bm{X'X})^{-1}\right]_{jj}}} \sim N(0, 1)
-\]
-\[
-\frac{(n - k) s_{\hat{e}}^2}{\sigma^2} \sim \chi^2(n - k)
-\]
+\medskip
+In our case, $Z=\frac{\hat{\beta}_j - \beta_j}{\sigma\sqrt{[(\bm{X'X})^{-1}]_{jj}}} \sim N(0, 1)$ \quad and \quad $W=\frac{(n - k) s_{\hat{e}}^2}{\sigma^2} \sim \chi^2(n - k)$.\pause
 
-So the statistic:
+\medskip
+Taking the ratio and simplifying ($\sigma^2$ cancels):
 \[
-T = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s_{\hat{e}}^2 \left[(\bm{X'X})^{-1}\right]_{jj}}}= \frac{\hat{\beta}_j - \beta_j}{\sqrt{\frac{(n-k)s_{\hat{e}}^2}{\sigma^2} \sigma^2\left[(\bm{X'X})^{-1}\right]_{jj}/(n-k)}}
+T = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s_{\hat{e}}^2 \left[(\bm{X'X})^{-1}\right]_{jj}}}
 \sim t(n - k)
 \]
 \end{frame}
@@ -726,26 +735,25 @@ T = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s_{\hat{e}}^2 \left[(\bm{X'X})^{-1}\rig
 
 \begin{frame}[fragile]{Simulation: $t$-Statistics Match the $t$-Distribution}
 \begin{lstlisting}[style=Rstyle]
-set.seed(1); n <- 15; k <- 3; sigma2 <- 4; B <- 10000
+set.seed(1); n <- 15; k <- 3; sigma2 <- 4
 X <- cbind(1, matrix(rnorm(n*(k-1)), n, k-1))
 beta <- c(2, -1, 0.5)
-t_stats <- replicate(B, {
+t_stats <- replicate(10000, {
   y <- X %*% beta + rnorm(n, sd = sqrt(sigma2))
   summary(lm(y ~ X - 1))$coefficients[2, "t value"]
 })
 \end{lstlisting}\pause
+\vspace{-4pt}
 \begin{columns}
 \begin{column}{0.55\textwidth}
 \begin{lstlisting}[style=Rstyle]
-# Compare empirical to t(n-k)
-mean(abs(t_stats) > 2)       # ~0.067
-2*pt(-2, df = n-k)           # 0.065
-# Compare to normal (too narrow)
-2*pnorm(-2)                  # 0.046
+mean(abs(t_stats) > 2)  # 0.067
+2*pt(-2, df = n-k)      # 0.065
+2*pnorm(-2)             # 0.046
 \end{lstlisting}
 \end{column}
 \begin{column}{0.42\textwidth}
-With $n{-}k=12$, using normal critical values would reject 4.6\% instead of 6.5\% --- understating uncertainty.
+\small With $n{-}k=12$, using $N(0,1)$ critical values rejects 4.6\% instead of 6.5\%.
 \end{column}
 \end{columns}
 \end{frame}
@@ -808,6 +816,33 @@ Pr(\beta\in \hat{C})&=2F(c)-1
 Our goal is to set this coverage probability equal to $1-\alpha$, or $F(c)=1-\alpha/2$.\\
 If $\alpha=.05$, we solve $c=F^{-1}(1-.05/2)$.  In case of a normal, c=$1.96\approx 2$
 $$\hat{C}=[\hat{\beta}-2\cdot s(\hat{\beta}),\ \hat{\beta}+2\cdot s(\hat{\beta})]$$
+\end{frame}
+
+\begin{frame}{Confidence Intervals: The Random Interval Covers a Fixed Parameter}
+\vspace{-6pt}
+\begin{center}
+\begin{tikzpicture}[yscale=0.3, xscale=1.1]
+  \draw[blue, thick] (0, 0) -- (0, 16);
+  \node[blue, above, font=\small] at (0, 16) {$\beta$ (true)};
+  \foreach \i/\center/\hw/\miss in {
+    1/-0.3/1.1/0, 2/0.5/0.9/0, 3/-0.8/1.0/0, 4/1.5/1.2/0,
+    5/-1.1/0.8/0, 6/0.2/1.0/0, 7/2.3/1.0/1, 8/-0.6/1.1/0,
+    9/0.9/0.7/0, 10/-1.8/1.3/0, 11/0.1/0.9/0, 12/1.1/0.8/0,
+    13/-0.4/1.0/0, 14/0.7/1.1/0, 15/-2.5/1.0/1} {
+    \ifnum\miss=1
+      \draw[darkpurple, thick] ({\center-\hw}, \i) -- ({\center+\hw}, \i);
+      \fill[darkpurple] (\center, \i) circle (2.5pt);
+    \else
+      \draw[black!60, thick] ({\center-\hw}, \i) -- ({\center+\hw}, \i);
+      \fill[black!60] (\center, \i) circle (2pt);
+    \fi
+  }
+  \node[right, font=\small] at (3.5, 13) {Each line is one $\hat{C}$};
+  \node[right, font=\small, darkpurple] at (3.5, 11) {Colored intervals miss $\beta$};
+\end{tikzpicture}
+\end{center}
+\vspace{-4pt}
+$\beta$ is \emph{fixed}. Each sample yields a different random interval $\hat{C}$.  About $1{-}\alpha$ of them cover $\beta$.
 \end{frame}
 
 \begin{frame}{t test and p-values}
@@ -880,79 +915,3 @@ For each 1 percentage point increase in post-primary attendance, fertility is es
 \end{frame}
 
 \end{document}
-
-\begin{frame}{Bayesian Statistics}
-Given some data, we can use Bayes Theorem to generate a probability distribution for our parameters:
-\begin{align*}
-P(\theta |\bm{X})&=\frac{P(\bm{X}|\theta)*P(\theta)}{P(\bm{X})}\\
-&\propto P(\bm{X}|\theta)*P(\theta)
-\end{align*}\pause
-Example with Bernoulli ($P(\bm{x}|\ p)=4p^{4}(1-p)^{6}$).  Assume $p\sim B(\alpha=1,\ \beta = 2)$, then 
-$$P(p |\bm{X})\propto 4p^{4}(1-p)^{6}*2*(1-p)$$
-\end{frame}
-
-
-\begin{frame}{Beta(1,2) prior for $p$}
-\begin{center}
-\includegraphics[width=2.7 in]{Prior.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}{Likelihood and Posterior}
-\begin{center}
-\includegraphics[width=2.7 in]{Posterior.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}{Bayesian Methods for Models}
-Bayes's Theorem lets us describe the probability of a model $\mathcal{M}_m$ and parameters of that model $\bm{\beta}_m$ given data.
-\begin{align*}
-p(\mathcal{M}_m|\bm{X},\ \bm{y})&=\frac{p(\mathcal{M}_m)*p(\bm{X},\ \bm{y}|\mathcal{M}_m)}{p(\bm{X},\ \bm{y})}\\
-p(\mathcal{M}_m|\bm{X},\ \bm{y})&\propto p(\mathcal{M}_m)*p(\bm{X},\ \bm{y}|\mathcal{M}_m)
-\end{align*}
-Note, we can further decompose
-\begin{align*}
-p(\bm{X},\ \bm{y}|\mathcal{M}_m)&=\int p(\bm{X},\ \bm{y}|\bm{\beta}_m, \mathcal{M}_m)*p(\bm{\beta}_m|\mathcal{M}_m)d\bm{\beta}_m
-\end{align*}
-
-\end{frame}
-
-
-\begin{frame}{Model Selection with Bayes}
-\begin{itemize}
-\item  2 models $\mathcal{M}_m$, $m=a,\ b$ and with coefficients $\bm{\beta}_m$, data $\bm{X}$ and $\bm{y}$.
-\item Then we can compare two models $\mathcal{M}_a$ and $\mathcal{M}_b$ with the Bayes factor:
-\begin{align*}
-\frac{p(\mathcal{M}_a|\bm{X},\ \bm{y})}{p(\mathcal{M}_b|\bm{X},\ \bm{y})}&=\frac{p(\mathcal{M}_a)}{p(\mathcal{M}_b)}\cdot \frac{p(\bm{X},\ \bm{y}|\mathcal{M}_a)}{p(\bm{X},\ \bm{y}|\mathcal{M}_b)}\\
-&=\frac{p(\mathcal{M}_a)}{p(\mathcal{M}_b)}\cdot BF(\bm{X},\ \bm{y})
-\end{align*}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Bayesian Information Criterion BIC}
-\begin{itemize}
-\item We might assume the models are ex ante equally probable.
-\begin{align*}
-\frac{p(\mathcal{M}_a|\bm{X},\ \bm{y})}{p(\mathcal{M}_b|\bm{X},\ \bm{y})}&=\frac{p(\mathcal{M}_a)}{p(\mathcal{M}_b)}\cdot BF(\bm{X},\ \bm{y})=1\cdot BF(\bm{X},\ \bm{y})\\
-log(\frac{p(\mathcal{M}_a|\bm{X},\ \bm{y})}{p(\mathcal{M}_b|\bm{X},\ \bm{y})})&=log(\frac{p(\bm{X},\ \bm{y}|\mathcal{M}_a)}{p(\bm{X},\ \bm{y}|\mathcal{M}_b)})\\
-\end{align*}
-\item The BIC is defined to be -2 times an approximation of the log likelihood:
-\begin{align*}
-&=\log(p(\bm{X},\ \bm{y}|\mathcal{M}_a))\\
-&\approx \log(p(\bm{X},\ \bm{y}|\bm{\hat{\beta}}_a, \mathcal{M}_a)) - \frac{k_a}{2}\cdot \log(N)\\
-BIC&\equiv -2 \log(p(\bm{X},\ \bm{y}|\bm{\hat{\beta}}_a, \mathcal{M}_a)) +k_a \log(N)\\
-\end{align*}
-\item Model Selection: pick the model with the most negative BIC (don't do this).
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Bayesian mixture posterior coefficients}
-\begin{itemize}
-\item Given J models, we can find the probability of the jth model $\mathcal{M}_j$:
-$$\pi_j=\frac{e^{-2BIC_j}}{\sum_{l=1}^J e^{-2BIC_l}}$$ 
-\item Using these model probabilities, we can estimate the posterior distribution for $\beta_k$.
-$$\hat{E}(\beta_k|\bm{X},\ \bm{y})\equiv \bar{b}_k=\sum_{j=1}^J \pi_j b_kj$$
-$$Var(\beta_k|\bm{X},\ \bm{y})=\sum_{j=1}^J \pi_j Var(b_{kj})+\sum_{j=1}^J \pi_j(b_{kj}- \bar{b}_k)^2$$
-\end{itemize}
-\end{frame}
-
