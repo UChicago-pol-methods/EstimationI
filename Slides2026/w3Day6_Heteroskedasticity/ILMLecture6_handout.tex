@@ -405,32 +405,6 @@ Suppose a colleague takes your OLS residuals $\hat{\bm{e}}=\bm{M}\bm{y}$ and reg
 \end{tcolorbox}
 \end{frame}
 
-
-\begin{frame}{Practice: Scaling the Residual Component}
-Now consider $\bm{w}=\hat{\bm{y}}+c\,\hat{\bm{e}}$ for some constant $c>0$. Regress $\bm{w}$ on $\bm{X}$:
-\pause
-
-\smallskip
-\textbf{Fitted values:}\quad $\bm{P}\bm{w}=\bm{P}\hat{\bm{y}}+c\,\bm{P}\hat{\bm{e}}=\bm{P}^2\bm{y}+\bm{0}=\hat{\bm{y}}$ \quad (unchanged!)
-\pause
-
-\smallskip
-\textbf{Residuals:}\quad $\bm{M}\bm{w}=\bm{M}\hat{\bm{y}}+c\,\bm{M}\hat{\bm{e}}=\bm{0}+c\,\hat{\bm{e}}=c\,\hat{\bm{e}}$
-\pause
-
-\smallskip
-\textbf{$R^2_w$:}\quad Since $\hat{\bm{y}}\perp c\,\hat{\bm{e}}$:\quad
-$R^2_w=\frac{\|\hat{\bm{y}}\|^2}{\|\hat{\bm{y}}\|^2+c^2\|\hat{\bm{e}}\|^2}$
-\pause
-
-\smallskip
-Writing $\|\hat{\bm{e}}\|^2=\|\hat{\bm{y}}\|^2\cdot\frac{1-R^2}{R^2}$ and simplifying:
-$$\boxed{R^2_w=\frac{R^2}{c^2-(c^2-1)R^2}}$$
-\pause
-When $c=2$: $R^2_w=\frac{R^2}{4-3R^2}<R^2$. Inflating residuals lowers $R^2$ without changing fitted values.
-\end{frame}
-
-
 \section{Clustered Data}
 \begin{frame}{Clustered Standard Errors}
 \begin{itemize}
