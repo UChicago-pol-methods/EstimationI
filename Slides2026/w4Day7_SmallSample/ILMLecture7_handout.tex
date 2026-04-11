@@ -107,14 +107,14 @@ text}{fg=darkpurple}
 \maketitle
 \end{frame}
 
-\section{Likelihood Methods}
+\section{Likelihood}
 
 \setcounter{subsection}{1}
 
-\begin{frame}{Where Are We? Efficient Estimation}
+\begin{frame}{Where Are We? \emph{Efficient Estimation}}
 \begin{itemize}
 \item So far: OLS estimates $\beta$ and we have its variance, but \emph{how precise can any estimator be?}\pause
-\item The general theory of efficient estimation answers this via \textbf{scores} (derivatives of log-densities) and \textbf{information} (their variance).\pause
+\item The general theory of \textbf{efficient estimation} answers this via \textbf{scores} (derivatives of log-densities) and \textbf{information} (their variance).\pause
 \item These concepts are not specific to MLE --- they underlie influence functions, semiparametric efficiency bounds, and GMM.\pause
 \item \textbf{This lecture}: when we know the full likelihood, MLE is the estimator that achieves the efficiency bound.  We use the normal linear model as the leading case.\pause
 \item \textbf{The punchline}: OLS \emph{is} the MLE under normality, and its score equations are moment conditions --- the same objects that drive GMM and robust inference.
@@ -124,17 +124,19 @@ text}{fg=darkpurple}
 
 
 \begin{frame}{Parametric Model}
+\begin{definition}
+A \textbf{parametric model} is a family of probability distributions $\{f(x|\theta):\theta\in\Theta\}$ indexed by a finite-dimensional parameter vector $\theta$.
+\end{definition}\pause
 \begin{itemize}
-\item A parametric model for $X$ is a complete probability function that depends on an unknown parameter vector $\theta$.\pause
-\item In the continuous case, we can write it as a probability density function $f(x|\theta)$.\pause
-\item E.g. If $X\sim N(\mu,\sigma^2)$, $f(x|\mu,\sigma^2)=\sigma^{-1}\phi((x-\mu)/\sigma)$, the parameters are $\mu\in \mathbb{R}$ and $\sigma^2>0$.
+\item In the continuous case, $f(x|\theta)$ is a probability density function.\pause
+\item E.g.\ if $X\sim N(\mu,\sigma^2)$, $f(x|\mu,\sigma^2)=\sigma^{-1}\phi((x-\mu)/\sigma)$, the parameters are $\mu\in \mathbb{R}$ and $\sigma^2>0$.
 \item Recall, $\phi(z)$ is the density for the standard normal, $\phi(z)=\frac{1}{\sqrt{2\pi}}\exp(-\frac{z^2}{2})$
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Specified Parametric Models}
 \begin{itemize}
-\item A model is called \textbf{correctly specified} when there is a unique parameter value $\theta_0$ such that $f(x|\theta_0)=f(x)$, the true data distribution.\pause
+\item A model is called \textbf{correctly specified} when there exists a unique parameter value $\theta_0$ such that $f(x|\theta_0)=f(x)$, the true data distribution.\pause
 \item For example, if the true density is $$f(x)=2\exp(-2x)$$
 \begin{itemize}
 \item the exponential model $f(x|\lambda)=\lambda^{-1}\exp(-x/\lambda)$ is a correctly specified model with $\lambda_0=1/2$\pause
@@ -148,8 +150,9 @@ text}{fg=darkpurple}
 
 \begin{frame}{Likelihoods}
 \begin{itemize}
-\item Call $f(\theta|\bm{X})$ the \textbf{probability density function} of some model and parameters $\theta$, given the data $\bm{X}$.\pause
-\item If we reverse the order $f(\bm{X}|\theta)$ we have a \emph{likelihood}, how probable is the data given the $\theta$.\pause
+\item The density $f(x|\theta)$ tells us: for a fixed $\theta$, how probable is a particular observation $x$?\pause
+\item The \textbf{likelihood} asks the reverse question: for fixed observed data $\bm{X}$, how plausible is each $\theta$?
+$$\mathcal{L}(\theta)\equiv f(X_1, \ldots, X_n|\theta) \quad\text{(same formula, viewed as a function of }\theta\text{)}$$\pause
 \item Example: Binomial model of how many terms ($x$ out of $n=2$) each of 5 candidates wins.  $P(x|p)={n\choose x}p^{x}(1-p)^{n-x}$.\pause
 \item Suppose we observe $\bm{x}= \{1,\ 0,\ 1,\ 2,\ 0\}$.\pause
 \item The Joint Likelihood of the data is:
@@ -216,6 +219,21 @@ $$\hat{\beta}=1/\bar{X}_n$$
 \end{itemize}
 \end{frame}
 
+
+\begin{frame}{From MLE to Precision}
+We now have an estimator (MLE) and a useful property (invariance).  \textbf{Two questions remain}:\pause
+\begin{enumerate}\setlength{\itemsep}{8pt}
+\item \textbf{How precise is the MLE?}  We need a measure of information in the data.\pause
+\item \textbf{How precise can \emph{any} estimator be?}  We need a lower bound on variance.
+\end{enumerate}\pause
+\medskip
+The answers come from three linked concepts:
+\begin{itemize}
+\item \textbf{Score}: the derivative of the log-density (the ``gradient'' that MLE sets to zero).
+\item \textbf{Fisher Information}: the variance of the score (how much the data tells us).
+\item \textbf{Cram\'{e}r-Rao Bound}: no unbiased estimator can beat information$^{-1}$.
+\end{itemize}
+\end{frame}
 
 \begin{frame}{Score: the slope of the log likelihood}
 
@@ -312,7 +330,7 @@ The MLE is $\hat{\theta}=\frac{1}{n}\sum_{i=1}^n X_i^2$
 \end{frame}
 
 
-\begin{frame}{Example: Normal with known mean, unknown variance}
+\begin{frame}{Example: Score and Fisher Information}
 $$\frac{d}{d\theta}\log f(x|\theta)=\frac{x^2-\theta}{2\theta^2}$$
 The efficient score $S=\frac{x^2-\theta_0}{2\theta_0^2}$
 $$var[S]=\frac{\mathbb{E}[(X^2-\theta_0)^2]}{4\theta_0^4}=\frac{\mathbb{E}[X^4-2X^2\theta_0+\theta_0^2]}{4\theta_0^4}=\frac{3\theta_0^2-2\theta_0^2+\theta^2_0}{4\theta_0^4}=\frac{1}{2\theta_0^2}$$
@@ -322,7 +340,7 @@ $$var[S]=\frac{\mathbb{E}[(X^2-\theta_0)^2]}{4\theta_0^4}=\frac{\mathbb{E}[X^4-2
 
 
 
-\begin{frame}{Expected Hessian}
+\begin{frame}{Example: Information Equality $\mathcal{I}_\theta=\mathcal{H}_\theta$}
 
 $$\mathcal{H}_\theta=\mathbb{E}[-\frac{d^2}{d\theta^2} \log f(X|\theta_0)]=\mathbb{E}[-\frac{d}{d\theta}\frac{x^2-\theta_0}{2\theta_0^2}]=\mathbb{E}[\frac{2x^2-\theta_0}{2\theta_0^3}]=\frac{1}{2\theta_0^2}$$
 
@@ -332,7 +350,7 @@ The variance of $\hat{\theta}$ is $\frac{1}{I_n(\theta_0)}=2\theta^2_0/n$\\
 So we can get the plug-in estimator for the standard error as $\sqrt{2\hat{\theta}^2/n}$.
 \end{frame}
 
-\begin{frame}[fragile]{Expected Hessian}
+\begin{frame}[fragile]{Simulation: Fisher Information Standard Errors}
 \begin{lstlisting}[style=Rstyle]
 for(i in 1:100000){
  x <- rnorm(100, sd=sqrt(5))
@@ -349,14 +367,18 @@ mean(se)
 \end{frame}
 
 
-\begin{frame}{Robust Variance Estimator}
-
+\begin{frame}{What If the Model Is Wrong? Robust Variance}
+Under correct specification, $\mathcal{I}_\theta=\mathcal{H}_\theta$ and either one gives the variance.\\
+\textbf{Under misspecification}, they diverge:\pause
 \begin{itemize}
-\item Under misspecification, $\mathcal{I}_\theta\neq \mathcal{H}(\theta)$
-\item A consistent estimator for the variance is:
-$$\bm{\hat{V}}=\hat{\mathcal{H}}^{-1}\hat{\mathcal{I}}\hat{\mathcal{H}}^{-1}$$
-\item This is calculated by the sandwich package.
- \end{itemize}
+\item $\mathcal{H}$ (curvature) still captures how the estimator behaves locally.
+\item $\mathcal{I}$ (score variance) captures the actual variability in the data.\pause
+\item The correct variance requires \emph{both}:
+$$\bm{\hat{V}}=\hat{\mathcal{H}}^{-1}\hat{\mathcal{I}}\,\hat{\mathcal{H}}^{-1}$$\pause
+\end{itemize}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+This is the \textbf{sandwich formula} --- the same structure as the heteroskedasticity-robust variance from Lecture 6, now derived from likelihood theory.
+\end{tcolorbox}
 \end{frame}
 
 \begin{frame}{Summary: Scores, Information, and Efficiency}
@@ -387,7 +409,7 @@ f(y_1,\ldots y_n|\bm{x}_1,\ldots \bm{x}_n)&=\prod_{i=1}^n f(y_i|x_i)\\
 \end{frame}
 
 \begin{frame}{Log Likelihood of the normal linear model}
-$$log \mathcal{L}_n(\beta, \sigma^2) = -\frac{n}{2}log(2\pi \sigma^2)-\frac{1}{2\sigma^2}\sum_{i=1}^n (Y_i-\bm{x}_i'\beta)^2\equiv \mathcal{l}_n(\beta,\sigma^2)$$
+$$\log \mathcal{L}_n(\beta, \sigma^2) = -\frac{n}{2}log(2\pi \sigma^2)-\frac{1}{2\sigma^2}\sum_{i=1}^n (Y_i-\bm{x}_i'\beta)^2\equiv \mathcal{l}_n(\beta,\sigma^2)$$
 \end{frame}
 
 
@@ -447,7 +469,7 @@ This is the kernel of a normal density with:
 \textbf{Key insight}: Under joint normality, the CEF is \alert{linear} and the regression coefficient is $\beta = \text{Cov}(Y,X)/\text{Var}(X)$.  This is a classical motivation for linear regression.
 \end{frame}
 
-\section{MLE in the Normal Linear Model}
+\section{Normal MLE}
 
 \begin{frame}{Roadmap: MLE as a Special Case}
 \begin{itemize}\setlength{\itemsep}{6pt}
@@ -584,6 +606,26 @@ GMM link & Score $=$ moment cond. & MLE $\subset$ GMM\\
 \end{center}\pause
 \medskip
 \textbf{Next}: exact finite-sample distributions under normality --- $\hat{\beta}$, $s^2$, $t$, and $F$.
+\end{frame}
+
+\section{Finite-Sample Distributions}
+
+\begin{frame}{The Payoff of Normality: Exact Distributions}
+So far we have shown:
+\begin{itemize}
+\item OLS $=$ MLE under normality, achieving the Cram\'{e}r-Rao bound.
+\item The sandwich variance connects likelihood theory to robust inference.
+\end{itemize}\pause
+\medskip
+\textbf{Now}: the normality assumption buys us something no other approach can --- \alert{exact finite-sample distributions} for every quantity of interest:\pause
+\begin{enumerate}\setlength{\itemsep}{4pt}
+\item $\hat{\bm{\beta}}\sim N$ \hfill (linear function of normal $\bm{e}$)
+\item $s^2 \sim \chi^2$ \hfill (quadratic form in normal $\bm{e}$)
+\item $T \sim t_{n-k}$ \hfill (ratio of independent normal and $\chi^2$)
+\item $F \sim F_{q,n-k}$ \hfill (likelihood ratio test)
+\end{enumerate}\pause
+\medskip
+These hold for \emph{any} $n$ --- no large-sample approximation needed.
 \end{frame}
 
 \begin{frame}{Proof of normality of $\bm{\hat{\beta}}$ in CNRM}
@@ -795,14 +837,14 @@ Under the classical normal regression model:\pause
 These \alert{exact} results hold in finite samples.  Without normality, we rely on asymptotic approximations.
 \end{frame}
 
-\section{Hypothesis Testing under Normality}
+\section{Hypothesis Testing}
 
 \begin{frame}{Confidence Intervals}
 \begin{itemize}
 \item $\hat{\beta}$ is a \textbf{point estimate} for a coefficient $\beta$.  \pause
 \item We can instead estimate an interval, $\hat{C}=[\hat{L},\ \hat{U}]$ which contains the true value with high probability. \pause
 \item An interval estimate $\hat{C}$ is called a $1-\alpha$ confidence interval when $Pr(\beta \in \hat{C})=1-\alpha$.  The value $1-\alpha$ is called the \textbf{coverage probability}. \pause
-\item The key mistake is in thinking that the above statement treats $\beta$ is random and $\hat{C}$ is fixed, (the probability that $\beta$ is in $\hat{C}$).   \pause
+\item The key mistake is in thinking that the above statement treats $\beta$ as random and $\hat{C}$ is fixed, (the probability that $\beta$ is in $\hat{C}$).   \pause
 \item $Pr(\beta \in \hat{C})$ is the probability that the random set $\hat{C}$ covers or contains $\beta$.  \pause
 $$\hat{C}=[\hat{\beta}-c\cdot s(\hat{\beta}),\ \hat{\beta}+c\cdot s(\hat{\beta})]$$
 \end{itemize}
