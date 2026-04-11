@@ -464,6 +464,29 @@ Setting $S_n(\hat\beta) = 0$ defines the MLE. This is a \textbf{nonlinear} syste
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}[fragile]{Score in Practice: What \texttt{glm()} Solves}
+\small
+\begin{lstlisting}
+probit <- glm(Y ~ X1 + X2, data = dta,
+              family = binomial(link = "probit"))
+# Compute the score at the MLE (should be ~0)
+xb  <- predict(probit, type = "link")
+w   <- dnorm(xb) / (pnorm(xb) * (1 - pnorm(xb)))
+res <- dta$Y - pnorm(xb)           # Y_i - Phi(X'beta)
+score <- colSums(w * res * model.matrix(probit))
+round(score, 10)
+#  (Intercept)       X1       X2
+#            0        0        0
+\end{lstlisting}\pause
+\vspace{-2pt}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
+The score is what \texttt{glm()} drives to zero.  It is the nonlinear analog of the OLS normal equations $\bm{X'}\hat{\bm{e}}=0$.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{Score as Moment Condition}
 
 \textbf{Key insight:} Under correct specification, $\mathbb{E}[s_i(\beta_0)] = 0$.
@@ -526,6 +549,29 @@ where $H_n(\beta) = \partial S_n / \partial \beta' = \partial^2 \ell_n / \partia
 \pause
 
 In practice, \texttt{glm()} in R handles this automatically via Fisher scoring (a variant of Newton--Raphson).
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Newton--Raphson in Practice: Watching \texttt{glm()} Iterate}
+
+\begin{lstlisting}
+probit <- glm(Y ~ X1 + X2, data = dta,
+              family = binomial(link = "probit"),
+              control = list(trace = TRUE))
+# Deviance = -2 * log-likelihood (lower = better)
+#   Deviance = 134.60 Iterations - 1
+#   Deviance = 130.28 Iterations - 2
+#   Deviance = 130.21 Iterations - 3
+#   Deviance = 130.21 Iterations - 4   <- converged
+\end{lstlisting}\pause
+
+\begin{itemize}
+\item Each iteration applies the Newton--Raphson update $\beta^{(t+1)} = \beta^{(t)} - H^{-1}S$.\pause
+\item Convergence is typically fast (3--6 iterations) because the log-likelihood is concave.\pause
+\item If \texttt{glm()} warns ``algorithm did not converge,'' the score could not be driven to zero --- a sign of separation or misspecification.
+\end{itemize}
 
 \end{frame}
 
@@ -649,6 +695,31 @@ This gives the \textbf{information matrix equality} (under correct specification
 \bigskip
 
 When this equality holds, model-based SEs and sandwich SEs agree. When it fails (misspecification), only the sandwich is valid.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{From Fisher Information to the SEs You See in R}
+
+\texttt{summary(glm(...))} reports standard errors.  Where do they come from?\pause
+
+\begin{lstlisting}
+# Model-based SEs = sqrt of diagonal of inverse Hessian
+sqrt(diag(vcov(probit)))
+#  (Intercept)       X1        X2
+#     0.241       0.058     0.103
+
+# These are the SEs in summary() output
+summary(probit)$coefficients[, "Std. Error"]
+#     same numbers
+\end{lstlisting}\pause
+
+\begin{itemize}
+\item \texttt{vcov(probit)} $= \hat{\mathcal{H}}^{-1} = \left[-\frac{1}{n}\sum_i \frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]^{-1}$\pause
+\item Under correct specification, $\hat{\mathcal{H}}^{-1} = \hat{\mathcal{I}}^{-1}$ (information equality), so one matrix suffices.\pause
+\item Under misspecification, you need the sandwich: \texttt{vcovHC(probit)} $= \hat{\mathcal{H}}^{-1}\hat{\mathcal{I}}\,\hat{\mathcal{H}}^{-1}$.
+\end{itemize}
 
 \end{frame}
 
