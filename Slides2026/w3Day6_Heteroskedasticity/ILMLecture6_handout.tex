@@ -267,6 +267,29 @@ Since $(1-h_{ii})^{-2}>(1-h_{ii})^{-1}>1$, we always have:
 $$\hat{\bm{V}}^{HC0}_{\hat{\beta}}< \hat{\bm{V}}^{HC2}_{\hat{\beta}}< \hat{\bm{V}}^{HC3}_{\hat{\beta}}$$
 \end{frame}
 
+\begin{frame}{HC3 $=$ Prediction Errors in the Sandwich (Lecture 5 Connection)}
+\small
+From Lecture 5: $\mathbb{E}[\hat{e}_i^2|\bm{X}]=(1-h_{ii})\sigma^2$, so $\hat{e}_i^2$ underestimates $\sigma^2$.
+
+\smallskip
+\textbf{HC2} divides once by $(1-h_{ii})$:\quad
+$\dfrac{\hat{e}_i^2}{1-h_{ii}} \;\Longrightarrow\; \mathbb{E}\!\left[\dfrac{\hat{e}_i^2}{1-h_{ii}}\bigg|\bm{X}\right]=\sigma^2$ \quad (unbiased)\pause
+
+\smallskip
+\textbf{HC3} divides twice, using the \textbf{prediction error} $\tilde{e}_i=\hat{e}_i/(1-h_{ii})$:
+
+\vspace{-4pt}
+$$\frac{\hat{e}_i^2}{(1-h_{ii})^2}=\tilde{e}_i^2 \quad\Longrightarrow\quad \mathbb{E}\!\left[\tilde{e}_i^2\big|\bm{X}\right]=\frac{\sigma^2}{1-h_{ii}}>\sigma^2$$
+
+\vspace{-6pt}\pause
+The second division \emph{deliberately} overestimates $\sigma^2$ by $(1-h_{ii})^{-1}$.  Why?\pause
+
+\vspace{-2pt}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+The sandwich meat $\bm{X'DX}$ is estimated with downward finite-sample bias.  HC3 counteracts this by inflating the plug-in variance, especially for high-leverage points where the bias is worst.  MacKinnon \& White (1985) show HC3 $\approx$ the jackknife variance estimator.
+\end{tcolorbox}
+\end{frame}
+
 
 \begin{frame}[fragile]{Implementation in R}
 \textbf{Option 1: \texttt{estimatr} package} (recommended for applied work)
