@@ -1,0 +1,422 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\onehalfspacing
+
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+
+\title{The Bivariate Normal CEF\\[4pt]\large Why the CEF is Linear Under Joint Normality}
+\author{PLSC 30700: Estimation I}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Setup}
+
+Suppose two random variables are jointly bivariate normal:
+\[
+\begin{pmatrix} X \\ Y \end{pmatrix}
+\sim N\!\left(
+\begin{pmatrix} \mu_X \\ \mu_Y \end{pmatrix},\
+\begin{pmatrix} \sigma_X^2 & \rho\,\sigma_X\sigma_Y \\ \rho\,\sigma_X\sigma_Y & \sigma_Y^2 \end{pmatrix}
+\right)
+\]
+where $\rho = \Cov(X,Y)/(\sigma_X\sigma_Y)$ is the correlation.  Our goal is to derive the conditional distribution $f_{Y|X}(y\mid x)$ and show that $\mathbb{E}[Y\mid X=x]$ is a \emph{linear} function of $x$.  This is one of the classical motivations for linear regression.
+
+\medskip
+Throughout, we write densities as functions of realized values $(x,y)$.  Define the standardized values
+\[
+x^* = \frac{x - \mu_X}{\sigma_X}, \qquad y^* = \frac{y - \mu_Y}{\sigma_Y}.
+\]
+(These are numbers, not random variables.  The corresponding random variables would be $X^*=(X-\mu_X)/\sigma_X$ and $Y^*=(Y-\mu_Y)/\sigma_Y$, but inside density expressions we always evaluate at a specific point.)
+
+\section{The three densities we need}
+
+\subsection{Marginal density of $X$}
+
+Since $X\sim N(\mu_X, \sigma_X^2)$:
+\begin{equation}\label{eq:marginal}
+f_X(x) = \frac{1}{\sqrt{2\pi}\,\sigma_X}\,\exp\!\left(-\frac{1}{2}(x^*)^2\right)
+\end{equation}
+
+\subsection{Joint density of $(X,Y)$}
+
+The bivariate normal density is:
+\begin{equation}\label{eq:joint}
+f_{X,Y}(x,y)
+= \frac{1}{2\pi\,\sigma_X\sigma_Y\sqrt{1-\rho^2}}\,
+\exp\!\left(
+-\frac{1}{2(1-\rho^2)}
+\Big[(x^*)^2 - 2\rho\, x^* y^* + (y^*)^2\Big]
+\right)
+\end{equation}
+
+\subsection{Conditional density: the ratio}
+
+By definition:
+\[
+f_{Y|X}(y\mid x) = \frac{f_{X,Y}(x,y)}{f_X(x)}
+\]
+We will compute this ratio and simplify.
+
+\section{Step 1: Form the ratio}
+
+Dividing \eqref{eq:joint} by \eqref{eq:marginal}:
+\[
+f_{Y|X}(y\mid x)
+= \frac{
+\dfrac{1}{2\pi\,\sigma_X\sigma_Y\sqrt{1-\rho^2}}\,
+\exp\!\left(
+-\dfrac{(x^*)^2 - 2\rho\, x^* y^* + (y^*)^2}{2(1-\rho^2)}
+\right)
+}{
+\dfrac{1}{\sqrt{2\pi}\,\sigma_X}\,
+\exp\!\left(-\dfrac{(x^*)^2}{2}\right)
+}
+\]
+
+\medskip\noindent
+\textbf{Simplify the constant out front.}  The ratio of the leading fractions is:
+\[
+\frac{1/(2\pi\,\sigma_X\sigma_Y\sqrt{1-\rho^2})}{1/(\sqrt{2\pi}\,\sigma_X)}
+= \frac{\sqrt{2\pi}\,\sigma_X}{2\pi\,\sigma_X\sigma_Y\sqrt{1-\rho^2}}
+= \frac{1}{\sqrt{2\pi}\,\sigma_Y\sqrt{1-\rho^2}}
+\]
+
+\medskip\noindent
+\textbf{Simplify the exponential.}  Using $e^a / e^b = e^{a-b}$, the exponent becomes:
+\[
+-\frac{(x^*)^2 - 2\rho\, x^* y^* + (y^*)^2}{2(1-\rho^2)}
+- \left(-\frac{(x^*)^2}{2}\right)
+\]
+\[
+= -\frac{(x^*)^2 - 2\rho\, x^* y^* + (y^*)^2}{2(1-\rho^2)}
++ \frac{(x^*)^2}{2}
+\]
+
+\medskip\noindent
+Put the second term over the common denominator $2(1-\rho^2)$:
+\[
+= -\frac{(x^*)^2 - 2\rho\, x^* y^* + (y^*)^2}{2(1-\rho^2)}
++ \frac{(1-\rho^2)(x^*)^2}{2(1-\rho^2)}
+\]
+\[
+= \frac{-(x^*)^2 + 2\rho\, x^* y^* - (y^*)^2 + (x^*)^2 - \rho^2(x^*)^2}{2(1-\rho^2)}
+\]
+
+\medskip\noindent
+The $(x^*)^2$ terms cancel:
+\[
+= \frac{2\rho\, x^* y^* - (y^*)^2 - \rho^2(x^*)^2}{2(1-\rho^2)}
+\]
+
+\medskip\noindent
+Factor out a negative sign:
+\[
+= -\frac{(y^*)^2 - 2\rho\, x^* y^* + \rho^2(x^*)^2}{2(1-\rho^2)}
+\]
+
+\section{Step 2: Recognize the perfect square}
+
+The numerator in the exponent is:
+\[
+(y^*)^2 - 2\rho\, x^* y^* + \rho^2 (x^*)^2 = (y^* - \rho\, x^*)^2
+\]
+You can verify this by expanding the right side:
+\[
+(y^* - \rho\, x^*)^2 = (y^*)^2 - 2\rho\, x^* y^* + \rho^2(x^*)^2 \quad\checkmark
+\]
+
+So the exponent simplifies to:
+\[
+-\frac{(y^* - \rho\, x^*)^2}{2(1-\rho^2)}
+\]
+
+\medskip\noindent
+Putting it all together:
+\begin{equation}\label{eq:conditional-star}
+f_{Y|X}(y\mid x)
+= \frac{1}{\sqrt{2\pi}\,\sigma_Y\sqrt{1-\rho^2}}\,
+\exp\!\left(
+-\frac{(y^* - \rho\, x^*)^2}{2(1-\rho^2)}
+\right)
+\end{equation}
+
+\section{Step 3: Rewrite in terms of $y$ and $x$}
+
+Substitute $y^* = (y-\mu_Y)/\sigma_Y$ and $x^* = (x-\mu_X)/\sigma_X$ back in:
+\[
+y^* - \rho\, x^*
+= \frac{y - \mu_Y}{\sigma_Y} - \rho\,\frac{x - \mu_X}{\sigma_X}
+= \frac{1}{\sigma_Y}\left[y - \mu_Y - \rho\,\frac{\sigma_Y}{\sigma_X}(x-\mu_X)\right]
+\]
+
+\medskip\noindent
+So the exponent in \eqref{eq:conditional-star} becomes:
+\[
+-\frac{1}{2(1-\rho^2)}\left(\frac{y - \mu_Y - \rho\frac{\sigma_Y}{\sigma_X}(x-\mu_X)}{\sigma_Y}\right)^{\!2}
+= -\frac{1}{2}\left(\frac{y - \mu_Y - \rho\frac{\sigma_Y}{\sigma_X}(x-\mu_X)}{\sigma_Y\sqrt{1-\rho^2}}\right)^{\!2}
+\]
+
+\medskip\noindent
+The full conditional density is therefore:
+\begin{equation}\label{eq:conditional-full}
+f_{Y|X}(y\mid x)
+= \frac{1}{\sqrt{2\pi}\;\sigma_Y\sqrt{1-\rho^2}}\;
+\exp\!\left(
+-\frac{1}{2}\left(
+\frac{y - \Big[\mu_Y + \rho\frac{\sigma_Y}{\sigma_X}(x - \mu_X)\Big]}{\sigma_Y\sqrt{1-\rho^2}}
+\right)^{\!2}
+\right)
+\end{equation}
+
+\section{Step 4: Read off the conditional distribution}
+
+Equation~\eqref{eq:conditional-full} is the density of a normal distribution.  Recall that $N(\mu, \tau^2)$ has density
+\[
+\frac{1}{\sqrt{2\pi}\,\tau}\exp\!\left(-\frac{(y-\mu)^2}{2\tau^2}\right).
+\]
+Matching terms:
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Conditional distribution:}\quad $Y\mid X=x \;\sim\; N\!\Big(\mu_{Y|X},\;\sigma^2_{Y|X}\Big)$
+
+\medskip
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Conditional mean:}\quad
+$\displaystyle\mathbb{E}[Y\mid X=x] = \mu_Y + \rho\,\frac{\sigma_Y}{\sigma_X}\,(x - \mu_X)$
+
+\medskip
+\item \textbf{Conditional variance:}\quad
+$\displaystyle\Var(Y\mid X=x) = \sigma_Y^2(1 - \rho^2)$
+\end{itemize}
+\end{tcolorbox}
+
+\section{Step 5: Connect to regression}
+
+\subsection{The CEF is linear}
+
+The conditional expectation function is:
+\[
+\mathbb{E}[Y \mid X = x]
+= \underbrace{\mu_Y - \rho\,\frac{\sigma_Y}{\sigma_X}\,\mu_X}_{\text{intercept}} \;+\; \underbrace{\rho\,\frac{\sigma_Y}{\sigma_X}}_{\text{slope}}\cdot x
+\]
+This is a linear function of $x$.  Under joint normality, the CEF is \emph{exactly} linear---no approximation involved.
+
+\subsection{The slope is the regression coefficient}
+
+Recall that the population regression coefficient from the BLP is:
+\[
+\beta = \frac{\Cov(Y,X)}{\Var(X)}
+\]
+Since $\Cov(Y,X) = \rho\,\sigma_X\sigma_Y$ and $\Var(X) = \sigma_X^2$:
+\[
+\frac{\Cov(Y,X)}{\Var(X)} = \frac{\rho\,\sigma_X\sigma_Y}{\sigma_X^2} = \rho\,\frac{\sigma_Y}{\sigma_X}
+\]
+This is exactly the slope of the conditional mean.  Under joint normality, the BLP coefficient and the CEF slope coincide.
+
+\subsection{The conditional variance is constant}
+
+$\Var(Y\mid X=x) = \sigma_Y^2(1-\rho^2)$ does not depend on $x$.  This is \textbf{homoskedasticity}: the spread of $Y$ around its conditional mean is the same for every value of $X$.
+
+\medskip\noindent
+Under joint normality, the key ingredients of the classical linear-normal regression setup follow automatically: a linear CEF, conditionally normal errors, and homoskedasticity.
+
+\subsection{The error variance}
+
+The regression error is $e = Y - \mathbb{E}[Y\mid X]$.  By construction, $\mathbb{E}[e\mid X]=0$.  Because the conditional variance is constant under joint normality:
+\[
+\Var(e\mid X) = \sigma_Y^2(1-\rho^2)
+\]
+and therefore
+\[
+\Var(e) = \mathbb{E}[\Var(e\mid X)] = \sigma_Y^2(1-\rho^2) = \sigma_Y^2 - \frac{[\Cov(Y,X)]^2}{\Var(X)}.
+\]
+(In general, $\Var(Y\mid X)$ is a random variable measurable with respect to $X$, but here it equals a constant, so $\Var(e)=\Var(e\mid X)$.)
+
+\medskip\noindent
+When $|\rho|$ is close to 1, the errors are small and regression explains most of the variation in $Y$.  When $\rho = 0$, the conditional variance equals the unconditional variance $\sigma_Y^2$---knowing $X$ tells us nothing about $Y$.
+
+\section{Does this break down in higher dimensions?}
+
+No.  Everything above generalizes from one regressor to $k$ regressors with the same structure.  The algebra uses block matrix operations instead of scalar fractions, but the logic is identical: partition, condition, complete the square.
+
+\subsection{Setup}
+
+Suppose $(Y, \bm{X})$ are jointly multivariate normal, where $Y$ is a scalar and $\bm{X}$ is a $k\times 1$ vector.  Partition the mean and covariance:
+\[
+\begin{pmatrix} Y \\ \bm{X} \end{pmatrix}
+\sim N\!\left(
+\begin{pmatrix} \mu_Y \\ \bm{\mu}_X \end{pmatrix},\
+\begin{pmatrix} \sigma_Y^2 & \bm{\Sigma}_{YX} \\ \bm{\Sigma}_{XY} & \bm{\Sigma}_{XX} \end{pmatrix}
+\right)
+\]
+where $\bm{\Sigma}_{YX} = \Cov(Y, \bm{X})$ is $1\times k$ and $\bm{\Sigma}_{XX} = \Var(\bm{X})$ is $k\times k$.
+
+\subsection{The multivariate normal conditional (statement)}
+
+The conditional distribution is:
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+$Y \mid \bm{X}=\bm{x} \;\sim\; N\!\Big(\mu_{Y|\bm{X}},\;\sigma^2_{Y|\bm{X}}\Big)$
+
+\medskip
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Conditional mean:}\quad
+$\displaystyle\mathbb{E}[Y\mid \bm{X}=\bm{x}] = \mu_Y + \bm{\Sigma}_{YX}\,\bm{\Sigma}_{XX}^{-1}(\bm{x} - \bm{\mu}_X)$
+
+\medskip
+\item \textbf{Conditional variance:}\quad
+$\displaystyle\Var(Y\mid \bm{X}=\bm{x}) = \sigma_Y^2 - \bm{\Sigma}_{YX}\,\bm{\Sigma}_{XX}^{-1}\,\bm{\Sigma}_{XY}$
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Verifying the bivariate case}
+
+When $k=1$, $\bm{\Sigma}_{XX}=\sigma_X^2$, $\bm{\Sigma}_{YX}=\Cov(Y,X)=\rho\,\sigma_Y\sigma_X$, and $\bm{\Sigma}_{XX}^{-1}=1/\sigma_X^2$.  Substituting:
+\[
+\mathbb{E}[Y\mid X=x] = \mu_Y + \frac{\rho\,\sigma_Y\sigma_X}{\sigma_X^2}(x-\mu_X)
+= \mu_Y + \rho\,\frac{\sigma_Y}{\sigma_X}(x-\mu_X) \quad\checkmark
+\]
+\[
+\Var(Y\mid X=x) = \sigma_Y^2 - \frac{(\rho\,\sigma_Y\sigma_X)^2}{\sigma_X^2}
+= \sigma_Y^2(1-\rho^2) \quad\checkmark
+\]
+
+\subsection{Derivation sketch}
+
+The multivariate derivation follows exactly the same three moves as the bivariate case:
+
+\medskip\noindent
+\textbf{Step 1: Form the ratio.}  Write the joint density of $(Y, \bm{X})$ and divide by the marginal density of $\bm{X}$.  Both are multivariate normal densities, so the ratio is an exponential of a difference of quadratic forms:
+\[
+f_{Y|\bm{X}}(y\mid \bm{x}) \propto
+\exp\!\left(
+-\frac{1}{2}\left[
+\begin{pmatrix} y - \mu_Y \\ \bm{x}-\bm{\mu}_X \end{pmatrix}' \bm{\Sigma}^{-1}
+\begin{pmatrix} y - \mu_Y \\ \bm{x}-\bm{\mu}_X \end{pmatrix}
+- (\bm{x}-\bm{\mu}_X)'\bm{\Sigma}_{XX}^{-1}(\bm{x}-\bm{\mu}_X)
+\right]
+\right)
+\]
+The key tool is the \textbf{block inverse formula}.  For a partitioned positive-definite matrix:
+\[
+\bm{\Sigma}^{-1} =
+\begin{pmatrix} \sigma_Y^2 & \bm{\Sigma}_{YX} \\ \bm{\Sigma}_{XY} & \bm{\Sigma}_{XX} \end{pmatrix}^{-1}
+= \begin{pmatrix} \omega^{-1} & -\omega^{-1}\bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1} \\
+-\bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY}\omega^{-1} & \bm{\Sigma}_{XX}^{-1}+\bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY}\omega^{-1}\bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1} \end{pmatrix}
+\]
+where $\omega = \sigma_Y^2 - \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY}$ is the \emph{Schur complement}---the conditional variance.
+
+\medskip\noindent
+\textbf{Step 2: Complete the square.}  Substitute the block inverse and expand.  All terms involving $\bm{x}$ alone (without $y$) cancel between the joint and marginal quadratic forms---exactly as $(x^*)^2$ cancelled in the bivariate case.  What remains is:
+\[
+-\frac{1}{2\omega}\Big(y - \mu_Y - \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}(\bm{x}-\bm{\mu}_X)\Big)^2
+\]
+
+\medskip\noindent
+\textbf{Step 3: Read off the result.}  This is the kernel of a univariate normal with mean $\mu_Y + \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}(\bm{x}-\bm{\mu}_X)$ and variance $\omega$.
+
+\subsection{The same three properties hold}
+
+\begin{enumerate}[leftmargin=2em]
+\item \textbf{Linear CEF.}\quad $\mathbb{E}[Y\mid\bm{X}=\bm{x}] = \mu_Y + \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}(\bm{x}-\bm{\mu}_X)$ is linear in $\bm{x}$.
+
+\item \textbf{Slope $=$ regression coefficient.}\quad The slope vector is $\bm{\beta} = \bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY} = [\Var(\bm{X})]^{-1}\Cov(\bm{X},Y)$, which is the population multiple regression coefficient.
+
+\item \textbf{Homoskedasticity.}\quad The conditional variance $\sigma_Y^2 - \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY}$ is a constant---it does not depend on $\bm{x}$.
+\end{enumerate}
+
+\medskip\noindent
+The bottom line: nothing breaks in higher dimensions.  Joint normality of $(Y, \bm{X})$ implies a linear CEF, normal errors, and homoskedasticity regardless of the number of regressors.  The scalar fractions $\rho\,\sigma_Y/\sigma_X$ and $\sigma_Y^2(1-\rho^2)$ are simply replaced by their matrix counterparts $\bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}$ and $\sigma_Y^2 - \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY}$.
+
+\section{But doesn't the normal concentrate on a shell?}
+
+You may have encountered the following fact: if $\bm{Z} = (Z_1, \ldots, Z_k)$ with $Z_j\overset{iid}{\sim}N(0,1)$, then in high dimensions nearly all the probability mass lies near the \emph{surface} of a sphere of radius $\sqrt{k}$, not near the origin.  Specifically:
+\[
+\|\bm{Z}\|^2 = \sum_{j=1}^k Z_j^2 \sim \chi^2_k, \qquad
+\mathbb{E}[\|\bm{Z}\|^2] = k, \qquad
+\Var(\|\bm{Z}\|^2) = 2k
+\]
+As $k$ grows, the standard deviation $\sqrt{2k}$ becomes negligible relative to the mean $k$, so $\|\bm{Z}\|^2/k \to 1$ in probability.  The mass concentrates in a thin shell at radius $\approx\!\sqrt{k}$.
+
+\medskip\noindent
+This is real and important in high-dimensional statistics.  But it does \textbf{not} undermine the regression result above, for two reasons.
+
+\subsection{The conditioning derivation is purely algebraic}
+
+The conditional distribution $Y\mid \bm{X}=\bm{x}$ was derived by dividing the joint density by the marginal density.  This is a manipulation of density \emph{functions}---it holds for every value of $\bm{x}$ in $\mathbb{R}^k$, regardless of how probable that particular $\bm{x}$ is.  The formula
+\[
+\mathbb{E}[Y\mid \bm{X}=\bm{x}] = \mu_Y + \bm{\Sigma}_{YX}\bm{\Sigma}_{XX}^{-1}(\bm{x}-\bm{\mu}_X)
+\]
+is an identity that holds at every $\bm{x}$, including points near the origin where mass is thin.  Shell concentration tells us \emph{where the data will be}, not that the formula changes at different locations.
+
+\subsection{What concentration \emph{does} affect: finite-sample estimation}
+
+The population result is secure, but \textbf{estimating the regression in finite samples becomes genuinely harder} as $k$ grows, and shell concentration is part of the reason.  This deserves careful treatment, not a hand-wave.
+
+\medskip\noindent
+\textbf{The core problem: estimating $\bm{\Sigma}_{XX}^{-1}$.}\quad The population regression slope is $\bm{\beta} = \bm{\Sigma}_{XX}^{-1}\bm{\Sigma}_{XY}$.  OLS estimates this with $\hat{\bm{\beta}} = (\bm{X'X})^{-1}\bm{X'Y}$.  Everything depends on how well the sample covariance matrix $\hat{\bm{\Sigma}}_{XX} = \bm{X'X}/n$ approximates $\bm{\Sigma}_{XX}$.  In low dimensions ($k \ll n$) this is reliable.  In higher dimensions, several things go wrong:
+
+\begin{enumerate}[leftmargin=2em]
+\item \textbf{Parameter count outpaces data.}\quad $\bm{\Sigma}_{XX}$ has $k(k+1)/2$ free parameters.  With $k=50$ regressors, that is 1,275 quantities to estimate.  Even with $n=200$ observations, each parameter is pinned down by very little data.
+
+\item \textbf{Eigenvalue spreading (Marchenko--Pastur).}\quad When $k/n$ is not negligible, the eigenvalues of $\hat{\bm{\Sigma}}_{XX}$ spread out relative to those of $\bm{\Sigma}_{XX}$.  The smallest sample eigenvalues are biased toward zero, the largest biased upward.  Since $\hat{\bm{\Sigma}}_{XX}^{-1}$ inverts these eigenvalues, low-variance directions get amplified, injecting noise into $\hat{\bm{\beta}}$.
+
+\item \textbf{Singularity when $k \geq n$.}\quad If $k \geq n$, the sample covariance matrix is literally singular---$\bm{X'X}$ has rank at most $n$, so $(\bm{X'X})^{-1}$ does not exist and OLS cannot be computed at all.
+\end{enumerate}
+
+\medskip\noindent
+Shell concentration is one geometric manifestation of these high-dimensional difficulties: when $k$ is large, the norms $\|\bm{x}_i - \bm{\mu}_X\|$ concentrate near $\sqrt{k}$, which is a symptom of the same regime where $\hat{\bm{\Sigma}}_{XX}$ becomes unreliable.  But the central econometric issue is the instability of $\hat{\bm{\Sigma}}_{XX}^{-1}$ when $k$ is large relative to $n$, not shell concentration per se.
+
+\medskip\noindent
+\textbf{Consequences for OLS.}\quad Even though the population $\bm{\beta}$ is well-defined and the CEF is still linear, the OLS estimator in high dimensions can have:
+\begin{itemize}[leftmargin=2em]
+\item Enormous variance---individual $\hat{\beta}_j$'s bounce wildly across samples.
+\item Poor predictive performance---$\hat{Y} = \bm{x}'\hat{\bm{\beta}}$ overfits the training data.
+\item Confidence intervals so wide as to be uninformative, or (worse) nominal coverage that is badly wrong because the $t$- and $F$-distributions assume $k$ is fixed as $n\to\infty$.
+\end{itemize}
+
+\medskip\noindent
+\textbf{What can be done.}\quad Regularization methods accept some bias in exchange for dramatically lower variance:
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Ridge regression} shrinks $\hat{\bm{\beta}}$ by replacing $(\bm{X'X})^{-1}$ with $(\bm{X'X}+\lambda\bm{I})^{-1}$, damping the noisy small-eigenvalue directions.
+\item \textbf{LASSO} adds an $\ell_1$ penalty that drives some $\hat{\beta}_j$ to exactly zero, performing variable selection.
+\item \textbf{Principal component regression} projects $\bm{X}$ onto its leading eigenvectors before regressing, discarding the noisy directions entirely.
+\end{itemize}
+These methods implicitly acknowledge that the data do not contain enough information to estimate all $k$ slopes reliably.
+
+\subsection{Other effects of high dimensions}
+
+Beyond the estimation of $\bm{\beta}$, shell concentration creates additional difficulties:
+
+\begin{itemize}[leftmargin=2em]
+\item \textbf{Distance-based methods.}  In high dimensions, pairwise distances become less informative, so methods that rely on finding ``close'' neighbors (e.g., kernel regression, $k$-NN) often deteriorate.
+
+\item \textbf{Density evaluation.}  The joint density $f(\bm{x})$ evaluated at any particular point goes to zero as $k\to\infty$, even on the shell.  This makes likelihood-based model comparison in very high dimensions difficult.  The \emph{conditional} density for the scalar $Y$ given $\bm{X}=\bm{x}$ remains a well-behaved univariate normal, but evaluating the marginal likelihood requires integrating over the high-dimensional shell.
+\end{itemize}
+
+\subsection{Bottom line}
+
+The population-level result is airtight: under joint normality, the CEF is linear with normal homoskedastic errors for any $k$.  But the \emph{estimation} problem degrades seriously as $k$ grows relative to $n$, because the sample covariance matrix becomes a noisy estimate of $\bm{\Sigma}_{XX}$ and inverting it amplifies that noise.  Shell concentration is one geometric symptom of this high-dimensional regime, not the root cause.  The distinction matters---the \emph{model} is fine, but our ability to \emph{learn the model from data} is not, and recognizing this gap is the starting point for regularization and high-dimensional inference.
+
+\section{Summary}
+
+Starting from the bivariate normal density, we showed:
+\begin{enumerate}[leftmargin=2em]
+\item The conditional distribution $Y\mid X=x$ is normal (Section~4).
+\item The conditional mean is linear in $x$, with slope $\rho\,\sigma_Y/\sigma_X = \Cov(Y,X)/\Var(X)$ (Section~5.1--5.2).
+\item The conditional variance $\sigma_Y^2(1-\rho^2)$ is constant in $x$ (Section~5.3).
+\end{enumerate}
+Under joint normality, the CEF \emph{is} the population linear regression, and the classical normal regression assumptions hold by construction.  Section~6 shows that the same result extends to $k$ regressors via the partitioned multivariate normal, with scalar operations replaced by their matrix analogues.  Section~7 explains why the concentration-on-a-shell phenomenon in high dimensions does not affect these results: the conditional distribution is derived pointwise for any $\bm{x}$, and the practical difficulties of high dimensions are estimation problems, not failures of the underlying population relationship.
+
+\end{document}

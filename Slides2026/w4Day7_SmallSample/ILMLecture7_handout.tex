@@ -190,36 +190,6 @@ p^*&=\frac{2}{5}
 \end{align*}
 \end{frame}
 
-\begin{frame}{Invariance (Useful result)}
-
-\begin{itemize}
-\item Recall that usually, $E[g(x)]\neq g(E[x])$, that is, functions of unbiased estimators will not be unbiased.
-\item If $\hat{\theta}$ is the MLE of $\theta$, then for any transformation $\beta=h(\theta)$, the MLE of $\beta$ is $\hat{\beta}=h(\hat{\theta})$
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Invariance Example  $f(X|\lambda)=\lambda^{-1}\exp(-X/\lambda)$.}
-\begin{align*}
-\mathcal{L}_n(\lambda)&=\prod_{i=1}^n \lambda^{-1}\exp(-X_i/\lambda)=\lambda^{-n}\exp(-\frac{1}{\lambda}\sum_{i=1}^n X_i)\\\pause
-\log \mathcal{L}_n(\lambda)&=-n\log\lambda - \frac{1}{\lambda}\sum_{i=1}^n X_i\\\pause
-\frac{d\mathcal{l}_n(\lambda)}{d\lambda}&=-\frac{n}{\lambda}+\frac{1}{\lambda^2}\sum_{i=1}^n X_i\\\pause
-\sum_{i=1}^n X_i&=n\lambda\pause
-\end{align*}
-The MLE is $\hat{\lambda}=\bar{X}_n$
-\end{frame}
-
-\begin{frame}{Invariance Example $\beta=1/\lambda$}
-\begin{itemize}
-\item Set $\beta=1/\lambda$, so $h(\lambda)=1/\lambda$.\pause
-\item The log density of this model is $\log f(x|\lambda)=\log [\beta\exp(-x\beta)]=\log \beta-x\beta$.\pause
-\item The log likelihood is $n\log\beta-\beta n \bar{X}_n$\pause
-\item Take the derivative with respect to $\beta$:\pause
-$$n/\hat{\beta}-n\bar{X}_n=0$$\pause
-$$\hat{\beta}=1/\bar{X}_n$$
-\end{itemize}
-\end{frame}
-
-
 \begin{frame}{From MLE to Precision}
 We now have an estimator (MLE) and a useful property (invariance).  \textbf{Two questions remain}:\pause
 \begin{enumerate}\setlength{\itemsep}{8pt}
@@ -438,35 +408,6 @@ $$f(\bm{e})=(2\pi)^{-n/2}(\sigma^2)^{-n/2}\exp(-\frac{1}{2\sigma^2}\bm{e}'\bm{e}
 $$\bm{z}\sim N(\bm{g}+\bm{H\mu},\ \bm{H\Sigma H'})$$
 \item In the case of MVN, independence is the same as uncorrelated.
 \end{itemize}
-\end{frame}
-
-\begin{frame}{Bivariate Normal CEF}
-\begin{itemize}
-\item Given two random variables, they are distributed bivariate normal if $\begin{bmatrix} X\\Y \end{bmatrix} \sim N\left( \begin{bmatrix} \mu_X\\\mu_Y \end{bmatrix},  \begin{bmatrix} \sigma^2_X & \rho \sigma_X \sigma_Y \\ \rho\sigma_X\sigma_Y & \sigma_Y^2\end{bmatrix}\right)$
-\item Call $X^*=\frac{X-\mu_X}{\sigma_X}$, $Y^*=\frac{Y-\mu_Y}{\sigma_Y}$ \pause
-\begin{align*}
-f_{Y|X}(y|x)&=\frac{f_{X,Y}(x,y)}{f_X(x)}\\\pause
-f_X(x)&=\frac{1}{\sqrt{2\pi}\sigma_X} exp\left(-\frac{1}{2}\left(X^*\right)^2\right)\\\pause
-f_{X,Y}(x,y)&=\frac{1}{\sqrt{2\pi}\sigma_X\sqrt{2\pi}\sigma_Y}\sqrt{1-\rho^2}  exp\left( -\frac{1}{2[1-\rho^2]}\left[ \left( X^* \right)^2-2\rho \left( X^* \right) \left(  Y^* \right)+ \left( Y^* \right)^2\right]\right)
-\end{align*}
-\end{itemize}
-\end{frame}
-
-
-
-\begin{frame}{Bivariate Normal CEF: Derivation}
-Dividing the joint by the marginal and completing the square:
-\begin{align*}
-f_{Y|X}(y|x)&\propto \exp\left( -\frac{1}{2(1 - \rho^2)} \left( Y^* - \rho X^* \right)^2 \right)\\\pause
-&= \exp\left( -\frac{1}{2} \left( \frac{Y - \mu_Y - \rho \frac{\sigma_Y}{\sigma_X}(X - \mu_X)}{\sigma_Y \sqrt{1 - \rho^2}} \right)^2 \right)
-\end{align*}\pause
-This is the kernel of a normal density with:
-\begin{itemize}
-\item Conditional mean: $\mathbb{E}[Y|X=x]=\mu_Y+\rho\frac{\sigma_Y}{\sigma_X}(x-\mu_X)=\mu_Y+\frac{\text{Cov}(Y,X)}{\text{Var}(X)}(x-\mu_X)$
-\item Conditional variance: $\sigma_Y^2(1-\rho^2)$
-\end{itemize}\pause
-\medskip
-\textbf{Key insight}: Under joint normality, the CEF is \alert{linear} and the regression coefficient is $\beta = \text{Cov}(Y,X)/\text{Var}(X)$.  This is a classical motivation for linear regression.
 \end{frame}
 
 \section{Normal MLE}
@@ -954,6 +895,76 @@ t&=\frac{\hat{\beta}-\beta_0}{se(\hat{\beta})}=\frac{-0.98-0}{0.15}=-6.61\\\paus
   \end{align*}\pause
 \medskip
 For each 1 percentage point increase in post-primary attendance, fertility is estimated to be 0.98 pp lower, with a 95\% CI of approximately $(0.7, 1.3)$.
+\end{frame}
+
+\begin{frame}{Beyond Single Coefficients: Joint Restrictions}
+\begin{itemize}
+\item The $t$-test asks: is \emph{one} coefficient zero?\pause
+\item Many research questions involve \emph{multiple} coefficients simultaneously.\pause
+\item \textbf{Example}: Does a job training program affect wages?
+$$\text{Wage}_i = \beta_0 + \beta_1 \text{Training}_i + \beta_2 (\text{Training}_i \times \text{Experience}_i) + \beta_3 \text{Experience}_i + e_i$$\pause
+\item The effect of training is $\beta_1 + \beta_2 \cdot \text{Experience}_i$ --- it depends on \emph{both} $\beta_1$ and $\beta_2$.\pause
+\item To test whether training has \emph{any} effect, we need:
+$$\mathbb{H}_0: \beta_1 = 0 \text{ and } \beta_2 = 0$$\pause
+\item A $t$-test on $\beta_1$ alone misses the interaction; a $t$-test on $\beta_2$ alone misses the main effect.  We need a \alert{joint test}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The $F$-Test for Joint Restrictions}
+To test $\mathbb{H}_0: \bm{R\beta}=\bm{r}$ where $\bm{R}$ is $q\times k$:\pause
+\begin{enumerate}\setlength{\itemsep}{6pt}
+\item Estimate the \textbf{unrestricted} model: get $\hat{\bm{e}}'\hat{\bm{e}}$ (the full SSR).\pause
+\item Estimate the \textbf{restricted} model (imposing $\mathbb{H}_0$): get $\tilde{\bm{e}}'\tilde{\bm{e}}$.\pause
+\item The $F$-statistic measures how much fit deteriorates under the restriction:
+$$F = \frac{(\tilde{\bm{e}}'\tilde{\bm{e}} - \hat{\bm{e}}'\hat{\bm{e}})/q}{\hat{\bm{e}}'\hat{\bm{e}}/(n - k)} \sim F_{q,\, n-k} \quad\text{under }\mathbb{H}_0$$
+\end{enumerate}\pause
+\medskip
+\textbf{Intuition}: If $\mathbb{H}_0$ is true, dropping the restricted variables should not increase SSR much.  A large $F$ means the restricted model fits \alert{substantially worse} $\to$ reject.\pause\\[4pt]
+When $q=1$, this reduces to $F=T^2$ --- the $t$-test is a special case.
+\end{frame}
+
+\begin{frame}[fragile]{Example: Joint Test for Treatment Effect}
+\begin{lstlisting}[style=Rstyle]
+set.seed(42); n <- 80
+experience <- runif(n, 1, 20)
+training <- rbinom(n, 1, 0.5)
+wage <- 10 + 3*training + 0.5*training*experience +
+        0.8*experience + rnorm(n, sd = 3)
+
+full <- lm(wage ~ training*experience)       # unrestricted
+restricted <- lm(wage ~ experience)           # restricted
+
+anova(restricted, full)  # joint F-test
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Example: Why the Joint Test Matters}
+\begin{lstlisting}[style=Rstyle]
+summary(full)$coefficients[c("training",
+                  "training:experience"), ]
+#                    Estimate Std.Err t    Pr(>|t|)
+# training              1.81   1.48  1.22  0.225
+# training:experience   0.60   0.13  4.64  <0.001
+
+anova(restricted, full)
+# F = 39.2, df1 = 2, df2 = 76, p < 0.001
+\end{lstlisting}\pause
+\smallskip
+\begin{itemize}\setlength{\itemsep}{2pt}
+\item The $t$-test on \texttt{training} alone: $p=0.225$ --- \alert{not significant}!\pause
+\item But the joint $F$-test: $p<0.001$ --- training clearly matters.\pause
+\item The interaction absorbs much of the treatment's impact at higher experience levels, so the main effect alone is small.\pause
+\item \textbf{Lesson}: When a variable enters with an interaction, always test jointly.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Writing Joint Restrictions as $\bm{R\beta}=\bm{r}$}
+For the model $\text{Wage}=\beta_0+\beta_1 \text{Tr}+\beta_2 \text{Tr}\!\times\!\text{Exp}+\beta_3\text{Exp}+e$:\pause
+$$\mathbb{H}_0:\beta_1=0\text{ and }\beta_2=0 \quad\Longleftrightarrow\quad \underbrace{\begin{pmatrix}0 & 1 & 0 & 0\\0 & 0 & 1 & 0\end{pmatrix}}_{\bm{R}}\begin{pmatrix}\beta_0\\\beta_1\\\beta_2\\\beta_3\end{pmatrix}=\underbrace{\begin{pmatrix}0\\0\end{pmatrix}}_{\bm{r}}$$\pause
+The $F$-statistic can also be written directly from the unrestricted estimates:
+$$F=\frac{(\bm{R}\hat{\bm{\beta}}-\bm{r})'[\bm{R}\,\hat{V}\,\bm{R}']^{-1}(\bm{R}\hat{\bm{\beta}}-\bm{r})}{q}$$\pause
+where $\hat{V}=s^2(\bm{X'X})^{-1}$. This form requires only the \emph{unrestricted} model --- no need to re-estimate under $\mathbb{H}_0$.\\[4pt]\pause
+\textbf{General}: any set of $q$ linear restrictions on $\bm{\beta}$ can be tested this way.
 \end{frame}
 
 \end{document}
