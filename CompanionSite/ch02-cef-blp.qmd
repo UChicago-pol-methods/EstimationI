@@ -199,6 +199,112 @@ cbind(population = c(0, 0.7),
       OLS = beta_ols)
 ```
 
+## Regression to the mean
+
+Suppose $X$ and $Y$ are the same quantity measured at two points in time --- a voter-margin in consecutive elections, a student's test score in two rounds, a stock's return this year and next. Assume the marginal distributions are stable: $\mathbb{E}[X] = \mathbb{E}[Y] = \mu$ and $\text{Var}(X) = \text{Var}(Y) = \sigma^2$. The BLP slope is then
+
+$$\beta = \frac{\text{Cov}(X, Y)}{\text{Var}(X)} = \frac{\rho \, \sigma^2}{\sigma^2} = \rho$$
+
+the correlation between the two measurements. Unless $X$ and $Y$ are perfectly correlated, $|\rho| < 1$, so $|\beta| < 1$. Rewriting the projection in mean-centered form,
+
+$$Y - \mu = \beta (X - \mu) + e,$$
+
+an observation with $X$ far above $\mu$ has a predicted $Y$ closer to $\mu$ than $X$ is. That is regression to the mean.
+
+The important point --- which trips up applied researchers and newspaper columnists --- is that this compression of predictions does *not* imply the variance of $Y$ is smaller than the variance of $X$. From the projection,
+
+$$\text{Var}(Y) = \beta^2 \text{Var}(X) + \text{Var}(e) = \rho^2 \sigma^2 + (1 - \rho^2)\sigma^2 = \sigma^2.$$
+
+The shrinkage of $\hat y$ toward $\mu$ is exactly offset by residual variation. The extremes reappear in the next period, just among different units.
+
+### Application: U.S. House election margins
+
+We use district-level results from the MIT Election Data and Science Lab, 1976–2024. For each district-year we compute the two-party margin $100 \cdot (\text{Dem} - \text{Rep}) / \text{total}$ and pair consecutive cycles.
+
+```{r}
+#| label: rtm-load
+#| message: false
+library(dplyr)
+house_raw <- read.csv(gzfile("data/medsl_house_1976_2024.csv.gz"))
+
+house <- house_raw |>
+  mutate(dem = ifelse(party == "DEMOCRAT",  candidatevotes, 0),
+         rep = ifelse(party == "REPUBLICAN", candidatevotes, 0)) |>
+  group_by(year, state_po, district) |>
+  summarise(dem = sum(dem), rep = sum(rep),
+            total = first(totalvotes), .groups = "drop") |>
+  mutate(margin = 100 * (dem - rep) / total) |>
+  filter(is.finite(margin))
+
+pairs <- house |>
+  inner_join(house, by = c("state_po", "district"),
+             suffix = c("_t", "_tp2"),
+             relationship = "many-to-many") |>
+  filter(year_tp2 == year_t + 2)
+```
+
+The 2008→2010 fit matches the midterm's landslide story:
+
+```{r}
+#| label: rtm-2008
+pair_08 <- pairs |> filter(year_t == 2008)
+fit_08 <- lm(margin_tp2 ~ margin_t, data = pair_08)
+
+c(slope = coef(fit_08)[2],
+  cor   = cor(pair_08$margin_t, pair_08$margin_tp2),
+  sd_t  = sd(pair_08$margin_t),
+  sd_tp2 = sd(pair_08$margin_tp2))
+```
+
+Slope `r round(coef(fit_08)[2], 2)`, correlation `r round(cor(pair_08$margin_t, pair_08$margin_tp2), 2)`. Both less than 1 in absolute value, as they must be. The standard deviation is essentially the same across the two cycles --- the compression of individual predictions does not carry over to the marginal distribution.
+
+The analyst's landslide-group observation is built in. Districts with extreme margins in 2008 have fitted 2010 margins closer to the overall mean:
+
+```{r}
+#| label: rtm-landslide-group
+pair_08 |>
+  mutate(group_08 = case_when(
+    margin_t >  40 ~ "landslide D",
+    margin_t < -40 ~ "landslide R",
+    abs(margin_t) <= 10 ~ "competitive",
+    TRUE ~ "safe"
+  )) |>
+  group_by(group_08) |>
+  summarise(n = n(),
+            mean_2008 = mean(margin_t),
+            mean_2010 = mean(margin_tp2))
+```
+
+Every group's 2010 mean is closer to the 2010 overall mean than its 2008 mean was to the 2008 overall mean --- the mechanical consequence of $|\beta| < 1$. The analyst's error is reading this as a substantive trend rather than a projection identity.
+
+### The same phenomenon across 24 cycles
+
+The 2008→2010 pair happens to include a strong Republican wave, which shifts the intercept but doesn't change the RTM slope. Pooled across all adjacent-cycle pairs, the slope is stable and below 1:
+
+```{r}
+#| label: rtm-plot
+#| fig-width: 7
+#| fig-height: 4
+library(ggplot2)
+ggplot(pairs, aes(margin_t, margin_tp2)) +
+  geom_point(alpha = 0.08, size = 0.6) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey40") +
+  geom_smooth(method = "lm", se = FALSE, color = "steelblue", linewidth = 0.8) +
+  coord_fixed(xlim = c(-100, 100), ylim = c(-100, 100)) +
+  labs(x = "District margin, year t (pp)",
+       y = "District margin, year t+2 (pp)",
+       title = "U.S. House margins, consecutive cycles 1976–2024",
+       subtitle = "Blue: OLS. Dashed: y = x. Slope below 1 compresses extremes toward the mean.")
+```
+
+```{r}
+#| label: rtm-pooled
+fit_pooled <- lm(margin_tp2 ~ margin_t, data = pairs)
+coef(fit_pooled)
+```
+
+A district $50$ points above the mean in one cycle is predicted about `r round(50 * coef(fit_pooled)[2], 1)` points above in the next --- not because districts are converging, but because a projection slope below 1 gives shrunken predictions even when the underlying distribution is stationary.
+
 ## Dummy variables: the CEF for discrete X
 
 When $X$ is a categorical variable, the CEF is just group means. Regression with dummies recovers these exactly.

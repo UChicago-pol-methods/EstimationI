@@ -475,57 +475,6 @@ M1 <- diag(n) - P1
 all.equal(as.vector(M1 %*% y), as.numeric(y - mean(y)))
 ```
 
-## Application: regression to the mean
-
-Here's a classic application of bivariate OLS. Galton noticed that children of unusually tall parents tend to be shorter than their parents — and children of unusually short parents tend to be taller. This "regression to the mean" is not a causal mechanism; it's a consequence of the BLP slope being less than 1 when the correlation is less than 1.
-
-```{r}
-#| label: regression-to-mean
-# Simulate parent-child heights (jointly normal)
-set.seed(307)
-n_ht <- 1000
-rho <- 0.5   # correlation between parent and child height
-
-library(MASS)
-heights <- mvrnorm(n_ht, mu = c(68, 68),
-                   Sigma = matrix(c(9, rho * 9, rho * 9, 9), 2, 2))
-parent_ht <- heights[, 1]
-child_ht <- heights[, 2]
-
-# OLS by matrix formula
-X_ht <- cbind(1, parent_ht)
-beta_ht <- solve(crossprod(X_ht), crossprod(X_ht, child_ht))
-beta_ht
-```
-
-The slope is $\hat\beta_1 \approx$ `r round(beta_ht[2], 2)`, less than 1. So a parent who is 1 inch above average has a child who is only about `r round(beta_ht[2], 2)` inches above average — regression toward the mean.
-
-```{r}
-#| label: regression-to-mean-plot
-df_ht <- data.frame(parent = parent_ht, child = child_ht)
-
-ggplot(df_ht, aes(parent, child)) +
-  geom_point(alpha = 0.15, size = 0.8) +
-  geom_smooth(method = "lm", se = FALSE, color = "steelblue", linewidth = 1.2) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", alpha = 0.5) +
-  annotate("text", x = 74, y = 74.5, label = "slope = 1 (no regression)", alpha = 0.5) +
-  labs(x = "Parent height (in)", y = "Child height (in)",
-       title = "Regression to the mean",
-       subtitle = paste0("Slope = ", round(beta_ht[2], 2),
-                         " < 1: children of tall parents are less extreme")) +
-  theme_minimal()
-```
-
-The tallest parents (above the 95th percentile) have children who are closer to the mean:
-
-```{r}
-#| label: tall-parents
-tall <- parent_ht > quantile(parent_ht, 0.95)
-c(parent_mean = mean(parent_ht[tall]),
-  child_mean = mean(child_ht[tall]),
-  difference = mean(parent_ht[tall]) - mean(child_ht[tall]))
-```
-
 ## Residuals vs. disturbances
 
 The true model is $y = X\beta + e$ where $e$ is unobservable. The residuals $\hat{e} = My$ relate to the disturbances through:
