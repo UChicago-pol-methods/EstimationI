@@ -9,7 +9,7 @@ The emphasis is on *doing* --- running tests in R, interpreting the output corre
 
 1. **How do I test whether a coefficient is zero?** (t-tests, robust Wald)
 2. **How do I test multiple restrictions at once?** (F-test, joint Wald)
-3. **When do different tests disagree?** (Wald, Score, F)
+3. **Why Wald, not LR or classical F, is the default** (the trinity under misspecification)
 4. **How do I get confidence sets for nonlinear parameters?** (test inversion, Fieller)
 5. **What if I test many hypotheses?** (Bonferroni, Holm)
 6. **How large a sample do I need?** (power analysis)
@@ -144,68 +144,60 @@ For testing $H_0: R\beta = r$, the Wald statistic is $W = (R\hat\beta - r)'[R\ha
 :::
 
 
-## The test trinity: Wald, Score, and F
+## The test trinity under misspecification
 
-Three classical approaches test the same null $H_0: \mathbf{R}\boldsymbol{\beta} = \mathbf{r}$:
+Three classical tests attack the same null $H_0: R\beta = r$:
 
-| Test | Estimates from | Measures |
-|------|----------------|----------|
-| **Wald** | Unrestricted model | How far $\hat{\boldsymbol{\beta}}$ is from $H_0$ |
-| **Score (LM)** | Restricted model | Whether the objective function wants to move away from $H_0$ |
-| **F / LR** | Both models | How much the fit worsens when we impose $H_0$ |
+| Test | Based on | Needs to believe |
+|------|----------|------------------|
+| **Wald** | distance from $\hat\beta$ to the null | only the mean function (plus consistent $\hat V$) |
+| **Score / LM** | slope of the objective at the restricted estimator | only the mean function (plus consistent "meat" matrix) |
+| **LR** | height difference $\log L_U - \log L_R$ | the full likelihood |
 
-For linear restrictions in a normal linear model, they are **monotone transformations of each other** and always give the same accept/reject decision.  Let's verify:
+Two things about this table are worth dwelling on.
 
-```{r}
-#| label: trinity-comparison
-## Test: rank doesn't matter (q = 2 restrictions)
-## Wald (homoskedastic, for comparability)
-W <- linearHypothesis(mod_U, c("rankAssocProf = 0", "rankProf = 0"))
-W_stat <- W$F[2] * q  # linearHypothesis reports F; multiply by q for chi-sq scale
+**LR requires the likelihood.** Under homoskedastic normal errors the classical F-test equals the LR statistic up to a monotone transformation, and the whole trinity is pedagogically unified. Once errors are heteroskedastic or the likelihood is otherwise misspecified, $-2(\log L_R - \log L_U)$ no longer converges to $\chi^2_q$ --- it converges to a weighted sum of $\chi^2_1$ random variables with unknown weights. There are Satterthwaite-style corrections ("quasi-LR") but in practice applied econometrics has simply dropped LR as a default and uses Wald with sandwich variance. The same logic rules out the classical F from `anova()`, which is the homoskedastic LR for linear models.
 
-## F from anova
-Ftest <- anova(mod_R, mod_U)
+**Wald and Score have clean robust versions.** Swap the classical variance for the sandwich:
+$$W = (R\hat\beta - r)'\,[R\,\hat V_{\text{HC}}\, R']^{-1}\,(R\hat\beta - r) \xrightarrow{d} \chi^2_q$$
+$$LM = \Big(\textstyle\sum s_i\Big)'\Big(\textstyle\sum s_i s_i'\Big)^{-1}\Big(\textstyle\sum s_i\Big) \xrightarrow{d} \chi^2_q$$
+The Wald is `linearHypothesis(mod, ..., vcov = vcovHC(mod, type = "HC2"))`. The robust LM comes up most often not as a head-to-head rival to Wald but as the engine of **specification tests** --- Breusch–Pagan for heteroskedasticity, White's information-matrix test, and (Chapter 11) the GMM overidentification test are all score tests.
 
-## Score test (LM): use restricted residuals
-## S = n * (1 - SSE_U / SSE_R) under homoskedasticity
-S <- n * (1 - SSE_U / SSE_R)
+### When do you still use the classical F?
 
-cat("Wald statistic (chi-sq scale):", round(W_stat, 3), "\n")
-cat("F statistic (x q):           ", round(Ftest$F[2] * q, 3), "\n")
-cat("Score statistic:             ", round(S, 3), "\n")
-```
+One genuinely remaining niche: when you *do* believe errors are normal and homoskedastic, the classical F has an **exact** $F_{q,\,n-K}$ distribution in finite samples, while the robust Wald is only asymptotic. At $n = 20$ with trustworthy homoskedasticity, the classical F's exact critical values can be better-calibrated than $\chi^2_q$. By $n = 200$ this advantage vanishes.
 
-The three numbers are close but not identical --- they use different variance estimates (unrestricted $s^2$, restricted $\tilde{\sigma}^2$, or pooled). Asymptotically they converge. Under normality, we have the [exact distributions](ch06-small-sample.qmd#thm-exact-distributions) that make the F-test slightly more conservative in finite samples, which is why `anova()` uses $F_{q, n-k}$ critical values instead of $\chi^2_q / q$.
-
-### When do they diverge?
-
-For **non-normal** models, the trinity can disagree because the three test statistics are no longer monotone transformations of each other. Here is an example using a joint test in the probit model from Chapter 7:
+### A concrete comparison
 
 ```{r}
-#| label: trinity-probit
-data(Mroz)
-probit <- glm(lfp ~ k5 + k618 + age + wc + lwg + inc,
-              family = binomial(link = "probit"), data = Mroz)
+#| label: wald-vs-anova
+## Joint test: rank has no effect (q = 2 restrictions)
+## Classical F (homoskedastic)
+anova(mod_R, mod_U)$F[2]
 
-## Test H0: k5 = 0, k618 = 0 (joint, q = 2)
-probit_r <- glm(lfp ~ age + wc + lwg + inc,
-                family = binomial(link = "probit"), data = Mroz)
-
-## Wald
-W_probit <- linearHypothesis(probit, c("k5 = 0", "k618 = 0"))
-
-## LR
-LR <- -2 * as.numeric(logLik(probit_r) - logLik(probit))
-
-## Score (Rao)
-S_probit <- anova(probit_r, probit, test = "Rao")
-
-cat("Wald chi-sq: ", round(W_probit$Chisq[2], 2), "\n")
-cat("LR chi-sq:   ", round(LR, 2), "\n")
-cat("Score chi-sq:", round(S_probit$Rao[2], 2), "\n")
+## Robust Wald (heteroskedasticity-robust)
+linearHypothesis(mod_U, c("rankAssocProf = 0", "rankProf = 0"),
+                 vcov = vcovHC(mod_U, type = "HC2"),
+                 test = "F")$F[2]
 ```
 
-The three statistics differ noticeably: the Wald statistic (58.5) is substantially smaller than the LR (65.8) and Score (65.0). All three reject decisively here, but in borderline cases they could lead to different conclusions. The LR test tends to be the most reliable in nonlinear models because it directly measures the change in the log-likelihood.
+The two statistics answer slightly different questions: classical F asks "under the homoskedastic-normal model, does fit deteriorate?"; robust Wald asks "given the estimated sandwich covariance, is $R\hat\beta$ far from $r$?" When errors are actually homoskedastic they give nearly identical numbers. Otherwise, trust the robust version.
+
+### Where Score tests live
+
+Score tests show up throughout the course, mostly not labeled as such:
+
+- **Breusch–Pagan** (ch05): score test against $H_0: \text{Var}(e_i \mid X_i)$ = constant.
+- **RESET** (ch04): score test against $H_0:$ no omitted nonlinear terms.
+- **Hausman** (ch12): comparison of two estimators is equivalent to a score-type test.
+- **GMM overidentification / $J$-test** (ch11): the canonical modern score test --- are extra moment conditions satisfied at the efficient estimator?
+
+The common thread: score tests only require the **null** fit. You estimate under $H_0$ and ask whether the remaining moment conditions or specification implications are satisfied at that estimate. Two reasons this is the right tool:
+
+- **There may be no alternative model to fit.** In GMM overidentification you have more moment conditions than parameters. There is no larger model that uses them all as free structure --- the extras are just claims about the true $\theta$. The score test asks: at the estimate pinned down by $K$ moments, are the remaining $L - K$ moments close to zero?
+- **The alternative is too broad to parametrize.** Breusch–Pagan tests against "some form of heteroskedasticity" without naming which form. You don't want to fit every possible heteroskedastic model; you want to check whether the residuals from the homoskedastic fit betray any systematic pattern.
+
+In both cases, Wald is not available --- there is nothing unrestricted to compare against. The score test is what you reach for.
 
 
 ## Confidence regions and test inversion

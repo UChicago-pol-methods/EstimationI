@@ -224,7 +224,84 @@ The intercept is the mean for the baseline group (alphabetically first: Dem), an
 
 ## Interactions: when the slope depends on a group
 
-An interaction term $D_i \times x_i$ allows the effect of $x$ to differ by group. This is a richer model than parallel slopes.
+An interaction term $D_i \times x_i$ allows the effect of $x$ to differ by group. The full model is
+
+$$y = \beta_0 + \beta_1 x + \beta_2 d + \beta_3 (d \times x) + e$$
+
+with four distinct behaviors baked into the four coefficients:
+
+- $\beta_0$ is the intercept for the $d=0$ group
+- $\beta_1$ is the slope on $x$ for the $d=0$ group
+- $\beta_2$ is how much the $d=1$ intercept shifts up or down
+- $\beta_3$ is how much the $d=1$ slope shifts relative to the $d=0$ slope
+
+So the $d=1$ group has intercept $\beta_0 + \beta_2$ and slope $\beta_1 + \beta_3$. The **marginal effect of $d$ depends on $x$**: $\partial y / \partial d = \beta_2 + \beta_3 x$. The **marginal effect of $x$ depends on $d$**: $\partial y / \partial x = \beta_1 + \beta_3 d$.
+
+### A zoo of interaction patterns
+
+Six parameter patterns, six pictures. For each panel, blue is the $d=0$ line, red is the $d=1$ line. The same equation $y = \beta_0 + \beta_1 x + \beta_2 d + \beta_3 (d\times x)$ produces all six.
+
+```{r}
+#| label: interaction-zoo
+#| fig-width: 9
+#| fig-height: 5.5
+models <- data.frame(
+  model = factor(c("A", "B", "C", "D", "E", "F"),
+                 levels = c("A", "B", "C", "D", "E", "F")),
+  b0 = c(10, 1,  5,  5,  10, 10),
+  b1 = c(0,  2,  0,  1,  -2, -2),
+  b2 = c(-5, 1,  5,  0,  -8, -5),
+  b3 = c(0,  -1, -1, -1, 4,  2)
+)
+
+grid <- expand.grid(x = seq(0, 5, length.out = 2),
+                    d = c(0, 1),
+                    model = models$model)
+grid <- merge(grid, models, by = "model")
+grid$y <- with(grid, b0 + b1 * x + b2 * d + b3 * d * x)
+grid$d <- factor(grid$d, labels = c("d = 0", "d = 1"))
+
+ggplot(grid, aes(x, y, color = d)) +
+  geom_line(linewidth = 1) +
+  facet_wrap(~ model, ncol = 3) +
+  scale_color_manual(values = c("d = 0" = "steelblue",
+                                "d = 1" = "tomato")) +
+  coord_cartesian(ylim = c(0, 11)) +
+  labs(x = "x", y = "y", color = NULL,
+       title = "Six interaction patterns from the same equation")
+```
+
+Every one of these shapes — parallel lines, converging lines, crossing lines, one flat and one sloped — is a combination of $(\beta_0, \beta_1, \beta_2, \beta_3)$. The shape tells you which coefficients are zero and which are not:
+
+|   | $\beta_1$ | $\beta_2$ | $\beta_3$ | Pattern |
+|---|---|---|---|---|
+| A | 0 | $\neq 0$ | 0 | Parallel, both flat, $d=1$ shifted down |
+| B | $\neq 0$ | $\neq 0$ | $\neq 0$ | Both slope up, $d=1$ less steep, crossing |
+| C | 0 | $\neq 0$ | $\neq 0$ | $d=0$ flat, $d=1$ starts high and decays |
+| D | $\neq 0$ | 0 | $\neq 0$ | Same intercept, diverging slopes |
+| E | $\neq 0$ | $\neq 0$ | $\neq 0$ | Opposite slopes: crossing, "no main effect" illusion |
+| F | $\neq 0$ | $\neq 0$ | $\neq 0$ | $d=1$ flat while $d=0$ decreases |
+
+Pattern E is the classic cautionary case: at $x \approx 2$ both lines cross, so the "average effect of $d$" is near zero. But $d$ matters greatly — its effect just depends on $x$. A $t$-test on $\beta_2$ alone would miss this; the joint test of $\beta_2 = 0, \beta_3 = 0$ does not. See the [training × experience example](ch06-small-sample.qmd#a-motivating-example-does-training-affect-wages) in Chapter 6.
+
+### Mapping theories to parameter restrictions
+
+Many substantive claims — from political science, policy analysis, and the social sciences broadly — are claims about *conjunctions*: "$x$ matters only when $d$ is present", "$d$ is necessary for anything to happen", "$x$ and $d$ substitute for each other." The interaction model turns each of these into a testable restriction on $(\beta_1, \beta_2, \beta_3)$.
+
+| Theoretical claim | Restriction on $\beta$ | Type |
+|---|---|---|
+| $d$ has no effect at all (is irrelevant) | $\beta_2 = 0$ **and** $\beta_3 = 0$ | joint ($q=2$) |
+| $x$ has no effect at all | $\beta_1 = 0$ **and** $\beta_3 = 0$ | joint ($q=2$) |
+| $d$ is necessary for $x$ to matter | $\beta_1 = 0$, $\beta_3 \neq 0$ | single + sign |
+| $x$ is necessary for $d$ to matter | $\beta_2 = 0$, $\beta_3 \neq 0$ | single + sign |
+| Effects are additive (no interaction) | $\beta_3 = 0$ | single |
+| $d$ is sufficient: $y$ saturates when $d = 1$ | $\beta_1 + \beta_3 = 0$ | linear combination |
+| $x$ and $d$ are complements (reinforcing) | $\beta_3 > 0$ | sign |
+| $x$ and $d$ are substitutes (diminishing) | $\beta_3 < 0$ | sign |
+
+The first two rows are the crucial ones for practice. A theory that says "this variable is irrelevant" is **never** a single-coefficient claim once an interaction is in the model. Testing it requires a **joint** hypothesis on two coefficients — which is exactly what the $F$-test and the robust Wald test in [Chapter 6](ch06-small-sample.qmd#the-f-test-when-one-t-test-isnt-enough) and [Chapter 9](ch09-testing.qmd#testing-multiple-restrictions-the-f-test) provide.
+
+### A quick fit on simulated data
 
 ```{r}
 #| label: interactions
@@ -232,32 +309,33 @@ set.seed(2026)
 n_int <- 400
 group <- sample(0:1, n_int, replace = TRUE)
 x_int <- rnorm(n_int)
-# Group 0: slope = 2, Group 1: slope = -1
+# Truth: group 0 has slope 2; group 1 has slope -1; intercept shift 1.5
 y_int <- 3 + 1.5 * group + 2 * x_int - 3 * group * x_int + rnorm(n_int)
 
 df_int <- data.frame(x = x_int, y = y_int, group = factor(group))
 
-# Parallel slopes (no interaction)
-mod_parallel <- lm(y ~ group + x, data = df_int)
+mod_parallel <- lm(y ~ group + x, data = df_int)        # β₃ = 0 imposed
+mod_interact <- lm(y ~ group * x, data = df_int)        # unrestricted
 
-# Interaction model
-mod_interact <- lm(y ~ group * x, data = df_int)
-
-ggplot(df_int, aes(x, y, color = group)) +
-  geom_point(alpha = 0.3, size = 0.8) +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
-  scale_color_manual(values = c("steelblue", "tomato"), name = "Group") +
-  labs(title = "Interaction: different slopes for each group",
-       x = "X", y = "Y") +
-  theme_minimal()
-```
-
-```{r}
-#| label: interaction-coefficients
 coef(mod_interact)
 ```
 
-The `group1:x` coefficient ($\approx -3$) is the *difference* in slopes between group 1 and group 0. The marginal effect of $x$ for group 1 is `x` + `group1:x`.
+The `group1:x` coefficient ($\approx -3$) is $\hat\beta_3$, the difference in slopes between group 1 and group 0. The marginal effect of $x$ in group 1 is $\hat\beta_1 + \hat\beta_3 \approx -1$; in group 0 it is $\hat\beta_1 \approx 2$.
+
+Testing "group doesn't matter at all" is a joint hypothesis on the group dummy *and* its interaction:
+
+```{r}
+#| label: interactions-joint-test
+#| message: false
+library(car)
+linearHypothesis(mod_interact, c("group1 = 0", "group1:x = 0"))
+```
+
+The point is correspondence: the hypothesis you test has to match the theory you wrote down. A $t$-test on $\beta_2 = 0$ is a test of "$d$ has no effect *at $x = 0$*" --- a specific claim about one point in the covariate space, not about whether $d$ matters in general. The joint test of $\beta_2 = \beta_3 = 0$ is what corresponds to "$d$ is irrelevant across the board." Different theories pick out different restrictions:
+
+- "$d$ matters only when $x$ is above some level $x^*$": $\beta_2 + \beta_3 x^* = 0$ — a single linear restriction, not two.
+- "$d$ and $x$ have identical effects at every value": $\beta_1 = \beta_2$ *and* $\beta_3 = 0$ — two restrictions.
+- "Adding $d$ provides no information beyond $x$": $\beta_2 = \beta_3 = 0$ — the row from the table above.
 
 ## Omitted variable bias {#sec-ovb}
 
