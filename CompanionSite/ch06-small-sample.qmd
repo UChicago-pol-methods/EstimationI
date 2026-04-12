@@ -222,129 +222,91 @@ Under $e|X \sim N(0, \sigma^2 I)$: (i) $\hat\beta|X \sim N(\beta, \sigma^2(X'X)^
 These distributions hold for any sample size $n$ — no "large $n$" approximation needed. The $t$-distribution automatically accounts for the extra uncertainty from estimating $\sigma^2$, with heavier tails when $n - K$ is small.
 :::
 
-### $\hat{\beta}$ is normal
+### One simulation, four diagnostics
 
-Since $\hat{\beta} = \beta + (X'X)^{-1}X'e$ is a linear function of the normal vector $e$:
-
-$$\hat{\beta} \mid X \sim N(\beta, \, \sigma^2 (X'X)^{-1})$$
+All four claims in the theorem — normality of $\hat\beta$, chi-squared for $s^2$, independence, and a $t$-distribution for the studentized ratio — follow from a single simulation of the DGP. We fit once per draw and record everything.
 
 ```{r}
-#| label: beta-normal-sim
-#| fig-width: 7
-#| fig-height: 4
+#| label: exact-sim
 set.seed(1)
-B <- 10000
-beta_true <- coef(mod)
+B          <- 10000
+beta_true  <- coef(mod)
 sigma_true <- sigma(mod)
+j          <- which(colnames(X) == "Education")
+xtxi       <- solve(crossprod(X))
 
-# Simulate under the normal model using the actual Swiss X matrix
-b_sim <- matrix(NA, B, K)
-for (b in 1:B) {
+sim <- t(replicate(B, {
   y_sim <- X %*% beta_true + rnorm(n, 0, sigma_true)
-  b_sim[b, ] <- as.numeric(solve(crossprod(X)) %*% crossprod(X, y_sim))
-}
+  fit   <- lm.fit(X, y_sim)
+  rss   <- sum(fit$residuals^2)
+  s2    <- rss / (n - K)
+  bhat  <- unname(fit$coefficients[j])
+  c(bhat = bhat,
+    scaled_rss = rss / sigma_true^2,
+    s2 = s2,
+    t = (bhat - unname(beta_true[j])) / sqrt(s2 * xtxi[j, j]))
+}))
+sim <- as.data.frame(sim)
+```
 
-# Focus on Education coefficient (column 2)
-j <- 2
-se_theory <- sigma_true * sqrt(solve(crossprod(X))[j, j])
+**Diagnostic 1: $\hat\beta_{\text{Education}}$ is normal.**
 
-df_beta <- data.frame(b_hat = b_sim[, j])
-ggplot(df_beta, aes(b_hat)) +
+```{r}
+#| label: beta-normal-plot
+#| fig-width: 7
+#| fig-height: 3
+se_theory <- sigma_true * sqrt(xtxi[j, j])
+ggplot(sim, aes(bhat)) +
   geom_histogram(aes(y = after_stat(density)), bins = 50, alpha = 0.5) +
   stat_function(fun = dnorm, args = list(mean = beta_true[j], sd = se_theory),
                 color = "red", linewidth = 1) +
-  labs(title = "Sampling distribution of β̂_Education",
-       subtitle = paste("Simulated vs. N(β, σ²[(X'X)⁻¹]_jj), SE =", round(se_theory, 3)),
-       x = expression(hat(beta)[Education]))
+  labs(x = expression(hat(beta)[Education]),
+       subtitle = paste("Red: N(β, σ²[(X'X)⁻¹]_jj), SE =", round(se_theory, 3)))
 ```
 
-The histogram of simulated $\hat{\beta}$ matches the theoretical normal density perfectly.
-
-### $(n-K)s^2/\sigma^2 \sim \chi^2_{n-K}$
-
-The residual sum of squares, scaled by $\sigma^2$, follows a chi-squared distribution:
+**Diagnostic 2: $(n-K)s^2/\sigma^2 \sim \chi^2_{n-K}$.**
 
 ```{r}
-#| label: chi-sq-sim
+#| label: chisq-plot
 #| fig-width: 7
-#| fig-height: 4
-scaled_s2 <- numeric(B)
-for (b in 1:B) {
-  y_sim <- X %*% beta_true + rnorm(n, 0, sigma_true)
-  e_hat <- resid(lm(y_sim ~ X - 1))
-  scaled_s2[b] <- sum(e_hat^2) / sigma_true^2
-}
-
-# Should match chi-squared(n-K)
+#| fig-height: 3
 df_chi <- n - K
-c(simulated_mean = mean(scaled_s2), theory_mean = df_chi,
-  simulated_var  = var(scaled_s2),  theory_var  = 2 * df_chi)
-```
+c(simulated_mean = mean(sim$scaled_rss), theory_mean = df_chi,
+  simulated_var  = var(sim$scaled_rss),  theory_var  = 2 * df_chi)
 
-```{r}
-#| label: chi-sq-plot
-#| fig-width: 7
-#| fig-height: 4
-df_s2 <- data.frame(scaled_s2 = scaled_s2)
-ggplot(df_s2, aes(scaled_s2)) +
+ggplot(sim, aes(scaled_rss)) +
   geom_histogram(aes(y = after_stat(density)), bins = 50, alpha = 0.5) +
   stat_function(fun = dchisq, args = list(df = df_chi),
                 color = "red", linewidth = 1) +
-  labs(title = expression((n-K)*s^2/sigma^2 ~ "follows" ~ chi[n-K]^2),
-       subtitle = paste("df =", df_chi),
+  labs(subtitle = paste0("Red: χ²(", df_chi, ")"),
        x = expression((n-K)*s^2/sigma^2))
 ```
 
-### Independence of $\hat{\beta}$ and $s^2$
-
-A crucial fact: $\hat{\beta}$ and $\hat{e}$ are **independent** under normality (because their joint covariance is zero and they are jointly normal). This is what allows us to form the $t$-statistic.
+**Diagnostic 3: $\hat\beta$ and $s^2$ are independent.** Zero joint covariance plus joint normality implies independence — this is what lets us form the $t$-ratio.
 
 ```{r}
 #| label: independence
-# Correlation between beta_hat and s^2 across simulations
-s2_sim <- numeric(B)
-for (b in 1:B) {
-  y_sim <- X %*% beta_true + rnorm(n, 0, sigma_true)
-  fit <- lm(y_sim ~ X - 1)
-  s2_sim[b] <- sum(resid(fit)^2) / (n - K)
-}
-
-cor(b_sim[, 2], s2_sim)
+cor(sim$bhat, sim$s2)
 ```
 
-### The $t$-statistic
+**Diagnostic 4: the studentized ratio follows $t_{n-K}$.** Normal numerator over an independent scaled chi-squared denominator gives a $t$-distribution by definition.
 
-Since $\hat{\beta}_j$ is normal and $s^2$ is independent chi-squared, their ratio has an **exact** $t$-distribution:
-
-$$T = \frac{\hat{\beta}_j - \beta_j}{\text{SE}(\hat{\beta}_j)} = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s^2 [(X'X)^{-1}]_{jj}}} \sim t_{n-K}$$ {#eq-t-stat}
+$$T = \frac{\hat{\beta}_j - \beta_j}{\sqrt{s^2 [(X'X)^{-1}]_{jj}}} \sim t_{n-K}$$ {#eq-t-stat}
 
 ```{r}
-#| label: t-distribution-sim
+#| label: t-plot
 #| fig-width: 7
-#| fig-height: 4
-#| fig-cap: "Simulated t-statistics follow the t distribution with n-K degrees of freedom"
-# Compute t-statistics across simulations
-t_sim <- numeric(B)
-for (b in 1:B) {
-  y_sim <- X %*% beta_true + rnorm(n, 0, sigma_true)
-  fit <- lm(y_sim ~ X - 1)
-  # t-stat for Education coefficient
-  se_b <- sqrt(vcov(fit)[j, j])
-  t_sim[b] <- (coef(fit)[j] - beta_true[j]) / se_b
-}
-
-df_t <- data.frame(t_stat = t_sim)
-ggplot(df_t, aes(t_stat)) +
+#| fig-height: 3
+ggplot(sim, aes(t)) +
   geom_histogram(aes(y = after_stat(density)), bins = 60, alpha = 0.5) +
   stat_function(fun = dt, args = list(df = n - K),
                 color = "red", linewidth = 1) +
   stat_function(fun = dnorm, color = "blue", linewidth = 0.8, linetype = "dashed") +
-  labs(title = expression("Simulated t-statistics follow " * t[n-K]),
-       subtitle = paste("Red = t(", n-K, "), blue dashed = N(0,1). Heavier tails with small df."),
+  labs(subtitle = paste0("Red: t(", n-K, "). Blue dashed: N(0,1) — slightly thinner tails."),
        x = "t-statistic")
 ```
 
-With $n - K = `r n - K`$ degrees of freedom, the $t$-distribution is close to the normal but has heavier tails — the extra uncertainty from estimating $\sigma^2$.
+With $n - K = `r n - K`$ the $t$-distribution is close to normal but heavier-tailed — the extra uncertainty from estimating $\sigma^2$.
 
 ## Applied inference with the Swiss data
 
@@ -395,7 +357,46 @@ ci_hi <- beta_hat + c_val * se_hat
 c(lower = ci_lo, upper = ci_hi)
 ```
 
-The correct interpretation: if we repeated this study many times, 95% of the computed intervals would contain the true $\beta$.
+The correct interpretation: $\beta$ is fixed, $\hat{C}$ is random. If we repeated this study many times, 95% of the computed intervals would cover the true $\beta$.
+
+```{r}
+#| label: ci-coverage-viz
+#| fig-width: 7
+#| fig-height: 5
+#| fig-cap: "Each line is one CI from a resampled DGP. About 5% miss the truth (colored)."
+set.seed(7)
+B_ci <- 50
+beta_true_edu <- coef(mod)["Education"]
+
+# Simulate: refit on Y drawn from the estimated model, compute CI each time
+j_edu <- which(colnames(X) == "Education")
+cv    <- qt(0.975, n - K)
+ci_rows <- t(replicate(B_ci, {
+  y_sim <- X %*% coef(mod) + rnorm(n, 0, sigma(mod))
+  fit   <- lm.fit(X, y_sim)
+  rss   <- sum(fit$residuals^2)
+  xtxi  <- solve(crossprod(X))
+  se    <- sqrt(rss / (n - K) * xtxi[j_edu, j_edu])
+  est   <- unname(fit$coefficients[j_edu])
+  c(est = est, lo = est - cv * se, hi = est + cv * se)
+}))
+ci_df <- data.frame(trial = 1:B_ci,
+                    est = ci_rows[, "est"],
+                    lo  = ci_rows[, "lo"],
+                    hi  = ci_rows[, "hi"])
+ci_df$miss <- ci_df$lo > beta_true_edu | ci_df$hi < beta_true_edu
+
+ggplot(ci_df, aes(y = trial)) +
+  geom_segment(aes(x = lo, xend = hi, yend = trial, color = miss),
+               linewidth = 0.6) +
+  geom_point(aes(x = est, color = miss), size = 1.2) +
+  geom_vline(xintercept = beta_true_edu, color = "blue", linewidth = 0.8) +
+  scale_color_manual(values = c("grey50", "#662a9b"),
+                     labels = c("covers β", "misses β"), name = NULL) +
+  labs(title = "50 simulated 95% CIs for β_Education",
+       subtitle = "Blue line = true β. The interval is random; β is fixed.",
+       x = expression(hat(beta)[Education]), y = "Simulation")
+```
 
 ### Robust confidence intervals
 
@@ -443,85 +444,115 @@ ggplot(ci_df, aes(x = estimate, y = term, color = type)) +
        x = "Coefficient estimate", y = NULL, color = NULL)
 ```
 
-## The $F$-test
+## The $F$-test: when one $t$-test isn't enough
 
-The $t$-test handles one coefficient at a time. The $F$-test tests **joint** restrictions — for instance, "do Agriculture and Catholic together predict fertility, controlling for the other variables?"
+The $t$-test handles one coefficient at a time. But many research questions involve *several* coefficients simultaneously, and the answer from testing them one-by-one can be misleading.
 
-### $F$-test as a likelihood ratio
+### A motivating example: does training affect wages?
 
-The $F$-statistic compares the restricted (null) and unrestricted models:
+Suppose a job-training program's effect depends on prior experience:
 
-$$F = \frac{(\tilde{\sigma}^2 - \hat{\sigma}^2) / q}{\hat{\sigma}^2 / (n - K)} \sim F_{q, \, n-K}$$ {#eq-f-stat}
+$$\text{Wage}_i = \beta_0 + \beta_1 \text{Train}_i + \beta_2 (\text{Train}_i \times \text{Exp}_i) + \beta_3 \text{Exp}_i + e_i$$
 
-where $\tilde{\sigma}^2$ is the residual variance from the restricted model and $q$ is the number of restrictions.
-
-```{r}
-#| label: f-test-by-hand
-# Unrestricted model
-mod_full <- lm(Fertility ~ Education + Agriculture + Catholic + Infant.Mortality,
-               data = swiss)
-
-# Restricted model: drop Agriculture and Catholic
-mod_restricted <- lm(Fertility ~ Education + Infant.Mortality, data = swiss)
-
-# F-statistic by hand
-RSS_full <- sum(resid(mod_full)^2)
-RSS_restr <- sum(resid(mod_restricted)^2)
-q <- 2  # number of restrictions
-df_full <- n - K
-
-F_stat <- ((RSS_restr - RSS_full) / q) / (RSS_full / df_full)
-p_F <- 1 - pf(F_stat, q, df_full)
-
-c(F_statistic = F_stat, df1 = q, df2 = df_full, p_value = p_F)
-```
-
-### Using `anova()` and `linearHypothesis()`
+The effect of training at experience level `Exp` is $\beta_1 + \beta_2 \cdot \text{Exp}$ — it depends on *both* $\beta_1$ and $\beta_2$. To test whether training has *any* effect, we need $H_0: \beta_1 = 0 \text{ and } \beta_2 = 0$. A $t$-test on either coefficient alone tells us nothing about the joint claim.
 
 ```{r}
-#| label: anova-f-test
-# anova() compares nested models
-anova(mod_restricted, mod_full)
+#| label: training-dgp
+set.seed(42)
+n <- 80
+experience <- runif(n, 1, 20)
+training <- rbinom(n, 1, 0.5)
+wage <- 10 + 3 * training + 0.5 * training * experience +
+        0.8 * experience + rnorm(n, sd = 3)
+
+full       <- lm(wage ~ training * experience)
+restricted <- lm(wage ~ experience)
+
+summary(full)$coefficients[c("training", "training:experience"), ]
 ```
+
+Look at the $t$-statistic on `training` alone: the $p$-value is around $0.2$, nowhere near significant. If you only looked at that row, you might conclude training doesn't matter.
+
+### The $F$-statistic as a comparison of fit
+
+The $F$-test compares the restricted model (imposing $H_0$) to the unrestricted model:
+
+$$F = \frac{(\tilde{e}'\tilde{e} - \hat{e}'\hat{e}) / q}{\hat{e}'\hat{e} / (n - K)} \sim F_{q,\, n-K} \quad\text{under } H_0$$ {#eq-f-stat}
+
+**Intuition**: if $H_0$ is true, dropping the restricted variables shouldn't hurt fit much. A large $F$ means the restricted model fits *substantially worse* — reject.
+
+```{r}
+#| label: f-by-hand
+RSS_full   <- sum(resid(full)^2)
+RSS_restr  <- sum(resid(restricted)^2)
+q          <- 2
+df_denom   <- df.residual(full)
+
+F_stat <- ((RSS_restr - RSS_full) / q) / (RSS_full / df_denom)
+p_F    <- pf(F_stat, q, df_denom, lower.tail = FALSE)
+c(F = F_stat, df1 = q, df2 = df_denom, p = p_F)
+```
+
+```{r}
+#| label: anova-f
+anova(restricted, full)
+```
+
+The joint test: $F \approx 39$, $p < 0.001$. Training clearly matters — the interaction absorbs much of the treatment effect, so neither coefficient looks impressive on its own. **When a variable enters with an interaction, always test jointly.**
+
+### Writing restrictions as $R\beta = r$
+
+Any set of $q$ linear restrictions on $\beta$ can be written as $R\beta = r$. For $H_0: \beta_1 = 0 \text{ and } \beta_2 = 0$ in the training model:
+
+$$\underbrace{\begin{pmatrix} 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}}_{R}\,
+\underbrace{\begin{pmatrix}\beta_0\\ \beta_1\\ \beta_3\\ \beta_2\end{pmatrix}}_{\text{(intercept, training, experience, training:experience)}} = \begin{pmatrix}0\\0\end{pmatrix}$$
+
+R orders main effects before interactions, so `training:experience` is the fourth coefficient. The $F$-statistic has an equivalent Wald form using only the unrestricted fit:
+
+$$F = \frac{(R\hat\beta - r)'\,[R\,\hat{V}\,R']^{-1}\,(R\hat\beta - r)}{q}, \qquad \hat{V} = s^2 (X'X)^{-1}$$
+
+```{r}
+#| label: f-wald-form
+R <- rbind(c(0, 1, 0, 0),
+           c(0, 0, 0, 1))
+r <- c(0, 0)
+
+bhat <- coef(full)
+Vhat <- vcov(full)
+Rb_r <- R %*% bhat - r
+
+F_wald <- as.numeric(t(Rb_r) %*% solve(R %*% Vhat %*% t(R)) %*% Rb_r / q)
+c(F_wald = F_wald, F_RSS = F_stat)
+```
+
+Identical. The Wald form is what you need when you move to robust or clustered covariance matrices — just swap $\hat{V}$.
+
+### `linearHypothesis()` does all of this
 
 ```{r}
 #| label: linearHypothesis
-# linearHypothesis() tests restrictions directly
-linearHypothesis(mod_full, c("Agriculture = 0", "Catholic = 0"))
+linearHypothesis(full, c("training = 0", "training:experience = 0"))
 ```
 
-### The overall $F$-test
+### $t^2 = F$ when $q = 1$
 
-The $F$-statistic at the bottom of `summary(lm)` tests whether *all* slope coefficients are jointly zero:
-
-```{r}
-#| label: overall-f
-# Overall F-test: H0: all slopes = 0
-mod_null <- lm(Fertility ~ 1, data = swiss)
-anova(mod_null, mod_full)
-```
+When a single restriction is tested, the $F$-statistic equals the square of the $t$-statistic:
 
 ```{r}
 #| label: f-and-t
-# When q = 1, F = t^2
-t_education <- summary(mod_full)$coefficients["Education", "t value"]
-F_education <- linearHypothesis(mod_full, "Education = 0")$F[2]
-
-c(t_squared = t_education^2, F_stat = F_education)
+t_exp <- summary(full)$coefficients["experience", "t value"]
+F_exp <- linearHypothesis(full, "experience = 0")$F[2]
+c(t_squared = t_exp^2, F = F_exp)
 ```
 
 ### Robust $F$-tests
 
-Under heteroskedasticity, use `linearHypothesis()` with a robust covariance matrix:
+Under heteroskedasticity, pass a robust covariance matrix:
 
 ```{r}
 #| label: robust-f
-# Classical F-test
-linearHypothesis(mod_full, c("Agriculture = 0", "Catholic = 0"))
-
-# Robust F-test (HC2)
-linearHypothesis(mod_full, c("Agriculture = 0", "Catholic = 0"),
-                 vcov = vcovHC(mod_full, type = "HC2"))
+linearHypothesis(full, c("training = 0", "training:experience = 0"),
+                 vcov = vcovHC(full, type = "HC2"), test = "F")
 ```
 
 ## Prediction intervals
@@ -541,10 +572,10 @@ new_data <- data.frame(
 )
 
 # Confidence interval for E[y|x]
-predict(mod_full, newdata = new_data, interval = "confidence")
+predict(mod, newdata = new_data, interval = "confidence")
 
 # Prediction interval for a new y
-predict(mod_full, newdata = new_data, interval = "prediction")
+predict(mod, newdata = new_data, interval = "prediction")
 ```
 
 The prediction interval is much wider — it accounts for the irreducible noise $\sigma^2$.
@@ -586,41 +617,40 @@ The $t$- and $F$-distributions are **exact** only under:
 2. Homoskedasticity
 3. Known, correct model specification
 
-What happens when normality fails? Let's simulate with heavy-tailed errors:
+What happens when errors are heteroskedastic? Compare the classical (homoskedastic) CI with the HC2 robust CI across sample sizes. DGP: slope $\beta_1 = 2$ with $e_i \sim N(0, 1 + x_i^2)$, so error variance grows with $x$.
 
 ```{r}
 #| label: non-normal-coverage
 set.seed(42)
-B <- 5000
-cover_normal <- cover_t5 <- logical(B)
-beta_ed <- coef(mod)["Education"]
+B <- 2000
+sample_sizes <- c(20, 50, 200)
+beta_true <- 2
 
-for (b in 1:B) {
-  # Normal errors
-  e_norm <- rnorm(n, 0, sigma(mod))
-  y_norm <- X %*% coef(mod) + e_norm
-  fit_norm <- lm(y_norm ~ X - 1)
-  ci_norm <- confint(fit_norm)[j, ]
-  cover_normal[b] <- ci_norm[1] < beta_ed & beta_ed < ci_norm[2]
+coverage_one <- function(nn) {
+  cover_c <- cover_r <- logical(B)
+  for (b in 1:B) {
+    x <- rnorm(nn)
+    e <- rnorm(nn, 0, sqrt(1 + x^2))
+    y <- 1 + beta_true * x + e
+    fit <- lm(y ~ x)
+    cv  <- qt(0.975, nn - 2)
 
-  # t(5) errors (heavy tails, same variance)
-  e_t5 <- rt(n, df = 5) * sigma(mod) / sqrt(5/3)
-  y_t5 <- X %*% coef(mod) + e_t5
-  fit_t5 <- lm(y_t5 ~ X - 1)
-  ci_t5 <- confint(fit_t5)[j, ]
-  cover_t5[b] <- ci_t5[1] < beta_ed & beta_ed < ci_t5[2]
+    se_c <- sqrt(vcov(fit)["x", "x"])
+    se_r <- sqrt(vcovHC(fit, type = "HC2")["x", "x"])
+    b_x  <- coef(fit)["x"]
+
+    cover_c[b] <- abs(b_x - beta_true) < cv * se_c
+    cover_r[b] <- abs(b_x - beta_true) < cv * se_r
+  }
+  c(Classical = mean(cover_c), HC2 = mean(cover_r))
 }
 
-c(normal_errors = mean(cover_normal),
-  t5_errors     = mean(cover_t5))
+results <- cbind(n = sample_sizes,
+                 as.data.frame(t(sapply(sample_sizes, coverage_one))))
+results
 ```
 
-With normal errors, coverage is close to 95%. With $t_5$ errors (heavier tails), coverage degrades — the exact $t$-distribution no longer applies. In practice, this is where robust SEs and asymptotic approximations (Chapters 9–11) take over.
-
-::: {.callout-warning}
-## Heavy Tails Break Exact Tests
-The $t$- and $F$-distributions are exact only under normality. With heavy-tailed errors (e.g., $t_5$), coverage of confidence intervals degrades noticeably. In practice, use robust SEs and asymptotic theory (Chapters 8-9) when normality is suspect. The [CLT](ch08-asymptotics.qmd#thm-clt) will justify this asymptotically in Chapter 8.
-:::
+HC2 maintains near-nominal coverage across all sample sizes. Classical CIs undercover — they ignore that variance grows with $x$, so $s^2 (X'X)^{-1}$ misstates the sampling variance of $\hat\beta$. The [bootstrap](ch08-asymptotics.qmd#sec-delta-method) offers a third alternative, discussed in Chapter 8.
 
 ## Summary
 

@@ -28,7 +28,7 @@ options(digits = 4)
 
 An estimator is **consistent** if it converges to the truth as the sample grows. Formally, $\hat{\theta}_n \overset{p}{\to} \theta$ means $P(|\hat{\theta}_n - \theta| > \varepsilon) \to 0$ for all $\varepsilon > 0$.
 
-Consistency is a stronger guarantee than unbiasedness. The "first observation" estimator $\hat{\mu} = X_1$ is unbiased but useless --- its variance never shrinks. The sample mean is both unbiased and consistent.
+Consistency and unbiasedness are distinct properties --- neither implies the other. The "first observation" estimator $\hat{\mu} = X_1$ is unbiased but inconsistent: its variance never shrinks. Conversely, the MLE variance $\tfrac{1}{n}\sum(X_i - \bar{X})^2$ is biased in finite samples but consistent. For large-sample work we care most about consistency, since a biased-but-consistent estimator concentrates on the truth while an unbiased-but-inconsistent one does not.
 
 ```{r}
 #| label: consistency-motivation
@@ -60,16 +60,18 @@ ggplot(df_consist, aes(estimate, fill = estimator)) +
        x = "Estimate of μ = 24", fill = NULL)
 ```
 
-**OLS is consistent** for the projection coefficient $\beta$ whenever $E[X_i e_i] = 0$. The proof is short: OLS is a continuous function of sample moments ($\hat{Q}_{XX}^{-1} \hat{Q}_{XY}$), the WLLN says sample moments converge to population moments, and the continuous mapping theorem (CMT) says continuous functions preserve convergence. When $E[Xe] \neq 0$ --- endogeneity --- OLS is inconsistent regardless of sample size. This motivates the [IV estimator](ch10-iv.qmd#sec-iv-estimator).
+**OLS is always consistent for the linear projection coefficient** $\beta^* = Q_{XX}^{-1} E[X_i Y_i]$, since by construction $E[X_i(Y_i - X_i'\beta^*)] = 0$. The proof is short: OLS is a continuous function of sample moments ($\hat{Q}_{XX}^{-1} \hat{Q}_{XY}$), the WLLN says sample moments converge to population moments, and the continuous mapping theorem (CMT) says continuous functions preserve convergence.
+
+The substantive question is whether the projection coefficient equals the *structural* parameter of interest $\beta$. That requires $E[X_i e_i] = 0$ in the structural equation $Y_i = X_i'\beta + e_i$. When this fails --- omitted variables, measurement error, simultaneity --- OLS remains consistent for $\beta^*$, but $\beta^* \neq \beta$, so OLS is inconsistent for the structural parameter regardless of sample size. This motivates the [IV estimator](ch10-iv.qmd#sec-iv-estimator).
 
 ::: {#thm-clt-ols}
 ## OLS Consistency
-If $\mathbb{E}[X_i e_i] = 0$ and $Q_{XX} = \mathbb{E}[X_i X_i']$ is positive definite, then $\hat\beta_{OLS} \xrightarrow{p} \beta$. OLS is a continuous function of sample moments; the WLLN and continuous mapping theorem deliver consistency.
+If $Q_{XX} = \mathbb{E}[X_i X_i']$ is positive definite and $\mathbb{E}\|X_i Y_i\| < \infty$, then $\hat\beta_{OLS} \xrightarrow{p} \beta^* = Q_{XX}^{-1} \mathbb{E}[X_i Y_i]$. OLS is a continuous function of sample moments; the WLLN and continuous mapping theorem deliver convergence to the projection coefficient. OLS is consistent for the structural parameter $\beta$ iff $\mathbb{E}[X_i e_i] = 0$ in $Y_i = X_i'\beta + e_i$.
 :::
 
 ::: {.callout-note}
-## Consistency Requires $\mathbb{E}[Xe] = 0$
-OLS is consistent if and only if regressors are uncorrelated with errors. When $\mathbb{E}[Xe] \neq 0$ — from omitted variables, measurement error, or simultaneity — OLS converges to the wrong value no matter how large the sample. This is the fundamental motivation for IV estimation (Chapter 10).
+## Consistency for the Structural $\beta$ Requires $\mathbb{E}[Xe] = 0$
+OLS always converges to the projection coefficient $\beta^*$. It is consistent for the structural parameter $\beta$ only when regressors are uncorrelated with the structural error. When $\mathbb{E}[Xe] \neq 0$ — from omitted variables, measurement error, or simultaneity — $\beta^* \neq \beta$ and OLS converges to the wrong value no matter how large the sample. This is the fundamental motivation for IV estimation (Chapter 10).
 :::
 
 ```{r}
@@ -591,7 +593,7 @@ This applies identically to OLS, probit MLE (Chapter 7), IV (Chapter 10), and GM
 |--------|-------------|------------|-------------|
 | Classical SE | Assumes $e \sim N(0, \sigma^2)$ | Exact under normality | Wrong under heteroskedasticity |
 | Sandwich (HC2) | Estimates $E[X_i X_i' e_i^2]$ | No distributional assumptions | Needs moderate $n$ |
-| Delta method | Taylor expansion of $h(\hat{\beta})$ | Fast, analytical | Requires derivatives; assumes normality of $h(\hat{\beta})$ |
+| Delta method | Taylor expansion of $h(\hat{\beta})$ | Fast, analytical | Requires derivatives; first-order approximation can be poor when $h$ is highly curved or $\nabla h(\theta) \approx 0$ |
 | Bootstrap | Resample rows, re-estimate | No derivatives; captures skewness | Needs iid; slow; fails for non-smooth estimators |
 
 | Task | R code |

@@ -741,6 +741,207 @@ The Poisson QMLE is centered on the true values and approximately normal, confir
 Poisson QMLE is consistent **only** if $E[Y \mid X] = \exp(X'\beta)$. If the true conditional mean is not exponential --- for example, if $E[Y \mid X]$ is linear or follows a different nonlinear form --- the estimator is inconsistent. This is the same as probit: if the true link is not $\Phi$, the probit MLE is inconsistent for the index parameters. Comparing linear and exponential model estimates is a useful robustness check (Wooldridge, 2023).
 :::
 
+## Ratios, offsets, and denominators
+
+Many outcomes of interest are naturally *ratios*: events per person-year, spending per dollar of GDP, votes per eligible voter. Three questions to ask before choosing a specification:
+
+1. **Is the object of interest the rate itself, or the level?** A policy evaluator comparing hospitals usually cares about the infection rate per admission. A defense analyst comparing superpowers may care about total spending, with GDP as one predictor among many.
+2. **Do you want to impose a fixed relationship between outcome and denominator, or estimate it?** An offset fixes the elasticity at 1; putting the denominator on the right-hand side estimates the elasticity freely.
+3. **Is the ratio bounded in $[0,1]$?** If so, a $[0,1]$-respecting mean function (logistic) is more honest than an unbounded log-linear model.
+
+These are **estimand choices**, not statistical restrictions to test. The semiparametric stance is to pick the mean function whose fitted object answers your substantive question, then let sandwich standard errors handle variance misspecification.
+
+### Offset vs. denominator as a covariate
+
+Let $E$ denote the denominator (exposure) and $Y$ the event count. Two models with exponential mean:
+
+$$\underbrace{E[Y \mid X, E] = E \cdot \exp(X'\beta)}_{\text{offset: elasticity fixed at 1}}, \qquad \underbrace{E[Y \mid X, E] = E^{\alpha} \exp(X'\beta)}_{\text{flexible elasticity}}$$
+
+Taking logs, the first is $\log E[Y] = \log E + X'\beta$ (coefficient on $\log E$ constrained to 1); the second is $\log E[Y] = \alpha \log E + X'\beta$. Both are Poisson QMLE, fit by
+
+```r
+glm(Y ~ X + offset(log(E)), family = poisson)  # (a) rate model
+glm(Y ~ X + log(E),          family = poisson)  # (b) free elasticity
+```
+
+Model (a) says: "my estimand is the effect of $X$ on the *rate* $Y/E$, with $E$ entering as exposure." Model (b) says: "my estimand is the effect of $X$ on $Y$ at a given $E$, and I'll estimate how $E$ itself scales $Y$ along the way." Pick based on the substantive question, not a pretest.
+
+### Fractional response: Papke–Wooldridge QMLE
+
+When the outcome is a proportion $Y \in [0,1]$ --- a vote share, a participation rate, a budget share --- the log-odds transform $\log(Y/(1-Y))$ breaks at the boundaries and requires ad hoc nudges. Papke & Wooldridge (1996) propose **fractional logit QMLE**:
+
+$$E[Y \mid X] = \Lambda(X'\beta), \qquad \Lambda(u) = \frac{1}{1 + e^{-u}}$$
+
+estimated by maximizing the Bernoulli quasi-likelihood. Consistency requires only that the logistic mean is correctly specified; $Y$ can take any value in $[0,1]$, including exact zeros and ones, and need not be a proportion of integers. This is the $[0,1]$ analog of Poisson QMLE. In R: `glm(y ~ x, family = quasibinomial("logit"))` with sandwich standard errors.
+
+## Application: military burden and GDP
+
+NATO's 2% target asks members to spend at least 2% of GDP on defense. Writing $Y_i$ = military spending and $G_i$ = GDP, the target is a restriction on the *share* $S_i = Y_i / G_i$. Different research questions call for different specifications:
+
+- *Does democracy reduce the share?* Estimand is the share; use fractional logit on $S_i$ or Poisson with `offset(log G)`.
+- *How much does a unit of GDP translate into spending, holding covariates fixed?* Estimand is the GDP elasticity; put $\log G$ on the right.
+- *What is the level effect of alliance membership?* Estimand is $\partial E[Y]/\partial \text{alliance}$ at fixed $G$; either Poisson specification works; marginal effect differs.
+
+### A simulated cross-section
+
+```{r}
+#| label: milspend-dgp
+set.seed(2026)
+n_ctry <- 120
+
+alliance    <- rbinom(n_ctry, 1, 0.4)
+threat      <- rnorm(n_ctry)                 # standardized
+democracy   <- rnorm(n_ctry)
+log_gdp     <- rnorm(n_ctry, mean = 26, sd = 1.5)   # log GDP in USD
+gdp         <- exp(log_gdp)
+
+# True share structure (fractional logit DGP)
+eta_share <- -3.5 + 0.7 * alliance + 0.6 * threat - 0.3 * democracy
+share_mean <- plogis(eta_share)             # E[share | X]
+
+# Observed share drawn from Beta with precision phi
+phi <- 40
+share_obs <- rbeta(n_ctry, shape1 = phi * share_mean,
+                           shape2 = phi * (1 - share_mean))
+
+# Military spending is share * GDP, plus mild superadditive scale effect
+# (great powers spend more as a share at high GDP, independent of X)
+scale_factor <- (gdp / median(gdp))^0.08    # alpha ~ 1.08 implicit
+milspend <- share_obs * gdp * scale_factor
+
+dat <- data.frame(milspend, share_obs, gdp, log_gdp,
+                  alliance, threat, democracy)
+summary(dat[, c("share_obs", "milspend", "gdp")])
+```
+
+Shares range over roughly 1–10%, standard for the real data.
+
+### Three specifications, three estimands
+
+```{r}
+#| label: milspend-fits
+#| warning: false
+# (1) Fractional logit on the share directly
+frac_logit <- glm(share_obs ~ alliance + threat + democracy,
+                  data = dat, family = quasibinomial("logit"))
+
+# (2) Poisson with offset: rate model, imposes GDP elasticity = 1
+pois_offset <- glm(milspend ~ alliance + threat + democracy +
+                     offset(log(gdp)),
+                   data = dat, family = poisson)
+
+# (3) Poisson with log GDP as covariate: free elasticity
+pois_flex <- glm(milspend ~ alliance + threat + democracy + log(gdp),
+                 data = dat, family = poisson)
+
+robust_se <- function(m) sqrt(diag(vcovHC(m, type = "HC1")))
+
+compare <- data.frame(
+  frac_logit  = c(coef(frac_logit),                      NA),
+  pois_offset = c(coef(pois_offset),                     NA),
+  pois_flex   =  coef(pois_flex)[c("(Intercept)", "alliance",
+                                    "threat", "democracy", "log(gdp)")]
+)
+rownames(compare) <- c("(Intercept)", "alliance", "threat",
+                       "democracy", "log(gdp)")
+round(compare, 3)
+```
+
+Coefficients on `alliance`, `threat`, and `democracy` are close across the three specifications, because for shares in the 1–10% range the logit and log links nearly coincide (both mean functions are approximately linear in the index far from the boundaries).
+
+The flexible Poisson gives a GDP elasticity of $\hat\alpha =$ `r round(coef(pois_flex)["log(gdp)"], 2)` --- not 1. Read this as substance: great powers spend disproportionately more as GDP grows, even after conditioning on alliance, threat, and democracy. The offset specification does not see this coefficient because it is *forced* to 1 by the estimand definition.
+
+### Interpreting the two Poisson fits
+
+Compare predicted spending for a hypothetical country at median covariates but varying GDP:
+
+```{r}
+#| label: milspend-implied-elasticity
+#| fig-width: 7
+#| fig-height: 3.5
+gdp_grid <- seq(quantile(gdp, 0.05), quantile(gdp, 0.95), length.out = 60)
+nd <- data.frame(gdp = gdp_grid, log_gdp = log(gdp_grid),
+                 alliance = 0, threat = 0, democracy = 0)
+nd$pred_offset <- predict(pois_offset, nd, type = "response")
+nd$pred_flex   <- predict(pois_flex,   nd, type = "response")
+
+ggplot(nd, aes(gdp)) +
+  geom_line(aes(y = pred_offset, color = "offset (α=1)"), linewidth = 1) +
+  geom_line(aes(y = pred_flex,   color = "flexible log(GDP)"), linewidth = 1) +
+  scale_x_log10() + scale_y_log10() +
+  scale_color_manual(values = c("offset (α=1)" = "#666666",
+                                 "flexible log(GDP)" = "#662a9b"),
+                     name = NULL) +
+  labs(title = "Implied spending levels across GDP, at median covariates",
+       subtitle = "Flexible spec absorbs scale effects; offset forces constant share",
+       y = "Predicted military spending", x = "GDP (log scale)")
+```
+
+The two curves diverge at the top of the GDP distribution --- exactly where the substantive debate about NATO burden-sharing lives. Neither is "wrong." They estimate different objects: the offset spec estimates the effect of $X$ on the share; the flexible spec estimates the effect of $X$ on levels and separately describes how levels move with GDP.
+
+### When the offset is principled
+
+Use `offset(log E)` when the rate is the *defined* estimand --- when you're willing to say, before looking at the data, "I care about spending per dollar of GDP, not about whether that ratio varies systematically with GDP." Examples:
+
+- Epidemiology: infection *rates* per 1000 patient-days. Scale effects in hospital size might exist but aren't the estimand.
+- Voter turnout: turnout *rate* per eligible voter. Population is exposure; total votes per se isn't the object.
+- Insurance: claims *per policy-year*. Exposure is baked into how the product is priced.
+
+Avoid imposing the offset when GDP-elasticity, population-scale effects, or size itself are part of the substantive question --- or when you have no prior reason to fix the elasticity at 1. The flexible specification is the semiparametric default.
+
+## Population weights
+
+Survey weights $w_i = 1/\pi_i$ invert the sampling probability $\pi_i$ with which observation $i$ entered the sample. When sampling is unequal, unweighted estimators converge to the sample-weighted population parameter, not the population-average parameter.
+
+Two distinct uses:
+
+- **Sampling weights.** When the design oversamples some strata (e.g., high-GDP countries in our example, or Black respondents in a U.S. survey), weighting recovers population-average estimands. Under correct mean specification the weighted and unweighted estimators are both consistent for $\beta$, but they converge to different limits under misspecification. Wooldridge (2010, Ch. 20) calls this the "population-averaged" interpretation of QMLE under misspecification --- a useful hedge when you're unsure the mean function is exactly right.
+- **Analytic / aggregation weights.** When each row is a cell mean from underlying groups of different sizes, weighting by group size recovers the individual-level estimand.
+
+### Costs
+
+- **Efficiency loss.** Under correct specification and equal-probability sampling, unweighted QMLE has smaller variance than weighted. This is the Solon–Haider–Wooldridge (2015) tradeoff: weight when your estimand demands it, not reflexively.
+- **Standard errors.** `glm(..., weights = w)` treats weights as frequency weights, producing incorrect standard errors for sampling weights. Use `survey::svyglm()`, or compute sandwich SEs with the linearized variance. The MLE-style information matrix inverse is wrong when weights are sampling weights.
+
+### Demonstration: stratified sample
+
+Draw a stratified sample that oversamples high-GDP countries; fit the flexible Poisson both ways.
+
+```{r}
+#| label: weights-demo
+#| warning: false
+# Stratify on GDP quartiles; oversample top quartile
+q_gdp <- cut(dat$gdp, breaks = quantile(dat$gdp, probs = c(0, .5, .75, 1)),
+             include.lowest = TRUE, labels = c("low", "mid", "high"))
+samp_prob <- c(low = 0.5, mid = 0.5, high = 1.0)
+dat$pi_i <- samp_prob[as.character(q_gdp)]
+in_samp  <- rbinom(n_ctry, 1, dat$pi_i) == 1
+samp     <- dat[in_samp, ]
+samp$w   <- 1 / samp$pi_i
+
+# Unweighted (sample-conditional estimand)
+pois_unw <- glm(milspend ~ alliance + threat + democracy + log(gdp),
+                data = samp, family = poisson)
+
+# Weighted (population estimand); note: SEs via sandwich, not glm defaults
+pois_wtd <- glm(milspend ~ alliance + threat + democracy + log(gdp),
+                data = samp, family = quasipoisson, weights = w)
+
+compare_w <- data.frame(
+  population  = round(coef(pois_flex), 3),     # fit on full "population"
+  unweighted  = round(coef(pois_unw), 3),
+  weighted    = round(coef(pois_wtd), 3)
+)
+compare_w
+```
+
+Weighted and unweighted estimates differ modestly because the stratification correlates with `log(gdp)`, which is already in the model. When the mean is correctly specified, the difference is pure efficiency loss from weighting. When the mean is misspecified --- say, if the true elasticity varies across GDP --- the weighted estimator targets the population-average elasticity and the unweighted targets the sample-conditional one. Pick based on which object you want to report.
+
+::: {.callout-note}
+## Sampling Weights Need Sandwich SEs
+`glm(..., weights = w)` treats weights as if they were frequency counts. For sampling weights, use `survey::svyglm()` with a design object, or pair `glm(..., family = quasipoisson)` with `sandwich::vcovHC()`. The information-matrix formula for variance is wrong under the actual weighted DGP.
+:::
+
 ## Prediction and classification
 
 ```{r}
