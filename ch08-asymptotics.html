@@ -1611,7 +1611,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>An estimator is **consistent** if it converges to the truth as the sample grows. Formally, $\hat{\theta}_n \overset{p}{\to} \theta$ means $P(|\hat{\theta}_n - \theta| &gt; \varepsilon) \to 0$ for all $\varepsilon &gt; 0$.</span>
 <span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a>Consistency is a stronger guarantee than unbiasedness. The "first observation" estimator $\hat{\mu} = X_1$ is unbiased but useless --- its variance never shrinks. The sample mean is both unbiased and consistent.</span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a>Consistency and unbiasedness are distinct properties --- neither implies the other. The "first observation" estimator $\hat{\mu} = X_1$ is unbiased but inconsistent: its variance never shrinks. Conversely, the MLE variance $\tfrac{1}{n}\sum(X_i - \bar{X})^2$ is biased in finite samples but consistent. For large-sample work we care most about consistency, since a biased-but-consistent estimator concentrates on the truth while an unbiased-but-inconsistent one does not.</span>
 <span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: consistency-motivation</span></span>
@@ -1643,554 +1643,556 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb37-64"><a href="#cb37-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Estimate of μ = 24"</span>, <span class="at">fill =</span> <span class="cn">NULL</span>)</span>
 <span id="cb37-65"><a href="#cb37-65" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a>**OLS is consistent** for the projection coefficient $\beta$ whenever $E<span class="co">[</span><span class="ot">X_i e_i</span><span class="co">]</span> = 0$. The proof is short: OLS is a continuous function of sample moments ($\hat{Q}_{XX}^{-1} \hat{Q}_{XY}$), the WLLN says sample moments converge to population moments, and the continuous mapping theorem (CMT) says continuous functions preserve convergence. When $E<span class="co">[</span><span class="ot">Xe</span><span class="co">]</span> \neq 0$ --- endogeneity --- OLS is inconsistent regardless of sample size. This motivates the <span class="co">[</span><span class="ot">IV estimator</span><span class="co">](ch10-iv.qmd#sec-iv-estimator)</span>.</span>
+<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a>**OLS is always consistent for the linear projection coefficient** $\beta^* = Q_{XX}^{-1} E<span class="co">[</span><span class="ot">X_i Y_i</span><span class="co">]</span>$, since by construction $E<span class="co">[</span><span class="ot">X_i(Y_i - X_i'\beta^*)</span><span class="co">]</span> = 0$. The proof is short: OLS is a continuous function of sample moments ($\hat{Q}_{XX}^{-1} \hat{Q}_{XY}$), the WLLN says sample moments converge to population moments, and the continuous mapping theorem (CMT) says continuous functions preserve convergence.</span>
 <span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a>::: {#thm-clt-ols}</span>
-<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a><span class="fu">## OLS Consistency</span></span>
-<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a>If $\mathbb{E}<span class="co">[</span><span class="ot">X_i e_i</span><span class="co">]</span> = 0$ and $Q_{XX} = \mathbb{E}<span class="co">[</span><span class="ot">X_i X_i'</span><span class="co">]</span>$ is positive definite, then $\hat\beta_{OLS} \xrightarrow{p} \beta$. OLS is a continuous function of sample moments; the WLLN and continuous mapping theorem deliver consistency.</span>
-<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-74"><a href="#cb37-74" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
-<span id="cb37-75"><a href="#cb37-75" aria-hidden="true" tabindex="-1"></a><span class="fu">## Consistency Requires $\mathbb{E}[Xe] = 0$</span></span>
-<span id="cb37-76"><a href="#cb37-76" aria-hidden="true" tabindex="-1"></a>OLS is consistent if and only if regressors are uncorrelated with errors. When $\mathbb{E}<span class="co">[</span><span class="ot">Xe</span><span class="co">]</span> \neq 0$ — from omitted variables, measurement error, or simultaneity — OLS converges to the wrong value no matter how large the sample. This is the fundamental motivation for IV estimation (Chapter 10).</span>
-<span id="cb37-77"><a href="#cb37-77" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb37-78"><a href="#cb37-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-81"><a href="#cb37-81" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-82"><a href="#cb37-82" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ols-consistency</span></span>
-<span id="cb37-83"><a href="#cb37-83" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
-<span id="cb37-84"><a href="#cb37-84" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
-<span id="cb37-85"><a href="#cb37-85" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-86"><a href="#cb37-86" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">3000</span></span>
-<span id="cb37-87"><a href="#cb37-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-88"><a href="#cb37-88" aria-hidden="true" tabindex="-1"></a><span class="co"># Non-normal, skewed errors: OLS is still consistent</span></span>
-<span id="cb37-89"><a href="#cb37-89" aria-hidden="true" tabindex="-1"></a>sim_ols <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
-<span id="cb37-90"><a href="#cb37-90" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
-<span id="cb37-91"><a href="#cb37-91" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n) <span class="sc">-</span> <span class="dv">1</span>  <span class="co"># skewed, mean 0</span></span>
-<span id="cb37-92"><a href="#cb37-92" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> e</span>
-<span id="cb37-93"><a href="#cb37-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x))[<span class="st">"x"</span>]</span>
-<span id="cb37-94"><a href="#cb37-94" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-95"><a href="#cb37-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-96"><a href="#cb37-96" aria-hidden="true" tabindex="-1"></a>df_ols <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb37-97"><a href="#cb37-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">b =</span> <span class="fu">replicate</span>(B, <span class="fu">sim_ols</span>(<span class="dv">20</span>)),   <span class="at">n =</span> <span class="st">"n = 20"</span>),</span>
-<span id="cb37-98"><a href="#cb37-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">b =</span> <span class="fu">replicate</span>(B, <span class="fu">sim_ols</span>(<span class="dv">200</span>)),  <span class="at">n =</span> <span class="st">"n = 200"</span>),</span>
-<span id="cb37-99"><a href="#cb37-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">b =</span> <span class="fu">replicate</span>(B, <span class="fu">sim_ols</span>(<span class="dv">2000</span>)), <span class="at">n =</span> <span class="st">"n = 2000"</span>)</span>
-<span id="cb37-100"><a href="#cb37-100" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-101"><a href="#cb37-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-102"><a href="#cb37-102" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_ols, <span class="fu">aes</span>(b)) <span class="sc">+</span></span>
-<span id="cb37-103"><a href="#cb37-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb37-104"><a href="#cb37-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb37-105"><a href="#cb37-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> n, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
-<span id="cb37-106"><a href="#cb37-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"OLS is consistent even with non-normal errors"</span>,</span>
-<span id="cb37-107"><a href="#cb37-107" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Errors ~ Exp(1) - 1 (skewed). True β = 3 (blue). Distribution concentrates as n grows."</span>,</span>
-<span id="cb37-108"><a href="#cb37-108" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)))</span>
-<span id="cb37-109"><a href="#cb37-109" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-110"><a href="#cb37-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-111"><a href="#cb37-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## The CLT and why standard errors work</span></span>
+<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a>The substantive question is whether the projection coefficient equals the *structural* parameter of interest $\beta$. That requires $E[X_i e_i] = 0$ in the structural equation $Y_i = X_i'\beta + e_i$. When this fails --- omitted variables, measurement error, simultaneity --- OLS remains consistent for $\beta^*$, but $\beta^* \neq \beta$, so OLS is inconsistent for the structural parameter regardless of sample size. This motivates the <span class="co">[</span><span class="ot">IV estimator</span><span class="co">](ch10-iv.qmd#sec-iv-estimator)</span>.</span>
+<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a>::: {#thm-clt-ols}</span>
+<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## OLS Consistency</span></span>
+<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a>If $Q_{XX} = \mathbb{E}<span class="co">[</span><span class="ot">X_i X_i'</span><span class="co">]</span>$ is positive definite and $\mathbb{E}<span class="sc">\|</span>X_i Y_i<span class="sc">\|</span> &lt; \infty$, then $\hat\beta_{OLS} \xrightarrow{p} \beta^* = Q_{XX}^{-1} \mathbb{E}<span class="co">[</span><span class="ot">X_i Y_i</span><span class="co">]</span>$. OLS is a continuous function of sample moments; the WLLN and continuous mapping theorem deliver convergence to the projection coefficient. OLS is consistent for the structural parameter $\beta$ iff $\mathbb{E}<span class="co">[</span><span class="ot">X_i e_i</span><span class="co">]</span> = 0$ in $Y_i = X_i'\beta + e_i$.</span>
+<span id="cb37-74"><a href="#cb37-74" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb37-75"><a href="#cb37-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-76"><a href="#cb37-76" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb37-77"><a href="#cb37-77" aria-hidden="true" tabindex="-1"></a><span class="fu">## Consistency for the Structural $\beta$ Requires $\mathbb{E}[Xe] = 0$</span></span>
+<span id="cb37-78"><a href="#cb37-78" aria-hidden="true" tabindex="-1"></a>OLS always converges to the projection coefficient $\beta^*$. It is consistent for the structural parameter $\beta$ only when regressors are uncorrelated with the structural error. When $\mathbb{E}[Xe] \neq 0$ — from omitted variables, measurement error, or simultaneity — $\beta^* \neq \beta$ and OLS converges to the wrong value no matter how large the sample. This is the fundamental motivation for IV estimation (Chapter 10).</span>
+<span id="cb37-79"><a href="#cb37-79" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb37-80"><a href="#cb37-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-83"><a href="#cb37-83" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-84"><a href="#cb37-84" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ols-consistency</span></span>
+<span id="cb37-85"><a href="#cb37-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb37-86"><a href="#cb37-86" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb37-87"><a href="#cb37-87" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-88"><a href="#cb37-88" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">3000</span></span>
+<span id="cb37-89"><a href="#cb37-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-90"><a href="#cb37-90" aria-hidden="true" tabindex="-1"></a><span class="co"># Non-normal, skewed errors: OLS is still consistent</span></span>
+<span id="cb37-91"><a href="#cb37-91" aria-hidden="true" tabindex="-1"></a>sim_ols <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
+<span id="cb37-92"><a href="#cb37-92" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb37-93"><a href="#cb37-93" aria-hidden="true" tabindex="-1"></a>  e <span class="ot">&lt;-</span> <span class="fu">rexp</span>(n) <span class="sc">-</span> <span class="dv">1</span>  <span class="co"># skewed, mean 0</span></span>
+<span id="cb37-94"><a href="#cb37-94" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> e</span>
+<span id="cb37-95"><a href="#cb37-95" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x))[<span class="st">"x"</span>]</span>
+<span id="cb37-96"><a href="#cb37-96" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-97"><a href="#cb37-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-98"><a href="#cb37-98" aria-hidden="true" tabindex="-1"></a>df_ols <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb37-99"><a href="#cb37-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">b =</span> <span class="fu">replicate</span>(B, <span class="fu">sim_ols</span>(<span class="dv">20</span>)),   <span class="at">n =</span> <span class="st">"n = 20"</span>),</span>
+<span id="cb37-100"><a href="#cb37-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">b =</span> <span class="fu">replicate</span>(B, <span class="fu">sim_ols</span>(<span class="dv">200</span>)),  <span class="at">n =</span> <span class="st">"n = 200"</span>),</span>
+<span id="cb37-101"><a href="#cb37-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">b =</span> <span class="fu">replicate</span>(B, <span class="fu">sim_ols</span>(<span class="dv">2000</span>)), <span class="at">n =</span> <span class="st">"n = 2000"</span>)</span>
+<span id="cb37-102"><a href="#cb37-102" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-103"><a href="#cb37-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-104"><a href="#cb37-104" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_ols, <span class="fu">aes</span>(b)) <span class="sc">+</span></span>
+<span id="cb37-105"><a href="#cb37-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb37-106"><a href="#cb37-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb37-107"><a href="#cb37-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> n, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb37-108"><a href="#cb37-108" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"OLS is consistent even with non-normal errors"</span>,</span>
+<span id="cb37-109"><a href="#cb37-109" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Errors ~ Exp(1) - 1 (skewed). True β = 3 (blue). Distribution concentrates as n grows."</span>,</span>
+<span id="cb37-110"><a href="#cb37-110" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)))</span>
+<span id="cb37-111"><a href="#cb37-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-112"><a href="#cb37-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-113"><a href="#cb37-113" aria-hidden="true" tabindex="-1"></a>The **central limit theorem** says that standardized sample means converge to a normal distribution, regardless of the underlying data distribution:</span>
+<span id="cb37-113"><a href="#cb37-113" aria-hidden="true" tabindex="-1"></a><span class="fu">## The CLT and why standard errors work</span></span>
 <span id="cb37-114"><a href="#cb37-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-115"><a href="#cb37-115" aria-hidden="true" tabindex="-1"></a>$$\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0, \sigma^2)$$ {#eq-clt}</span>
+<span id="cb37-115"><a href="#cb37-115" aria-hidden="true" tabindex="-1"></a>The **central limit theorem** says that standardized sample means converge to a normal distribution, regardless of the underlying data distribution:</span>
 <span id="cb37-116"><a href="#cb37-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-117"><a href="#cb37-117" aria-hidden="true" tabindex="-1"></a>Applied to OLS, this gives:</span>
+<span id="cb37-117"><a href="#cb37-117" aria-hidden="true" tabindex="-1"></a>$$\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0, \sigma^2)$$ {#eq-clt}</span>
 <span id="cb37-118"><a href="#cb37-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-119"><a href="#cb37-119" aria-hidden="true" tabindex="-1"></a>$$\sqrt{n}(\hat{\beta} - \beta) \overset{d}{\to} N<span class="sc">\!</span>\left(0,\; Q_{XX}^{-1}\, \Omega\, Q_{XX}^{-1}\right)$$ {#eq-clt-ols}</span>
+<span id="cb37-119"><a href="#cb37-119" aria-hidden="true" tabindex="-1"></a>Applied to OLS, this gives:</span>
 <span id="cb37-120"><a href="#cb37-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-121"><a href="#cb37-121" aria-hidden="true" tabindex="-1"></a>::: {#thm-clt}</span>
-<span id="cb37-122"><a href="#cb37-122" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lindeberg-Levy CLT</span></span>
-<span id="cb37-123"><a href="#cb37-123" aria-hidden="true" tabindex="-1"></a>If $X_1, \ldots, X_n$ are iid with mean $\mu$ and variance $\sigma^2 &lt; \infty$, then $\sqrt{n}(\bar{X}_n - \mu) \xrightarrow{d} N(0, \sigma^2)$. Applied to OLS: $\sqrt{n}(\hat\beta - \beta) \xrightarrow{d} N(0, Q_{XX}^{-1}\Omega Q_{XX}^{-1})$.</span>
-<span id="cb37-124"><a href="#cb37-124" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb37-125"><a href="#cb37-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-126"><a href="#cb37-126" aria-hidden="true" tabindex="-1"></a>where $\Omega = E<span class="co">[</span><span class="ot">X_i X_i' e_i^2</span><span class="co">]</span>$. This is the <span class="co">[</span><span class="ot">sandwich variance estimator</span><span class="co">](ch05-gls.qmd#def-sandwich)</span>, now justified by asymptotic theory. The convergence rate depends on the shape of the data --- symmetric data need $n \approx 30$, skewed data may need $n \geq 100$, and heavy-tailed data may need much more.</span>
+<span id="cb37-121"><a href="#cb37-121" aria-hidden="true" tabindex="-1"></a>$$\sqrt{n}(\hat{\beta} - \beta) \overset{d}{\to} N<span class="sc">\!</span>\left(0,\; Q_{XX}^{-1}\, \Omega\, Q_{XX}^{-1}\right)$$ {#eq-clt-ols}</span>
+<span id="cb37-122"><a href="#cb37-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-123"><a href="#cb37-123" aria-hidden="true" tabindex="-1"></a>::: {#thm-clt}</span>
+<span id="cb37-124"><a href="#cb37-124" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lindeberg-Levy CLT</span></span>
+<span id="cb37-125"><a href="#cb37-125" aria-hidden="true" tabindex="-1"></a>If $X_1, \ldots, X_n$ are iid with mean $\mu$ and variance $\sigma^2 &lt; \infty$, then $\sqrt{n}(\bar{X}_n - \mu) \xrightarrow{d} N(0, \sigma^2)$. Applied to OLS: $\sqrt{n}(\hat\beta - \beta) \xrightarrow{d} N(0, Q_{XX}^{-1}\Omega Q_{XX}^{-1})$.</span>
+<span id="cb37-126"><a href="#cb37-126" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb37-127"><a href="#cb37-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-130"><a href="#cb37-130" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-131"><a href="#cb37-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: clt-convergence</span></span>
-<span id="cb37-132"><a href="#cb37-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "How fast does the CLT kick in? Depends on the error distribution."</span></span>
-<span id="cb37-133"><a href="#cb37-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
-<span id="cb37-134"><a href="#cb37-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
-<span id="cb37-135"><a href="#cb37-135" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-136"><a href="#cb37-136" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
-<span id="cb37-137"><a href="#cb37-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-138"><a href="#cb37-138" aria-hidden="true" tabindex="-1"></a><span class="co"># How fast does the CLT kick in? Depends on the error distribution.</span></span>
-<span id="cb37-139"><a href="#cb37-139" aria-hidden="true" tabindex="-1"></a>sim_tstat <span class="ot">&lt;-</span> <span class="cf">function</span>(n, rdist_e) {</span>
-<span id="cb37-140"><a href="#cb37-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(B, {</span>
-<span id="cb37-141"><a href="#cb37-141" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
-<span id="cb37-142"><a href="#cb37-142" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> <span class="fu">rdist_e</span>(n)</span>
-<span id="cb37-143"><a href="#cb37-143" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> e</span>
-<span id="cb37-144"><a href="#cb37-144" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(y <span class="sc">~</span> x, <span class="at">se_type =</span> <span class="st">"HC2"</span>)</span>
-<span id="cb37-145"><a href="#cb37-145" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">coef</span>(fit)[<span class="st">"x"</span>] <span class="sc">-</span> <span class="dv">3</span>) <span class="sc">/</span> fit<span class="sc">$</span>std.error[<span class="st">"x"</span>]</span>
-<span id="cb37-146"><a href="#cb37-146" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb37-147"><a href="#cb37-147" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-148"><a href="#cb37-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-149"><a href="#cb37-149" aria-hidden="true" tabindex="-1"></a>df_clt <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb37-150"><a href="#cb37-150" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">30</span>,  <span class="cf">function</span>(n) <span class="fu">rnorm</span>(n)),</span>
-<span id="cb37-151"><a href="#cb37-151" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 30"</span>,  <span class="at">errors =</span> <span class="st">"Normal"</span>),</span>
-<span id="cb37-152"><a href="#cb37-152" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">30</span>,  <span class="cf">function</span>(n) <span class="fu">rexp</span>(n) <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb37-153"><a href="#cb37-153" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 30"</span>,  <span class="at">errors =</span> <span class="st">"Exponential (skewed)"</span>),</span>
-<span id="cb37-154"><a href="#cb37-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">30</span>,  <span class="cf">function</span>(n) (<span class="fu">rt</span>(n, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">3</span>))),</span>
-<span id="cb37-155"><a href="#cb37-155" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 30"</span>,  <span class="at">errors =</span> <span class="st">"t(3) (heavy-tailed)"</span>),</span>
-<span id="cb37-156"><a href="#cb37-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">200</span>, <span class="cf">function</span>(n) <span class="fu">rnorm</span>(n)),</span>
-<span id="cb37-157"><a href="#cb37-157" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 200"</span>, <span class="at">errors =</span> <span class="st">"Normal"</span>),</span>
-<span id="cb37-158"><a href="#cb37-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">200</span>, <span class="cf">function</span>(n) <span class="fu">rexp</span>(n) <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb37-159"><a href="#cb37-159" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 200"</span>, <span class="at">errors =</span> <span class="st">"Exponential (skewed)"</span>),</span>
-<span id="cb37-160"><a href="#cb37-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">200</span>, <span class="cf">function</span>(n) (<span class="fu">rt</span>(n, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">3</span>))),</span>
-<span id="cb37-161"><a href="#cb37-161" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 200"</span>, <span class="at">errors =</span> <span class="st">"t(3) (heavy-tailed)"</span>)</span>
-<span id="cb37-162"><a href="#cb37-162" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-163"><a href="#cb37-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-164"><a href="#cb37-164" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_clt, <span class="fu">aes</span>(t)) <span class="sc">+</span></span>
-<span id="cb37-165"><a href="#cb37-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb37-166"><a href="#cb37-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb37-167"><a href="#cb37-167" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(errors <span class="sc">~</span> n) <span class="sc">+</span></span>
-<span id="cb37-168"><a href="#cb37-168" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>)) <span class="sc">+</span></span>
-<span id="cb37-169"><a href="#cb37-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"How fast does the CLT kick in?"</span>,</span>
-<span id="cb37-170"><a href="#cb37-170" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = N(0,1). Normal errors: fast. Skewed: OK by n=200. Heavy tails: slowest."</span>,</span>
-<span id="cb37-171"><a href="#cb37-171" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"t-statistic (HC2)"</span>)</span>
-<span id="cb37-172"><a href="#cb37-172" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-173"><a href="#cb37-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-174"><a href="#cb37-174" aria-hidden="true" tabindex="-1"></a>With normal errors, the CLT approximation is excellent even at $n = 30$. With skewed errors (Exponential), it improves by $n = 200$. With heavy-tailed errors ($t_3$), it remains imperfect even at $n = 200$. This is why alternatives like the bootstrap matter.</span>
+<span id="cb37-128"><a href="#cb37-128" aria-hidden="true" tabindex="-1"></a>where $\Omega = E<span class="co">[</span><span class="ot">X_i X_i' e_i^2</span><span class="co">]</span>$. This is the <span class="co">[</span><span class="ot">sandwich variance estimator</span><span class="co">](ch05-gls.qmd#def-sandwich)</span>, now justified by asymptotic theory. The convergence rate depends on the shape of the data --- symmetric data need $n \approx 30$, skewed data may need $n \geq 100$, and heavy-tailed data may need much more.</span>
+<span id="cb37-129"><a href="#cb37-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-132"><a href="#cb37-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-133"><a href="#cb37-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: clt-convergence</span></span>
+<span id="cb37-134"><a href="#cb37-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "How fast does the CLT kick in? Depends on the error distribution."</span></span>
+<span id="cb37-135"><a href="#cb37-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb37-136"><a href="#cb37-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb37-137"><a href="#cb37-137" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-138"><a href="#cb37-138" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb37-139"><a href="#cb37-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-140"><a href="#cb37-140" aria-hidden="true" tabindex="-1"></a><span class="co"># How fast does the CLT kick in? Depends on the error distribution.</span></span>
+<span id="cb37-141"><a href="#cb37-141" aria-hidden="true" tabindex="-1"></a>sim_tstat <span class="ot">&lt;-</span> <span class="cf">function</span>(n, rdist_e) {</span>
+<span id="cb37-142"><a href="#cb37-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(B, {</span>
+<span id="cb37-143"><a href="#cb37-143" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb37-144"><a href="#cb37-144" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> <span class="fu">rdist_e</span>(n)</span>
+<span id="cb37-145"><a href="#cb37-145" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> e</span>
+<span id="cb37-146"><a href="#cb37-146" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(y <span class="sc">~</span> x, <span class="at">se_type =</span> <span class="st">"HC2"</span>)</span>
+<span id="cb37-147"><a href="#cb37-147" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">coef</span>(fit)[<span class="st">"x"</span>] <span class="sc">-</span> <span class="dv">3</span>) <span class="sc">/</span> fit<span class="sc">$</span>std.error[<span class="st">"x"</span>]</span>
+<span id="cb37-148"><a href="#cb37-148" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb37-149"><a href="#cb37-149" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-150"><a href="#cb37-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-151"><a href="#cb37-151" aria-hidden="true" tabindex="-1"></a>df_clt <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb37-152"><a href="#cb37-152" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">30</span>,  <span class="cf">function</span>(n) <span class="fu">rnorm</span>(n)),</span>
+<span id="cb37-153"><a href="#cb37-153" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 30"</span>,  <span class="at">errors =</span> <span class="st">"Normal"</span>),</span>
+<span id="cb37-154"><a href="#cb37-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">30</span>,  <span class="cf">function</span>(n) <span class="fu">rexp</span>(n) <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb37-155"><a href="#cb37-155" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 30"</span>,  <span class="at">errors =</span> <span class="st">"Exponential (skewed)"</span>),</span>
+<span id="cb37-156"><a href="#cb37-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">30</span>,  <span class="cf">function</span>(n) (<span class="fu">rt</span>(n, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">3</span>))),</span>
+<span id="cb37-157"><a href="#cb37-157" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 30"</span>,  <span class="at">errors =</span> <span class="st">"t(3) (heavy-tailed)"</span>),</span>
+<span id="cb37-158"><a href="#cb37-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">200</span>, <span class="cf">function</span>(n) <span class="fu">rnorm</span>(n)),</span>
+<span id="cb37-159"><a href="#cb37-159" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 200"</span>, <span class="at">errors =</span> <span class="st">"Normal"</span>),</span>
+<span id="cb37-160"><a href="#cb37-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">200</span>, <span class="cf">function</span>(n) <span class="fu">rexp</span>(n) <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb37-161"><a href="#cb37-161" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 200"</span>, <span class="at">errors =</span> <span class="st">"Exponential (skewed)"</span>),</span>
+<span id="cb37-162"><a href="#cb37-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">t =</span> <span class="fu">sim_tstat</span>(<span class="dv">200</span>, <span class="cf">function</span>(n) (<span class="fu">rt</span>(n, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">3</span>))),</span>
+<span id="cb37-163"><a href="#cb37-163" aria-hidden="true" tabindex="-1"></a>             <span class="at">n =</span> <span class="st">"n = 200"</span>, <span class="at">errors =</span> <span class="st">"t(3) (heavy-tailed)"</span>)</span>
+<span id="cb37-164"><a href="#cb37-164" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-165"><a href="#cb37-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-166"><a href="#cb37-166" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_clt, <span class="fu">aes</span>(t)) <span class="sc">+</span></span>
+<span id="cb37-167"><a href="#cb37-167" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb37-168"><a href="#cb37-168" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb37-169"><a href="#cb37-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(errors <span class="sc">~</span> n) <span class="sc">+</span></span>
+<span id="cb37-170"><a href="#cb37-170" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb37-171"><a href="#cb37-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"How fast does the CLT kick in?"</span>,</span>
+<span id="cb37-172"><a href="#cb37-172" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = N(0,1). Normal errors: fast. Skewed: OK by n=200. Heavy tails: slowest."</span>,</span>
+<span id="cb37-173"><a href="#cb37-173" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"t-statistic (HC2)"</span>)</span>
+<span id="cb37-174"><a href="#cb37-174" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-175"><a href="#cb37-175" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-176"><a href="#cb37-176" aria-hidden="true" tabindex="-1"></a><span class="fu">## The delta method {#sec-delta-method}</span></span>
+<span id="cb37-176"><a href="#cb37-176" aria-hidden="true" tabindex="-1"></a>With normal errors, the CLT approximation is excellent even at $n = 30$. With skewed errors (Exponential), it improves by $n = 200$. With heavy-tailed errors ($t_3$), it remains imperfect even at $n = 200$. This is why alternatives like the bootstrap matter.</span>
 <span id="cb37-177"><a href="#cb37-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-178"><a href="#cb37-178" aria-hidden="true" tabindex="-1"></a>Often we care about a **nonlinear function** of the estimated parameters, not $\hat{\beta}$ itself. The delta method uses a first-order Taylor expansion:</span>
+<span id="cb37-178"><a href="#cb37-178" aria-hidden="true" tabindex="-1"></a><span class="fu">## The delta method {#sec-delta-method}</span></span>
 <span id="cb37-179"><a href="#cb37-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-180"><a href="#cb37-180" aria-hidden="true" tabindex="-1"></a>$$\sqrt{n}(h(\hat{\theta}) - h(\theta)) \overset{d}{\to} N(0, \; \nabla h' \, V \, \nabla h)$$ {#eq-delta-method}</span>
+<span id="cb37-180"><a href="#cb37-180" aria-hidden="true" tabindex="-1"></a>Often we care about a **nonlinear function** of the estimated parameters, not $\hat{\beta}$ itself. The delta method uses a first-order Taylor expansion:</span>
 <span id="cb37-181"><a href="#cb37-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-182"><a href="#cb37-182" aria-hidden="true" tabindex="-1"></a>::: {#thm-delta-method}</span>
-<span id="cb37-183"><a href="#cb37-183" aria-hidden="true" tabindex="-1"></a><span class="fu">## Delta Method</span></span>
-<span id="cb37-184"><a href="#cb37-184" aria-hidden="true" tabindex="-1"></a>If $\sqrt{n}(\hat\theta - \theta) \xrightarrow{d} N(0, V)$ and $h$ is continuously differentiable with $\nabla h(\theta) \neq 0$, then $\sqrt{n}(h(\hat\theta) - h(\theta)) \xrightarrow{d} N(0, \nabla h' V \nabla h)$.</span>
-<span id="cb37-185"><a href="#cb37-185" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb37-186"><a href="#cb37-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-187"><a href="#cb37-187" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
-<span id="cb37-188"><a href="#cb37-188" aria-hidden="true" tabindex="-1"></a><span class="fu">## Delta Method Fails at Boundaries</span></span>
-<span id="cb37-189"><a href="#cb37-189" aria-hidden="true" tabindex="-1"></a>The delta method relies on a first-order Taylor expansion. It fails when $\nabla h(\theta) = 0$ (e.g., testing $h(\theta) = \theta^2$ at $\theta = 0$) or when the function is not differentiable. In such cases, the bootstrap (or higher-order expansions) is more reliable.</span>
-<span id="cb37-190"><a href="#cb37-190" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb37-191"><a href="#cb37-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-192"><a href="#cb37-192" aria-hidden="true" tabindex="-1"></a>In practice: compute the gradient $\nabla h$, sandwich it around the covariance matrix, take the square root. R's <span class="in">`car::deltaMethod()`</span> does this automatically.</span>
+<span id="cb37-182"><a href="#cb37-182" aria-hidden="true" tabindex="-1"></a>$$\sqrt{n}(h(\hat{\theta}) - h(\theta)) \overset{d}{\to} N(0, \; \nabla h' \, V \, \nabla h)$$ {#eq-delta-method}</span>
+<span id="cb37-183"><a href="#cb37-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-184"><a href="#cb37-184" aria-hidden="true" tabindex="-1"></a>::: {#thm-delta-method}</span>
+<span id="cb37-185"><a href="#cb37-185" aria-hidden="true" tabindex="-1"></a><span class="fu">## Delta Method</span></span>
+<span id="cb37-186"><a href="#cb37-186" aria-hidden="true" tabindex="-1"></a>If $\sqrt{n}(\hat\theta - \theta) \xrightarrow{d} N(0, V)$ and $h$ is continuously differentiable with $\nabla h(\theta) \neq 0$, then $\sqrt{n}(h(\hat\theta) - h(\theta)) \xrightarrow{d} N(0, \nabla h' V \nabla h)$.</span>
+<span id="cb37-187"><a href="#cb37-187" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb37-188"><a href="#cb37-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-189"><a href="#cb37-189" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb37-190"><a href="#cb37-190" aria-hidden="true" tabindex="-1"></a><span class="fu">## Delta Method Fails at Boundaries</span></span>
+<span id="cb37-191"><a href="#cb37-191" aria-hidden="true" tabindex="-1"></a>The delta method relies on a first-order Taylor expansion. It fails when $\nabla h(\theta) = 0$ (e.g., testing $h(\theta) = \theta^2$ at $\theta = 0$) or when the function is not differentiable. In such cases, the bootstrap (or higher-order expansions) is more reliable.</span>
+<span id="cb37-192"><a href="#cb37-192" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb37-193"><a href="#cb37-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-194"><a href="#cb37-194" aria-hidden="true" tabindex="-1"></a><span class="fu">### Applied example: long-run elasticity</span></span>
+<span id="cb37-194"><a href="#cb37-194" aria-hidden="true" tabindex="-1"></a>In practice: compute the gradient $\nabla h$, sandwich it around the covariance matrix, take the square root. R's <span class="in">`car::deltaMethod()`</span> does this automatically.</span>
 <span id="cb37-195"><a href="#cb37-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-196"><a href="#cb37-196" aria-hidden="true" tabindex="-1"></a>A model with a lagged dependent variable:</span>
+<span id="cb37-196"><a href="#cb37-196" aria-hidden="true" tabindex="-1"></a><span class="fu">### Applied example: long-run elasticity</span></span>
 <span id="cb37-197"><a href="#cb37-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-198"><a href="#cb37-198" aria-hidden="true" tabindex="-1"></a>$$y_t = \beta_0 + \beta_1 x_t + \gamma y_{t-1} + \varepsilon_t$$</span>
+<span id="cb37-198"><a href="#cb37-198" aria-hidden="true" tabindex="-1"></a>A model with a lagged dependent variable:</span>
 <span id="cb37-199"><a href="#cb37-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-200"><a href="#cb37-200" aria-hidden="true" tabindex="-1"></a>The short-run effect of $x$ is $\beta_1$. The long-run effect (after the dynamics play out) is:</span>
+<span id="cb37-200"><a href="#cb37-200" aria-hidden="true" tabindex="-1"></a>$$y_t = \beta_0 + \beta_1 x_t + \gamma y_{t-1} + \varepsilon_t$$</span>
 <span id="cb37-201"><a href="#cb37-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-202"><a href="#cb37-202" aria-hidden="true" tabindex="-1"></a>$$\theta = \frac{\beta_1}{1 - \gamma}$$</span>
+<span id="cb37-202"><a href="#cb37-202" aria-hidden="true" tabindex="-1"></a>The short-run effect of $x$ is $\beta_1$. The long-run effect (after the dynamics play out) is:</span>
 <span id="cb37-203"><a href="#cb37-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-204"><a href="#cb37-204" aria-hidden="true" tabindex="-1"></a>This is a ratio of regression coefficients --- the delta method gives its standard error.</span>
+<span id="cb37-204"><a href="#cb37-204" aria-hidden="true" tabindex="-1"></a>$$\theta = \frac{\beta_1}{1 - \gamma}$$</span>
 <span id="cb37-205"><a href="#cb37-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-208"><a href="#cb37-208" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-209"><a href="#cb37-209" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-applied</span></span>
-<span id="cb37-210"><a href="#cb37-210" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-211"><a href="#cb37-211" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb37-212"><a href="#cb37-212" aria-hidden="true" tabindex="-1"></a>beta0 <span class="ot">&lt;-</span> <span class="dv">1</span>; beta1 <span class="ot">&lt;-</span> <span class="fl">0.5</span>; gamma_true <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
-<span id="cb37-213"><a href="#cb37-213" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
-<span id="cb37-214"><a href="#cb37-214" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
-<span id="cb37-215"><a href="#cb37-215" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>)</span>
-<span id="cb37-216"><a href="#cb37-216" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n) {</span>
-<span id="cb37-217"><a href="#cb37-217" aria-hidden="true" tabindex="-1"></a>  y[t] <span class="ot">&lt;-</span> beta0 <span class="sc">+</span> beta1 <span class="sc">*</span> x[t] <span class="sc">+</span> gamma_true <span class="sc">*</span> y[t <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">sd =</span> <span class="fl">0.5</span>)</span>
-<span id="cb37-218"><a href="#cb37-218" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-219"><a href="#cb37-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-220"><a href="#cb37-220" aria-hidden="true" tabindex="-1"></a>dta <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y[<span class="sc">-</span><span class="dv">1</span>], <span class="at">x =</span> x[<span class="sc">-</span><span class="dv">1</span>], <span class="at">y_lag =</span> y[<span class="sc">-</span>n])</span>
-<span id="cb37-221"><a href="#cb37-221" aria-hidden="true" tabindex="-1"></a>fit_dyn <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> y_lag, <span class="at">data =</span> dta)</span>
-<span id="cb37-222"><a href="#cb37-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-223"><a href="#cb37-223" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta method (car package)</span></span>
-<span id="cb37-224"><a href="#cb37-224" aria-hidden="true" tabindex="-1"></a><span class="fu">deltaMethod</span>(fit_dyn, <span class="st">"x / (1 - y_lag)"</span>)</span>
-<span id="cb37-225"><a href="#cb37-225" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-226"><a href="#cb37-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-227"><a href="#cb37-227" aria-hidden="true" tabindex="-1"></a>The true long-run effect is $0.5/(1 - 0.7) = 1.67$.</span>
+<span id="cb37-206"><a href="#cb37-206" aria-hidden="true" tabindex="-1"></a>This is a ratio of regression coefficients --- the delta method gives its standard error.</span>
+<span id="cb37-207"><a href="#cb37-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-210"><a href="#cb37-210" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-211"><a href="#cb37-211" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-applied</span></span>
+<span id="cb37-212"><a href="#cb37-212" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-213"><a href="#cb37-213" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb37-214"><a href="#cb37-214" aria-hidden="true" tabindex="-1"></a>beta0 <span class="ot">&lt;-</span> <span class="dv">1</span>; beta1 <span class="ot">&lt;-</span> <span class="fl">0.5</span>; gamma_true <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb37-215"><a href="#cb37-215" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb37-216"><a href="#cb37-216" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb37-217"><a href="#cb37-217" aria-hidden="true" tabindex="-1"></a>y[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">1</span>)</span>
+<span id="cb37-218"><a href="#cb37-218" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n) {</span>
+<span id="cb37-219"><a href="#cb37-219" aria-hidden="true" tabindex="-1"></a>  y[t] <span class="ot">&lt;-</span> beta0 <span class="sc">+</span> beta1 <span class="sc">*</span> x[t] <span class="sc">+</span> gamma_true <span class="sc">*</span> y[t <span class="sc">-</span> <span class="dv">1</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">sd =</span> <span class="fl">0.5</span>)</span>
+<span id="cb37-220"><a href="#cb37-220" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-221"><a href="#cb37-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-222"><a href="#cb37-222" aria-hidden="true" tabindex="-1"></a>dta <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y[<span class="sc">-</span><span class="dv">1</span>], <span class="at">x =</span> x[<span class="sc">-</span><span class="dv">1</span>], <span class="at">y_lag =</span> y[<span class="sc">-</span>n])</span>
+<span id="cb37-223"><a href="#cb37-223" aria-hidden="true" tabindex="-1"></a>fit_dyn <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> y_lag, <span class="at">data =</span> dta)</span>
+<span id="cb37-224"><a href="#cb37-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-225"><a href="#cb37-225" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta method (car package)</span></span>
+<span id="cb37-226"><a href="#cb37-226" aria-hidden="true" tabindex="-1"></a><span class="fu">deltaMethod</span>(fit_dyn, <span class="st">"x / (1 - y_lag)"</span>)</span>
+<span id="cb37-227"><a href="#cb37-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-228"><a href="#cb37-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-229"><a href="#cb37-229" aria-hidden="true" tabindex="-1"></a><span class="fu">### Delta method by hand</span></span>
+<span id="cb37-229"><a href="#cb37-229" aria-hidden="true" tabindex="-1"></a>The true long-run effect is $0.5/(1 - 0.7) = 1.67$.</span>
 <span id="cb37-230"><a href="#cb37-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-231"><a href="#cb37-231" aria-hidden="true" tabindex="-1"></a>Under the hood, <span class="in">`deltaMethod()`</span> computes the gradient vector and applies $\text{SE} = \sqrt{\nabla h' \hat{V} \nabla h}$:</span>
+<span id="cb37-231"><a href="#cb37-231" aria-hidden="true" tabindex="-1"></a><span class="fu">### Delta method by hand</span></span>
 <span id="cb37-232"><a href="#cb37-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-235"><a href="#cb37-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-236"><a href="#cb37-236" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-by-hand</span></span>
-<span id="cb37-237"><a href="#cb37-237" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit_dyn)</span>
-<span id="cb37-238"><a href="#cb37-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-239"><a href="#cb37-239" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradient of h(beta) = beta1 / (1 - gamma) w.r.t. (intercept, x, y_lag)</span></span>
-<span id="cb37-240"><a href="#cb37-240" aria-hidden="true" tabindex="-1"></a>grad <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,</span>
-<span id="cb37-241"><a href="#cb37-241" aria-hidden="true" tabindex="-1"></a>          <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b[<span class="st">"y_lag"</span>]),</span>
-<span id="cb37-242"><a href="#cb37-242" aria-hidden="true" tabindex="-1"></a>          b[<span class="st">"x"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b[<span class="st">"y_lag"</span>])<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb37-243"><a href="#cb37-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-244"><a href="#cb37-244" aria-hidden="true" tabindex="-1"></a>se_delta <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">sqrt</span>(<span class="fu">t</span>(grad) <span class="sc">%*%</span> <span class="fu">vcov</span>(fit_dyn) <span class="sc">%*%</span> grad))</span>
-<span id="cb37-245"><a href="#cb37-245" aria-hidden="true" tabindex="-1"></a>lr_hat <span class="ot">&lt;-</span> b[<span class="st">"x"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b[<span class="st">"y_lag"</span>])</span>
-<span id="cb37-246"><a href="#cb37-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-247"><a href="#cb37-247" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> lr_hat, <span class="at">se =</span> se_delta,</span>
-<span id="cb37-248"><a href="#cb37-248" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_lo =</span> lr_hat <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_delta, <span class="at">ci_hi =</span> lr_hat <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_delta)</span>
-<span id="cb37-249"><a href="#cb37-249" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-250"><a href="#cb37-250" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-251"><a href="#cb37-251" aria-hidden="true" tabindex="-1"></a>The delta method requires computing derivatives. For simple functions this is fine; for complicated transformations it becomes tedious. The bootstrap avoids derivatives entirely.</span>
+<span id="cb37-233"><a href="#cb37-233" aria-hidden="true" tabindex="-1"></a>Under the hood, <span class="in">`deltaMethod()`</span> computes the gradient vector and applies $\text{SE} = \sqrt{\nabla h' \hat{V} \nabla h}$:</span>
+<span id="cb37-234"><a href="#cb37-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-237"><a href="#cb37-237" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-238"><a href="#cb37-238" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-by-hand</span></span>
+<span id="cb37-239"><a href="#cb37-239" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit_dyn)</span>
+<span id="cb37-240"><a href="#cb37-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-241"><a href="#cb37-241" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradient of h(beta) = beta1 / (1 - gamma) w.r.t. (intercept, x, y_lag)</span></span>
+<span id="cb37-242"><a href="#cb37-242" aria-hidden="true" tabindex="-1"></a>grad <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,</span>
+<span id="cb37-243"><a href="#cb37-243" aria-hidden="true" tabindex="-1"></a>          <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b[<span class="st">"y_lag"</span>]),</span>
+<span id="cb37-244"><a href="#cb37-244" aria-hidden="true" tabindex="-1"></a>          b[<span class="st">"x"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b[<span class="st">"y_lag"</span>])<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb37-245"><a href="#cb37-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-246"><a href="#cb37-246" aria-hidden="true" tabindex="-1"></a>se_delta <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">sqrt</span>(<span class="fu">t</span>(grad) <span class="sc">%*%</span> <span class="fu">vcov</span>(fit_dyn) <span class="sc">%*%</span> grad))</span>
+<span id="cb37-247"><a href="#cb37-247" aria-hidden="true" tabindex="-1"></a>lr_hat <span class="ot">&lt;-</span> b[<span class="st">"x"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b[<span class="st">"y_lag"</span>])</span>
+<span id="cb37-248"><a href="#cb37-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-249"><a href="#cb37-249" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> lr_hat, <span class="at">se =</span> se_delta,</span>
+<span id="cb37-250"><a href="#cb37-250" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_lo =</span> lr_hat <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_delta, <span class="at">ci_hi =</span> lr_hat <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_delta)</span>
+<span id="cb37-251"><a href="#cb37-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-252"><a href="#cb37-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-253"><a href="#cb37-253" aria-hidden="true" tabindex="-1"></a><span class="fu">## The bootstrap</span></span>
+<span id="cb37-253"><a href="#cb37-253" aria-hidden="true" tabindex="-1"></a>The delta method requires computing derivatives. For simple functions this is fine; for complicated transformations it becomes tedious. The bootstrap avoids derivatives entirely.</span>
 <span id="cb37-254"><a href="#cb37-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-255"><a href="#cb37-255" aria-hidden="true" tabindex="-1"></a>The **bootstrap** (Efron, 1979) replaces analytical derivations with simulation. The idea: if the sample is a good stand-in for the population, then resampling from the sample mimics sampling from the population. The variation across resamples estimates sampling variability.</span>
+<span id="cb37-255"><a href="#cb37-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## The bootstrap</span></span>
 <span id="cb37-256"><a href="#cb37-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-257"><a href="#cb37-257" aria-hidden="true" tabindex="-1"></a><span class="fu">### Nonparametric bootstrap for OLS</span></span>
+<span id="cb37-257"><a href="#cb37-257" aria-hidden="true" tabindex="-1"></a>The **bootstrap** (Efron, 1979) replaces analytical derivations with simulation. The idea: if the sample is a good stand-in for the population, then resampling from the sample mimics sampling from the population. The variation across resamples estimates sampling variability.</span>
 <span id="cb37-258"><a href="#cb37-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-259"><a href="#cb37-259" aria-hidden="true" tabindex="-1"></a>The **pairs bootstrap** resamples rows $(Y_i, X_i)$ with replacement, re-estimates OLS on each resample, and uses the distribution of $\hat{\beta}^*$ across resamples to estimate the sampling distribution:</span>
+<span id="cb37-259"><a href="#cb37-259" aria-hidden="true" tabindex="-1"></a><span class="fu">### Nonparametric bootstrap for OLS</span></span>
 <span id="cb37-260"><a href="#cb37-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-263"><a href="#cb37-263" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-264"><a href="#cb37-264" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-ols</span></span>
-<span id="cb37-265"><a href="#cb37-265" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Prestige)</span>
-<span id="cb37-266"><a href="#cb37-266" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> Prestige)</span>
-<span id="cb37-267"><a href="#cb37-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-268"><a href="#cb37-268" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap by hand</span></span>
-<span id="cb37-269"><a href="#cb37-269" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-270"><a href="#cb37-270" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb37-271"><a href="#cb37-271" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Prestige)</span>
-<span id="cb37-272"><a href="#cb37-272" aria-hidden="true" tabindex="-1"></a>boot_coefs <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, B, <span class="fu">length</span>(<span class="fu">coef</span>(mod)))</span>
-<span id="cb37-273"><a href="#cb37-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-274"><a href="#cb37-274" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
-<span id="cb37-275"><a href="#cb37-275" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb37-276"><a href="#cb37-276" aria-hidden="true" tabindex="-1"></a>  boot_coefs[b, ] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women,</span>
-<span id="cb37-277"><a href="#cb37-277" aria-hidden="true" tabindex="-1"></a>                               <span class="at">data =</span> Prestige[idx, ]))</span>
-<span id="cb37-278"><a href="#cb37-278" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-279"><a href="#cb37-279" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(boot_coefs) <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">coef</span>(mod))</span>
-<span id="cb37-280"><a href="#cb37-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-281"><a href="#cb37-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-284"><a href="#cb37-284" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-285"><a href="#cb37-285" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-vs-analytical</span></span>
-<span id="cb37-286"><a href="#cb37-286" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare bootstrap SEs to classical and sandwich SEs</span></span>
-<span id="cb37-287"><a href="#cb37-287" aria-hidden="true" tabindex="-1"></a>se_classical <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcov</span>(mod)))</span>
-<span id="cb37-288"><a href="#cb37-288" aria-hidden="true" tabindex="-1"></a>se_hc2 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>)))</span>
-<span id="cb37-289"><a href="#cb37-289" aria-hidden="true" tabindex="-1"></a>se_boot <span class="ot">&lt;-</span> <span class="fu">apply</span>(boot_coefs, <span class="dv">2</span>, sd)</span>
-<span id="cb37-290"><a href="#cb37-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-291"><a href="#cb37-291" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb37-292"><a href="#cb37-292" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">names</span>(<span class="fu">coef</span>(mod)),</span>
-<span id="cb37-293"><a href="#cb37-293" aria-hidden="true" tabindex="-1"></a>  <span class="at">Classical =</span> <span class="fu">round</span>(se_classical, <span class="dv">4</span>),</span>
-<span id="cb37-294"><a href="#cb37-294" aria-hidden="true" tabindex="-1"></a>  <span class="at">HC2 =</span> <span class="fu">round</span>(se_hc2, <span class="dv">4</span>),</span>
-<span id="cb37-295"><a href="#cb37-295" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bootstrap =</span> <span class="fu">round</span>(se_boot, <span class="dv">4</span>)</span>
-<span id="cb37-296"><a href="#cb37-296" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-297"><a href="#cb37-297" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-298"><a href="#cb37-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-299"><a href="#cb37-299" aria-hidden="true" tabindex="-1"></a>The bootstrap SEs are close to the sandwich (HC2) SEs --- both account for heteroskedasticity without assuming a specific form. The classical SEs assume homoskedasticity, which may be wrong.</span>
+<span id="cb37-261"><a href="#cb37-261" aria-hidden="true" tabindex="-1"></a>The **pairs bootstrap** resamples rows $(Y_i, X_i)$ with replacement, re-estimates OLS on each resample, and uses the distribution of $\hat{\beta}^*$ across resamples to estimate the sampling distribution:</span>
+<span id="cb37-262"><a href="#cb37-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-265"><a href="#cb37-265" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-266"><a href="#cb37-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-ols</span></span>
+<span id="cb37-267"><a href="#cb37-267" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Prestige)</span>
+<span id="cb37-268"><a href="#cb37-268" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> Prestige)</span>
+<span id="cb37-269"><a href="#cb37-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-270"><a href="#cb37-270" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap by hand</span></span>
+<span id="cb37-271"><a href="#cb37-271" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-272"><a href="#cb37-272" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb37-273"><a href="#cb37-273" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Prestige)</span>
+<span id="cb37-274"><a href="#cb37-274" aria-hidden="true" tabindex="-1"></a>boot_coefs <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, B, <span class="fu">length</span>(<span class="fu">coef</span>(mod)))</span>
+<span id="cb37-275"><a href="#cb37-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-276"><a href="#cb37-276" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
+<span id="cb37-277"><a href="#cb37-277" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-278"><a href="#cb37-278" aria-hidden="true" tabindex="-1"></a>  boot_coefs[b, ] <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women,</span>
+<span id="cb37-279"><a href="#cb37-279" aria-hidden="true" tabindex="-1"></a>                               <span class="at">data =</span> Prestige[idx, ]))</span>
+<span id="cb37-280"><a href="#cb37-280" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-281"><a href="#cb37-281" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(boot_coefs) <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">coef</span>(mod))</span>
+<span id="cb37-282"><a href="#cb37-282" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-283"><a href="#cb37-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-286"><a href="#cb37-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-287"><a href="#cb37-287" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-vs-analytical</span></span>
+<span id="cb37-288"><a href="#cb37-288" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare bootstrap SEs to classical and sandwich SEs</span></span>
+<span id="cb37-289"><a href="#cb37-289" aria-hidden="true" tabindex="-1"></a>se_classical <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcov</span>(mod)))</span>
+<span id="cb37-290"><a href="#cb37-290" aria-hidden="true" tabindex="-1"></a>se_hc2 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>)))</span>
+<span id="cb37-291"><a href="#cb37-291" aria-hidden="true" tabindex="-1"></a>se_boot <span class="ot">&lt;-</span> <span class="fu">apply</span>(boot_coefs, <span class="dv">2</span>, sd)</span>
+<span id="cb37-292"><a href="#cb37-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-293"><a href="#cb37-293" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb37-294"><a href="#cb37-294" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">names</span>(<span class="fu">coef</span>(mod)),</span>
+<span id="cb37-295"><a href="#cb37-295" aria-hidden="true" tabindex="-1"></a>  <span class="at">Classical =</span> <span class="fu">round</span>(se_classical, <span class="dv">4</span>),</span>
+<span id="cb37-296"><a href="#cb37-296" aria-hidden="true" tabindex="-1"></a>  <span class="at">HC2 =</span> <span class="fu">round</span>(se_hc2, <span class="dv">4</span>),</span>
+<span id="cb37-297"><a href="#cb37-297" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bootstrap =</span> <span class="fu">round</span>(se_boot, <span class="dv">4</span>)</span>
+<span id="cb37-298"><a href="#cb37-298" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-299"><a href="#cb37-299" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-300"><a href="#cb37-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-301"><a href="#cb37-301" aria-hidden="true" tabindex="-1"></a><span class="fu">### Visualizing the bootstrap distribution</span></span>
+<span id="cb37-301"><a href="#cb37-301" aria-hidden="true" tabindex="-1"></a>The bootstrap SEs are close to the sandwich (HC2) SEs --- both account for heteroskedasticity without assuming a specific form. The classical SEs assume homoskedasticity, which may be wrong.</span>
 <span id="cb37-302"><a href="#cb37-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-305"><a href="#cb37-305" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-306"><a href="#cb37-306" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-distribution</span></span>
-<span id="cb37-307"><a href="#cb37-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
-<span id="cb37-308"><a href="#cb37-308" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
-<span id="cb37-309"><a href="#cb37-309" aria-hidden="true" tabindex="-1"></a>df_boot <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb37-310"><a href="#cb37-310" aria-hidden="true" tabindex="-1"></a>  <span class="at">income =</span> boot_coefs[, <span class="st">"income"</span>],</span>
-<span id="cb37-311"><a href="#cb37-311" aria-hidden="true" tabindex="-1"></a>  <span class="at">education =</span> boot_coefs[, <span class="st">"education"</span>]</span>
-<span id="cb37-312"><a href="#cb37-312" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-313"><a href="#cb37-313" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-314"><a href="#cb37-314" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_boot, <span class="fu">aes</span>(income)) <span class="sc">+</span></span>
-<span id="cb37-315"><a href="#cb37-315" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb37-316"><a href="#cb37-316" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">coef</span>(mod)[<span class="st">"income"</span>], <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb37-317"><a href="#cb37-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
-<span id="cb37-318"><a href="#cb37-318" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">coef</span>(mod)[<span class="st">"income"</span>], <span class="at">sd =</span> se_hc2[<span class="st">"income"</span>]),</span>
-<span id="cb37-319"><a href="#cb37-319" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb37-320"><a href="#cb37-320" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap distribution of income coefficient"</span>,</span>
-<span id="cb37-321"><a href="#cb37-321" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Blue = point estimate, Red = normal approximation (sandwich SE)"</span>,</span>
-<span id="cb37-322"><a href="#cb37-322" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)[income]<span class="sc">^</span><span class="st">"*"</span>))</span>
-<span id="cb37-323"><a href="#cb37-323" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-324"><a href="#cb37-324" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-325"><a href="#cb37-325" aria-hidden="true" tabindex="-1"></a><span class="fu">### Using the `boot` package</span></span>
+<span id="cb37-303"><a href="#cb37-303" aria-hidden="true" tabindex="-1"></a><span class="fu">### Visualizing the bootstrap distribution</span></span>
+<span id="cb37-304"><a href="#cb37-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-307"><a href="#cb37-307" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-308"><a href="#cb37-308" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-distribution</span></span>
+<span id="cb37-309"><a href="#cb37-309" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb37-310"><a href="#cb37-310" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb37-311"><a href="#cb37-311" aria-hidden="true" tabindex="-1"></a>df_boot <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb37-312"><a href="#cb37-312" aria-hidden="true" tabindex="-1"></a>  <span class="at">income =</span> boot_coefs[, <span class="st">"income"</span>],</span>
+<span id="cb37-313"><a href="#cb37-313" aria-hidden="true" tabindex="-1"></a>  <span class="at">education =</span> boot_coefs[, <span class="st">"education"</span>]</span>
+<span id="cb37-314"><a href="#cb37-314" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-315"><a href="#cb37-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-316"><a href="#cb37-316" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_boot, <span class="fu">aes</span>(income)) <span class="sc">+</span></span>
+<span id="cb37-317"><a href="#cb37-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb37-318"><a href="#cb37-318" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">coef</span>(mod)[<span class="st">"income"</span>], <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb37-319"><a href="#cb37-319" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb37-320"><a href="#cb37-320" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fu">coef</span>(mod)[<span class="st">"income"</span>], <span class="at">sd =</span> se_hc2[<span class="st">"income"</span>]),</span>
+<span id="cb37-321"><a href="#cb37-321" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb37-322"><a href="#cb37-322" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap distribution of income coefficient"</span>,</span>
+<span id="cb37-323"><a href="#cb37-323" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Blue = point estimate, Red = normal approximation (sandwich SE)"</span>,</span>
+<span id="cb37-324"><a href="#cb37-324" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)[income]<span class="sc">^</span><span class="st">"*"</span>))</span>
+<span id="cb37-325"><a href="#cb37-325" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-326"><a href="#cb37-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-329"><a href="#cb37-329" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-330"><a href="#cb37-330" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: boot-package</span></span>
-<span id="cb37-331"><a href="#cb37-331" aria-hidden="true" tabindex="-1"></a><span class="co"># The boot package standardizes this workflow</span></span>
-<span id="cb37-332"><a href="#cb37-332" aria-hidden="true" tabindex="-1"></a>boot_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(data, indices) {</span>
-<span id="cb37-333"><a href="#cb37-333" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> data[indices, ]</span>
-<span id="cb37-334"><a href="#cb37-334" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> d))</span>
-<span id="cb37-335"><a href="#cb37-335" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-336"><a href="#cb37-336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-337"><a href="#cb37-337" aria-hidden="true" tabindex="-1"></a>boot_out <span class="ot">&lt;-</span> <span class="fu">boot</span>(Prestige, boot_fn, <span class="at">R =</span> <span class="dv">5000</span>)</span>
-<span id="cb37-338"><a href="#cb37-338" aria-hidden="true" tabindex="-1"></a>boot_out</span>
-<span id="cb37-339"><a href="#cb37-339" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-340"><a href="#cb37-340" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-343"><a href="#cb37-343" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-344"><a href="#cb37-344" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: boot-ci</span></span>
-<span id="cb37-345"><a href="#cb37-345" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap confidence intervals for education coefficient</span></span>
-<span id="cb37-346"><a href="#cb37-346" aria-hidden="true" tabindex="-1"></a><span class="fu">boot.ci</span>(boot_out, <span class="at">index =</span> <span class="dv">3</span>, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"norm"</span>, <span class="st">"perc"</span>, <span class="st">"bca"</span>))</span>
-<span id="cb37-347"><a href="#cb37-347" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-348"><a href="#cb37-348" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-349"><a href="#cb37-349" aria-hidden="true" tabindex="-1"></a>The <span class="in">`boot.ci`</span> function provides three types of intervals:</span>
+<span id="cb37-327"><a href="#cb37-327" aria-hidden="true" tabindex="-1"></a><span class="fu">### Using the `boot` package</span></span>
+<span id="cb37-328"><a href="#cb37-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-331"><a href="#cb37-331" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-332"><a href="#cb37-332" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: boot-package</span></span>
+<span id="cb37-333"><a href="#cb37-333" aria-hidden="true" tabindex="-1"></a><span class="co"># The boot package standardizes this workflow</span></span>
+<span id="cb37-334"><a href="#cb37-334" aria-hidden="true" tabindex="-1"></a>boot_fn <span class="ot">&lt;-</span> <span class="cf">function</span>(data, indices) {</span>
+<span id="cb37-335"><a href="#cb37-335" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> data[indices, ]</span>
+<span id="cb37-336"><a href="#cb37-336" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> d))</span>
+<span id="cb37-337"><a href="#cb37-337" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-338"><a href="#cb37-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-339"><a href="#cb37-339" aria-hidden="true" tabindex="-1"></a>boot_out <span class="ot">&lt;-</span> <span class="fu">boot</span>(Prestige, boot_fn, <span class="at">R =</span> <span class="dv">5000</span>)</span>
+<span id="cb37-340"><a href="#cb37-340" aria-hidden="true" tabindex="-1"></a>boot_out</span>
+<span id="cb37-341"><a href="#cb37-341" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-342"><a href="#cb37-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-345"><a href="#cb37-345" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-346"><a href="#cb37-346" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: boot-ci</span></span>
+<span id="cb37-347"><a href="#cb37-347" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap confidence intervals for education coefficient</span></span>
+<span id="cb37-348"><a href="#cb37-348" aria-hidden="true" tabindex="-1"></a><span class="fu">boot.ci</span>(boot_out, <span class="at">index =</span> <span class="dv">3</span>, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"norm"</span>, <span class="st">"perc"</span>, <span class="st">"bca"</span>))</span>
+<span id="cb37-349"><a href="#cb37-349" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-350"><a href="#cb37-350" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-351"><a href="#cb37-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Normal**: $\hat{\theta} \pm z_{0.025} \cdot \text{SE}_{\text{boot}}$ (same logic as asymptotic, just uses bootstrap SE)</span>
-<span id="cb37-352"><a href="#cb37-352" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Percentile**: the 2.5th and 97.5th percentiles of $\hat{\theta}^*$ (no normal assumption)</span>
-<span id="cb37-353"><a href="#cb37-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**BCa** (bias-corrected, accelerated): adjusts for bias and skewness in the bootstrap distribution (generally preferred)</span>
-<span id="cb37-354"><a href="#cb37-354" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-355"><a href="#cb37-355" aria-hidden="true" tabindex="-1"></a><span class="fu">## Delta method vs. bootstrap: a direct comparison</span></span>
+<span id="cb37-351"><a href="#cb37-351" aria-hidden="true" tabindex="-1"></a>The <span class="in">`boot.ci`</span> function provides three types of intervals:</span>
+<span id="cb37-352"><a href="#cb37-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-353"><a href="#cb37-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Normal**: $\hat{\theta} \pm z_{0.025} \cdot \text{SE}_{\text{boot}}$ (same logic as asymptotic, just uses bootstrap SE)</span>
+<span id="cb37-354"><a href="#cb37-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Percentile**: the 2.5th and 97.5th percentiles of $\hat{\theta}^*$ (no normal assumption)</span>
+<span id="cb37-355"><a href="#cb37-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**BCa** (bias-corrected, accelerated): adjusts for bias and skewness in the bootstrap distribution (generally preferred)</span>
 <span id="cb37-356"><a href="#cb37-356" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-357"><a href="#cb37-357" aria-hidden="true" tabindex="-1"></a>For the long-run elasticity $\theta = \beta_1/(1 - \gamma)$, we can compare three approaches:</span>
+<span id="cb37-357"><a href="#cb37-357" aria-hidden="true" tabindex="-1"></a><span class="fu">## Delta method vs. bootstrap: a direct comparison</span></span>
 <span id="cb37-358"><a href="#cb37-358" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-361"><a href="#cb37-361" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-362"><a href="#cb37-362" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-vs-bootstrap</span></span>
-<span id="cb37-363"><a href="#cb37-363" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-364"><a href="#cb37-364" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb37-365"><a href="#cb37-365" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-366"><a href="#cb37-366" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap the long-run effect</span></span>
-<span id="cb37-367"><a href="#cb37-367" aria-hidden="true" tabindex="-1"></a>boot_lr <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
-<span id="cb37-368"><a href="#cb37-368" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(dta), <span class="fu">nrow</span>(dta), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb37-369"><a href="#cb37-369" aria-hidden="true" tabindex="-1"></a>  b_star <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> y_lag, <span class="at">data =</span> dta[idx, ]))</span>
-<span id="cb37-370"><a href="#cb37-370" aria-hidden="true" tabindex="-1"></a>  b_star[<span class="st">"x"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b_star[<span class="st">"y_lag"</span>])</span>
-<span id="cb37-371"><a href="#cb37-371" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb37-372"><a href="#cb37-372" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-373"><a href="#cb37-373" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta method (from above)</span></span>
-<span id="cb37-374"><a href="#cb37-374" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">deltaMethod</span>(fit_dyn, <span class="st">"x / (1 - y_lag)"</span>)</span>
-<span id="cb37-375"><a href="#cb37-375" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-376"><a href="#cb37-376" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb37-377"><a href="#cb37-377" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Delta method"</span>, <span class="st">"Bootstrap"</span>),</span>
-<span id="cb37-378"><a href="#cb37-378" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate =</span> <span class="fu">c</span>(dm<span class="sc">$</span>Estimate, <span class="fu">mean</span>(boot_lr)),</span>
-<span id="cb37-379"><a href="#cb37-379" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE =</span> <span class="fu">c</span>(dm<span class="sc">$</span>SE, <span class="fu">sd</span>(boot_lr)),</span>
-<span id="cb37-380"><a href="#cb37-380" aria-hidden="true" tabindex="-1"></a>  <span class="at">CI_lo =</span> <span class="fu">c</span>(dm<span class="sc">$</span><span class="st">`</span><span class="at">2.5 %</span><span class="st">`</span>, <span class="fu">quantile</span>(boot_lr, <span class="fl">0.025</span>)),</span>
-<span id="cb37-381"><a href="#cb37-381" aria-hidden="true" tabindex="-1"></a>  <span class="at">CI_hi =</span> <span class="fu">c</span>(dm<span class="sc">$</span><span class="st">`</span><span class="at">97.5 %</span><span class="st">`</span>, <span class="fu">quantile</span>(boot_lr, <span class="fl">0.975</span>))</span>
-<span id="cb37-382"><a href="#cb37-382" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-383"><a href="#cb37-383" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-384"><a href="#cb37-384" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-387"><a href="#cb37-387" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-388"><a href="#cb37-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-vs-bootstrap-plot</span></span>
-<span id="cb37-389"><a href="#cb37-389" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
-<span id="cb37-390"><a href="#cb37-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
-<span id="cb37-391"><a href="#cb37-391" aria-hidden="true" tabindex="-1"></a>df_lr <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">lr =</span> boot_lr)</span>
-<span id="cb37-392"><a href="#cb37-392" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_lr, <span class="fu">aes</span>(lr)) <span class="sc">+</span></span>
-<span id="cb37-393"><a href="#cb37-393" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">60</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb37-394"><a href="#cb37-394" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
-<span id="cb37-395"><a href="#cb37-395" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> dm<span class="sc">$</span>Estimate, <span class="at">sd =</span> dm<span class="sc">$</span>SE),</span>
-<span id="cb37-396"><a href="#cb37-396" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb37-397"><a href="#cb37-397" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.7</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb37-398"><a href="#cb37-398" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap vs. delta method for long-run elasticity"</span>,</span>
-<span id="cb37-399"><a href="#cb37-399" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = normal approximation (delta method). Dashed = true value 1.67."</span>,</span>
-<span id="cb37-400"><a href="#cb37-400" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)[x] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">hat</span>(gamma))))</span>
-<span id="cb37-401"><a href="#cb37-401" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-402"><a href="#cb37-402" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-403"><a href="#cb37-403" aria-hidden="true" tabindex="-1"></a>When the bootstrap distribution is close to normal, the two approaches agree. When it is skewed (common for ratios, especially when the denominator can be near zero), the bootstrap percentile interval is more reliable.</span>
+<span id="cb37-359"><a href="#cb37-359" aria-hidden="true" tabindex="-1"></a>For the long-run elasticity $\theta = \beta_1/(1 - \gamma)$, we can compare three approaches:</span>
+<span id="cb37-360"><a href="#cb37-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-363"><a href="#cb37-363" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-364"><a href="#cb37-364" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-vs-bootstrap</span></span>
+<span id="cb37-365"><a href="#cb37-365" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-366"><a href="#cb37-366" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb37-367"><a href="#cb37-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-368"><a href="#cb37-368" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap the long-run effect</span></span>
+<span id="cb37-369"><a href="#cb37-369" aria-hidden="true" tabindex="-1"></a>boot_lr <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb37-370"><a href="#cb37-370" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(dta), <span class="fu">nrow</span>(dta), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-371"><a href="#cb37-371" aria-hidden="true" tabindex="-1"></a>  b_star <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> y_lag, <span class="at">data =</span> dta[idx, ]))</span>
+<span id="cb37-372"><a href="#cb37-372" aria-hidden="true" tabindex="-1"></a>  b_star[<span class="st">"x"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> b_star[<span class="st">"y_lag"</span>])</span>
+<span id="cb37-373"><a href="#cb37-373" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb37-374"><a href="#cb37-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-375"><a href="#cb37-375" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta method (from above)</span></span>
+<span id="cb37-376"><a href="#cb37-376" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="fu">deltaMethod</span>(fit_dyn, <span class="st">"x / (1 - y_lag)"</span>)</span>
+<span id="cb37-377"><a href="#cb37-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-378"><a href="#cb37-378" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb37-379"><a href="#cb37-379" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Delta method"</span>, <span class="st">"Bootstrap"</span>),</span>
+<span id="cb37-380"><a href="#cb37-380" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate =</span> <span class="fu">c</span>(dm<span class="sc">$</span>Estimate, <span class="fu">mean</span>(boot_lr)),</span>
+<span id="cb37-381"><a href="#cb37-381" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE =</span> <span class="fu">c</span>(dm<span class="sc">$</span>SE, <span class="fu">sd</span>(boot_lr)),</span>
+<span id="cb37-382"><a href="#cb37-382" aria-hidden="true" tabindex="-1"></a>  <span class="at">CI_lo =</span> <span class="fu">c</span>(dm<span class="sc">$</span><span class="st">`</span><span class="at">2.5 %</span><span class="st">`</span>, <span class="fu">quantile</span>(boot_lr, <span class="fl">0.025</span>)),</span>
+<span id="cb37-383"><a href="#cb37-383" aria-hidden="true" tabindex="-1"></a>  <span class="at">CI_hi =</span> <span class="fu">c</span>(dm<span class="sc">$</span><span class="st">`</span><span class="at">97.5 %</span><span class="st">`</span>, <span class="fu">quantile</span>(boot_lr, <span class="fl">0.975</span>))</span>
+<span id="cb37-384"><a href="#cb37-384" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-385"><a href="#cb37-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-386"><a href="#cb37-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-389"><a href="#cb37-389" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-390"><a href="#cb37-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: delta-vs-bootstrap-plot</span></span>
+<span id="cb37-391"><a href="#cb37-391" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb37-392"><a href="#cb37-392" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb37-393"><a href="#cb37-393" aria-hidden="true" tabindex="-1"></a>df_lr <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">lr =</span> boot_lr)</span>
+<span id="cb37-394"><a href="#cb37-394" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_lr, <span class="fu">aes</span>(lr)) <span class="sc">+</span></span>
+<span id="cb37-395"><a href="#cb37-395" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">60</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb37-396"><a href="#cb37-396" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb37-397"><a href="#cb37-397" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> dm<span class="sc">$</span>Estimate, <span class="at">sd =</span> dm<span class="sc">$</span>SE),</span>
+<span id="cb37-398"><a href="#cb37-398" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb37-399"><a href="#cb37-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">0.5</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.7</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb37-400"><a href="#cb37-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap vs. delta method for long-run elasticity"</span>,</span>
+<span id="cb37-401"><a href="#cb37-401" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = normal approximation (delta method). Dashed = true value 1.67."</span>,</span>
+<span id="cb37-402"><a href="#cb37-402" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)[x] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">hat</span>(gamma))))</span>
+<span id="cb37-403"><a href="#cb37-403" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-404"><a href="#cb37-404" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-405"><a href="#cb37-405" aria-hidden="true" tabindex="-1"></a><span class="fu">## When does each approach work?</span></span>
+<span id="cb37-405"><a href="#cb37-405" aria-hidden="true" tabindex="-1"></a>When the bootstrap distribution is close to normal, the two approaches agree. When it is skewed (common for ratios, especially when the denominator can be near zero), the bootstrap percentile interval is more reliable.</span>
 <span id="cb37-406"><a href="#cb37-406" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-407"><a href="#cb37-407" aria-hidden="true" tabindex="-1"></a><span class="fu">### Coverage simulation</span></span>
+<span id="cb37-407"><a href="#cb37-407" aria-hidden="true" tabindex="-1"></a><span class="fu">## When does each approach work?</span></span>
 <span id="cb37-408"><a href="#cb37-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-409"><a href="#cb37-409" aria-hidden="true" tabindex="-1"></a>The acid test for any inference method: does a nominal 95% interval actually contain the true parameter 95% of the time?</span>
+<span id="cb37-409"><a href="#cb37-409" aria-hidden="true" tabindex="-1"></a><span class="fu">### Coverage simulation</span></span>
 <span id="cb37-410"><a href="#cb37-410" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-413"><a href="#cb37-413" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-414"><a href="#cb37-414" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: coverage-comparison</span></span>
-<span id="cb37-415"><a href="#cb37-415" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-416"><a href="#cb37-416" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">500</span></span>
-<span id="cb37-417"><a href="#cb37-417" aria-hidden="true" tabindex="-1"></a>n_vals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">200</span>)</span>
-<span id="cb37-418"><a href="#cb37-418" aria-hidden="true" tabindex="-1"></a>B_boot <span class="ot">&lt;-</span> <span class="dv">200</span>  <span class="co"># bootstrap replicates per simulation</span></span>
-<span id="cb37-419"><a href="#cb37-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-420"><a href="#cb37-420" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb37-421"><a href="#cb37-421" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n <span class="cf">in</span> n_vals) {</span>
-<span id="cb37-422"><a href="#cb37-422" aria-hidden="true" tabindex="-1"></a>  cover_analytic <span class="ot">&lt;-</span> cover_sandwich <span class="ot">&lt;-</span> cover_boot <span class="ot">&lt;-</span> <span class="fu">logical</span>(B)</span>
-<span id="cb37-423"><a href="#cb37-423" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
-<span id="cb37-424"><a href="#cb37-424" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
-<span id="cb37-425"><a href="#cb37-425" aria-hidden="true" tabindex="-1"></a>    sigma_i <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">+</span> <span class="fu">abs</span>(x)</span>
-<span id="cb37-426"><a href="#cb37-426" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> <span class="fu">rt</span>(n, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">3</span>) <span class="sc">*</span> sigma_i  <span class="co"># heavy-tailed + heteroskedastic</span></span>
-<span id="cb37-427"><a href="#cb37-427" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> e</span>
-<span id="cb37-428"><a href="#cb37-428" aria-hidden="true" tabindex="-1"></a>    dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y, <span class="at">x =</span> x)</span>
-<span id="cb37-429"><a href="#cb37-429" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat)</span>
-<span id="cb37-430"><a href="#cb37-430" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-431"><a href="#cb37-431" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Analytic (classical)</span></span>
-<span id="cb37-432"><a href="#cb37-432" aria-hidden="true" tabindex="-1"></a>    ci_a <span class="ot">&lt;-</span> <span class="fu">confint</span>(fit)[<span class="st">"x"</span>, ]</span>
-<span id="cb37-433"><a href="#cb37-433" aria-hidden="true" tabindex="-1"></a>    cover_analytic[b] <span class="ot">&lt;-</span> ci_a[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> <span class="dv">3</span> <span class="sc">&lt;</span> ci_a[<span class="dv">2</span>]</span>
-<span id="cb37-434"><a href="#cb37-434" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-435"><a href="#cb37-435" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sandwich (HC2)</span></span>
-<span id="cb37-436"><a href="#cb37-436" aria-hidden="true" tabindex="-1"></a>    fit_r <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat, <span class="at">se_type =</span> <span class="st">"HC2"</span>)</span>
-<span id="cb37-437"><a href="#cb37-437" aria-hidden="true" tabindex="-1"></a>    ci_s <span class="ot">&lt;-</span> <span class="fu">c</span>(fit_r<span class="sc">$</span>conf.low[<span class="st">"x"</span>], fit_r<span class="sc">$</span>conf.high[<span class="st">"x"</span>])</span>
-<span id="cb37-438"><a href="#cb37-438" aria-hidden="true" tabindex="-1"></a>    cover_sandwich[b] <span class="ot">&lt;-</span> ci_s[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> <span class="dv">3</span> <span class="sc">&lt;</span> ci_s[<span class="dv">2</span>]</span>
-<span id="cb37-439"><a href="#cb37-439" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-440"><a href="#cb37-440" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bootstrap (percentile)</span></span>
-<span id="cb37-441"><a href="#cb37-441" aria-hidden="true" tabindex="-1"></a>    boot_b <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B_boot, {</span>
-<span id="cb37-442"><a href="#cb37-442" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb37-443"><a href="#cb37-443" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coef</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat[idx, ]))[<span class="st">"x"</span>]</span>
-<span id="cb37-444"><a href="#cb37-444" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb37-445"><a href="#cb37-445" aria-hidden="true" tabindex="-1"></a>    ci_boot <span class="ot">&lt;-</span> <span class="fu">quantile</span>(boot_b, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
-<span id="cb37-446"><a href="#cb37-446" aria-hidden="true" tabindex="-1"></a>    cover_boot[b] <span class="ot">&lt;-</span> ci_boot[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> <span class="dv">3</span> <span class="sc">&lt;</span> ci_boot[<span class="dv">2</span>]</span>
-<span id="cb37-447"><a href="#cb37-447" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb37-448"><a href="#cb37-448" aria-hidden="true" tabindex="-1"></a>  results[[<span class="fu">length</span>(results) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb37-449"><a href="#cb37-449" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n,</span>
-<span id="cb37-450"><a href="#cb37-450" aria-hidden="true" tabindex="-1"></a>    <span class="at">Classical =</span> <span class="fu">mean</span>(cover_analytic),</span>
-<span id="cb37-451"><a href="#cb37-451" aria-hidden="true" tabindex="-1"></a>    <span class="at">HC2 =</span> <span class="fu">mean</span>(cover_sandwich),</span>
-<span id="cb37-452"><a href="#cb37-452" aria-hidden="true" tabindex="-1"></a>    <span class="at">Bootstrap =</span> <span class="fu">mean</span>(cover_boot)</span>
-<span id="cb37-453"><a href="#cb37-453" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb37-454"><a href="#cb37-454" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-455"><a href="#cb37-455" aria-hidden="true" tabindex="-1"></a><span class="fu">do.call</span>(rbind, results)</span>
-<span id="cb37-456"><a href="#cb37-456" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-457"><a href="#cb37-457" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-458"><a href="#cb37-458" aria-hidden="true" tabindex="-1"></a>Key patterns:</span>
+<span id="cb37-411"><a href="#cb37-411" aria-hidden="true" tabindex="-1"></a>The acid test for any inference method: does a nominal 95% interval actually contain the true parameter 95% of the time?</span>
+<span id="cb37-412"><a href="#cb37-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-415"><a href="#cb37-415" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-416"><a href="#cb37-416" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: coverage-comparison</span></span>
+<span id="cb37-417"><a href="#cb37-417" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-418"><a href="#cb37-418" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb37-419"><a href="#cb37-419" aria-hidden="true" tabindex="-1"></a>n_vals <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">200</span>)</span>
+<span id="cb37-420"><a href="#cb37-420" aria-hidden="true" tabindex="-1"></a>B_boot <span class="ot">&lt;-</span> <span class="dv">200</span>  <span class="co"># bootstrap replicates per simulation</span></span>
+<span id="cb37-421"><a href="#cb37-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-422"><a href="#cb37-422" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb37-423"><a href="#cb37-423" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n <span class="cf">in</span> n_vals) {</span>
+<span id="cb37-424"><a href="#cb37-424" aria-hidden="true" tabindex="-1"></a>  cover_analytic <span class="ot">&lt;-</span> cover_sandwich <span class="ot">&lt;-</span> cover_boot <span class="ot">&lt;-</span> <span class="fu">logical</span>(B)</span>
+<span id="cb37-425"><a href="#cb37-425" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (b <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>B) {</span>
+<span id="cb37-426"><a href="#cb37-426" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb37-427"><a href="#cb37-427" aria-hidden="true" tabindex="-1"></a>    sigma_i <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">+</span> <span class="fu">abs</span>(x)</span>
+<span id="cb37-428"><a href="#cb37-428" aria-hidden="true" tabindex="-1"></a>    e <span class="ot">&lt;-</span> <span class="fu">rt</span>(n, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">3</span>) <span class="sc">*</span> sigma_i  <span class="co"># heavy-tailed + heteroskedastic</span></span>
+<span id="cb37-429"><a href="#cb37-429" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">+</span> e</span>
+<span id="cb37-430"><a href="#cb37-430" aria-hidden="true" tabindex="-1"></a>    dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y, <span class="at">x =</span> x)</span>
+<span id="cb37-431"><a href="#cb37-431" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat)</span>
+<span id="cb37-432"><a href="#cb37-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-433"><a href="#cb37-433" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Analytic (classical)</span></span>
+<span id="cb37-434"><a href="#cb37-434" aria-hidden="true" tabindex="-1"></a>    ci_a <span class="ot">&lt;-</span> <span class="fu">confint</span>(fit)[<span class="st">"x"</span>, ]</span>
+<span id="cb37-435"><a href="#cb37-435" aria-hidden="true" tabindex="-1"></a>    cover_analytic[b] <span class="ot">&lt;-</span> ci_a[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> <span class="dv">3</span> <span class="sc">&lt;</span> ci_a[<span class="dv">2</span>]</span>
+<span id="cb37-436"><a href="#cb37-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-437"><a href="#cb37-437" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sandwich (HC2)</span></span>
+<span id="cb37-438"><a href="#cb37-438" aria-hidden="true" tabindex="-1"></a>    fit_r <span class="ot">&lt;-</span> <span class="fu">lm_robust</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat, <span class="at">se_type =</span> <span class="st">"HC2"</span>)</span>
+<span id="cb37-439"><a href="#cb37-439" aria-hidden="true" tabindex="-1"></a>    ci_s <span class="ot">&lt;-</span> <span class="fu">c</span>(fit_r<span class="sc">$</span>conf.low[<span class="st">"x"</span>], fit_r<span class="sc">$</span>conf.high[<span class="st">"x"</span>])</span>
+<span id="cb37-440"><a href="#cb37-440" aria-hidden="true" tabindex="-1"></a>    cover_sandwich[b] <span class="ot">&lt;-</span> ci_s[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> <span class="dv">3</span> <span class="sc">&lt;</span> ci_s[<span class="dv">2</span>]</span>
+<span id="cb37-441"><a href="#cb37-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-442"><a href="#cb37-442" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bootstrap (percentile)</span></span>
+<span id="cb37-443"><a href="#cb37-443" aria-hidden="true" tabindex="-1"></a>    boot_b <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B_boot, {</span>
+<span id="cb37-444"><a href="#cb37-444" aria-hidden="true" tabindex="-1"></a>      idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-445"><a href="#cb37-445" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coef</span>(<span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> dat[idx, ]))[<span class="st">"x"</span>]</span>
+<span id="cb37-446"><a href="#cb37-446" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb37-447"><a href="#cb37-447" aria-hidden="true" tabindex="-1"></a>    ci_boot <span class="ot">&lt;-</span> <span class="fu">quantile</span>(boot_b, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb37-448"><a href="#cb37-448" aria-hidden="true" tabindex="-1"></a>    cover_boot[b] <span class="ot">&lt;-</span> ci_boot[<span class="dv">1</span>] <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">&amp;</span> <span class="dv">3</span> <span class="sc">&lt;</span> ci_boot[<span class="dv">2</span>]</span>
+<span id="cb37-449"><a href="#cb37-449" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb37-450"><a href="#cb37-450" aria-hidden="true" tabindex="-1"></a>  results[[<span class="fu">length</span>(results) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb37-451"><a href="#cb37-451" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> n,</span>
+<span id="cb37-452"><a href="#cb37-452" aria-hidden="true" tabindex="-1"></a>    <span class="at">Classical =</span> <span class="fu">mean</span>(cover_analytic),</span>
+<span id="cb37-453"><a href="#cb37-453" aria-hidden="true" tabindex="-1"></a>    <span class="at">HC2 =</span> <span class="fu">mean</span>(cover_sandwich),</span>
+<span id="cb37-454"><a href="#cb37-454" aria-hidden="true" tabindex="-1"></a>    <span class="at">Bootstrap =</span> <span class="fu">mean</span>(cover_boot)</span>
+<span id="cb37-455"><a href="#cb37-455" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-456"><a href="#cb37-456" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-457"><a href="#cb37-457" aria-hidden="true" tabindex="-1"></a><span class="fu">do.call</span>(rbind, results)</span>
+<span id="cb37-458"><a href="#cb37-458" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-459"><a href="#cb37-459" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-460"><a href="#cb37-460" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Classical SEs** undercover at every sample size because they assume homoskedasticity</span>
-<span id="cb37-461"><a href="#cb37-461" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**HC2 sandwich SEs** maintain near-nominal coverage across all sample sizes — the analytical leverage correction works even at $n = 20$</span>
-<span id="cb37-462"><a href="#cb37-462" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Bootstrap percentile** does well once $n$ is moderate, but at $n = 20$ its coverage is nearly as bad as the classical — with so few observations and heavy-tailed heteroskedastic errors, resampling cannot reliably capture the tail behavior</span>
-<span id="cb37-463"><a href="#cb37-463" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-464"><a href="#cb37-464" aria-hidden="true" tabindex="-1"></a><span class="fu">### When the bootstrap breaks down</span></span>
+<span id="cb37-460"><a href="#cb37-460" aria-hidden="true" tabindex="-1"></a>Key patterns:</span>
+<span id="cb37-461"><a href="#cb37-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-462"><a href="#cb37-462" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Classical SEs** undercover at every sample size because they assume homoskedasticity</span>
+<span id="cb37-463"><a href="#cb37-463" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**HC2 sandwich SEs** maintain near-nominal coverage across all sample sizes — the analytical leverage correction works even at $n = 20$</span>
+<span id="cb37-464"><a href="#cb37-464" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Bootstrap percentile** does well once $n$ is moderate, but at $n = 20$ its coverage is nearly as bad as the classical — with so few observations and heavy-tailed heteroskedastic errors, resampling cannot reliably capture the tail behavior</span>
 <span id="cb37-465"><a href="#cb37-465" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-466"><a href="#cb37-466" aria-hidden="true" tabindex="-1"></a>The bootstrap is not a panacea. It fails or becomes unreliable when:</span>
+<span id="cb37-466"><a href="#cb37-466" aria-hidden="true" tabindex="-1"></a><span class="fu">### When the bootstrap breaks down</span></span>
 <span id="cb37-467"><a href="#cb37-467" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-468"><a href="#cb37-468" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**The data are not iid** (time series, clustered data) --- you need a block bootstrap or cluster bootstrap instead</span>
-<span id="cb37-469"><a href="#cb37-469" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**The estimator is not smooth** (e.g., the maximum of the data) --- the bootstrap distribution can be inconsistent</span>
-<span id="cb37-470"><a href="#cb37-470" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**The sample is very small** ($n &lt; 20$) --- there aren't enough distinct resamples to represent the population</span>
-<span id="cb37-471"><a href="#cb37-471" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-474"><a href="#cb37-474" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-475"><a href="#cb37-475" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-failure</span></span>
-<span id="cb37-476"><a href="#cb37-476" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
-<span id="cb37-477"><a href="#cb37-477" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
-<span id="cb37-478"><a href="#cb37-478" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap fails for the sample maximum (non-smooth estimator)</span></span>
-<span id="cb37-479"><a href="#cb37-479" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-480"><a href="#cb37-480" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="cb37-481"><a href="#cb37-481" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb37-482"><a href="#cb37-482" aria-hidden="true" tabindex="-1"></a>true_max <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># support of Uniform[0,1]</span></span>
-<span id="cb37-483"><a href="#cb37-483" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-484"><a href="#cb37-484" aria-hidden="true" tabindex="-1"></a>boot_max <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
-<span id="cb37-485"><a href="#cb37-485" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
-<span id="cb37-486"><a href="#cb37-486" aria-hidden="true" tabindex="-1"></a>  x_star <span class="ot">&lt;-</span> <span class="fu">sample</span>(x, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb37-487"><a href="#cb37-487" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>(x_star)</span>
-<span id="cb37-488"><a href="#cb37-488" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb37-489"><a href="#cb37-489" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-490"><a href="#cb37-490" aria-hidden="true" tabindex="-1"></a>df_max <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">max_star =</span> boot_max)</span>
-<span id="cb37-491"><a href="#cb37-491" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_max, <span class="fu">aes</span>(max_star)) <span class="sc">+</span></span>
-<span id="cb37-492"><a href="#cb37-492" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb37-493"><a href="#cb37-493" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> true_max, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb37-494"><a href="#cb37-494" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap failure: sample maximum of Uniform[0,1]"</span>,</span>
-<span id="cb37-495"><a href="#cb37-495" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"The bootstrap cannot exceed the sample max, so it cannot cover the true max = 1."</span>,</span>
-<span id="cb37-496"><a href="#cb37-496" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">max</span>(X<span class="sc">^</span><span class="st">"*"</span>)))</span>
-<span id="cb37-497"><a href="#cb37-497" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-498"><a href="#cb37-498" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-499"><a href="#cb37-499" aria-hidden="true" tabindex="-1"></a>The bootstrap distribution of the sample maximum is bounded by the observed maximum --- it can never reach the true parameter boundary. For smooth functions of sample means (like regression coefficients), this pathology does not arise.</span>
+<span id="cb37-468"><a href="#cb37-468" aria-hidden="true" tabindex="-1"></a>The bootstrap is not a panacea. It fails or becomes unreliable when:</span>
+<span id="cb37-469"><a href="#cb37-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-470"><a href="#cb37-470" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**The data are not iid** (time series, clustered data) --- you need a block bootstrap or cluster bootstrap instead</span>
+<span id="cb37-471"><a href="#cb37-471" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**The estimator is not smooth** (e.g., the maximum of the data) --- the bootstrap distribution can be inconsistent</span>
+<span id="cb37-472"><a href="#cb37-472" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**The sample is very small** ($n &lt; 20$) --- there aren't enough distinct resamples to represent the population</span>
+<span id="cb37-473"><a href="#cb37-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-476"><a href="#cb37-476" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-477"><a href="#cb37-477" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: bootstrap-failure</span></span>
+<span id="cb37-478"><a href="#cb37-478" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb37-479"><a href="#cb37-479" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb37-480"><a href="#cb37-480" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap fails for the sample maximum (non-smooth estimator)</span></span>
+<span id="cb37-481"><a href="#cb37-481" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-482"><a href="#cb37-482" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb37-483"><a href="#cb37-483" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb37-484"><a href="#cb37-484" aria-hidden="true" tabindex="-1"></a>true_max <span class="ot">&lt;-</span> <span class="dv">1</span>  <span class="co"># support of Uniform[0,1]</span></span>
+<span id="cb37-485"><a href="#cb37-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-486"><a href="#cb37-486" aria-hidden="true" tabindex="-1"></a>boot_max <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb37-487"><a href="#cb37-487" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">runif</span>(n)</span>
+<span id="cb37-488"><a href="#cb37-488" aria-hidden="true" tabindex="-1"></a>  x_star <span class="ot">&lt;-</span> <span class="fu">sample</span>(x, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-489"><a href="#cb37-489" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>(x_star)</span>
+<span id="cb37-490"><a href="#cb37-490" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb37-491"><a href="#cb37-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-492"><a href="#cb37-492" aria-hidden="true" tabindex="-1"></a>df_max <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">max_star =</span> boot_max)</span>
+<span id="cb37-493"><a href="#cb37-493" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_max, <span class="fu">aes</span>(max_star)) <span class="sc">+</span></span>
+<span id="cb37-494"><a href="#cb37-494" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb37-495"><a href="#cb37-495" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> true_max, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb37-496"><a href="#cb37-496" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap failure: sample maximum of Uniform[0,1]"</span>,</span>
+<span id="cb37-497"><a href="#cb37-497" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"The bootstrap cannot exceed the sample max, so it cannot cover the true max = 1."</span>,</span>
+<span id="cb37-498"><a href="#cb37-498" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">max</span>(X<span class="sc">^</span><span class="st">"*"</span>)))</span>
+<span id="cb37-499"><a href="#cb37-499" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-500"><a href="#cb37-500" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-501"><a href="#cb37-501" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applied workflow: Prestige data</span></span>
+<span id="cb37-501"><a href="#cb37-501" aria-hidden="true" tabindex="-1"></a>The bootstrap distribution of the sample maximum is bounded by the observed maximum --- it can never reach the true parameter boundary. For smooth functions of sample means (like regression coefficients), this pathology does not arise.</span>
 <span id="cb37-502"><a href="#cb37-502" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-503"><a href="#cb37-503" aria-hidden="true" tabindex="-1"></a>Let's put everything together on a real example, comparing all approaches.</span>
+<span id="cb37-503"><a href="#cb37-503" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applied workflow: Prestige data</span></span>
 <span id="cb37-504"><a href="#cb37-504" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-507"><a href="#cb37-507" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-508"><a href="#cb37-508" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-full</span></span>
-<span id="cb37-509"><a href="#cb37-509" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> Prestige)</span>
-<span id="cb37-510"><a href="#cb37-510" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-511"><a href="#cb37-511" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-512"><a href="#cb37-512" aria-hidden="true" tabindex="-1"></a><span class="fu">### Standard errors: three ways</span></span>
+<span id="cb37-505"><a href="#cb37-505" aria-hidden="true" tabindex="-1"></a>Let's put everything together on a real example, comparing all approaches.</span>
+<span id="cb37-506"><a href="#cb37-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-509"><a href="#cb37-509" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-510"><a href="#cb37-510" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-full</span></span>
+<span id="cb37-511"><a href="#cb37-511" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> Prestige)</span>
+<span id="cb37-512"><a href="#cb37-512" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-513"><a href="#cb37-513" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-516"><a href="#cb37-516" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-517"><a href="#cb37-517" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-se-comparison</span></span>
-<span id="cb37-518"><a href="#cb37-518" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Classical (assumes homoskedasticity + normality)</span></span>
-<span id="cb37-519"><a href="#cb37-519" aria-hidden="true" tabindex="-1"></a>se_class <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcov</span>(mod)))</span>
-<span id="cb37-520"><a href="#cb37-520" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-521"><a href="#cb37-521" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Sandwich (asymptotic, no distributional assumptions)</span></span>
-<span id="cb37-522"><a href="#cb37-522" aria-hidden="true" tabindex="-1"></a>se_hc2 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>)))</span>
-<span id="cb37-523"><a href="#cb37-523" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-524"><a href="#cb37-524" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Bootstrap</span></span>
-<span id="cb37-525"><a href="#cb37-525" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb37-526"><a href="#cb37-526" aria-hidden="true" tabindex="-1"></a>boot_out <span class="ot">&lt;-</span> <span class="fu">boot</span>(Prestige,</span>
-<span id="cb37-527"><a href="#cb37-527" aria-hidden="true" tabindex="-1"></a>                  <span class="cf">function</span>(d, i) <span class="fu">coef</span>(<span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> d[i, ])),</span>
-<span id="cb37-528"><a href="#cb37-528" aria-hidden="true" tabindex="-1"></a>                  <span class="at">R =</span> <span class="dv">5000</span>)</span>
-<span id="cb37-529"><a href="#cb37-529" aria-hidden="true" tabindex="-1"></a>se_boot <span class="ot">&lt;-</span> <span class="fu">apply</span>(boot_out<span class="sc">$</span>t, <span class="dv">2</span>, sd)</span>
-<span id="cb37-530"><a href="#cb37-530" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-531"><a href="#cb37-531" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb37-532"><a href="#cb37-532" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">names</span>(<span class="fu">coef</span>(mod)),</span>
-<span id="cb37-533"><a href="#cb37-533" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate =</span> <span class="fu">round</span>(<span class="fu">coef</span>(mod), <span class="dv">4</span>),</span>
-<span id="cb37-534"><a href="#cb37-534" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_classical =</span> <span class="fu">round</span>(se_class, <span class="dv">4</span>),</span>
-<span id="cb37-535"><a href="#cb37-535" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_HC2 =</span> <span class="fu">round</span>(se_hc2, <span class="dv">4</span>),</span>
-<span id="cb37-536"><a href="#cb37-536" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_bootstrap =</span> <span class="fu">round</span>(se_boot, <span class="dv">4</span>)</span>
-<span id="cb37-537"><a href="#cb37-537" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-538"><a href="#cb37-538" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-539"><a href="#cb37-539" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-540"><a href="#cb37-540" aria-hidden="true" tabindex="-1"></a><span class="fu">### Confidence intervals: three ways</span></span>
+<span id="cb37-514"><a href="#cb37-514" aria-hidden="true" tabindex="-1"></a><span class="fu">### Standard errors: three ways</span></span>
+<span id="cb37-515"><a href="#cb37-515" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-518"><a href="#cb37-518" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-519"><a href="#cb37-519" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-se-comparison</span></span>
+<span id="cb37-520"><a href="#cb37-520" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Classical (assumes homoskedasticity + normality)</span></span>
+<span id="cb37-521"><a href="#cb37-521" aria-hidden="true" tabindex="-1"></a>se_class <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcov</span>(mod)))</span>
+<span id="cb37-522"><a href="#cb37-522" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-523"><a href="#cb37-523" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Sandwich (asymptotic, no distributional assumptions)</span></span>
+<span id="cb37-524"><a href="#cb37-524" aria-hidden="true" tabindex="-1"></a>se_hc2 <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>)))</span>
+<span id="cb37-525"><a href="#cb37-525" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-526"><a href="#cb37-526" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Bootstrap</span></span>
+<span id="cb37-527"><a href="#cb37-527" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb37-528"><a href="#cb37-528" aria-hidden="true" tabindex="-1"></a>boot_out <span class="ot">&lt;-</span> <span class="fu">boot</span>(Prestige,</span>
+<span id="cb37-529"><a href="#cb37-529" aria-hidden="true" tabindex="-1"></a>                  <span class="cf">function</span>(d, i) <span class="fu">coef</span>(<span class="fu">lm</span>(prestige <span class="sc">~</span> income <span class="sc">+</span> education <span class="sc">+</span> women, <span class="at">data =</span> d[i, ])),</span>
+<span id="cb37-530"><a href="#cb37-530" aria-hidden="true" tabindex="-1"></a>                  <span class="at">R =</span> <span class="dv">5000</span>)</span>
+<span id="cb37-531"><a href="#cb37-531" aria-hidden="true" tabindex="-1"></a>se_boot <span class="ot">&lt;-</span> <span class="fu">apply</span>(boot_out<span class="sc">$</span>t, <span class="dv">2</span>, sd)</span>
+<span id="cb37-532"><a href="#cb37-532" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-533"><a href="#cb37-533" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb37-534"><a href="#cb37-534" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">names</span>(<span class="fu">coef</span>(mod)),</span>
+<span id="cb37-535"><a href="#cb37-535" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate =</span> <span class="fu">round</span>(<span class="fu">coef</span>(mod), <span class="dv">4</span>),</span>
+<span id="cb37-536"><a href="#cb37-536" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_classical =</span> <span class="fu">round</span>(se_class, <span class="dv">4</span>),</span>
+<span id="cb37-537"><a href="#cb37-537" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_HC2 =</span> <span class="fu">round</span>(se_hc2, <span class="dv">4</span>),</span>
+<span id="cb37-538"><a href="#cb37-538" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_bootstrap =</span> <span class="fu">round</span>(se_boot, <span class="dv">4</span>)</span>
+<span id="cb37-539"><a href="#cb37-539" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-540"><a href="#cb37-540" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-541"><a href="#cb37-541" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-544"><a href="#cb37-544" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-545"><a href="#cb37-545" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-ci-comparison</span></span>
-<span id="cb37-546"><a href="#cb37-546" aria-hidden="true" tabindex="-1"></a><span class="co"># Focus on the education coefficient (index 3)</span></span>
-<span id="cb37-547"><a href="#cb37-547" aria-hidden="true" tabindex="-1"></a>ci_class <span class="ot">&lt;-</span> <span class="fu">confint</span>(mod)[<span class="st">"education"</span>, ]</span>
-<span id="cb37-548"><a href="#cb37-548" aria-hidden="true" tabindex="-1"></a>ci_hc2 <span class="ot">&lt;-</span> <span class="fu">coefci</span>(mod, <span class="at">vcov =</span> <span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>))[<span class="st">"education"</span>, ]</span>
-<span id="cb37-549"><a href="#cb37-549" aria-hidden="true" tabindex="-1"></a>ci_boot <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(boot_out, <span class="at">index =</span> <span class="dv">3</span>, <span class="at">type =</span> <span class="st">"perc"</span>)<span class="sc">$</span>percent[<span class="dv">4</span><span class="sc">:</span><span class="dv">5</span>]</span>
-<span id="cb37-550"><a href="#cb37-550" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-551"><a href="#cb37-551" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb37-552"><a href="#cb37-552" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Classical"</span>, <span class="st">"HC2 sandwich"</span>, <span class="st">"Bootstrap percentile"</span>),</span>
-<span id="cb37-553"><a href="#cb37-553" aria-hidden="true" tabindex="-1"></a>  <span class="at">Lower =</span> <span class="fu">round</span>(<span class="fu">c</span>(ci_class[<span class="dv">1</span>], ci_hc2[<span class="dv">1</span>], ci_boot[<span class="dv">1</span>]), <span class="dv">3</span>),</span>
-<span id="cb37-554"><a href="#cb37-554" aria-hidden="true" tabindex="-1"></a>  <span class="at">Upper =</span> <span class="fu">round</span>(<span class="fu">c</span>(ci_class[<span class="dv">2</span>], ci_hc2[<span class="dv">2</span>], ci_boot[<span class="dv">2</span>]), <span class="dv">3</span>),</span>
-<span id="cb37-555"><a href="#cb37-555" aria-hidden="true" tabindex="-1"></a>  <span class="at">Width =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">diff</span>(ci_class), <span class="fu">diff</span>(ci_hc2), <span class="fu">diff</span>(ci_boot)), <span class="dv">3</span>)</span>
-<span id="cb37-556"><a href="#cb37-556" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-557"><a href="#cb37-557" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-558"><a href="#cb37-558" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-559"><a href="#cb37-559" aria-hidden="true" tabindex="-1"></a><span class="fu">### Nonlinear function: income-to-education ratio</span></span>
+<span id="cb37-542"><a href="#cb37-542" aria-hidden="true" tabindex="-1"></a><span class="fu">### Confidence intervals: three ways</span></span>
+<span id="cb37-543"><a href="#cb37-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-546"><a href="#cb37-546" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-547"><a href="#cb37-547" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-ci-comparison</span></span>
+<span id="cb37-548"><a href="#cb37-548" aria-hidden="true" tabindex="-1"></a><span class="co"># Focus on the education coefficient (index 3)</span></span>
+<span id="cb37-549"><a href="#cb37-549" aria-hidden="true" tabindex="-1"></a>ci_class <span class="ot">&lt;-</span> <span class="fu">confint</span>(mod)[<span class="st">"education"</span>, ]</span>
+<span id="cb37-550"><a href="#cb37-550" aria-hidden="true" tabindex="-1"></a>ci_hc2 <span class="ot">&lt;-</span> <span class="fu">coefci</span>(mod, <span class="at">vcov =</span> <span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>))[<span class="st">"education"</span>, ]</span>
+<span id="cb37-551"><a href="#cb37-551" aria-hidden="true" tabindex="-1"></a>ci_boot <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(boot_out, <span class="at">index =</span> <span class="dv">3</span>, <span class="at">type =</span> <span class="st">"perc"</span>)<span class="sc">$</span>percent[<span class="dv">4</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb37-552"><a href="#cb37-552" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-553"><a href="#cb37-553" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb37-554"><a href="#cb37-554" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Classical"</span>, <span class="st">"HC2 sandwich"</span>, <span class="st">"Bootstrap percentile"</span>),</span>
+<span id="cb37-555"><a href="#cb37-555" aria-hidden="true" tabindex="-1"></a>  <span class="at">Lower =</span> <span class="fu">round</span>(<span class="fu">c</span>(ci_class[<span class="dv">1</span>], ci_hc2[<span class="dv">1</span>], ci_boot[<span class="dv">1</span>]), <span class="dv">3</span>),</span>
+<span id="cb37-556"><a href="#cb37-556" aria-hidden="true" tabindex="-1"></a>  <span class="at">Upper =</span> <span class="fu">round</span>(<span class="fu">c</span>(ci_class[<span class="dv">2</span>], ci_hc2[<span class="dv">2</span>], ci_boot[<span class="dv">2</span>]), <span class="dv">3</span>),</span>
+<span id="cb37-557"><a href="#cb37-557" aria-hidden="true" tabindex="-1"></a>  <span class="at">Width =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">diff</span>(ci_class), <span class="fu">diff</span>(ci_hc2), <span class="fu">diff</span>(ci_boot)), <span class="dv">3</span>)</span>
+<span id="cb37-558"><a href="#cb37-558" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-559"><a href="#cb37-559" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-560"><a href="#cb37-560" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-561"><a href="#cb37-561" aria-hidden="true" tabindex="-1"></a>Suppose we want to compare the magnitude of the income and education effects. The ratio $\theta = \beta_{\text{income}} / \beta_{\text{education}}$ tells us how many prestige points a unit of income buys relative to a year of education.</span>
+<span id="cb37-561"><a href="#cb37-561" aria-hidden="true" tabindex="-1"></a><span class="fu">### Nonlinear function: income-to-education ratio</span></span>
 <span id="cb37-562"><a href="#cb37-562" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-565"><a href="#cb37-565" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-566"><a href="#cb37-566" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-ratio</span></span>
-<span id="cb37-567"><a href="#cb37-567" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta method</span></span>
-<span id="cb37-568"><a href="#cb37-568" aria-hidden="true" tabindex="-1"></a>dm_ratio <span class="ot">&lt;-</span> <span class="fu">deltaMethod</span>(mod, <span class="st">"income / education"</span>)</span>
-<span id="cb37-569"><a href="#cb37-569" aria-hidden="true" tabindex="-1"></a>dm_ratio</span>
-<span id="cb37-570"><a href="#cb37-570" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-571"><a href="#cb37-571" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap</span></span>
-<span id="cb37-572"><a href="#cb37-572" aria-hidden="true" tabindex="-1"></a>boot_ratio <span class="ot">&lt;-</span> boot_out<span class="sc">$</span>t[, <span class="dv">2</span>] <span class="sc">/</span> boot_out<span class="sc">$</span>t[, <span class="dv">3</span>]  <span class="co"># income / education</span></span>
-<span id="cb37-573"><a href="#cb37-573" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-574"><a href="#cb37-574" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">delta_method_se =</span> dm_ratio<span class="sc">$</span>SE,</span>
-<span id="cb37-575"><a href="#cb37-575" aria-hidden="true" tabindex="-1"></a>  <span class="at">bootstrap_se =</span> <span class="fu">sd</span>(boot_ratio))</span>
-<span id="cb37-576"><a href="#cb37-576" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-577"><a href="#cb37-577" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-580"><a href="#cb37-580" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-581"><a href="#cb37-581" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-ratio-plot</span></span>
-<span id="cb37-582"><a href="#cb37-582" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
-<span id="cb37-583"><a href="#cb37-583" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
-<span id="cb37-584"><a href="#cb37-584" aria-hidden="true" tabindex="-1"></a>df_ratio <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">ratio =</span> boot_ratio)</span>
-<span id="cb37-585"><a href="#cb37-585" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_ratio, <span class="fu">aes</span>(ratio)) <span class="sc">+</span></span>
-<span id="cb37-586"><a href="#cb37-586" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb37-587"><a href="#cb37-587" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
-<span id="cb37-588"><a href="#cb37-588" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> dm_ratio<span class="sc">$</span>Estimate, <span class="at">sd =</span> dm_ratio<span class="sc">$</span>SE),</span>
-<span id="cb37-589"><a href="#cb37-589" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb37-590"><a href="#cb37-590" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> dm_ratio<span class="sc">$</span>Estimate, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb37-591"><a href="#cb37-591" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap vs. delta method for β_income / β_education"</span>,</span>
-<span id="cb37-592"><a href="#cb37-592" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = normal approximation (delta method). Bootstrap is slightly skewed."</span>,</span>
-<span id="cb37-593"><a href="#cb37-593" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)[income] <span class="sc">/</span> <span class="fu">hat</span>(beta)[education]))</span>
-<span id="cb37-594"><a href="#cb37-594" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-595"><a href="#cb37-595" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-596"><a href="#cb37-596" aria-hidden="true" tabindex="-1"></a><span class="fu">### Wald test with robust and bootstrap covariance</span></span>
+<span id="cb37-563"><a href="#cb37-563" aria-hidden="true" tabindex="-1"></a>Suppose we want to compare the magnitude of the income and education effects. The ratio $\theta = \beta_{\text{income}} / \beta_{\text{education}}$ tells us how many prestige points a unit of income buys relative to a year of education.</span>
+<span id="cb37-564"><a href="#cb37-564" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-567"><a href="#cb37-567" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-568"><a href="#cb37-568" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-ratio</span></span>
+<span id="cb37-569"><a href="#cb37-569" aria-hidden="true" tabindex="-1"></a><span class="co"># Delta method</span></span>
+<span id="cb37-570"><a href="#cb37-570" aria-hidden="true" tabindex="-1"></a>dm_ratio <span class="ot">&lt;-</span> <span class="fu">deltaMethod</span>(mod, <span class="st">"income / education"</span>)</span>
+<span id="cb37-571"><a href="#cb37-571" aria-hidden="true" tabindex="-1"></a>dm_ratio</span>
+<span id="cb37-572"><a href="#cb37-572" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-573"><a href="#cb37-573" aria-hidden="true" tabindex="-1"></a><span class="co"># Bootstrap</span></span>
+<span id="cb37-574"><a href="#cb37-574" aria-hidden="true" tabindex="-1"></a>boot_ratio <span class="ot">&lt;-</span> boot_out<span class="sc">$</span>t[, <span class="dv">2</span>] <span class="sc">/</span> boot_out<span class="sc">$</span>t[, <span class="dv">3</span>]  <span class="co"># income / education</span></span>
+<span id="cb37-575"><a href="#cb37-575" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-576"><a href="#cb37-576" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">delta_method_se =</span> dm_ratio<span class="sc">$</span>SE,</span>
+<span id="cb37-577"><a href="#cb37-577" aria-hidden="true" tabindex="-1"></a>  <span class="at">bootstrap_se =</span> <span class="fu">sd</span>(boot_ratio))</span>
+<span id="cb37-578"><a href="#cb37-578" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-579"><a href="#cb37-579" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-582"><a href="#cb37-582" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-583"><a href="#cb37-583" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-ratio-plot</span></span>
+<span id="cb37-584"><a href="#cb37-584" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb37-585"><a href="#cb37-585" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb37-586"><a href="#cb37-586" aria-hidden="true" tabindex="-1"></a>df_ratio <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">ratio =</span> boot_ratio)</span>
+<span id="cb37-587"><a href="#cb37-587" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_ratio, <span class="fu">aes</span>(ratio)) <span class="sc">+</span></span>
+<span id="cb37-588"><a href="#cb37-588" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">50</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb37-589"><a href="#cb37-589" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_function</span>(<span class="at">fun =</span> dnorm,</span>
+<span id="cb37-590"><a href="#cb37-590" aria-hidden="true" tabindex="-1"></a>                <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> dm_ratio<span class="sc">$</span>Estimate, <span class="at">sd =</span> dm_ratio<span class="sc">$</span>SE),</span>
+<span id="cb37-591"><a href="#cb37-591" aria-hidden="true" tabindex="-1"></a>                <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb37-592"><a href="#cb37-592" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> dm_ratio<span class="sc">$</span>Estimate, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb37-593"><a href="#cb37-593" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bootstrap vs. delta method for β_income / β_education"</span>,</span>
+<span id="cb37-594"><a href="#cb37-594" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red = normal approximation (delta method). Bootstrap is slightly skewed."</span>,</span>
+<span id="cb37-595"><a href="#cb37-595" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(beta)[income] <span class="sc">/</span> <span class="fu">hat</span>(beta)[education]))</span>
+<span id="cb37-596"><a href="#cb37-596" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-597"><a href="#cb37-597" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-600"><a href="#cb37-600" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb37-601"><a href="#cb37-601" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-wald</span></span>
-<span id="cb37-602"><a href="#cb37-602" aria-hidden="true" tabindex="-1"></a><span class="co"># Classical F-test</span></span>
-<span id="cb37-603"><a href="#cb37-603" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(mod, <span class="fu">c</span>(<span class="st">"education = 0"</span>, <span class="st">"women = 0"</span>))</span>
-<span id="cb37-604"><a href="#cb37-604" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-605"><a href="#cb37-605" aria-hidden="true" tabindex="-1"></a><span class="co"># Robust Wald test (sandwich)</span></span>
-<span id="cb37-606"><a href="#cb37-606" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(mod, <span class="fu">c</span>(<span class="st">"education = 0"</span>, <span class="st">"women = 0"</span>),</span>
-<span id="cb37-607"><a href="#cb37-607" aria-hidden="true" tabindex="-1"></a>                 <span class="at">vcov =</span> <span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>), <span class="at">test =</span> <span class="st">"Chisq"</span>)</span>
-<span id="cb37-608"><a href="#cb37-608" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb37-609"><a href="#cb37-609" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-610"><a href="#cb37-610" aria-hidden="true" tabindex="-1"></a><span class="fu">## The asymptotic toolkit in one picture</span></span>
+<span id="cb37-598"><a href="#cb37-598" aria-hidden="true" tabindex="-1"></a><span class="fu">### Wald test with robust and bootstrap covariance</span></span>
+<span id="cb37-599"><a href="#cb37-599" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-602"><a href="#cb37-602" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb37-603"><a href="#cb37-603" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prestige-wald</span></span>
+<span id="cb37-604"><a href="#cb37-604" aria-hidden="true" tabindex="-1"></a><span class="co"># Classical F-test</span></span>
+<span id="cb37-605"><a href="#cb37-605" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(mod, <span class="fu">c</span>(<span class="st">"education = 0"</span>, <span class="st">"women = 0"</span>))</span>
+<span id="cb37-606"><a href="#cb37-606" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-607"><a href="#cb37-607" aria-hidden="true" tabindex="-1"></a><span class="co"># Robust Wald test (sandwich)</span></span>
+<span id="cb37-608"><a href="#cb37-608" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(mod, <span class="fu">c</span>(<span class="st">"education = 0"</span>, <span class="st">"women = 0"</span>),</span>
+<span id="cb37-609"><a href="#cb37-609" aria-hidden="true" tabindex="-1"></a>                 <span class="at">vcov =</span> <span class="fu">vcovHC</span>(mod, <span class="at">type =</span> <span class="st">"HC2"</span>), <span class="at">test =</span> <span class="st">"Chisq"</span>)</span>
+<span id="cb37-610"><a href="#cb37-610" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb37-611"><a href="#cb37-611" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-612"><a href="#cb37-612" aria-hidden="true" tabindex="-1"></a>Every estimator in this course follows the same pattern:</span>
+<span id="cb37-612"><a href="#cb37-612" aria-hidden="true" tabindex="-1"></a><span class="fu">## The asymptotic toolkit in one picture</span></span>
 <span id="cb37-613"><a href="#cb37-613" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-614"><a href="#cb37-614" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Step <span class="pp">|</span> Tool <span class="pp">|</span> What it does <span class="pp">|</span></span>
-<span id="cb37-615"><a href="#cb37-615" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|------|-------------|</span></span>
-<span id="cb37-616"><a href="#cb37-616" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1. Consistency <span class="pp">|</span> WLLN + CMT <span class="pp">|</span> Sample moments → population moments; $\hat{\theta} \overset{p}{\to} \theta$ <span class="pp">|</span></span>
-<span id="cb37-617"><a href="#cb37-617" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2. Asymptotic normality <span class="pp">|</span> CLT + Slutsky <span class="pp">|</span> $\sqrt{n}(\hat{\theta} - \theta) \overset{d}{\to} N(0, V)$ <span class="pp">|</span></span>
-<span id="cb37-618"><a href="#cb37-618" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3. Variance estimation <span class="pp">|</span> Sandwich <span class="pp">|</span> $\hat{V} \overset{p}{\to} V$ (robust to misspecification) <span class="pp">|</span></span>
-<span id="cb37-619"><a href="#cb37-619" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4. Nonlinear functions <span class="pp">|</span> Delta method or bootstrap <span class="pp">|</span> SEs for $h(\hat{\theta})$ <span class="pp">|</span></span>
-<span id="cb37-620"><a href="#cb37-620" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-621"><a href="#cb37-621" aria-hidden="true" tabindex="-1"></a>This applies identically to OLS, probit MLE (Chapter 7), IV (Chapter 10), and GMM (Chapter 11) --- only the moment condition changes:</span>
+<span id="cb37-614"><a href="#cb37-614" aria-hidden="true" tabindex="-1"></a>Every estimator in this course follows the same pattern:</span>
+<span id="cb37-615"><a href="#cb37-615" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-616"><a href="#cb37-616" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Step <span class="pp">|</span> Tool <span class="pp">|</span> What it does <span class="pp">|</span></span>
+<span id="cb37-617"><a href="#cb37-617" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|------|-------------|</span></span>
+<span id="cb37-618"><a href="#cb37-618" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1. Consistency <span class="pp">|</span> WLLN + CMT <span class="pp">|</span> Sample moments → population moments; $\hat{\theta} \overset{p}{\to} \theta$ <span class="pp">|</span></span>
+<span id="cb37-619"><a href="#cb37-619" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2. Asymptotic normality <span class="pp">|</span> CLT + Slutsky <span class="pp">|</span> $\sqrt{n}(\hat{\theta} - \theta) \overset{d}{\to} N(0, V)$ <span class="pp">|</span></span>
+<span id="cb37-620"><a href="#cb37-620" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3. Variance estimation <span class="pp">|</span> Sandwich <span class="pp">|</span> $\hat{V} \overset{p}{\to} V$ (robust to misspecification) <span class="pp">|</span></span>
+<span id="cb37-621"><a href="#cb37-621" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4. Nonlinear functions <span class="pp">|</span> Delta method or bootstrap <span class="pp">|</span> SEs for $h(\hat{\theta})$ <span class="pp">|</span></span>
 <span id="cb37-622"><a href="#cb37-622" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-623"><a href="#cb37-623" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Estimator <span class="pp">|</span> Moment condition <span class="pp">|</span></span>
-<span id="cb37-624"><a href="#cb37-624" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-----------------|</span></span>
-<span id="cb37-625"><a href="#cb37-625" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> OLS <span class="pp">|</span> $E<span class="co">[</span><span class="ot">X_i(Y_i - X_i'\beta)</span><span class="co">]</span> = 0$ <span class="pp">|</span></span>
-<span id="cb37-626"><a href="#cb37-626" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Probit MLE <span class="pp">|</span> $E<span class="co">[</span><span class="ot">s_i(\beta)</span><span class="co">]</span> = 0$ (score) <span class="pp">|</span></span>
-<span id="cb37-627"><a href="#cb37-627" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> IV <span class="pp">|</span> $E<span class="co">[</span><span class="ot">Z_i(Y_i - X_i'\beta)</span><span class="co">]</span> = 0$ <span class="pp">|</span></span>
-<span id="cb37-628"><a href="#cb37-628" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> GMM <span class="pp">|</span> $E<span class="co">[</span><span class="ot">g(W_i, \theta)</span><span class="co">]</span> = 0$ (general) <span class="pp">|</span></span>
-<span id="cb37-629"><a href="#cb37-629" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-630"><a href="#cb37-630" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb37-623"><a href="#cb37-623" aria-hidden="true" tabindex="-1"></a>This applies identically to OLS, probit MLE (Chapter 7), IV (Chapter 10), and GMM (Chapter 11) --- only the moment condition changes:</span>
+<span id="cb37-624"><a href="#cb37-624" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-625"><a href="#cb37-625" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Estimator <span class="pp">|</span> Moment condition <span class="pp">|</span></span>
+<span id="cb37-626"><a href="#cb37-626" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-----------------|</span></span>
+<span id="cb37-627"><a href="#cb37-627" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> OLS <span class="pp">|</span> $E<span class="co">[</span><span class="ot">X_i(Y_i - X_i'\beta)</span><span class="co">]</span> = 0$ <span class="pp">|</span></span>
+<span id="cb37-628"><a href="#cb37-628" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Probit MLE <span class="pp">|</span> $E<span class="co">[</span><span class="ot">s_i(\beta)</span><span class="co">]</span> = 0$ (score) <span class="pp">|</span></span>
+<span id="cb37-629"><a href="#cb37-629" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> IV <span class="pp">|</span> $E<span class="co">[</span><span class="ot">Z_i(Y_i - X_i'\beta)</span><span class="co">]</span> = 0$ <span class="pp">|</span></span>
+<span id="cb37-630"><a href="#cb37-630" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> GMM <span class="pp">|</span> $E<span class="co">[</span><span class="ot">g(W_i, \theta)</span><span class="co">]</span> = 0$ (general) <span class="pp">|</span></span>
 <span id="cb37-631"><a href="#cb37-631" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-632"><a href="#cb37-632" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Method <span class="pp">|</span> How it works <span class="pp">|</span> Advantages <span class="pp">|</span> Limitations <span class="pp">|</span></span>
-<span id="cb37-633"><a href="#cb37-633" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-------------|------------|-------------|</span></span>
-<span id="cb37-634"><a href="#cb37-634" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Classical SE <span class="pp">|</span> Assumes $e \sim N(0, \sigma^2)$ <span class="pp">|</span> Exact under normality <span class="pp">|</span> Wrong under heteroskedasticity <span class="pp">|</span></span>
-<span id="cb37-635"><a href="#cb37-635" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Sandwich (HC2) <span class="pp">|</span> Estimates $E<span class="co">[</span><span class="ot">X_i X_i' e_i^2</span><span class="co">]</span>$ <span class="pp">|</span> No distributional assumptions <span class="pp">|</span> Needs moderate $n$ <span class="pp">|</span></span>
-<span id="cb37-636"><a href="#cb37-636" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Delta method <span class="pp">|</span> Taylor expansion of $h(\hat{\beta})$ <span class="pp">|</span> Fast, analytical <span class="pp">|</span> Requires derivatives; assumes normality of $h(\hat{\beta})$ <span class="pp">|</span></span>
-<span id="cb37-637"><a href="#cb37-637" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Bootstrap <span class="pp">|</span> Resample rows, re-estimate <span class="pp">|</span> No derivatives; captures skewness <span class="pp">|</span> Needs iid; slow; fails for non-smooth estimators <span class="pp">|</span></span>
-<span id="cb37-638"><a href="#cb37-638" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-639"><a href="#cb37-639" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Task <span class="pp">|</span> R code <span class="pp">|</span></span>
-<span id="cb37-640"><a href="#cb37-640" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|--------|</span></span>
-<span id="cb37-641"><a href="#cb37-641" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Sandwich SEs <span class="pp">|</span> <span class="in">`vcovHC(mod, type = "HC2")`</span> or <span class="in">`lm_robust(..., se_type = "HC2")`</span> <span class="pp">|</span></span>
-<span id="cb37-642"><a href="#cb37-642" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Delta method <span class="pp">|</span> <span class="in">`car::deltaMethod(mod, "expression")`</span> <span class="pp">|</span></span>
-<span id="cb37-643"><a href="#cb37-643" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Bootstrap SEs <span class="pp">|</span> <span class="in">`boot(data, statistic, R = 5000)`</span> <span class="pp">|</span></span>
-<span id="cb37-644"><a href="#cb37-644" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Bootstrap CIs <span class="pp">|</span> <span class="in">`boot.ci(boot_out, type = "perc")`</span> or <span class="in">`type = "bca"`</span> <span class="pp">|</span></span>
-<span id="cb37-645"><a href="#cb37-645" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Robust Wald test <span class="pp">|</span> <span class="in">`linearHypothesis(mod, ..., vcov = vcovHC, test = "Chisq")`</span> <span class="pp">|</span></span>
-<span id="cb37-646"><a href="#cb37-646" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-647"><a href="#cb37-647" aria-hidden="true" tabindex="-1"></a>**Key takeaways.**</span>
+<span id="cb37-632"><a href="#cb37-632" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb37-633"><a href="#cb37-633" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-634"><a href="#cb37-634" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Method <span class="pp">|</span> How it works <span class="pp">|</span> Advantages <span class="pp">|</span> Limitations <span class="pp">|</span></span>
+<span id="cb37-635"><a href="#cb37-635" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-------------|------------|-------------|</span></span>
+<span id="cb37-636"><a href="#cb37-636" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Classical SE <span class="pp">|</span> Assumes $e \sim N(0, \sigma^2)$ <span class="pp">|</span> Exact under normality <span class="pp">|</span> Wrong under heteroskedasticity <span class="pp">|</span></span>
+<span id="cb37-637"><a href="#cb37-637" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Sandwich (HC2) <span class="pp">|</span> Estimates $E<span class="co">[</span><span class="ot">X_i X_i' e_i^2</span><span class="co">]</span>$ <span class="pp">|</span> No distributional assumptions <span class="pp">|</span> Needs moderate $n$ <span class="pp">|</span></span>
+<span id="cb37-638"><a href="#cb37-638" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Delta method <span class="pp">|</span> Taylor expansion of $h(\hat{\beta})$ <span class="pp">|</span> Fast, analytical <span class="pp">|</span> Requires derivatives; first-order approximation can be poor when $h$ is highly curved or $\nabla h(\theta) \approx 0$ <span class="pp">|</span></span>
+<span id="cb37-639"><a href="#cb37-639" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Bootstrap <span class="pp">|</span> Resample rows, re-estimate <span class="pp">|</span> No derivatives; captures skewness <span class="pp">|</span> Needs iid; slow; fails for non-smooth estimators <span class="pp">|</span></span>
+<span id="cb37-640"><a href="#cb37-640" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-641"><a href="#cb37-641" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Task <span class="pp">|</span> R code <span class="pp">|</span></span>
+<span id="cb37-642"><a href="#cb37-642" aria-hidden="true" tabindex="-1"></a><span class="pp">|------|--------|</span></span>
+<span id="cb37-643"><a href="#cb37-643" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Sandwich SEs <span class="pp">|</span> <span class="in">`vcovHC(mod, type = "HC2")`</span> or <span class="in">`lm_robust(..., se_type = "HC2")`</span> <span class="pp">|</span></span>
+<span id="cb37-644"><a href="#cb37-644" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Delta method <span class="pp">|</span> <span class="in">`car::deltaMethod(mod, "expression")`</span> <span class="pp">|</span></span>
+<span id="cb37-645"><a href="#cb37-645" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Bootstrap SEs <span class="pp">|</span> <span class="in">`boot(data, statistic, R = 5000)`</span> <span class="pp">|</span></span>
+<span id="cb37-646"><a href="#cb37-646" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Bootstrap CIs <span class="pp">|</span> <span class="in">`boot.ci(boot_out, type = "perc")`</span> or <span class="in">`type = "bca"`</span> <span class="pp">|</span></span>
+<span id="cb37-647"><a href="#cb37-647" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Robust Wald test <span class="pp">|</span> <span class="in">`linearHypothesis(mod, ..., vcov = vcovHC, test = "Chisq")`</span> <span class="pp">|</span></span>
 <span id="cb37-648"><a href="#cb37-648" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-649"><a href="#cb37-649" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The CLT justifies using normal-based inference for OLS, probit, IV, and GMM --- but convergence speed depends on the error distribution. Heavy tails and small samples require caution.</span>
-<span id="cb37-650"><a href="#cb37-650" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The sandwich SE and the bootstrap SE are both robust to heteroskedasticity. They usually agree for linear models with moderate $n$.</span>
-<span id="cb37-651"><a href="#cb37-651" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The delta method and the bootstrap both handle nonlinear functions. Use the delta method when you can compute derivatives easily; use the bootstrap when the function is complicated or the normal approximation is suspect.</span>
-<span id="cb37-652"><a href="#cb37-652" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>When in doubt about whether $n$ is "large enough," compare all three approaches. If they disagree substantially, trust the bootstrap percentile or BCa interval.</span>
+<span id="cb37-649"><a href="#cb37-649" aria-hidden="true" tabindex="-1"></a>**Key takeaways.**</span>
+<span id="cb37-650"><a href="#cb37-650" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-651"><a href="#cb37-651" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The CLT justifies using normal-based inference for OLS, probit, IV, and GMM --- but convergence speed depends on the error distribution. Heavy tails and small samples require caution.</span>
+<span id="cb37-652"><a href="#cb37-652" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The sandwich SE and the bootstrap SE are both robust to heteroskedasticity. They usually agree for linear models with moderate $n$.</span>
+<span id="cb37-653"><a href="#cb37-653" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The delta method and the bootstrap both handle nonlinear functions. Use the delta method when you can compute derivatives easily; use the bootstrap when the function is complicated or the normal approximation is suspect.</span>
+<span id="cb37-654"><a href="#cb37-654" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>When in doubt about whether $n$ is "large enough," compare all three approaches. If they disagree substantially, trust the bootstrap percentile or BCa interval.</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
