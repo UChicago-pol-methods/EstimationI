@@ -290,6 +290,23 @@ The sandwich meat $\bm{X'DX}$ is estimated with downward finite-sample bias.  HC
 \end{tcolorbox}
 \end{frame}
 
+\begin{frame}{Many Covariates: A Second Reason to Prefer HC3}
+\small
+The finite-sample story above treats $k$ as fixed and $n$ large.  But modern empirical work routinely includes \emph{many} covariates---two-way fixed effects, saturated interactions, group dummies---so $k$ is a nontrivial fraction of $n$.\pause
+
+\smallskip
+\textbf{Cattaneo, Jansson \& Newey (2018)} study OLS inference under asymptotics where $k/n \not\to 0$:
+\begin{itemize}
+\item \alert{HC0, HC1, HC2 are all \emph{inconsistent}} in this regime---they systematically under-estimate $\text{Var}(\hat{\beta})$.\pause
+\item \textbf{HC3 remains asymptotically valid}, though upward-biased (conservative).\pause
+\item The bias grows with the average leverage $\bar{h}=k/n$: when you add fixed effects or rich interactions, every $h_{ii}$ rises, and HC0/HC1/HC2 degrade.
+\end{itemize}\pause
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+So HC3 has two justifications: \textbf{(i)} finite-sample leverage bias (MacKinnon--White), and \textbf{(ii)} robustness to many-covariates asymptotics (Cattaneo--Jansson--Newey).  Both point the same direction---use HC3, especially with many fixed effects or dummies.
+\end{tcolorbox}
+\end{frame}
+
 
 \begin{frame}[fragile]{Implementation in R}
 \textbf{Option 1: \texttt{estimatr} package} (recommended for applied work)
@@ -605,7 +622,7 @@ V_cl <- scale * invx %*% omega %*% invx
 \begin{frame}{Practical Recommendations (Hansen Ch.\ 4 Summary)}
 \begin{enumerate}
 \item \textbf{Always report robust standard errors.}  The classical homoskedastic formula $s^2(\bm{X'X})^{-1}$ is only valid under the strong (and rarely true) assumption of conditional homoskedasticity. \pause
-\item \textbf{Use HC2 by default} for cross-sectional data.  It is unbiased under homoskedasticity and performs well under heteroskedasticity.  Use HC3 if you want a conservative alternative. \pause
+\item \textbf{Use HC3 by default} for cross-sectional data.  It corrects leverage-induced downward bias (MacKinnon \& White 1985) and, unlike HC0--HC2, stays valid when $k/n$ is non-negligible (Cattaneo, Jansson \& Newey 2018)---the typical case with many fixed effects or interactions. \pause
 \item \textbf{If data are clustered}, use cluster-robust SEs.  Your effective sample size is $G$ (clusters), not $n$ (observations).  Cluster at the coarsest defensible level. \pause
 \item \textbf{For measures of fit}, prefer $\tilde{R}^2$ (leave-one-out cross-validation) over $R^2$ or $\bar{R}^2$.  Hansen:  ``It is recommended to omit $R^2$ and $\bar{R}^2$.'' \pause
 \item \textbf{Watch for sparse dummies and high leverage.}  These can cause robust SE estimators to break down or be severely biased.
