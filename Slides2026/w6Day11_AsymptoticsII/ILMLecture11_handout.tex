@@ -161,124 +161,92 @@ For now, take this as given. Once $\bm{b}$ is approximately normal, we can ask: 
 \item The Taylor approximation from $\bm{\beta}$ to $\bm{b}$ is then
 $$\bm{f(b)}=\bm{f}(\bm{\beta})+\bm{\Gamma}\times(\bm{b}-\bm{\beta})+O_p(n^{-1})$$\pause
 \item The asymptotic distribution is: $\bm{f(b)}\overset{a}{\sim} N(\bm{f}(\bm{\beta}),\ \bm{\Gamma}[\text{Asy. Var}(\bm{b}-\bm{\beta})]\bm{\Gamma}')$\pause
-\item We can estimate this approximation with: $\bm{C}[s^2(\bm{X}'\bm{X})^{-1}]\bm{C}'$
+\item Estimate this approximation with $\bm{C}[s^2(\bm{X}'\bm{X})^{-1}]\bm{C}'$. \textit{(HW4 Q1b: $g(x)=e^x \Rightarrow \sigma^2 e^{2\mu}$.)}
 \end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Application: Greene Example 4.4}
-\begin{itemize}
-\item Suppose we think effects persist through time:
-$$y_{it}=\beta_0+\beta_1 x_{it}+\gamma y_{it-1}+\epsilon_{it}$$\pause
-\item In the long run we expect stability:
+\begin{frame}{Long-Run Effects with a Lagged DV (Greene 4.4)}
+
+Dynamic model: $y_t = \beta_0 + \beta_1 x_t + \gamma\, y_{t-1} + \epsilon_t$. Raise $x_t$ by 1 and trace forward (holding the system at its long-run mean otherwise):
 \begin{align*}
-\bar{y}&=\beta_0+\beta_1 \bar{x}+\gamma \bar{y}\\\pause
-\bar{y}-\gamma \bar{y}&=\beta_0+\beta_1 \bar{x}\\\pause
-\bar{y}(1-\gamma)&=\beta_0+\beta_1 \bar{x}\\\pause
-\bar{y}&=\frac{\beta_0}{(1-\gamma)}+\frac{\beta_1}{(1-\gamma)} \bar{x}
+y_t^* &= \bar y + \beta_1, &
+y_{t+1}^* &= \bar y + \gamma\beta_1, &
+y_{t+2}^* &= \bar y + \gamma^2\beta_1, &
+\dots
 \end{align*}
-\end{itemize}
+The cumulative long-run impact is a geometric series:
+\[
+\beta_1 + \gamma\beta_1 + \gamma^2\beta_1 + \cdots = \frac{\beta_1}{1-\gamma}.
+\]
+\textit{Equivalent shortcut:} solve $\bar y = \beta_0 + \beta_1 \bar x + \gamma \bar y$ at long-run equilibrium.
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Long Run Effects with Lagged DV}
+\begin{frame}{Application: Long-Run Gasoline Elasticities}
+
+Log-log gasoline demand with lagged consumption,
+\[
+\log(G/\text{pop})_t = \beta_1 + \beta_2 \log P_{G,t} + \beta_3 \log(Y/\text{pop})_t + \beta_4 \log(G/\text{pop})_{t-1} + e_t.
+\]
+
 \begin{itemize}
-\item Suppose we raise $x_{it}$ by 1:
-\begin{align*}
-y^{*}_{it}&=\beta_0+\beta_1 (\bar{x}+1)+\gamma \bar{y}&=\bar{y}+\beta_1\\\pause
-y^{*}_{it+1}&=\beta_0+\beta_1\bar{x}+\gamma (\bar{y}+\beta_1)&=\bar{y}+\gamma \beta_1\\\pause
-y^{*}_{it+2}&=\beta_0+\beta_1\bar{x}+\gamma (\bar{y}+\gamma (\beta_1))&=\bar{y}+\gamma^2\beta_1
-\end{align*}\pause
-\item The long run effect of a temporary one unit increase in x is thereby:
-\begin{align*}
-&=\beta_1+\gamma \beta_1+\gamma^2\beta_1+\gamma^3\beta_1+\ldots\\
-&=\beta_1(1+\gamma +\gamma^2+\gamma^3+\ldots)=\beta_1\frac{1}{1-\gamma}
-\end{align*}
+\item Short-run price elasticity $= \beta_2$; short-run income elasticity $= \beta_3$.
+\item By the lagged-DV iteration argument, long-run elasticities are
+\[
+\frac{\beta_2}{1-\beta_4} \quad\text{(price)}, \qquad \frac{\beta_3}{1-\beta_4} \quad\text{(income)}.
+\]
+\item Both are nonlinear in $\bm\beta$ --- next slide gets their standard errors via the delta method.
 \end{itemize}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Example: Gas Consumption}
-\begin{itemize}
-\item Demand for gasoline is based on the kind of vehicle consumers choose to buy and how much they drive.
-\item We can model consumer demand for gas (G=gas expenditures/gas price) as a function of gas prices, income (Y) and past car purchasing decisions, which are themselves a function of gas prices and income.
-\end{itemize}
-\begin{align*}
-ln(G/pop)_t&=\hat{\beta}_1 + \hat{\beta}_2ln P_{G,t} +\hat{\beta}_3 ln(Y/pop)_t+ \hat{\beta}_4 ln(G/Pop)_{t-1}+e_t
-\end{align*}
-\begin{itemize}
-\item $\hat{\beta}_2$ is the short run price elasticity. $\hat{\beta}_3$ is the short run income elasticity.
-\item $\frac{\hat{\beta}_2}{1-\hat{\beta}_4 }$ is the long run price elasticity, $\frac{\hat{\beta}_3}{1-\hat{\beta}_4 }$ is the long run income elasticity.
-\end{itemize}
+\begin{frame}{Delta Method for the Long-Run Elasticities}
+
+Stack the two long-run elasticities as $\bm{f}(\bm{\beta}) = \bigl(\beta_2/(1-\beta_4),\ \beta_3/(1-\beta_4)\bigr)'$. The gradient is
+\[
+\bm{C}(\bm{\beta}) = \frac{\partial \bm{f}}{\partial \bm{\beta}'} =
+\begin{bmatrix}
+0 & \tfrac{1}{1-\beta_4} & 0 & \tfrac{\beta_2}{(1-\beta_4)^2} \\
+0 & 0 & \tfrac{1}{1-\beta_4} & \tfrac{\beta_3}{(1-\beta_4)^2}
+\end{bmatrix}.
+\]
+
+\pause
+
+Plug $\hat{\bm{\beta}}$ into $\bm{C}$ and sandwich:
+\[
+\widehat{\Var}(\hat{\bm{f}}) = \bm{C}(\hat{\bm{\beta}})\,\hat{\bm{V}}_{\hat\beta}\,\bm{C}(\hat{\bm{\beta}})'.
+\]
+The rows of $\bm{C}$ are gradient vectors --- one per scalar function we want a SE for.
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Delta Method Applied to Gas Consumption}
-\begin{itemize}
-\item Call $\bm{b}=(\hat{\beta}_1,\ \hat{\beta}_2,\  \hat{\beta}_3,\ \hat{\beta}_4)$, $\bm{f(b)}=\begin{bmatrix} \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }\\ \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }\end{bmatrix}$
-\begin{align*}\pause
-\bm{C}(\bm{b})&=\frac{\partial \bm{f(b)}}{\partial \bm{b}'}=\begin{bmatrix} \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_1} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_2} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_3} & \frac{\partial \frac{\hat{\beta}_2}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_4} \\ \frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_1} &\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_2}&\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_3}&\frac{\partial  \frac{\hat{\beta}_3}{1-\hat{\beta}_4 }}{\partial \hat{\beta}_4}   \end{bmatrix}=\begin{bmatrix} 0 & \frac{1}{1-\hat{\beta}_4}&0&\frac{\hat{\beta}_2}{(1-\hat{\beta}_4)^2} \\0&0& \frac{1}{1-\hat{\beta}_4}&\frac{\hat{\beta}_3}{(1-\hat{\beta}_4)^2} \end{bmatrix}
-\end{align*}
-\item The rows of this matrix are called gradient vectors.
-\end{itemize}
-\end{frame}
+\begin{frame}[fragile]{Gas Consumption: Implementation}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{lstlisting}
+fm <- lm(logG ~ logGASP + log(INCOME) + log(PNC)
+              + log(PUC) + logGlag, data = USGasG)
 
-\begin{frame}[fragile]
-  \begin{lstlisting}
-USGasG <- read_csv("http://people.stern.nyu.edu/wgreene/Text/
-		Edition7/TableF2-2.csv")
-USGasG <- USGasG %>%
-	mutate(	logG 	= log(GASEXP/(GASP*POP)),
-		logGlag = lag(logG),
-		logGASP	= log(GASP))
-fm <- lm(logG ~ logGASP+log(INCOME)+log(PNC)+log(PUC)+logGlag,
-	      data= USGasG )
-xprimex <- vcov(fm)
-sigmasq <- sigma(fm)^2
-bs <- coef(fm)
-ggas <- 	c(0, 1/(1-bs[6]), 0, 0, 0, bs[2]/(1-bs[6])^2)
-gincome <- 	c(0, 0, 1/(1-bs[6]), 0, 0, bs[3]/(1-bs[6])^2)
-seGpricelongrun <- sqrt(t(ggas)%*%(xprimex)%*%ggas)
-seIncomelongrun <- sqrt(t(gincome)%*%(xprimex)%*%gincome)
-   \end{lstlisting}
-\end{frame}
+# By hand
+bs <- coef(fm); V <- vcov(fm)
+g <- c(0, 1/(1-bs[6]), 0, 0, 0, bs[2]/(1-bs[6])^2)
+se <- sqrt(t(g) %*% V %*% g)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Canned: car::deltaMethod(fm, "logGASP/(1-logGlag)")
+#   Estimate -0.411, SE 0.152, 95% CI [-0.710, -0.113]
+# Stata: nlcom (_b[x2] / (1 - _b[x6]))
+\end{lstlisting}
 
-\begin{frame}[fragile]
-  \begin{lstlisting}
-> cat("Long run elasticity to Gas prices (95% conf. int.):",
-	round(bs[2]/(1-bs[6]), 2), "+/-",
-	round(seGpricelongrun*qnorm(.975),2))
-Long run elasticity to Gas prices (95% conf. int.): -0.41 +/- 0.3
+Long-run price elasticity $\approx -0.41 \pm 0.30$; income elasticity $\approx 0.97 \pm 0.32$ --- both larger in magnitude than short-run.
 
-> cat("Long run elasticity to Income (95% conf. intervals):",
-	round(bs[3]/(1-bs[6]), 2),"+/-",
-	round( seIncomelongrun*qnorm(.975),2))
-Long run elasticity to Income (95% conf. int.): 0.97 +/- 0.32
-   \end{lstlisting}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}[fragile]
-  \begin{lstlisting}
-Canned Package Methods
-
-In R:
-> car :: deltaMethod(fm, "logGASP/(1-logGlag)")
-                      Estimate       SE    2.5 %  97.5 %
-logGASP/(1 - logGlag) -0.41136  0.15230 -0.70985 -0.1129
-
-In STATA:
-nlcom (_b[x2]/(1-_b[x6]))
- \end{lstlisting}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -292,7 +260,7 @@ Recall from Lecture 9: the Probit average marginal effect is a \textbf{nonlinear
 
 \pause
 
-This is exactly the kind of problem the delta method solves. Define $h(\beta) = \text{AME}_j(\beta)$. Then:
+Apply the delta method. Define $h(\beta) = \text{AME}_j(\beta)$. Then:
 \[
 \operatorname{Asy.Var}(\widehat{\text{AME}}_j) = \nabla h(\hat\beta)' \cdot \widehat{\operatorname{Var}}(\hat\beta) \cdot \nabla h(\hat\beta)
 \]
@@ -304,7 +272,7 @@ where $\nabla h$ accounts for both the direct effect ($\hat\beta_j$) and the ind
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Common pattern:} Estimate $\hat\theta$ by MLE or OLS $\to$ compute a nonlinear function $h(\hat\theta)$ $\to$ use the delta method for its standard error. Same logic for long-run elasticities, marginal effects, or any transformation of coefficients.
+The same delta-method machinery handles AMEs, long-run elasticities, and any other smooth transformation of $\hat\theta$.
 \end{tcolorbox}
 
 \end{frame}
@@ -462,7 +430,7 @@ By Slutsky's theorem ($\overset{p}{\to} \times \overset{d}{\to}$):
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-Same structure as Probit MLE: CLT gives the numerator, WLLN/CMT stabilize the denominator, Slutsky combines them.
+Same decomposition as Probit MLE in Lecture 9: CLT for the numerator, WLLN/CMT for the denominator, Slutsky to combine.
 \end{tcolorbox}
 
 \end{frame}
@@ -677,7 +645,7 @@ $$W \overset{a}{\sim} \chi^2_q$$
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-The Wald test nests the $F$ test as a special case. With robust SEs, it works without normality or homoskedasticity --- only requiring consistency and asymptotic normality.
+The Wald test nests $F$. With robust SEs, only consistency + asymptotic normality required. \textit{Single coef: $t^2 = F$ (HW4 Q3d).}
 \end{tcolorbox}
 
 \end{frame}
@@ -836,41 +804,30 @@ This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\bet
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{The z-statistic}
-\begin{itemize}
-\item The t-statistic is $T(\theta)=\frac{\hat{\theta}-\theta}{s(\hat{\theta})}$
-\item When dealing with asymptotic inference, this is called the z-statistic.
-\begin{align*}
-T(\theta)&=\frac{\hat{\theta}-\theta}{s(\hat{\theta})}\\
-&=\frac{\sqrt{n}(\hat{\theta}-\theta)}{\sqrt{\hat{V}_\theta}}\\
-&\rightarrow_d \frac{N(0,V_\theta)}{\sqrt{V_\theta}}\\
-&=Z\sim N(0,1)
-\end{align*}
-\end{itemize}
 
-\pause
-
-Under $H_0: \theta = \theta_0$, reject at level $\alpha$ if $|T| > z_{\alpha/2}$. For $\alpha = 0.05$: $z_{0.025} = 1.96$.
+In asymptotic inference the $t$-statistic is called the $z$-statistic:
+\[
+T(\theta) = \frac{\hat\theta - \theta}{s(\hat\theta)}
+= \frac{\sqrt n(\hat\theta - \theta)}{\sqrt{\hat V_\theta}}
+\xrightarrow{d} N(0,1).
+\]
+Under $H_0: \theta = \theta_0$, reject at level $\alpha$ if $|T| > z_{\alpha/2}$ (e.g.\ $z_{0.025} = 1.96$).
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Regression Intervals}
-\begin{itemize}
-\item Linear model: \quad \( m(x) = x' \beta \)
-\item Define target parameter: \quad \( \theta = r(\beta) = x' \beta \)
-\item Estimate: \quad \( \hat{m}(x) = \hat{\theta} = x' \hat{\beta} \)
-\item Gradient of \( r(\beta) \): \quad \( \bm{R} = \frac{\partial r}{\partial \beta} = x \)
-\item Asymptotic standard error:
+
+For the CEF $m(x) = x'\beta$, the target parameter $\theta = r(\beta) = x'\beta$ has gradient $\bm R = x$, so the delta method gives
 \[
-s(\hat{\theta}) = \sqrt{\bm{R}' \bm{\hat{V}}_{\hat{\beta}} \bm{R}}
-= \sqrt{\bm{x}' \bm{\hat{V}}_{\hat{\beta}} \bm{x}}
+s(\hat\theta) = \sqrt{\bm x' \bm{\hat V}_{\hat\beta}\, \bm x}.
 \]
-\item 95\% confidence interval for \( \mathbb{E}[Y | X = x] \):
+A $95\%$ CI for $\mathbb{E}[Y \mid X = x]$ is
 \[
-x' \hat{\beta} \pm 1.96 \cdot \sqrt{\bm{x}' \bm{\hat{V}}_{\hat{\beta}} \bm{x}}
+x'\hat\beta \;\pm\; 1.96 \cdot \sqrt{\bm x' \bm{\hat V}_{\hat\beta}\, \bm x}.
 \]
-\end{itemize}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -894,23 +851,18 @@ $$107 \pm 7.5$$
 \begin{frame}[fragile]{R: Sandwich SEs and Delta Method}
 
 \begin{lstlisting}
-# Homoskedastic vs robust SEs
-coeftest(mod0)                                  # model-based
-coeftest(mod0, vcov = vcovHC(mod0, type="HC1")) # sandwich
+# Model-based vs sandwich SEs
+coeftest(mod0)
+coeftest(mod0, vcov = vcovHC(mod0, type = "HC1"))
 
-# Confidence interval for CEF at a point
-x0 <- c(1, 5000, 12, 30)  # intercept, income, ed, women
-se_x0 <- sqrt(t(x0) %*% vcovHC(mod0) %*% x0)
-pred <- sum(x0 * coef(mod0))
-cat(pred, "+/-", 1.96 * se_x0)
+# CI for CEF at a point
+x0 <- c(1, 5000, 12, 30)
+se <- sqrt(t(x0) %*% vcovHC(mod0) %*% x0)
+cat(sum(x0 * coef(mod0)), "+/-", 1.96 * se)
 
-# Delta method for nonlinear function (car package)
+# Delta method for a nonlinear function
 car::deltaMethod(mod0, "income / education")
 \end{lstlisting}
-
-\pause
-
-Same tools as Lectures 6, 9, 10 --- the \texttt{sandwich} and \texttt{car} packages handle the asymptotic theory automatically.
 
 \end{frame}
 
@@ -951,7 +903,7 @@ $$\hat{\beta}_R=\left(\sum_{i=1}^n X_iX_i'+\lambda \bm{I}_k\right)^{-1}\left(\su
 \pause
 \begin{itemize}
   \item As $n \to \infty$, Ridge converges to the same plim as OLS.
-  \item Biased in finite samples, consistent asymptotically --- the canonical biased-but-consistent estimator.
+  \item Biased in finite samples, consistent asymptotically.
 \end{itemize}
 \end{frame}
 
@@ -983,6 +935,27 @@ Robust & Sandwich estimator & $\hat{V}_\beta^{HC} \overset{p}{\to} V_\beta$ \\
 \bigskip
 
 These results hold \textbf{without normality} --- only requiring iid data with finite 4th moments and $\mathbb{E}[\bm{x}e] = 0$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Influence Functions and AIPW (Preview)}
+
+The toolkit (CLT, Slutsky, $o_p$ algebra) extends beyond OLS. Many estimators admit an \textbf{influence function representation}:
+\[
+\sqrt{n}(\hat\theta - \theta) \;=\; \frac{1}{\sqrt{n}}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1), \quad \mathbb{E}[\psi(Z)]=0,
+\]
+so the CLT delivers $\sqrt{n}(\hat\theta-\theta)\overset{d}{\to} N(0,\mathrm{Var}(\psi))$. (OLS: $\psi(Z) = Q_{XX}^{-1} X e$.)
+
+\pause
+
+\textbf{AIPW (ATE).} The influence function is
+\[
+\psi(Z) = \mu_1(X)-\mu_0(X) - \tau + \tfrac{D}{p}(Y-\mu_1(X)) - \tfrac{1-D}{1-p}(Y-\mu_0(X)).
+\]
+
+\textit{HW4 Q4--Q9 builds this end to end: Q4 derives $\psi$, Q5 isolates the plug-in remainder $R_n$, Q6 proves Neyman orthogonality $\mathbb{E}[1-D/p\mid X]=0$, Q7 uses conditional Chebyshev to show $R_n = o_p(n^{-1/2})$, Q8 closes with Slutsky.}
 
 \end{frame}
 

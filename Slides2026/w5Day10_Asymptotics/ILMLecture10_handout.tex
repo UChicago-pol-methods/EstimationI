@@ -179,7 +179,7 @@ $\hat{\mu} = X_1$ (use only the first observation)
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-Both estimators are unbiased. Only $\bar{X}_n$ is \textbf{consistent}: its distribution collapses onto $\mu$. When forced to choose, \textbf{consistency $>$ unbiasedness}.
+Both estimators are unbiased. Only $\bar{X}_n$ is \textbf{consistent}: its distribution collapses onto $\mu$.
 \end{tcolorbox}
 \end{frame}
 
@@ -277,39 +277,37 @@ That is, the random variable concentrates about a point in a certain interval.
 DGP: $Y_i = 2 + 3\,X_i + \varepsilon_i$, \quad $X_i \sim N(0,1)$, \quad $\varepsilon_i \sim \text{Exp}(1)-1$ (skewed, non-normal errors).
 
 \begin{lstlisting}
-set.seed(42)
-par(mfrow = c(2, 2))
+set.seed(42); par(mfrow = c(2, 2))
 for (n in c(20, 50, 200, 2000)) {
   betas <- replicate(5000, {
     x <- rnorm(n); y <- 2 + 3*x + (rexp(n)-1)
     coef(lm(y ~ x))[2]
   })
   hist(betas, breaks = 40, prob = TRUE,
-       main = paste("n =", n), xlim = c(2, 4),
-       xlab = expression(hat(beta)[1]))
+       main = paste("n =", n), xlim = c(2, 4))
   abline(v = 3, col = "blue", lwd = 2)
 }
 \end{lstlisting}
 
-Errors are \textbf{skewed and non-normal}, yet $\hat{\beta}_1$ concentrates around the true value $\beta_1 = 3$ as $n$ grows. This is consistency in action.
+Errors are skewed and non-normal, yet $\hat{\beta}_1$ concentrates around $\beta_1 = 3$ as $n$ grows.
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Why Useful : The continuous mapping theorem}
-\begin{itemize}
-\item Unlike expectations, plim survives continuous functions (like division!).  \pause
-\end{itemize}
+\begin{frame}{The Continuous Mapping Theorem}
+
+Unlike expectations, plim survives continuous functions.
+
 \begin{tcolorbox}
-\textbf{The continuity theorem, the first of Slutsky's theorems, the continuous mapping theorem.}\\
-Given a random variable $x_n$ that converges in probability to $x$ and a continuous function $g(x_n)$, we have that:
-$$\text{plim}  g(x_n)=g(\text{plim} x_n)$$ \pause
-If $\text{plim} x_n=c$ and $\text{plim} y_n=d$, then
+\textbf{CMT.} If $x_n \overset{p}{\to} x$ and $g$ is continuous at $x$, then $\text{plim}\,g(x_n) = g(\text{plim}\,x_n)$.
+
+\medskip
+If $\text{plim}\,x_n = c$ and $\text{plim}\,y_n = d$:
 \begin{align*}
-\text{plim} (x_n y_n)&=(\text{plim} x_n)(\text{plim} y_n)=cd\\
-\text{plim} (x_n/y_n)&=(\text{plim} x_n)/(\text{plim} y_n)=c/d\\
-\text{plim} (x_n+y_n)&=(\text{plim} x_n)+(\text{plim} y_n)=c+d
+\text{plim}(x_n y_n) &= cd, &
+\text{plim}(x_n / y_n) &= c/d, &
+\text{plim}(x_n + y_n) &= c + d.
 \end{align*}
 \end{tcolorbox}
 
@@ -317,7 +315,7 @@ If $\text{plim} x_n=c$ and $\text{plim} y_n=d$, then
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{CMT in Action: Why Division Works}
+\begin{frame}{CMT: Why Division Works}
 
 The $t$-statistic divides one random quantity by another. Why is this valid?
 
@@ -333,7 +331,7 @@ The $t$-statistic divides one random quantity by another. Why is this valid?
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-Every time you divide an estimate by its standard error, you rely on CMT. Without it, ratios of random variables have no guarantee of converging to the right thing.
+CMT is what licenses dividing one consistent estimator by another, e.g.\ $\bar X_n / s_n$ in a $t$-statistic.
 \end{tcolorbox}
 
 \end{frame}
@@ -458,6 +456,8 @@ P(|X - \mu| \geq k) & \leq & \frac{\sigma^2}{k^2} \nonumber
 
 \end{prop}
 
+\medskip
+\textit{You will use Chebyshev directly on HW4 Q1(a) (consistency of $\bar{X}_n$) and conditionally on HW4 Q7 (controlling the AIPW remainder).}
 
 \end{frame}
 
@@ -683,7 +683,7 @@ $1/n^2 = o(1/n)$ & $\frac{1/n^2}{1/n} = 1/n \to 0$ \checkmark & $1/n^2$ vanishes
 \pause
 \medskip
 
-\textbf{The punchline:} When we write $f(x) = g(x) + O(x^3)$, the leftover terms are \emph{at most} on the order of $x^3$. When $x$ is small (like $t/\sqrt{n}$), these terms are negligible.
+When we write $f(x) = g(x) + O(x^3)$, the leftover terms are at most on the order of $x^3$. With $x = t/\sqrt n$, that is $O(n^{-3/2})$.
 
 \end{frame}
 
@@ -704,15 +704,12 @@ We can truncate and describe what we dropped:
 
 \pause
 
-\textbf{Why this is useful:} If $x = t/\sqrt{n}$, then:
+With $x = t/\sqrt{n}$:
 \begin{itemize}
-  \item $O(x^2) = O(1/n)$ --- vanishes as $n$ grows
-  \item $O(x^3) = O(n^{-3/2})$ --- vanishes even faster
+  \item $O(x^2) = O(1/n)$
+  \item $O(x^3) = O(n^{-3/2})$
 \end{itemize}
-
-\pause
-
-This is exactly how we will control the error in the CLT proof: the Taylor remainder in the MGF expansion becomes negligible as $n \to \infty$.
+The CLT proof drops the Taylor remainder in the MGF expansion using exactly this scaling.
 
 \end{frame}
 
@@ -740,9 +737,26 @@ For \emph{random} variables, we add a subscript $p$ (``in probability''):
 
 \pause
 
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-When you see $o_p(1)$ in a proof, read it as ``a term that vanishes in probability --- we can ignore it.''
-\end{tcolorbox}
+$o_p(1)$ in a proof denotes a term that vanishes in probability. \textit{HW4 Q7: show the AIPW remainder is $o_p(n^{-1/2})$.}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Slutsky's Lemma: Combining $\overset{p}{\to}$ and $\overset{d}{\to}$}
+
+\begin{prop}[Slutsky's Lemma]
+If $X_n \overset{d}{\to} X$ and $Y_n \overset{p}{\to} c$, then
+$X_n + Y_n \overset{d}{\to} X + c$, $\;X_n Y_n \overset{d}{\to} cX$, and $X_n/Y_n \overset{d}{\to} X/c$ (if $c\neq 0$).
+\end{prop}
+
+\textbf{Special case.} If $R_n = o_p(1)$, then $X_n + R_n \overset{d}{\to} X$ --- an $o_p(1)$ remainder cannot affect a limiting distribution.
+
+\medskip
+
+The recipe: $\sqrt{n}(\hat\theta - \theta) = \underbrace{\textnormal{(CLT term)}}_{\overset{d}{\to}\,N} + \underbrace{R_n}_{o_p(1)}$. Slutsky discards $R_n$.
+
+\textit{Used on HW4 Q1(b), Q4(e), Q7--Q8.}
 
 \end{frame}
 
@@ -751,166 +765,41 @@ When you see $o_p(1)$ in a proof, read it as ``a term that vanishes in probabili
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{What is a Taylor Expansion?}
+\begin{frame}{Taylor Approximation}
 
-\textbf{Problem:} We know everything about a function $f$ at a point $a$ (its value, slope, curvature, \ldots), and we want to approximate $f$ at a \emph{nearby} point $b$.
-
-\pause
-
-\textbf{Idea:} Build the approximation one piece at a time:
-\begin{enumerate}
-  \item \textbf{Zeroth order:} Start with $f(b) \approx f(a)$ \quad (constant --- ignore everything)
-  \item \textbf{First order:} Add the slope: $f(b) \approx f(a) + f'(a)(b-a)$ \quad (tangent line)
-  \item \textbf{Second order:} Add the curvature: $f(b) \approx f(a) + f'(a)(b-a) + \frac{f''(a)}{2}(b-a)^2$
-  \item Keep going: each term uses one more derivative and improves the fit near $a$.
-\end{enumerate}
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Key insight:} The closer $b$ is to $a$, the better the approximation. If $b - a$ is small, then $(b-a)^2$ is \emph{very} small, $(b-a)^3$ is \emph{tiny}, etc. --- so the first few terms do most of the work.
-\end{tcolorbox}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Taylor Approximation: First Order}
-
-\begin{itemize}
-\item We know $f(a)$ and $f'(a)$. We want to approximate $f(b)$ for $b$ near $a$. \pause
-\item \textbf{First-order Taylor expansion:}
-$$f(b) = f(a) + f'(a)(b - a) + R_1(b)$$
-where the remainder $R_1(b) = \frac{f''(c)}{2}(b-a)^2$ for some $c$ between $a$ and $b$.
-
-\pause
-
-\item In asymptotic-order notation:
-$$f(b) = f(a) + f'(a)(b - a) + O\!\left((b-a)^2\right)$$
-\end{itemize}
+We know $f(a)$ and its derivatives at $a$, and want to approximate $f(b)$ for $b$ near $a$. Build the approximation one derivative at a time:
+\[
+f(b) = f(a) + f'(a)(b-a) + \tfrac{1}{2}f''(a)(b-a)^2 + O\!\bigl((b-a)^3\bigr).
+\]
+The $O((b-a)^3)$ remainder shrinks fast: if $b-a = t/\sqrt n$, then $(b-a)^2 = t^2/n$ and $(b-a)^3 = O(n^{-3/2})$ --- negligible compared to the first two terms.
 
 \begin{center}
-\includegraphics[width=3.5in]{approx.png}
+\includegraphics[width=3.2in]{approx.png}
 \end{center}
 
+\textit{The delta method uses the first-order expansion; the CLT proof uses the second-order expansion of the MGF.}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Taylor Approximation: Higher Orders}
+\begin{frame}{Three Tools the CLT Proof Will Need}
 
-The $k$-th order Taylor expansion of $f$ around $a$:
-$$f(b) = \sum_{j=0}^{k} \frac{f^{(j)}(a)}{j!}(b-a)^j + O\!\left((b-a)^{k+1}\right)$$
+\textbf{1.~Taylor expansion (2nd order):} $f(b) = f(a) + f'(a)(b-a) + \tfrac{1}{2}f''(a)(b-a)^2 + O\!\bigl((b-a)^3\bigr).$ For $b-a = t/\sqrt n$, the $O$ term is $O(n^{-3/2})$.
 
-\pause
+\medskip
 
-\textbf{Second-order expansion} (used constantly in asymptotic theory):
-$$f(b) = f(a) + f'(a)(b-a) + \frac{f''(a)}{2}(b-a)^2 + O\!\left((b-a)^3\right)$$
+\textbf{2.~Exponential limit:} $(1 + x/n)^n \to e^x$. (Take logs, Taylor-expand $\ln(1+x/n)$, multiply by $n$.)
 
-\pause
+\medskip
 
-\textbf{Why this matters:}
-\begin{itemize}
-  \item The \textbf{Delta Method} uses the first-order expansion to linearize functions of estimators.
-  \item The \textbf{CLT proof} uses the second-order expansion of the moment generating function.
-  \item The $O(\cdot)$ notation tells us exactly which terms we can drop as $n \to \infty$.
+\textbf{3.~Moment generating function:} $M_X(t) = \mathbb{E}[e^{tX}]$. Three properties we use:
+\begin{itemize}\setlength\itemsep{1pt}
+  \item $M_X^{(k)}(0) = \mathbb{E}[X^k]$ (Taylor expansion in $t$ generates moments).
+  \item Independence: $M_{X_1+\cdots+X_n}(t) = [M_X(t)]^n$ for iid sums.
+  \item Continuity: $M_{X_n}(t)\to M_X(t)$ near $0$ $\Rightarrow X_n \overset{d}{\to} X$.
 \end{itemize}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{The Exponential Function as a Series}
-
-The most important function in mathematics is $\exp(x)$, \emph{defined} by:
-$$\exp(x) = \sum_{k=0}^{\infty} \frac{x^k}{k!} = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots$$
-
-\pause
-
-\textbf{Key properties (all follow from the series):}
-\begin{enumerate}
-\item $\exp(a)\exp(b) = \exp(a+b)$, so we write $e^x \equiv \exp(x)$ where $e = \exp(1) = 2.718\ldots$
-\item $\frac{d}{dx}e^x = e^x$: differentiate term-by-term and re-index. \pause
-\item The series \emph{is} the Taylor expansion of $e^x$ around 0 (since every derivative is $e^x$ and $e^0=1$).
-\end{enumerate}
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Why this matters now:} We will expand $\mathbb{E}[e^{tX}]$ using this series to extract moments, and then use the Taylor remainder to control the error in the CLT proof.
-\end{tcolorbox}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{The Compound Interest Limit}
-
-\begin{prop}
-$\displaystyle\lim_{n \to \infty}\left(1 + \frac{x}{n}\right)^n = e^x$
-\end{prop}
-
-\pause
-
-\textbf{Proof:} Take logs, apply the Taylor expansion $\ln(1+u) = u - \frac{u^2}{2} + O(u^3)$:
-\begin{align*}
-n \ln\!\left(1 + \frac{x}{n}\right) &= n\!\left(\frac{x}{n} - \frac{x^2}{2n^2} + O(n^{-3})\right) = x - \frac{x^2}{2n} + O(n^{-2}) \to x
-\end{align*}
-So $\left(1 + \frac{x}{n}\right)^n = e^{n\ln(1+x/n)} \to e^x$.
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-This converts a product of $n$ nearly-identical terms into an exponential --- the crucial step in the CLT proof: $(1 + t^2/(2n) + \text{small})^n \to e^{t^2/2}$.
-\end{tcolorbox}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Moment Generating Functions}
-
-\begin{defn}
-The \textbf{moment generating function} (MGF) of a random variable $X$ is:
-$$M_X(t) = \mathbb{E}[e^{tX}]$$
-defined for all $t$ in a neighborhood of $0$.
-\end{defn}
-
-\pause
-
-\textbf{Why ``moment generating''?} Expand $e^{tX}$ using the series definition:
-\begin{align*}
-M_X(t) &= \mathbb{E}\!\left[\sum_{k=0}^{\infty} \frac{(tX)^k}{k!}\right] = \sum_{k=0}^{\infty} \frac{t^k}{k!}\,\mathbb{E}[X^k]\\
-&= 1 + t\,\mathbb{E}[X] + \frac{t^2}{2}\,\mathbb{E}[X^2] + \cdots
-\end{align*}
-
-\pause
-
-So $M_X^{(k)}(0) = \mathbb{E}[X^k]$: the $k$-th derivative at zero gives the $k$-th moment.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{MGFs: Key Properties}
-
-\textbf{Why MGFs are useful for proving limit theorems:}
-
-\begin{enumerate}
-  \item \textbf{Uniqueness:} If $M_X(t) = M_Y(t)$ in a neighborhood of $0$, then $X$ and $Y$ have the same distribution. \pause
-  \item \textbf{Independence:} If $X$ and $Y$ are independent, $M_{X+Y}(t) = M_X(t) \cdot M_Y(t)$.
-  \begin{itemize}
-    \item For $n$ iid copies: $M_{X_1 + \cdots + X_n}(t) = [M_{X_1}(t)]^n$
-  \end{itemize} \pause
-  \item \textbf{Continuity theorem:} If $M_{X_n}(t) \to M_X(t)$ for all $t$ near $0$, then $X_n \overset{d}{\to} X$.
-\end{enumerate}
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Standard normal MGF:} If $Z \sim N(0,1)$, then $M_Z(t) = e^{t^2/2}$.\\[4pt]
-\textbf{Proof strategy for CLT:} Show that the MGF of the standardized sample mean converges to $e^{t^2/2}$.
-\end{tcolorbox}
+\textit{Target: $Z\sim N(0,1) \Rightarrow M_Z(t) = e^{t^2/2}$. CLT proof shows the MGF of the standardized sample mean converges to this.}
 
 \end{frame}
 
@@ -981,74 +870,38 @@ Equivalently: $\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \overset{d}{\to} N(0, 1)$
 
 \pause
 
-\textbf{Remarkable fact:} The limit distribution is $N(0,\sigma^2)$ \textbf{regardless} of the distribution of $X_i$. Whether the data are Bernoulli, exponential, or uniform, the sample mean is approximately normal for large $n$.
+The limit distribution is $N(0,\sigma^2)$ regardless of the distribution of $X_i$ --- Bernoulli, exponential, or uniform data all yield an approximately normal sample mean for large $n$. \textit{(HW4 Q4(e) applies this to an influence-function average $\psi(Z_i)$.)}
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Proof of the CLT: Setup}
+\begin{frame}{Sketch of the CLT Proof}
 
-\textbf{Goal:} Show $Z_n = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \overset{d}{\to} N(0,1)$.
+\textbf{Goal.} Show $M_{Z_n}(t) \to e^{t^2/2}$ for $Z_n = \tfrac{\sqrt n\,(\bar X_n - \mu)}{\sigma}$. The continuity theorem then gives $Z_n \overset{d}{\to} N(0,1)$.
 
-\pause
+\medskip
 
-\textbf{Strategy:} Show that $M_{Z_n}(t) \to e^{t^2/2}$, the MGF of $N(0,1)$.
-
-\pause
-
-\textbf{Step 1.} Let $W_i = \frac{X_i - \mu}{\sigma}$, so $\mathbb{E}[W_i] = 0$ and $\mathbb{E}[W_i^2] = 1$. Then:
-$$Z_n = \frac{1}{\sqrt{n}} \sum_{i=1}^n W_i$$
+Standardize $W_i = (X_i - \mu)/\sigma$ so $\mathbb{E}[W_i]=0,\ \mathbb{E}[W_i^2]=1$, and $Z_n = \tfrac{1}{\sqrt n}\sum_i W_i$. By independence,
+\[
+M_{Z_n}(t) = \bigl[M_W(t/\sqrt n)\bigr]^n.
+\]
 
 \pause
 
-\textbf{Step 2.} By independence:
-$$M_{Z_n}(t) = \left[M_{W}\!\left(\frac{t}{\sqrt{n}}\right)\right]^n$$
+Taylor-expand $M_W$ around $0$, using $M_W(0)=1,\ M_W'(0)=\mathbb{E}[W]=0,\ M_W''(0)=\mathbb{E}[W^2]=1$:
+\[
+M_W(s) = 1 + \tfrac{1}{2}s^2 + O(s^3) \;\;\Longrightarrow\;\;
+M_W\!\bigl(t/\sqrt n\bigr) = 1 + \tfrac{t^2}{2n} + O(n^{-3/2}).
+\]
 
 \pause
 
-We need to evaluate $M_W(t/\sqrt{n})$ for large $n$, i.e., for small argument. This is where Taylor expansion enters.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Proof of the CLT: Taylor Expansion of the MGF}
-
-\textbf{Step 3.} Taylor-expand $M_W(s)$ around $s = 0$, using $M_W^{(k)}(0) = \mathbb{E}[W^k]$:
-$$M_W(s) = \underbrace{1}_{M_W(0)} + \underbrace{0}_{E[W]}\cdot s + \frac{1}{2}\,s^2 + O(s^3) = 1 + \frac{s^2}{2} + O(s^3)$$
-
-\pause
-
-\textbf{Step 4.} Substitute $s = t/\sqrt{n}$ and raise to the $n$-th power (by independence):
-\begin{align*}
-M_W\!\left(\frac{t}{\sqrt{n}}\right) &= 1 + \frac{t^2}{2n} + O(n^{-3/2}) \\
-M_{Z_n}(t) &= \left[M_W\!\left(\frac{t}{\sqrt{n}}\right)\right]^n = \left[1 + \frac{t^2}{2n} + O(n^{-3/2})\right]^n
-\end{align*}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Proof of the CLT: The Exponential Limit}
-
-\textbf{Step 5.} Apply the limit $(1 + x/n)^n \to e^x$:
-$$M_{Z_n}(t) = \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n \longrightarrow e^{t^2/2}$$
-
-\pause
-
-The $O(n^{-3/2})$ remainder vanishes faster than $1/n$, so it does not affect the limit. The limit $e^{t^2/2}$ is the MGF of $N(0,1)$.
-
-\pause
-
-\textbf{Step 6.} By the continuity theorem for MGFs:
-$$Z_n = \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma} \overset{d}{\to} N(0,1) \qquad \blacksquare$$
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-Taylor expansion $\to$ $1 + t^2/(2n) + \text{small}$; \;exponential limit $\to$ $e^{t^2/2}$; \;MGF continuity theorem $\to$ convergence in distribution.
-\end{tcolorbox}
+Raise to the $n$-th power and apply the exponential limit:
+\[
+M_{Z_n}(t) = \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
+\]
+\textit{Recipe: Taylor-expand the MGF, raise to $n$ via independence, take the exponential limit.}
 
 \end{frame}
 
@@ -1071,7 +924,7 @@ Compare with Chebyshev: $n = 43{,}000$. The CLT is \textbf{15$\times$ more effic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile]{CLT in Action: R Simulation}
+\begin{frame}[fragile]{CLT: R Simulation}
 
 \begin{lstlisting}
 # CLT: sample means of Exponential(1) converge to Normal
@@ -1115,7 +968,7 @@ Rare binary outcome & Events $\geq 10$/covariate & Coups, wars \\
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-There is no universal rule. The CLT convergence rate depends on the \textbf{shape} of the underlying distribution. When in doubt, \textbf{simulate}.
+The CLT convergence rate depends on the shape of the underlying distribution; the cutoffs above are rules of thumb, not theorems.
 \end{tcolorbox}
 
 \end{frame}
