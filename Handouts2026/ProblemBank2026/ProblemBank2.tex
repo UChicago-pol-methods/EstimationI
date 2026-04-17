@@ -1,0 +1,270 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\usepackage{amsfonts,amssymb,latexsym}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\DeclareFontFamily{U}{eul}{}
+\DeclareFontShape{U}{eul}{b}{n}{ <5> <6> <7> <8> gen * eurm
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> eurm10}{}
+\DeclareSymbolFont{euler}{U}{eul}{b}{n}
+\DeclareMathSymbol{\bfbeta}{\mathalpha}{euler}{'014}
+\DeclareMathSymbol{\bfeps}{\mathalpha}{euler}{'017}
+\DeclareFontShape{U}{cmr}{b}{n}{ <5> <6> <7> <8> gen * cmr
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmr10}{}
+\DeclareSymbolFont{cmrb}{U}{cmr}{b}{n}
+\DeclareMathSymbol{\omeg}{\mathalpha}{cmrb}{'012}
+\setlength{\topmargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8in}
+
+\newcommand{\E}{\mathbb{E}}
+
+\input{stat.sty}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Gulotty}
+\chead{Political Science 307}
+\rhead{Problem Bank \#2}
+\lfoot{\today}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\noindent\textbf{Problem Bank to accompany Homework 2.}  Each item is a short, exam-style question targeting one specific idea from the homework (excluding the Lin-estimator simulation).  The emphasis is on \emph{computation}: hand-inversion of $2\times 2$ matrices, explicit construction of projection and annihilator matrices, and numerical verification of identities that only become intuitive once you've cranked out the arithmetic.  Try each question on your own before consulting the solutions, which are collected at the end.
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT A: Projection matrix and bivariate OLS computation
+%%% ===============================================================
+\section*{Concept A: Projection matrices and bivariate OLS by hand}
+
+\begin{enumerate}[label=\textbf{A.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% A.1
+\item  Consider the data
+$$x = (1, 2, 4)',\qquad y = (3, 5, 9)'.$$
+Let $\bfX = [\bm 1\;\bm x]$ (intercept plus slope).
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bfX'\bfX$ explicitly as a $2\times 2$ matrix.
+  \item Compute $(\bfX'\bfX)^{-1}$ by the $2\times 2$ inverse formula.
+  \item Compute $\bfX'\bfy$ and then $\hat\bfbeta = (\bfX'\bfX)^{-1}\bfX'\bfy$.
+  \item Report the OLS fitted values $\hat\bfy$ and residuals $\hat\bfe$.  Verify $\bm 1'\hat\bfe = 0$ and $\bfx'\hat\bfe = 0$.
+\end{enumerate}
+
+%%% A.2
+\item  Continuing with the data from A.1, compute the projection matrix
+$$\bfP = \bfX(\bfX'\bfX)^{-1}\bfX'$$
+explicitly as a $3\times 3$ matrix.  Then:
+\begin{enumerate}[label=(\alph*)]
+  \item Verify $\bfP\bm 1 = \bm 1$ and $\bfP\bfx = \bfx$ (the two columns of $\bfX$ are fixed points).
+  \item Verify $\bfP^2 = \bfP$ by computing one entry explicitly.
+  \item Compute $\text{tr}(\bfP)$.  What does this number equal, and why?
+\end{enumerate}
+
+%%% A.3
+\item  Using the same data, verify the identity
+$$\sum_{i=1}^n x_i^2 - n\bar x^2 = \sum_{i=1}^n (x_i - \bar x)^2$$
+by computing both sides explicitly.  Then use this identity to simplify the formula
+$$\hat\beta_1 = \frac{n\sum x_i y_i - (\sum x_i)(\sum y_i)}{n\sum x_i^2 - (\sum x_i)^2}$$
+to $\hat\beta_1 = \sum (x_i - \bar x)(y_i - \bar y)/\sum(x_i - \bar x)^2$, and compute $\hat\beta_1$ directly in this form.  Confirm it agrees with A.1(c).
+
+%%% A.4
+\item  \textbf{FWL by hand.}  Using the same data, compute $\hat\beta_1$ by demeaning (the Frisch--Waugh--Lovell recipe):
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bar x = 7/3$ and $\bar y = 17/3$.  Form the demeaned vectors $\tilde\bfx$ and $\tilde\bfy$.
+  \item Run OLS of $\tilde\bfy$ on $\tilde\bfx$ (no intercept): $\hat\beta_1 = (\tilde\bfx'\tilde\bfx)^{-1}\tilde\bfx'\tilde\bfy$.
+  \item Confirm you recover the same $\hat\beta_1$ as in A.1 and A.3.
+\end{enumerate}
+
+%%% A.5
+\item  \textbf{FWL with a second regressor.}  Consider the data
+$$\bfX = \begin{bmatrix}1 & 1 & 2\\ 1 & 2 & 3\\ 1 & 3 & 5\\ 1 & 4 & 6\end{bmatrix},\qquad \bfy = (2, 4, 7, 8)',$$
+where the columns are intercept, $\bm x_1$, $\bm x_2$.
+\begin{enumerate}[label=(\alph*)]
+  \item Regress $\bm x_2$ on $[\bm 1\;\bm x_1]$ and compute the residual vector $\tilde{\bm x}_2$.
+  \item Regress $\bfy$ on $[\bm 1\;\bm x_1]$ and compute the residual vector $\tilde\bfy$.
+  \item Compute the FWL coefficient $\hat\beta_2 = (\tilde{\bm x}_2'\tilde{\bm x}_2)^{-1}\tilde{\bm x}_2'\tilde\bfy$.
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT B: Group fixed effects via partitioned matrices
+%%% ===============================================================
+\section*{Concept B: Group fixed effects and the within estimator}
+
+\begin{enumerate}[label=\textbf{B.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% B.1
+\item  Consider a panel with $N = 5$ individuals grouped into $J = 2$ districts, with $n_1 = 2$ and $n_2 = 3$.  The group-membership matrix is
+$$\bfM_J = \begin{bmatrix}1 & 0\\ 1 & 0\\ 0 & 1\\ 0 & 1\\ 0 & 1\end{bmatrix}.$$
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bfM_J'\bfM_J$.  What is its general form for $J$ groups?
+  \item Compute $(\bfM_J'\bfM_J)^{-1}$.
+\end{enumerate}
+
+%%% B.2
+\item  Using the $\bfM_J$ from B.1, compute the projection matrix $\bfM_J(\bfM_J'\bfM_J)^{-1}\bfM_J'$ as an explicit $5\times 5$ matrix.  Identify the block-diagonal structure with $(1/n_j)\bm J_{n_j}$ blocks.
+
+%%% B.3
+\item  A researcher has the following observations (two groups, one regressor $x$ and one outcome $y$):
+\begin{center}
+\begin{tabular}{c|ccc|c}
+Group & $y$ & $x$ & unit & \\
+\hline
+1 & 4 & 2 & 1 & \\
+1 & 6 & 4 & 2 & \\
+2 & 10 & 5 & 3 & \\
+2 & 14 & 7 & 4 & \\
+2 & 12 & 6 & 5 &
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the group means $\bar y_j$ and $\bar x_j$ for $j = 1, 2$.
+  \item Compute the within-transformed data $\tilde y_i = y_i - \bar y_{j(i)}$ and $\tilde x_i = x_i - \bar x_{j(i)}$ for all five observations.
+\end{enumerate}
+
+%%% B.4
+\item  Continuing with B.3, compute the within estimator
+$$\hat\beta = \frac{\sum_i \tilde x_i\,\tilde y_i}{\sum_i \tilde x_i^2}.$$
+Then predict $y_i$ for each observation using $\hat y_i = \hat\alpha_j + \hat\beta x_i$, where $\hat\alpha_j = \bar y_j - \hat\beta\bar x_j$.  Report residuals and verify they sum to zero \emph{within each group}.
+
+%%% B.5
+\item  Consider the single-district case $J = 1$ (all observations in one group).
+\begin{enumerate}[label=(\alph*)]
+  \item What does $\bfM_J$ become?  What does the within transformation reduce to?
+  \item Show that the within estimator coincides with the ordinary OLS estimator of $y$ on a constant and $x$.
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT C: Recursive OLS via Sherman--Morrison
+%%% ===============================================================
+\section*{Concept C: Recursive OLS and rank-one updates}
+
+Throughout, let $\bfX_n$ be $n\times k$ and $\hat\bfbeta_n = (\bfX_n'\bfX_n)^{-1}\bfX_n'\bfy_n$.  When a new observation $(y_{n+1}, \bm x_{n+1})$ arrives,
+$$\bfX_{n+1}'\bfX_{n+1} = \bfX_n'\bfX_n + \bm x_{n+1}\bm x_{n+1}'.$$
+The Sherman--Morrison formula states
+$$(\bfA + \bm u\bm u')^{-1} = \bfA^{-1} - \frac{\bfA^{-1}\bm u\bm u'\bfA^{-1}}{1 + \bm u'\bfA^{-1}\bm u}.$$
+
+\begin{enumerate}[label=\textbf{C.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% C.1
+\item  Let $\bfA = \bfX_n'\bfX_n = \begin{bmatrix}4 & 2\\ 2 & 3\end{bmatrix}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bfA^{-1}$ by the $2\times 2$ inverse formula.
+  \item A new observation arrives with $\bm x_{n+1} = (1, 2)'$.  Compute $\bfX_{n+1}'\bfX_{n+1} = \bfA + \bm x_{n+1}\bm x_{n+1}'$ explicitly.
+  \item Compute $(\bfX_{n+1}'\bfX_{n+1})^{-1}$ directly using the $2\times 2$ inverse formula.
+\end{enumerate}
+
+%%% C.2
+\item  Use the Sherman--Morrison formula to compute $(\bfX_{n+1}'\bfX_{n+1})^{-1}$ from the setup in C.1, and verify it matches your answer to C.1(c).
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the scalar $1 + \bm x_{n+1}'\bfA^{-1}\bm x_{n+1}$.
+  \item Compute the rank-one update $\bfA^{-1}\bm x_{n+1}\bm x_{n+1}'\bfA^{-1}$ as a $2\times 2$ matrix.
+  \item Subtract and report the result.
+\end{enumerate}
+
+%%% C.3
+\item  Continuing with the same setup, suppose $\hat\bfbeta_n = (1, 0.5)'$ and the new observation is $(y_{n+1}, \bm x_{n+1}) = (3, (1, 2)')$.  Use the recursive formula
+$$\hat\bfbeta_{n+1} = \hat\bfbeta_n + \frac{(\bfX_n'\bfX_n)^{-1}\bm x_{n+1}\,(y_{n+1} - \bm x_{n+1}'\hat\bfbeta_n)}{1 + \bm x_{n+1}'(\bfX_n'\bfX_n)^{-1}\bm x_{n+1}}$$
+to compute $\hat\bfbeta_{n+1}$.
+
+%%% C.4
+\item  The recursive formula has an appealing structure: $\hat\bfbeta_{n+1}$ is $\hat\bfbeta_n$ plus a correction proportional to the prediction error on the new observation.
+\begin{enumerate}[label=(\alph*)]
+  \item What is the ``gain'' (scalar multiplier on the prediction error) when $\bm x_{n+1}$ lies deep in the column space of prior $\bfX_n$ (i.e., $\bm x_{n+1}'(\bfX_n'\bfX_n)^{-1}\bm x_{n+1}$ is small)?
+  \item What is it when $\bm x_{n+1}$ is an extreme point (this quantity is large)?
+  \item Interpret: when does the new observation strongly move the estimate?
+\end{enumerate}
+
+%%% C.5
+\item  \textbf{Leverage limit.}  The quantity $h_{n+1, n+1} = \bm x_{n+1}'(\bfX_{n+1}'\bfX_{n+1})^{-1}\bm x_{n+1}$ is the leverage of the new observation in the augmented sample.  Prove that
+$$h_{n+1, n+1} = \frac{\bm x_{n+1}'(\bfX_n'\bfX_n)^{-1}\bm x_{n+1}}{1 + \bm x_{n+1}'(\bfX_n'\bfX_n)^{-1}\bm x_{n+1}},$$
+using Sherman--Morrison.  Deduce $h_{n+1, n+1} \in [0, 1)$ regardless of how extreme the new observation is.
+
+\end{enumerate}
+
+\newpage
+
+%%% ===============================================================
+%%% SOLUTIONS
+%%% ===============================================================
+\section*{Solutions}
+
+\paragraph{A.1.}  $\sum x_i = 7$, $\sum x_i^2 = 1 + 4 + 16 = 21$, $\sum y_i = 17$, $\sum x_i y_i = 3 + 10 + 36 = 49$.  (a)~$\bfX'\bfX = \begin{bmatrix}3 & 7\\ 7 & 21\end{bmatrix}$.  (b)~$\det = 63 - 49 = 14$, so
+$$(\bfX'\bfX)^{-1} = \frac{1}{14}\begin{bmatrix}21 & -7\\ -7 & 3\end{bmatrix} = \begin{bmatrix}3/2 & -1/2\\ -1/2 & 3/14\end{bmatrix}.$$
+(c)~$\bfX'\bfy = (17, 49)'$.  $\hat\bfbeta = (\bfX'\bfX)^{-1}\bfX'\bfy$: $\hat\beta_0 = (3/2)(17) + (-1/2)(49) = 25.5 - 24.5 = 1$.  $\hat\beta_1 = (-1/2)(17) + (3/14)(49) = -8.5 + 10.5 = 2$.  So $\hat\bfbeta = (1, 2)'$.  (d)~Fitted values $\hat y_i = 1 + 2 x_i$: $\hat\bfy = (3, 5, 9)'$.  Residuals: $\hat\bfe = (0, 0, 0)'$.  The three points lie exactly on the line $y = 1 + 2x$, so residuals and both orthogonality conditions hold trivially.
+
+\paragraph{A.2.}  Let $\bm x_i$ denote the $i$th row of $\bfX$: $\bm x_1 = (1, 1)$, $\bm x_2 = (1, 2)$, $\bm x_3 = (1, 4)$.  Entry $P_{ij} = \bm x_i'(\bfX'\bfX)^{-1}\bm x_j$.  Using $(\bfX'\bfX)^{-1} = \frac{1}{14}\begin{bmatrix}21 & -7\\ -7 & 3\end{bmatrix}$ and computing each entry:
+$$\bfP = \frac{1}{14}\begin{bmatrix}10 & 6 & -2\\ 6 & 5 & 3\\ -2 & 3 & 13\end{bmatrix}.$$
+\emph{Check of } $P_{11}$: $\bm x_1'(\bfX'\bfX)^{-1}\bm x_1 = (1/14)[1, 1]\begin{bmatrix}14\\ -4\end{bmatrix} = 10/14$.  \checkmark.  (a)~Row sums of $\bfP$ all equal $14/14 = 1$, so $\bfP\bm 1 = \bm 1$.  $\bfP\bfx$: row $1$ gives $(10 + 12 - 8)/14 = 1$; row $2$ gives $(6 + 10 + 12)/14 = 2$; row $3$ gives $(-2 + 6 + 52)/14 = 4$.  So $\bfP\bfx = (1, 2, 4)' = \bfx$.  (b)~Idempotency (check one entry): $(\bfP^2)_{11} = (1/14^2)[10\cdot 10 + 6\cdot 6 + (-2)\cdot(-2)] = (100 + 36 + 4)/196 = 140/196 = 10/14$. \checkmark  (c)~$\text{tr}(\bfP) = (10 + 5 + 13)/14 = 28/14 = 2$.  Equals $\text{rank}(\bfX) = 2$, the dimension of the column space onto which we project.
+
+\paragraph{A.3.}  $\bar x = 7/3$, $n\bar x^2 = 3(49/9) = 49/3$.  $\sum x_i^2 = 21 = 63/3$.  LHS: $63/3 - 49/3 = 14/3$.  RHS: $(1 - 7/3)^2 + (2 - 7/3)^2 + (4 - 7/3)^2 = (-4/3)^2 + (-1/3)^2 + (5/3)^2 = (16 + 1 + 25)/9 = 42/9 = 14/3$.  \checkmark  Similarly $\sum(x_i - \bar x)(y_i - \bar y)$: $\bar y = 17/3$, so $y - \bar y = (-8/3, -2/3, 10/3)$.  Product-sum: $(-4/3)(-8/3) + (-1/3)(-2/3) + (5/3)(10/3) = (32 + 2 + 50)/9 = 84/9 = 28/3$.  $\hat\beta_1 = (28/3)/(14/3) = 2$, matching A.1.
+
+\paragraph{A.4.}  (a)~$\bar x = 7/3, \bar y = 17/3$.  $\tilde\bfx = (-4/3, -1/3, 5/3)'$, $\tilde\bfy = (-8/3, -2/3, 10/3)'$.  (b)~$\tilde\bfx'\tilde\bfx = 14/3$ (from A.3), $\tilde\bfx'\tilde\bfy = 28/3$ (from A.3), so $\hat\beta_1 = 28/14 = 2$.  (c)~Matches.  Intercept recovered as $\hat\beta_0 = \bar y - \hat\beta_1\bar x = 17/3 - 2(7/3) = 3/3 = 1$.
+
+\paragraph{A.5.}  First stage: regress $\bm x_2 = (2, 3, 5, 6)'$ on $[\bm 1\;\bm x_1]$ with $\bm x_1 = (1, 2, 3, 4)'$.  $\bar x_1 = 2.5, \bar x_2 = 4$.  $S_{x_1 x_1} = \sum(x_1 - \bar x_1)^2 = 2.25 + 0.25 + 0.25 + 2.25 = 5$.  $S_{x_1 x_2} = (1-2.5)(-2) + (2-2.5)(-1) + (3-2.5)(1) + (4-2.5)(2) = 3 + 0.5 + 0.5 + 3 = 7$.  So slope of $x_2$ on $x_1$ is $7/5 = 1.4$; intercept $4 - 1.4(2.5) = 0.5$.  Residuals $\tilde x_2 = x_2 - 0.5 - 1.4 x_1 = (2-1.9, 3-3.3, 5-4.7, 6-6.1) = (0.1, -0.3, 0.3, -0.1)$.  Similarly residualize $\bfy = (2, 4, 7, 8)'$: $\bar y = 21/4 = 5.25$, $S_{x_1 y} = (1-2.5)(2 - 5.25) + (2 - 2.5)(4 - 5.25) + (3-2.5)(7-5.25) + (4-2.5)(8-5.25) = 4.875 + 0.625 + 0.875 + 4.125 = 10.5$.  Slope $10.5/5 = 2.1$, intercept $5.25 - 2.1(2.5) = 0$.  Residuals: $\tilde y = y - 0 - 2.1 x_1 = (2 - 2.1, 4 - 4.2, 7 - 6.3, 8 - 8.4) = (-0.1, -0.2, 0.7, -0.4)$.  FWL slope: $\hat\beta_2 = \tilde x_2'\tilde y/\tilde x_2'\tilde x_2 = ((0.1)(-0.1) + (-0.3)(-0.2) + (0.3)(0.7) + (-0.1)(-0.4))/(0.01 + 0.09 + 0.09 + 0.01) = (-0.01 + 0.06 + 0.21 + 0.04)/0.20 = 0.30/0.20 = 1.5$.
+
+\bigskip
+
+\paragraph{B.1.}  (a)~$\bfM_J'\bfM_J = \begin{bmatrix}2 & 0\\ 0 & 3\end{bmatrix} = \text{diag}(n_1, n_2)$.  In general $\bfM_J'\bfM_J = \text{diag}(n_1, \ldots, n_J)$ because column $j$ of $\bfM_J$ is $\bm\iota_{n_j}$ and distinct columns have disjoint supports.  (b)~$(\bfM_J'\bfM_J)^{-1} = \text{diag}(1/n_1, 1/n_2) = \text{diag}(1/2, 1/3)$.
+
+\paragraph{B.2.}  $\bfM_J(\bfM_J'\bfM_J)^{-1}\bfM_J'$ is a $5\times 5$ matrix.  Using the diagonal inverse, each column $j$ of $\bfM_J$ contributes $(1/n_j)\bm\iota_{n_j}\bm\iota_{n_j}' = (1/n_j)\bm J_{n_j}$ in a block.  Explicit form:
+$$\bfM_J(\bfM_J'\bfM_J)^{-1}\bfM_J' = \begin{bmatrix}1/2 & 1/2 & 0 & 0 & 0\\ 1/2 & 1/2 & 0 & 0 & 0\\ 0 & 0 & 1/3 & 1/3 & 1/3\\ 0 & 0 & 1/3 & 1/3 & 1/3\\ 0 & 0 & 1/3 & 1/3 & 1/3\end{bmatrix}.$$
+Applied to a vector $\bfy$, this matrix returns a vector whose $i$th entry is $\bar y_{j(i)}$ --- the group mean of $i$'s group, replicated across rows.
+
+\paragraph{B.3.}  (a)~Group 1: $\bar y_1 = 5, \bar x_1 = 3$.  Group 2: $\bar y_2 = 12, \bar x_2 = 6$.  (b)~Within-transformed:
+\begin{center}
+\begin{tabular}{c|cc}
+Unit & $\tilde y$ & $\tilde x$ \\
+\hline
+1 & $4 - 5 = -1$ & $2 - 3 = -1$ \\
+2 & $6 - 5 = 1$ & $4 - 3 = 1$ \\
+3 & $10 - 12 = -2$ & $5 - 6 = -1$ \\
+4 & $14 - 12 = 2$ & $7 - 6 = 1$ \\
+5 & $12 - 12 = 0$ & $6 - 6 = 0$
+\end{tabular}
+\end{center}
+
+\paragraph{B.4.}  $\sum \tilde x_i\tilde y_i = (-1)(-1) + (1)(1) + (-1)(-2) + (1)(2) + 0 = 1 + 1 + 2 + 2 + 0 = 6$.  $\sum \tilde x_i^2 = 1 + 1 + 1 + 1 + 0 = 4$.  $\hat\beta = 6/4 = 1.5$.  Group intercepts: $\hat\alpha_1 = 5 - 1.5\cdot 3 = 0.5$; $\hat\alpha_2 = 12 - 1.5\cdot 6 = 3$.  Fitted:
+\begin{center}
+\begin{tabular}{c|cccc}
+Unit & $x$ & $y$ & $\hat y$ & $\hat e$ \\
+\hline
+1 & 2 & 4 & $0.5 + 3 = 3.5$ & $0.5$ \\
+2 & 4 & 6 & $0.5 + 6 = 6.5$ & $-0.5$ \\
+3 & 5 & 10 & $3 + 7.5 = 10.5$ & $-0.5$ \\
+4 & 7 & 14 & $3 + 10.5 = 13.5$ & $0.5$ \\
+5 & 6 & 12 & $3 + 9 = 12$ & $0$
+\end{tabular}
+\end{center}
+Group-1 residuals sum to $0.5 - 0.5 = 0$; group-2 sum to $-0.5 + 0.5 + 0 = 0$.  The within estimator orthogonalizes residuals within each group, as required by the normal equations for group dummies.
+
+\paragraph{B.5.}  (a)~$\bfM_J = \bm\iota$ (the $N\times 1$ vector of ones), and the within transformation $\tilde y_i = y_i - \bar y$ becomes ordinary centering around the grand mean.  (b)~$\hat\beta_{\text{within}} = \sum(x_i - \bar x)(y_i - \bar y)/\sum(x_i - \bar x)^2$, which is the standard bivariate OLS slope.  With $J = 1$ there are no ``group dummies'' beyond the single intercept, so the within transformation is just centering and recovers ordinary OLS.
+
+\bigskip
+
+\paragraph{C.1.}  (a)~$\det \bfA = 12 - 4 = 8$, so $\bfA^{-1} = \frac{1}{8}\begin{bmatrix}3 & -2\\ -2 & 4\end{bmatrix} = \begin{bmatrix}3/8 & -1/4\\ -1/4 & 1/2\end{bmatrix}$.  (b)~$\bm x_{n+1}\bm x_{n+1}' = \begin{bmatrix}1\\ 2\end{bmatrix}\begin{bmatrix}1 & 2\end{bmatrix} = \begin{bmatrix}1 & 2\\ 2 & 4\end{bmatrix}$.  So $\bfX_{n+1}'\bfX_{n+1} = \begin{bmatrix}5 & 4\\ 4 & 7\end{bmatrix}$.  (c)~$\det = 35 - 16 = 19$, so $(\bfX_{n+1}'\bfX_{n+1})^{-1} = \frac{1}{19}\begin{bmatrix}7 & -4\\ -4 & 5\end{bmatrix}$.
+
+\paragraph{C.2.}  (a)~$\bfA^{-1}\bm x_{n+1} = \begin{bmatrix}3/8 & -1/4\\ -1/4 & 1/2\end{bmatrix}\begin{bmatrix}1\\ 2\end{bmatrix} = \begin{bmatrix}3/8 - 1/2\\ -1/4 + 1\end{bmatrix} = \begin{bmatrix}-1/8\\ 3/4\end{bmatrix}$.  $\bm x_{n+1}'\bfA^{-1}\bm x_{n+1} = (1)(-1/8) + (2)(3/4) = -1/8 + 3/2 = 11/8$.  So $1 + 11/8 = 19/8$.  (b)~$\bfA^{-1}\bm x_{n+1}\bm x_{n+1}'\bfA^{-1} = (\bfA^{-1}\bm x_{n+1})(\bfA^{-1}\bm x_{n+1})' = \begin{bmatrix}-1/8\\ 3/4\end{bmatrix}\begin{bmatrix}-1/8 & 3/4\end{bmatrix} = \begin{bmatrix}1/64 & -3/32\\ -3/32 & 9/16\end{bmatrix}$.  (c)~$\bfA^{-1} - \frac{1}{19/8}\cdot\text{(above)} = \bfA^{-1} - \frac{8}{19}\begin{bmatrix}1/64 & -3/32\\ -3/32 & 9/16\end{bmatrix} = \bfA^{-1} - \begin{bmatrix}1/152 & -3/76\\ -3/76 & 9/38\end{bmatrix}$.  Writing $\bfA^{-1}$ with denominator $152$: $\begin{bmatrix}57/152 & -38/152\\ -38/152 & 76/152\end{bmatrix}$.  Subtracting: $\begin{bmatrix}56/152 & -32/152\\ -32/152 & 40/152\end{bmatrix} = \frac{1}{19}\begin{bmatrix}7 & -4\\ -4 & 5\end{bmatrix}$.  Matches C.1(c). \checkmark
+
+\paragraph{C.3.}  Prediction error: $y_{n+1} - \bm x_{n+1}'\hat\bfbeta_n = 3 - (1\cdot 1 + 2\cdot 0.5) = 3 - 2 = 1$.  Gain denominator: $1 + \bm x_{n+1}'\bfA^{-1}\bm x_{n+1} = 19/8$.  Numerator vector: $\bfA^{-1}\bm x_{n+1} = (-1/8, 3/4)'$ (from C.2).  Update:
+$$\hat\bfbeta_{n+1} = \begin{bmatrix}1\\ 0.5\end{bmatrix} + \frac{1}{19/8}\begin{bmatrix}-1/8\\ 3/4\end{bmatrix}\cdot 1 = \begin{bmatrix}1\\ 0.5\end{bmatrix} + \frac{8}{19}\begin{bmatrix}-1/8\\ 3/4\end{bmatrix} = \begin{bmatrix}1 - 1/19\\ 0.5 + 6/19\end{bmatrix} = \begin{bmatrix}18/19\\ 15.5/19\end{bmatrix} \approx \begin{bmatrix}0.947\\ 0.816\end{bmatrix}.$$
+
+\paragraph{C.4.}  The gain is $[1 + \bm x_{n+1}'\bfA^{-1}\bm x_{n+1}]^{-1}\bfA^{-1}\bm x_{n+1}$, where the scalar denominator is one plus a quadratic form in $\bfA^{-1}$.  (a)~When $\bm x_{n+1}'\bfA^{-1}\bm x_{n+1}$ is small (observation is in a well-sampled part of the design), the denominator is close to $1$ and the gain is close to $\bfA^{-1}\bm x_{n+1}$ --- a routine update.  (b)~When the quadratic form is large (extreme / high-leverage observation), the denominator grows with it and the gain shrinks toward $0$.  (c)~Interpretation: \emph{a single extreme observation does not hijack the estimate}.  The Sherman--Morrison denominator automatically shrinks the update to prevent a wildly-leveraged point from dominating.  This is the algebraic reason leverage values $h_{ii}$ are bounded below $1$ (see C.5).
+
+\paragraph{C.5.}  Let $\bfB = \bfX_n'\bfX_n$, $\bm u = \bm x_{n+1}$, and $q = \bm u'\bfB^{-1}\bm u$.  By Sherman--Morrison,
+$$(\bfB + \bm u\bm u')^{-1} = \bfB^{-1} - \frac{\bfB^{-1}\bm u\bm u'\bfB^{-1}}{1 + q}.$$
+Then $h_{n+1, n+1} = \bm u'(\bfB + \bm u\bm u')^{-1}\bm u = \bm u'\bfB^{-1}\bm u - \frac{(\bm u'\bfB^{-1}\bm u)^2}{1 + q} = q - \frac{q^2}{1+q} = \frac{q(1+q) - q^2}{1 + q} = \frac{q}{1 + q}$.  Since $\bfB$ is positive definite, $q \geq 0$, so $h_{n+1, n+1} = q/(1+q) \in [0, 1)$.  As $q \to\infty$, leverage approaches (but never reaches) $1$.  This bound is the formal reason the Sherman--Morrison update stays well-defined no matter how extreme the new observation is.
+
+\end{document}

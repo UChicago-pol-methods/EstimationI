@@ -1,0 +1,307 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\usepackage{amsfonts,amssymb,latexsym}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\DeclareFontFamily{U}{eul}{}
+\DeclareFontShape{U}{eul}{b}{n}{ <5> <6> <7> <8> gen * eurm
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> eurm10}{}
+\DeclareSymbolFont{euler}{U}{eul}{b}{n}
+\DeclareMathSymbol{\bfbeta}{\mathalpha}{euler}{'014}
+\DeclareMathSymbol{\bfeps}{\mathalpha}{euler}{'017}
+\DeclareFontShape{U}{cmr}{b}{n}{ <5> <6> <7> <8> gen * cmr
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmr10}{}
+\DeclareSymbolFont{cmrb}{U}{cmr}{b}{n}
+\DeclareMathSymbol{\omeg}{\mathalpha}{cmrb}{'012}
+\setlength{\topmargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8in}
+
+\newcommand{\E}{\mathbb{E}}
+
+\input{stat.sty}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Gulotty}
+\chead{Political Science 307}
+\rhead{Problem Bank \#1}
+\lfoot{\today}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\noindent\textbf{Problem Bank to accompany Homework 1.}  Each item is a short, exam-style question targeting one specific idea from the homework.  The goal is \emph{repetition} --- five short passes on the same concept so the mechanics become reflexive by the midterm.  Try each question on your own before consulting the solutions, which are collected at the end.
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT A: CEF vs. BLP
+%%% ===============================================================
+\section*{Concept A: Conditional Expectation Function vs.\ Best Linear Predictor}
+
+\begin{enumerate}[label=\textbf{A.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% A.1 %%%
+\item Let $X$ take values $\{-1, 0, 1\}$ with equal probability and define $Y = X^2$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the CEF $m(x) = \E[Y \mid X = x]$ for $x \in \{-1,0,1\}$.
+  \item Compute the BLP slope $\beta = \text{Cov}(X,Y)/\Var(X)$ and the intercept $\alpha = \E[Y] - \beta\E[X]$.
+  \item Is the BLP equal to the CEF here?  Explain in one sentence why or why not.
+\end{enumerate}
+
+%%% A.2 %%%
+\item The joint distribution of $(X,Y)$ is
+\begin{center}
+\begin{tabular}{c|ccc}
+      & $Y=0$ & $Y=1$ & $Y=2$ \\
+\hline
+$X=0$ & $0.2$ & $0.1$ & $0.0$ \\
+$X=1$ & $0.1$ & $0.2$ & $0.1$ \\
+$X=2$ & $0.0$ & $0.1$ & $0.2$
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $m(x) = \E[Y \mid X = x]$ for $x = 0, 1, 2$.
+  \item Compute the BLP slope and intercept.  Evaluate the BLP at $x = 0, 1, 2$.
+  \item In which sense does the BLP approximate the CEF here?
+\end{enumerate}
+
+%%% A.3 %%%
+\item Suppose $X \sim N(0,1)$ and $Y = X^2 + \varepsilon$ with $\varepsilon \perp X$ and $\E[\varepsilon] = 0$, $\Var(\varepsilon) = 1$.
+\begin{enumerate}[label=(\alph*)]
+  \item Write down the CEF $m(x)$.
+  \item Find the BLP slope $\beta$.  \emph{Hint: $\E[X^3] = 0$ for $X \sim N(0,1)$.}
+  \item Give the BLP and contrast its behavior near $x = 2$ with the CEF's prediction there.
+\end{enumerate}
+
+%%% A.4 %%%
+\item Let $\ell(X) = \alpha + \beta X$ be the BLP of $Y$ and define the BLP residual $u = Y - \ell(X)$.
+\begin{enumerate}[label=(\alph*)]
+  \item Show directly from the first-order conditions that $\E[u] = 0$ and $\text{Cov}(X, u) = 0$.
+  \item Does $\E[u \mid X] = 0$ hold in general?  Give a specific DGP in which it fails.
+  \item Why does the failure in (b) not contradict the orthogonality in (a)?
+\end{enumerate}
+
+%%% A.5 %%%
+\item Suppose $(X, Y)$ are jointly normal with means $(\mu_X, \mu_Y)$, variances $(\sigma_X^2, \sigma_Y^2)$, and correlation $\rho$.
+\begin{enumerate}[label=(\alph*)]
+  \item Write down the CEF $\E[Y \mid X]$ using the standard formula for conditional normals.
+  \item Write down the BLP $\ell(X) = \alpha + \beta X$.
+  \item Show that the two are equal and state the general principle this illustrates.
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT B: Projection matrices (R^2 / R^3)
+%%% ===============================================================
+\section*{Concept B: Projection matrices in low dimensions}
+
+\begin{enumerate}[label=\textbf{B.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% B.1 %%%
+\item Let $\bm{x} = (3, 4)'$ and form $\bm{P} = \bm{x}\bm{x}'/(\bm{x}'\bm{x})$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bm{P}$ explicitly.
+  \item Verify algebraically that $\bm{P}^2 = \bm{P}$.
+  \item Compute $\text{tr}(\bm{P})$.  What does this number tell you?
+\end{enumerate}
+
+%%% B.2 %%%
+\item Consider the same $\bm{P}$ from B.1.
+\begin{enumerate}[label=(\alph*)]
+  \item Find the eigenvalues of $\bm{P}$.
+  \item Find an eigenvector for each eigenvalue.
+  \item Give the geometric meaning of each (eigenvalue, eigenvector) pair.
+\end{enumerate}
+
+%%% B.3 %%%
+\item Let $\bm{x} = (3,1)'$ and $\bm{y} = (1,4)'$.  Decompose $\bm{y}$ into a component along $\bm{x}$ and a component orthogonal to $\bm{x}$:
+$$\bm{y} = \bm{y}_\| + \bm{y}_\perp, \qquad \bm{y}_\| = \text{proj}_{\bm{x}}(\bm{y}).$$
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bm{y}_\|$ and $\bm{y}_\perp$.
+  \item Verify that $\bm{y}_\| \cdot \bm{y}_\perp = 0$.
+  \item Using $\bm{M} = \bm{I} - \bm{P}$, express $\bm{y}_\perp$ and check your answer.
+\end{enumerate}
+
+%%% B.4 %%%
+\item Let $\bm{X}$ be a full-rank $n \times k$ matrix and let $\bm{P} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$.
+\begin{enumerate}[label=(\alph*)]
+  \item Show $\bm{P}\bm{X} = \bm{X}$.  Interpret: what does $\bm{P}$ do to a vector that is already in the column space?
+  \item Show that if $\bm{z}$ satisfies $\bm{X}'\bm{z} = \bm{0}$, then $\bm{P}\bm{z} = \bm{0}$.
+  \item A colleague regresses a vector of ones $\bm{1}$ on a design matrix $\bm{X}$ whose first column is $\bm{1}$.  What fitted values does she get?
+\end{enumerate}
+
+%%% B.5 %%%
+\item Consider the vectors $\bm{a} = (1, 2, 1)'$, $\bm{b} = (-1, 0, 1)'$, $\bm{c} = (1, 4, 3)'$ in $\mathbb{R}^3$.
+\begin{enumerate}[label=(\alph*)]
+  \item Are $\bm{a}, \bm{b}, \bm{c}$ linearly independent?  Show your work.
+  \item Do they form a basis for $\mathbb{R}^3$?
+  \item If $\bm{A} = [\bm{a} \; \bm{b} \; \bm{c}]$ were used as a design matrix, what would go wrong with OLS?
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT C: Best proportional predictor
+%%% ===============================================================
+\section*{Concept C: The best proportional predictor $\gamma X$}
+
+\begin{enumerate}[label=\textbf{C.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% C.1 %%%
+\item Define the best proportional predictor of $Y$ given $X$ as $\gamma X$, where $\gamma$ minimizes $\E[(Y - cX)^2]$ over scalars $c$.
+\begin{enumerate}[label=(\alph*)]
+  \item Derive $\gamma$ from the first-order condition.
+  \item Contrast the formula with the BLP slope $\beta = \text{Cov}(X,Y)/\Var(X)$.  When are they equal?
+\end{enumerate}
+
+%%% C.2 %%%
+\item Let $U = Y - \gamma X$ be the BPP residual with $\gamma = \E[XY]/\E[X^2]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Is $\E[U] = 0$ in general?  Prove or give a counterexample.
+  \item Construct a DGP in which $\E[U] \neq 0$.
+\end{enumerate}
+
+%%% C.3 %%%
+\item With $\gamma = \E[XY]/\E[X^2]$ and $U = Y - \gamma X$:
+\begin{enumerate}[label=(\alph*)]
+  \item Show $\E[XU] = 0$ directly from the FOC.
+  \item Is $\text{Cov}(X, U) = 0$ in general?  Compute it in terms of $\E[X]$ and $\E[U]$.
+\end{enumerate}
+
+%%% C.4 %%%
+\item Suppose $X$ and $Y$ satisfy $\E[X] = 2$, $\E[Y] = 3$, $\E[X^2] = 5$, $\E[Y^2] = 13$, $\E[XY] = 8$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the BPP coefficient $\gamma$ and the BLP coefficients $(\alpha, \beta)$.
+  \item Compute the MSE of the BPP, $\E[(Y - \gamma X)^2]$, and the MSE of the BLP, $\Var(Y) - \beta^2\Var(X)$.
+  \item Which is larger?  Why must it be so?
+\end{enumerate}
+
+%%% C.5 %%%
+\item Order the following three predictors by mean-squared prediction error, from smallest to largest, and justify in 2--3 sentences:
+$$\text{(i) } m(X) = \E[Y\mid X], \qquad \text{(ii) } \ell(X) = \alpha + \beta X \text{ (BLP)}, \qquad \text{(iii) } \gamma X \text{ (BPP)}.$$
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT D: Law of Total Variance
+%%% ===============================================================
+\section*{Concept D: Law of Total Variance}
+
+\begin{enumerate}[label=\textbf{D.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% D.1 %%%
+\item $(X,Y)$ is distributed as follows:
+\begin{center}
+\begin{tabular}{c|cc}
+      & $Y=0$ & $Y=1$ \\
+\hline
+$X=0$ & $0.3$ & $0.1$ \\
+$X=1$ & $0.2$ & $0.4$
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\E[Y\mid X=x]$ and $\Var(Y \mid X = x)$ for $x \in \{0,1\}$.
+  \item Compute $\E\!\big[\Var(Y \mid X)\big]$ and $\Var\!\big(\E[Y \mid X]\big)$.
+  \item Verify numerically that $\Var(Y) = \E[\Var(Y\mid X)] + \Var(\E[Y\mid X])$.
+\end{enumerate}
+
+%%% D.2 %%%
+\item In the law of total variance
+$$\Var(Y) = \underbrace{\E[\Var(Y \mid X)]}_{\text{within}} + \underbrace{\Var(\E[Y \mid X])}_{\text{between}},$$
+give a 2--3 sentence interpretation of each component and explain what it means for one component to equal zero.
+
+%%% D.3 %%%
+\item Define the \emph{population $R^2$} as $R^2 = \Var(\E[Y\mid X])/\Var(Y)$.
+\begin{enumerate}[label=(\alph*)]
+  \item Using the LTV, show $R^2 \in [0, 1]$.
+  \item For the joint distribution in D.1, compute $R^2$.
+  \item What does $R^2 = 0$ imply about the CEF?  What does $R^2 = 1$ imply?
+\end{enumerate}
+
+%%% D.4 %%%
+\item Suppose $Y \mid X = x \sim \text{Bernoulli}(p(x))$ for some function $p(\cdot)$.
+\begin{enumerate}[label=(\alph*)]
+  \item Write $\E[Y \mid X]$ and $\Var(Y\mid X)$ in terms of $p(X)$.
+  \item Apply the LTV to express $\Var(Y)$ in terms of $p(X)$.
+  \item If $p(X)$ is close to $0.5$ everywhere, which component of $\Var(Y)$ dominates, within or between?
+\end{enumerate}
+
+%%% D.5 %%%
+\item A researcher splits $n = 300$ respondents into three income groups ($X \in \{L, M, H\}$, each of size $100$) and records turnout $Y \in \{0, 1\}$.  Within-group turnout rates are $0.3, 0.5, 0.7$, respectively.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the within-group (pooled) variance estimate.
+  \item Compute the between-group variance estimate.
+  \item Report the implied $R^2$ and interpret.
+\end{enumerate}
+
+\end{enumerate}
+
+\newpage
+
+%%% ===============================================================
+%%% SOLUTIONS
+%%% ===============================================================
+\section*{Solutions}
+
+\paragraph{A.1.}  (a)~Since $Y$ is a deterministic function of $X$, $m(x) = x^2$, so $m(-1)=1$, $m(0)=0$, $m(1)=1$.  (b)~By symmetry $\E[X]=0$, and $\E[XY] = \E[X^3] = 0$ (symmetric distribution), so $\text{Cov}(X,Y) = 0$ and $\beta = 0$.  Then $\alpha = \E[Y] = 2/3$, so the BLP is the constant $\ell(X) \equiv 2/3$.  (c)~No --- the CEF is U-shaped while the BLP is flat.  The BLP fails to detect the nonlinear, symmetric dependence because the \emph{correlation} is zero even though $Y$ is fully determined by $X$.
+
+\paragraph{A.2.}  Marginals: $P(X=x) = 0.3, 0.4, 0.3$ for $x=0,1,2$.  (a)~$m(0) = 0.1/0.3 = 1/3$, $m(1) = (0.2 + 0.2)/0.4 = 1$, $m(2) = (0.1 + 0.4)/0.3 = 5/3$.  (b)~$\E[X] = 1$, $\E[Y] = 1$, $\Var(X) = \E[X^2] - 1 = 1.6 - 1 = 0.6$.  Computing $\E[XY] = \sum_{x,y} xy\,P(x,y)$ gives $1\cdot 1\cdot 0.2 + 1\cdot 2\cdot 0.1 + 2\cdot 1\cdot 0.1 + 2\cdot 2\cdot 0.2 = 1.4$, so $\text{Cov}(X,Y) = 1.4 - 1 = 0.4$, $\beta = 0.4/0.6 = 2/3$, $\alpha = 1 - 2/3 = 1/3$.  BLP: $\ell(0) = 1/3$, $\ell(1) = 1$, $\ell(2) = 5/3$.  (c)~The CEF happens to be linear in $x$ here, so the BLP equals the CEF at all three support points.  This is the lucky case where linearity is exact rather than an approximation.
+
+\paragraph{A.3.}  (a)~$m(x) = \E[X^2 + \varepsilon \mid X = x] = x^2$.  (b)~$\beta = \text{Cov}(X,Y)/\Var(X) = \E[X \cdot X^2] / 1 = \E[X^3] = 0$, using $\E[X]=0$.  (c)~$\E[Y] = \E[X^2] = 1$, so the BLP is $\ell(x) \equiv 1$.  At $x = 2$ the CEF predicts $Y = 4$ but the BLP predicts $Y = 1$.  The BLP, which only uses the linear correlation, misses the entire signal.
+
+\paragraph{A.4.}  (a)~The BLP minimizes $\E[(Y - a - bX)^2]$.  FOC in $a$: $\E[Y - \alpha - \beta X] = 0$, i.e.\ $\E[u] = 0$.  FOC in $b$: $\E[X(Y - \alpha - \beta X)] = \E[Xu] = 0$, so $\text{Cov}(X,u) = \E[Xu] - \E[X]\E[u] = 0$.  (b)~No.  Take $Y = X^2 + \varepsilon$ with $X \sim N(0,1)$ (as in A.3).  The BLP is $\ell(X) \equiv 1$, so $u = X^2 - 1 + \varepsilon$ and $\E[u \mid X] = X^2 - 1 \neq 0$.  (c)~Orthogonality is a single \emph{covariance} condition between $X$ and $u$; it requires only that $\E[Xu] = 0$ ``on average.''  Conditional mean zero is much stronger: it says $u$ has mean zero at \emph{every} value of $X$.  The CEF, not the BLP, is the object that satisfies the stronger condition.
+
+\paragraph{A.5.}  (a)~$\E[Y \mid X] = \mu_Y + \rho\,\frac{\sigma_Y}{\sigma_X}(X - \mu_X)$.  (b)~$\beta = \text{Cov}(X,Y)/\Var(X) = \rho\sigma_X\sigma_Y/\sigma_X^2 = \rho\sigma_Y/\sigma_X$, and $\alpha = \mu_Y - \beta\mu_X$, so $\ell(X) = \mu_Y + \rho\,\frac{\sigma_Y}{\sigma_X}(X - \mu_X)$.  (c)~Identical.  \emph{Principle:} whenever the CEF is linear in $X$, the BLP coincides with it.  Joint normality is a sufficient (not necessary) condition for linearity of the CEF.
+
+\bigskip
+
+\paragraph{B.1.}  (a)~$\bm{x}'\bm{x} = 25$, so
+$$\bm{P} = \frac{1}{25}\begin{bmatrix}9 & 12 \\ 12 & 16\end{bmatrix}.$$
+(b)~$\bm{P}^2 = \bm{x}(\bm{x}'\bm{x})^{-1}\bm{x}'\bm{x}(\bm{x}'\bm{x})^{-1}\bm{x}' = \bm{x}(\bm{x}'\bm{x})^{-1}\bm{x}' = \bm{P}$.  The middle $\bm{x}'\bm{x}$ cancels with one of the inverses --- this is idempotency in one line.  (c)~$\text{tr}(\bm{P}) = (9 + 16)/25 = 1$.  The trace of a projection equals the dimension of its image; here we project onto the one-dimensional span of $\bm{x}$, so the rank is $1$.
+
+\paragraph{B.2.}  (a)~Since $\bm{P}$ is a rank-1 projection, its eigenvalues are $1$ (once) and $0$ (once).  (Check: $\det(\bm{P}) = (9\cdot 16 - 12^2)/625 = 0$, and $\text{tr}(\bm{P}) = 1$, so eigenvalues sum to $1$ and multiply to $0$.)  (b)~The eigenvector for $\lambda = 1$ is any nonzero multiple of $\bm{x} = (3,4)'$; the eigenvector for $\lambda = 0$ is any vector orthogonal to $\bm{x}$, e.g., $(-4, 3)'$.  (c)~Vectors along $\bm{x}$ are fixed by the projection (eigenvalue $1$).  Vectors orthogonal to $\bm{x}$ are sent to the zero vector (eigenvalue $0$).  Every projection matrix has this structure: eigenvalues are only $0$ and $1$, and the two eigenspaces are the range and null space.
+
+\paragraph{B.3.}  (a)~$\bm{x}'\bm{y} = 3\cdot 1 + 1\cdot 4 = 7$, $\bm{x}'\bm{x} = 10$, so $\bm{y}_\| = (7/10)(3,1)' = (2.1, 0.7)'$.  Then $\bm{y}_\perp = \bm{y} - \bm{y}_\| = (-1.1, 3.3)'$.  (b)~$\bm{y}_\| \cdot \bm{y}_\perp = (2.1)(-1.1) + (0.7)(3.3) = -2.31 + 2.31 = 0$. \checkmark  (c)~$\bm{M}\bm{y} = \bm{y} - \bm{P}\bm{y} = \bm{y} - \bm{y}_\| = \bm{y}_\perp$, matching part (a).  This is the regression picture in miniature: $\bm{P}$ extracts the ``fitted'' part along the regressor, $\bm{M}$ extracts the residual.
+
+\paragraph{B.4.}  (a)~$\bm{P}\bm{X} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{X} = \bm{X}$.  Vectors already in the column space are \emph{fixed points} of $\bm{P}$ --- projecting onto a space that contains you does nothing.  (b)~$\bm{P}\bm{z} = \bm{X}(\bm{X}'\bm{X})^{-1}(\bm{X}'\bm{z}) = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{0} = \bm{0}$.  Vectors orthogonal to the column space have no component to project.  (c)~The fitted values are $\bm{P}\bm{1} = \bm{1}$, since $\bm{1}$ is a column of $\bm{X}$.  The residuals are $\bm{0}$ and $R^2 = 1$.
+
+\paragraph{B.5.}  (a)~Compute the determinant by cofactor expansion along row 1:
+$$\det[\bm{a}\,\bm{b}\,\bm{c}] = \det\begin{bmatrix}1 & -1 & 1\\ 2 & 0 & 4\\ 1 & 1 & 3\end{bmatrix} = 1(0 - 4) - (-1)(6 - 4) + 1(2 - 0) = -4 + 2 + 2 = 0.$$
+The determinant is zero, so the three vectors are linearly \emph{dependent}.  One can read off the dependence directly: $\bm{c} = 2\bm{a} + \bm{b}$, since $2(1,2,1)' + (-1, 0, 1)' = (1, 4, 3)'$.  (b)~No; three linearly dependent vectors span at most a 2-dimensional subspace, not all of $\mathbb{R}^3$.  (c)~$\bm{A}'\bm{A}$ would be singular, so $(\bm{A}'\bm{A})^{-1}$ does not exist.  OLS cannot separately identify the coefficients --- this is perfect multicollinearity.
+
+\bigskip
+
+\paragraph{C.1.}  (a)~$\frac{d}{dc}\E[(Y - cX)^2] = -2\E[X(Y - cX)] = 0$ gives $\gamma = \E[XY]/\E[X^2]$.  (b)~The BLP slope is $\beta = (\E[XY] - \E[X]\E[Y])/(\E[X^2] - \E[X]^2)$.  They coincide when $\E[X] = 0$ (which also forces the numerators to agree up to $\E[X]\E[Y] = 0$).  More generally: no intercept is allowed, so $\gamma$ is forced to pass through the origin, and it differs from $\beta$ whenever the data cloud is not centered at $0$.
+
+\paragraph{C.2.}  (a)~In general, no.  The FOC gives $\E[XU] = 0$ but \emph{not} $\E[U] = 0$, because with no intercept there is no first-order condition in a constant.  (b)~Let $X = 1$ or $2$ each with probability $1/2$, and $Y = X + 1$ (so $Y = 2$ or $3$).  Then $\E[X^2] = 2.5$, $\E[XY] = (1\cdot 2 + 2\cdot 3)/2 = 4$, and $\gamma = 4/2.5 = 1.6$.  The residual $U = Y - \gamma X$ takes values $2 - 1.6 = 0.4$ and $3 - 3.2 = -0.2$, so $\E[U] = (0.4 - 0.2)/2 = 0.1 \neq 0$.  The BPP does not ``balance'' on average because it cannot adjust an intercept.
+
+\paragraph{C.3.}  (a)~The FOC is precisely $\E[X(Y - \gamma X)] = \E[XU] = 0$.  (b)~$\text{Cov}(X, U) = \E[XU] - \E[X]\E[U] = 0 - \E[X]\E[U] = -\E[X]\E[U]$.  So covariance is zero only when either $\E[X] = 0$ or $\E[U] = 0$.  The BPP guarantees orthogonality ($\E[XU] = 0$) but \emph{not} zero covariance, in contrast to the BLP which guarantees both.
+
+\paragraph{C.4.}  (a)~$\gamma = 8/5 = 1.6$.  $\Var(X) = 5 - 4 = 1$, $\text{Cov}(X,Y) = 8 - 6 = 2$, so $\beta = 2$, $\alpha = 3 - 2\cdot 2 = -1$.  (b)~BPP MSE: $\E[Y^2] - 2\gamma\E[XY] + \gamma^2\E[X^2] = 13 - 2(1.6)(8) + (1.6)^2(5) = 13 - 25.6 + 12.8 = 0.2$.  BLP MSE: $\Var(Y) - \beta^2\Var(X) = (13 - 9) - 4 \cdot 1 = 0$.  (c)~The BPP MSE is larger.  The BLP minimizes over a \emph{strictly larger} class (intercept $+$ slope vs.\ slope only), so it cannot do worse.  Here the true relationship is linear with intercept $-1$, which the BPP cannot fit exactly.
+
+\paragraph{C.5.}  MSE$(m) \leq $ MSE$(\ell) \leq $ MSE$(\gamma X)$.  The CEF is the \emph{overall} MSE minimizer over all measurable functions of $X$; the BLP is the MSE minimizer over affine functions; the BPP is the MSE minimizer over the strictly smaller class of rays through the origin.  Each successive class is a subset of the previous, so nested minimizations give weakly larger MSE.  Equalities occur in special cases (e.g., BLP $=$ CEF when the CEF is linear; BPP $=$ BLP when the regression line passes through the origin).
+
+\bigskip
+
+\paragraph{D.1.}  $P(X=0) = 0.4$, $P(X=1) = 0.6$.  (a)~$\E[Y\mid X=0] = 0.1/0.4 = 0.25$, $\E[Y\mid X=1] = 0.4/0.6 = 2/3$.  Conditional variances (Bernoulli): $\Var(Y\mid X=0) = 0.25 \cdot 0.75 = 0.1875$, $\Var(Y\mid X=1) = (2/3)(1/3) = 2/9 \approx 0.2222$.  (b)~$\E[\Var(Y\mid X)] = 0.4(0.1875) + 0.6(0.2222) = 0.075 + 0.1333 = 0.2083$.  $\E[Y] = 0.5$, so $\Var(\E[Y\mid X]) = 0.4(0.25 - 0.5)^2 + 0.6(2/3 - 0.5)^2 = 0.4(0.0625) + 0.6(0.0278) = 0.025 + 0.0167 = 0.0417$.  (c)~$\Var(Y) = 0.5 \cdot 0.5 = 0.25$ (marginal Bernoulli).  Sum: $0.2083 + 0.0417 = 0.25$. \checkmark
+
+\paragraph{D.2.}  The ``within'' component is the average amount of variation in $Y$ that remains \emph{after} conditioning on $X$ --- the noise left over once you know the best predictor.  The ``between'' component is the variation across groups in their group means $\E[Y \mid X]$ --- the signal picked up by the CEF.  If the within component is zero, $Y$ is a deterministic function of $X$.  If the between component is zero, the CEF is constant (i.e., $X$ and $Y$ have no CEF-level relationship, although they might still be dependent through higher moments).
+
+\paragraph{D.3.}  (a)~From LTV, $\Var(Y) = \E[\Var(Y\mid X)] + \Var(\E[Y\mid X])$.  Both terms are $\geq 0$, so $\Var(\E[Y\mid X]) \leq \Var(Y)$, giving $R^2 \in [0,1]$.  (b)~Using D.1: $R^2 = 0.0417 / 0.25 \approx 0.167$.  About $17\%$ of the variation in $Y$ is explained by $X$.  (c)~$R^2 = 0 \iff \Var(\E[Y\mid X]) = 0 \iff \E[Y\mid X]$ is a.s.\ constant (the CEF is flat).  $R^2 = 1 \iff \E[\Var(Y\mid X)] = 0 \iff Y$ is a.s.\ a function of $X$ (no within-group noise).
+
+\paragraph{D.4.}  (a)~$\E[Y\mid X] = p(X)$; $\Var(Y \mid X) = p(X)(1 - p(X))$.  (b)~$\Var(Y) = \E[p(X)(1-p(X))] + \Var(p(X))$.  (c)~If $p(X) \approx 0.5$, then $p(X)(1 - p(X)) \approx 0.25$ is near its maximum and $\Var(p(X)) \approx 0$, so the within (noise) component dominates.  Binary outcomes near $50/50$ are intrinsically hard to predict: most of the variation is irreducible.
+
+\paragraph{D.5.}  Group means: $0.3, 0.5, 0.7$; overall $\bar Y = 0.5$.  (a)~Within variance (Bernoulli): $(1/3)[(0.3)(0.7) + (0.5)(0.5) + (0.7)(0.3)] = (1/3)[0.21 + 0.25 + 0.21] = 0.2233$.  (b)~Between variance: $(1/3)[(0.3 - 0.5)^2 + (0.5 - 0.5)^2 + (0.7 - 0.5)^2] = (1/3)[0.04 + 0 + 0.04] = 0.0267$.  (c)~Total $= 0.2233 + 0.0267 = 0.25$ (matches Bernoulli$(0.5)$ marginal).  $R^2 = 0.0267/0.25 \approx 0.107$.  Income group explains about $11\%$ of the variation in turnout; the rest is within-group noise.
+
+\end{document}

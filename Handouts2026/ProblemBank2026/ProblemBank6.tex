@@ -1,0 +1,295 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\usepackage{amsfonts,amssymb,latexsym}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\DeclareFontFamily{U}{eul}{}
+\DeclareFontShape{U}{eul}{b}{n}{ <5> <6> <7> <8> gen * eurm
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> eurm10}{}
+\DeclareSymbolFont{euler}{U}{eul}{b}{n}
+\DeclareMathSymbol{\bfbeta}{\mathalpha}{euler}{'014}
+\DeclareMathSymbol{\bfeps}{\mathalpha}{euler}{'017}
+\DeclareFontShape{U}{cmr}{b}{n}{ <5> <6> <7> <8> gen * cmr
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmr10}{}
+\DeclareSymbolFont{cmrb}{U}{cmr}{b}{n}
+\DeclareMathSymbol{\omeg}{\mathalpha}{cmrb}{'012}
+\setlength{\topmargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8in}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\pconv}{\xrightarrow{p}}
+
+\input{stat.sty}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Gulotty}
+\chead{Political Science 307}
+\rhead{Problem Bank \#6}
+\lfoot{\today}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\noindent\textbf{Problem Bank to accompany Homework 6.}  Each item is a short, exam-style question targeting one specific idea from the homework.  The goal is \emph{repetition} --- five short passes on the same concept so the mechanics become reflexive by the final.  Try each question on your own before consulting the solutions, which are collected at the end.
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT A: Fixed Effects Transformations
+%%% ===============================================================
+\section*{Concept A: Within, LSDV, and Between Estimators}
+
+\begin{enumerate}[label=\textbf{A.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% A.1
+\item  Consider a panel with $N = 2$ units and $T = 3$ time periods.  The data are:
+\begin{center}
+\begin{tabular}{c|ccc}
+ & $t=1$ & $t=2$ & $t=3$ \\
+\hline
+Unit $1$: $(x_{1t}, y_{1t})$ & $(1, 3)$ & $(2, 4)$ & $(3, 8)$ \\
+Unit $2$: $(x_{2t}, y_{2t})$ & $(2, 10)$ & $(3, 11)$ & $(4, 15)$
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\bar y_i$ and $\bar x_i$ for each unit.  Form the demeaned variables $\tilde y_{it} = y_{it} - \bar y_i$ and $\tilde x_{it} = x_{it} - \bar x_i$.
+  \item Run OLS of $\tilde y$ on $\tilde x$ (no intercept, since everything is already demeaned).  Report $\hat\beta_{\text{FE}}$.
+  \item What does OLS of $\bar y_i$ on $\bar x_i$ (the \emph{between} estimator) give?  Compare to (b).
+\end{enumerate}
+
+%%% A.2
+\item  Consider the panel model $y_{it} = \bm x_{it}'\bfbeta + \alpha_i + e_{it}$ with unit effects $\alpha_i$.  Let $\bfD$ be the $NT\times N$ matrix of unit dummies.
+\begin{enumerate}[label=(\alph*)]
+  \item Write the LSDV regression of $\bfy$ on $[\bfD \; \bfX]$.  Using FWL, express the LSDV coefficient on $\bfX$ as OLS of $\bfM_D\bfy$ on $\bfM_D\bfX$, where $\bfM_D = \bfI - \bfD(\bfD'\bfD)^{-1}\bfD'$.
+  \item Show that $\bfM_D$ acts as the within (demeaning) operator: $\bfM_D\bfy$ has entries $y_{it} - \bar y_i$.
+  \item Conclude that LSDV and the within estimator return identical $\hat\bfbeta$.
+\end{enumerate}
+
+%%% A.3
+\item  The \emph{between} estimator regresses unit means $\bar y_i$ on $\bar{\bm x}_i$ using $N$ observations.
+\begin{enumerate}[label=(\alph*)]
+  \item Under the model $y_{it} = \bm x_{it}'\bfbeta + \alpha_i + e_{it}$, write the model for the means: $\bar y_i = \bar{\bm x}_i'\bfbeta + \alpha_i + \bar e_i$.
+  \item Under what condition on $\alpha_i$ is $\hat\bfbeta_{\text{between}}$ consistent?
+  \item Why does the within estimator not need this condition?
+\end{enumerate}
+
+%%% A.4
+\item  Consider a model with a time-invariant regressor $\bm z_i$:
+$$y_{it} = \bm x_{it}'\bfbeta + \bm z_i'\bm\gamma + \alpha_i + e_{it}.$$
+\begin{enumerate}[label=(\alph*)]
+  \item Apply the within transformation.  Show that both $\alpha_i$ and $\bm z_i$ drop out.
+  \item Conclude that the within estimator cannot identify $\bm\gamma$.  What alternative identification strategies can recover $\bm\gamma$?
+\end{enumerate}
+
+%%% A.5
+\item  In a panel with $N = 50$, $T = 5$, $K = 3$:
+\begin{enumerate}[label=(\alph*)]
+  \item Report the degrees of freedom for the LSDV regression (with $N$ unit dummies, no overall intercept).
+  \item Report the apparent degrees of freedom for the within regression on demeaned data.
+  \item Software typically reports the same standard errors for both.  Why is this correct?
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT B: Differences-in-Differences (2x2)
+%%% ===============================================================
+\section*{Concept B: The $2\times 2$ Differences-in-Differences Design}
+
+Throughout, $G \in \{0, 1\}$ indexes treated ($G = 1$) vs.\ control, and $T \in \{0, 1\}$ indexes pre ($T = 0$) vs.\ post.
+
+\begin{enumerate}[label=\textbf{B.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% B.1
+\item  A researcher has the following group--period sample means:
+\begin{center}
+\begin{tabular}{c|cc}
+      & $T = 0$ & $T = 1$ \\
+\hline
+$G = 1$ & $5$ & $12$ \\
+$G = 0$ & $3$ & $6$
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the DID estimate $\hat\delta$.
+  \item What would a simple pre/post comparison (using only $G = 1$) report for the treatment effect?  Why does this overstate the effect if there is a secular trend?
+\end{enumerate}
+
+%%% B.2
+\item  Fit the regression
+$$y_{it} = \alpha + \beta G_i + \gamma T_t + \delta (G_i\cdot T_t) + u_{it}.$$
+Show that, in terms of the group--period means $\bar Y_{gt}$, the OLS coefficients are $\hat\alpha = \bar Y_{00}$, $\hat\beta = \bar Y_{10} - \bar Y_{00}$, $\hat\gamma = \bar Y_{01} - \bar Y_{00}$, $\hat\delta = (\bar Y_{11} - \bar Y_{10}) - (\bar Y_{01} - \bar Y_{00})$.
+
+%%% B.3
+\item  State the parallel trends assumption in the potential-outcomes framework.
+\begin{enumerate}[label=(\alph*)]
+  \item Using $Y(0)$ and $Y(1)$, write the assumption as a restriction on counterfactual means over time.
+  \item Explain in 2--3 sentences why the assumption is fundamentally untestable, and what role pre-treatment trends play in making it more or less plausible.
+\end{enumerate}
+
+%%% B.4
+\item  Prove that in the $2\times 2$ DID setup (balanced, one pre-period and one post-period), the DID estimator equals the two-way fixed effects estimator obtained by running OLS with unit and time fixed effects on the treatment dummy $G_i\cdot T_t$.
+
+%%% B.5
+\item  A researcher wants to assess the plausibility of parallel trends in a DID study.  She has \emph{three} pre-treatment periods in addition to a post-treatment period.
+\begin{enumerate}[label=(\alph*)]
+  \item Describe how she could run an event-study (leads-and-lags) regression to diagnose pre-trends.
+  \item What pattern of pre-treatment coefficients would reassure her?  What pattern would raise concern?
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT C: Two-Way Fixed Effects and Staggered Rollout
+%%% ===============================================================
+\section*{Concept C: TWFE and Staggered Treatment Adoption}
+
+\begin{enumerate}[label=\textbf{C.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% C.1
+\item  Consider the two-way fixed effects regression
+$$y_{it} = \alpha_i + \lambda_t + \delta\,D_{it} + u_{it},$$
+where $D_{it} = 1$ if unit $i$ is treated in period $t$.
+\begin{enumerate}[label=(\alph*)]
+  \item Apply the within (two-way demeaning) transformation: express the transformed $\tilde D_{it}$ in terms of $D_{it}$, $\bar D_{i\cdot}$, $\bar D_{\cdot t}$, and $\bar D$.
+  \item State the conditions on $D_{it}$ under which $\hat\delta$ from TWFE equals the $2\times 2$ DID estimator.
+\end{enumerate}
+
+%%% C.2
+\item  Three units $\{A, B, C\}$ over four periods $\{1, 2, 3, 4\}$.  Treatment start dates: $A$ treated from $t = 2$, $B$ treated from $t = 4$, $C$ never treated.
+\begin{enumerate}[label=(\alph*)]
+  \item List all ``clean'' $2\times 2$ comparisons (treated vs.\ never-treated) that the data supports.
+  \item List any ``dirty'' comparisons that use an already-treated unit as a control.
+\end{enumerate}
+
+%%% C.3
+\item  The Goodman-Bacon (2021) decomposition writes the TWFE $\hat\delta$ as a weighted average of all pairwise $2\times 2$ DIDs among treatment timing cohorts and never-treated controls.
+\begin{enumerate}[label=(\alph*)]
+  \item Under constant treatment effects (no heterogeneity across cohorts or time), why does the decomposition still recover $\delta$?
+  \item Under treatment effect heterogeneity, some weights on pairwise DIDs can be \emph{negative}.  Give a one-sentence explanation of why a ``late-treated vs.\ already-treated'' comparison can produce a negative weight contribution.
+\end{enumerate}
+
+%%% C.4
+\item  Suppose treatment effects evolve: the effect is $0$ in the first treated period and grows linearly to $\tau$ after several periods.  In a setup with one early-treated cohort and one late-treated cohort:
+\begin{enumerate}[label=(\alph*)]
+  \item In the comparison where the late-treated cohort is used as the ``control'' for the early-treated cohort \emph{before} the late cohort is treated, what does the DID recover?
+  \item In the comparison where the early-treated cohort is used as the ``control'' for the late-treated cohort \emph{after} both are treated, what does the DID recover?  Why might this push $\hat\delta$ down?
+\end{enumerate}
+
+%%% C.5
+\item  Name two modern estimators designed to handle staggered adoption with heterogeneous effects and state in one sentence what each one does differently from plain TWFE.
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT D: Mundlak / Correlated Random Effects
+%%% ===============================================================
+\section*{Concept D: The Mundlak device and CRE}
+
+Throughout, the panel model is $y_{it} = \bm x_{it}'\bfbeta + \bm z_i'\bm\gamma + \alpha_i + e_{it}$.
+
+\begin{enumerate}[label=\textbf{D.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% D.1
+\item  Apply the within transformation (subtract unit means) to the model.  Show that both $\alpha_i$ and $\bm z_i$ drop out of the transformed equation.  What is the remaining identified parameter?
+
+%%% D.2
+\item  Assume the Mundlak decomposition $\alpha_i = \delta_0 + \bar{\bm x}_i'\bm\delta + \zeta_i$ with $\E[\zeta_i \mid \bm x_{it}, \bm z_i] = 0$.
+\begin{enumerate}[label=(\alph*)]
+  \item Substitute into the panel model to write
+  $$y_{it} = \bm x_{it}'\bfbeta + \bm z_i'\bm\gamma + \bar{\bm x}_i'\bm\delta + (\delta_0 + \zeta_i + e_{it}).$$
+  \item Argue that the composite error $(\zeta_i + e_{it})$ is uncorrelated with all regressors on the right-hand side, justifying pooled OLS (or RE GLS).
+\end{enumerate}
+
+%%% D.3
+\item  In the CRE regression of D.2, the coefficient on $\bm x_{it}$ is $\hat\bfbeta_{\text{CRE}}$.  Show via FWL that $\hat\bfbeta_{\text{CRE}} = \hat\bfbeta_{\text{FE}}$ (the within estimator).
+
+\emph{Hint: including $\bar{\bm x}_i$ as a regressor absorbs the unit-level variation in $\bm x_{it}$.  What's left?}
+
+%%% D.4
+\item  The Mundlak specification test evaluates $H_0: \bm\delta = \bm 0$.
+\begin{enumerate}[label=(\alph*)]
+  \item Why does $\bm\delta = \bm 0$ correspond to the Random Effects assumption $\text{Cov}(\alpha_i, \bm x_{it}) = 0$?
+  \item Why does failing to reject $H_0$ validate the use of RE?
+  \item In what sense is the Mundlak $F$-test equivalent to the Hausman test comparing FE and RE?
+\end{enumerate}
+
+%%% D.5
+\item  A researcher has panel data on $N = 30$ countries over $T = 20$ years.  She fits:
+\begin{itemize}
+  \item Model 1 (RE): pooled with random intercepts.
+  \item Model 2 (FE): within estimator.
+  \item Model 3 (CRE): pooled OLS including $\bar{\bm x}_i$.
+\end{itemize}
+She finds that the coefficient on $\bm x_{it}$ differs substantially between Models 1 and 2, and that Model 3 matches Model 2 to several decimal places.
+\begin{enumerate}[label=(\alph*)]
+  \item What does this pattern tell her about the RE assumption?
+  \item What, if anything, has she learned from Model 3 that she could \emph{not} have learned from Models 1 and 2 alone?
+\end{enumerate}
+
+\end{enumerate}
+
+\newpage
+
+%%% ===============================================================
+%%% SOLUTIONS
+%%% ===============================================================
+\section*{Solutions}
+
+\paragraph{A.1.}  (a)~$\bar y_1 = (3+4+8)/3 = 5$, $\bar x_1 = 2$.  $\bar y_2 = 12$, $\bar x_2 = 3$.  Demeaned: unit 1 has $(\tilde x, \tilde y) = (-1, -2), (0, -1), (1, 3)$; unit 2 has $(-1, -2), (0, -1), (1, 3)$.  (b)~$\hat\beta_{\text{FE}} = \sum\tilde x\tilde y/\sum\tilde x^2 = [(-1)(-2) + 0 + (1)(3)]\cdot 2 /[1 + 0 + 1]\cdot 2 = 5/2 = 2.5$.  (Sum across both units: numerator $= 10$, denominator $= 4$.)  (c)~Between: regress $(\bar y_1, \bar y_2) = (5, 12)$ on $(\bar x_1, \bar x_2) = (2, 3)$.  Slope $= (12 - 5)/(3 - 2) = 7$, intercept $= 5 - 7\cdot 2 = -9$.  Very different from the within estimate: the between estimate mixes in the cross-unit ``fixed effect'' variation, giving a much larger slope.
+
+\paragraph{A.2.}  (a)~By FWL, the coefficient on $\bfX$ in the LSDV regression equals the OLS regression of $\bfM_D\bfy$ on $\bfM_D\bfX$, where $\bfM_D$ annihilates the unit dummies.  (b)~$\bfD(\bfD'\bfD)^{-1}\bfD'$ applied to $\bfy$ returns the vector of unit means $\bar y_i$ replicated $T$ times per unit (since $\bfD'\bfD = T\bfI_N$ and $\bfD'\bfy$ sums $y$ within unit).  So $\bfM_D\bfy$ has entries $y_{it} - \bar y_i$.  (c)~Therefore LSDV regresses unit-demeaned $\bfy$ on unit-demeaned $\bfX$, which is exactly the within estimator.
+
+\paragraph{A.3.}  (a)~Averaging over $t$: $\bar y_i = \bar{\bm x}_i'\bfbeta + \alpha_i + \bar e_i$.  (b)~Consistent if $\alpha_i$ is uncorrelated with $\bar{\bm x}_i$ --- the random effects assumption.  Otherwise, including $\alpha_i$ in the composite error biases the between slope via OVB.  (c)~The within estimator differences away $\alpha_i$ entirely, so it doesn't matter whether $\alpha_i$ is correlated with $\bm x_{it}$.  Within trades off identifying power (only uses within-unit variation) for robustness.
+
+\paragraph{A.4.}  (a)~Subtract unit means: $\tilde y_{it} = y_{it} - \bar y_i = (\bm x_{it} - \bar{\bm x}_i)'\bfbeta + (\bm z_i - \bm z_i)'\bm\gamma + (\alpha_i - \alpha_i) + (e_{it} - \bar e_i) = \tilde{\bm x}_{it}'\bfbeta + \tilde e_{it}$.  Both $\alpha_i$ and $\bm z_i$ vanish because both are constant within unit.  (b)~$\bm\gamma$ cannot be identified from within-unit variation alone.  Recovery requires either (i) the random-effects assumption so the between regression is unbiased, or (ii) the Mundlak / Hausman-Taylor / CRE approach, which adds $\bar{\bm x}_i$ as regressors to purge correlation with $\alpha_i$.
+
+\paragraph{A.5.}  (a)~LSDV uses $NT - N - K = 250 - 50 - 3 = 197$ residual degrees of freedom.  (b)~On demeaned data with $NT = 250$ observations and $K = 3$ regressors, software might report $250 - 3 = 247$ degrees of freedom if it ignores the demeaning.  (c)~The correct df for inference is $NT - N - K$, not $NT - K$: demeaning ``uses up'' $N$ degrees of freedom, one for each unit mean estimated.  Well-written panel packages (\texttt{plm}, \texttt{fixest}) apply this correction internally, so the reported SEs match the LSDV ones.
+
+\bigskip
+
+\paragraph{B.1.}  (a)~$\hat\delta = (12 - 5) - (6 - 3) = 7 - 3 = 4$.  (b)~Simple pre/post for the treated group: $12 - 5 = 7$.  This overstates the effect by $3$ units because some of that $7$-unit increase would have occurred anyway --- as evidenced by the $3$-unit increase in the control group.  The DID nets out this secular trend.
+
+\paragraph{B.2.}  The regressor matrix has four distinct values of $(G, T)$: $(0,0), (0,1), (1,0), (1,1)$.  OLS fits the four group-period cell means exactly (the model is saturated on $(G, T)$).  So $\bar Y_{00} = \alpha$, $\bar Y_{01} = \alpha + \gamma$, $\bar Y_{10} = \alpha + \beta$, $\bar Y_{11} = \alpha + \beta + \gamma + \delta$.  Solving: $\hat\alpha = \bar Y_{00}$, $\hat\beta = \bar Y_{10} - \bar Y_{00}$, $\hat\gamma = \bar Y_{01} - \bar Y_{00}$, $\hat\delta = \bar Y_{11} - (\alpha + \beta + \gamma) = \bar Y_{11} - \bar Y_{10} - \bar Y_{01} + \bar Y_{00} = (\bar Y_{11} - \bar Y_{10}) - (\bar Y_{01} - \bar Y_{00})$.
+
+\paragraph{B.3.}  (a)~Parallel trends: $\E[Y_i(0) \mid G_i = 1, T = 1] - \E[Y_i(0) \mid G_i = 1, T = 0] = \E[Y_i(0) \mid G_i = 0, T = 1] - \E[Y_i(0) \mid G_i = 0, T = 0]$.  Equivalently, the untreated potential outcome $Y(0)$ evolves in the same way across time for the treated and control groups.  (b)~Untestable because it concerns counterfactual means --- what the treated group's $Y(0)$ \emph{would have been} at $T = 1$ --- which is never observed.  Pre-treatment trends provide suggestive evidence: if $Y$ evolved similarly in the two groups before treatment, that is consistent with parallel trends but does not prove the counterfactual trend at $T = 1$ would have been parallel.
+
+\paragraph{B.4.}  In the $2 \times 2$ design, unit and time fixed effects are collinear with the four group--period means once the treatment indicator $D_{it} = G_i T_t$ is added.  Two-way demeaning subtracts both unit and time means.  On balanced data the only variation left in $D_{it}$ is at the $(g, t) = (1, 1)$ cell, and the resulting TWFE coefficient is exactly $\bar Y_{11} - \bar Y_{10} - \bar Y_{01} + \bar Y_{00}$, matching B.2.
+
+\paragraph{B.5.}  (a)~Run $y_{it} = \alpha_i + \lambda_t + \sum_{k\neq -1}\delta_k\,\mathbf 1\{t - E_i = k\} + u_{it}$, where $E_i$ is unit $i$'s treatment time and the coefficients $\delta_k$ trace out the treatment dynamics, with $k = -1$ normalized to zero.  (b)~Reassuring pattern: $\delta_k \approx 0$ for all pre-treatment $k < -1$, with clear movement only at and after $k = 0$.  Concerning: nonzero $\delta_k$ in the pre-period (anticipation effects, differential trends) or a slow drift across pre-treatment $k$.
+
+\bigskip
+
+\paragraph{C.1.}  (a)~$\tilde D_{it} = D_{it} - \bar D_{i\cdot} - \bar D_{\cdot t} + \bar D$, where $\bar D_{i\cdot} = \frac{1}{T}\sum_t D_{it}$, $\bar D_{\cdot t} = \frac{1}{N}\sum_i D_{it}$, and $\bar D$ is the grand mean.  (b)~If treatment adoption is synchronized ($D_{it}$ is a product $G_i\cdot T_t$ for a single treatment start), and the panel is balanced, TWFE $\hat\delta$ equals the $2\times 2$ DID.  Staggered adoption breaks this equivalence.
+
+\paragraph{C.2.}  (a)~Clean comparisons use $C$ (never-treated) as control: $A$ vs $C$ before/after $t = 2$ (pre: $t = 1$, post: $t \geq 2$); $B$ vs $C$ before/after $t = 4$ (pre: $t \leq 3$, post: $t = 4$).  (b)~Dirty comparison: $B$ vs $A$ before/after $t = 4$.  In this comparison, the ``control'' ($A$) is already treated and its treatment effect evolves over time, contaminating the pre/post difference.
+
+\paragraph{C.3.}  (a)~Under constant treatment effects, every pairwise $2\times 2$ DID (whether clean or dirty) recovers the same $\delta$ in expectation, so a weighted average returns $\delta$ regardless of the weights.  (b)~The negative weight arises when an already-treated unit acts as the ``control'' for a later-treated unit: the already-treated ``control'' is itself experiencing a treatment effect during the ``post'' window, which enters the DID with the opposite sign to the focal treatment.
+
+\paragraph{C.4.}  (a)~With the late cohort as a (not-yet-treated) control, DID recovers the average treatment effect on the early cohort in the relevant window --- a legitimate TE estimate on the early cohort.  (b)~With the early cohort as ``control'' after both are treated, DID subtracts the early cohort's \emph{growing} treatment effect from the late cohort's initial treatment effect.  Because the early cohort's effect is already large by then, the difference looks smaller than the true late-cohort effect --- and if the early effect is still growing, DID can even come out negative.  Averaged into the TWFE, this comparison biases $\hat\delta$ downward (and potentially toward negative values).
+
+\paragraph{C.5.}  \emph{Callaway--Sant'Anna (2021):} estimates separate group-time average treatment effects $ATT(g, t)$ using only never-treated or not-yet-treated units as controls, then aggregates with transparent weights.  \emph{de Chaisemartin--D'Haultf\oe{}uille (2020):} identify and report the fraction of TWFE weights that are negative and provide a ``heterogeneity-robust'' DID that estimates the instantaneous effect on newly-treated switchers using untreated units only.  (Other acceptable answers: Sun--Abraham event study, Borusyak--Jaravel--Spiess imputation estimator.)
+
+\bigskip
+
+\paragraph{D.1.}  Subtract unit means: $y_{it} - \bar y_i = (\bm x_{it} - \bar{\bm x}_i)'\bfbeta + (\bm z_i - \bm z_i)'\bm\gamma + (\alpha_i - \alpha_i) + (e_{it} - \bar e_i)$, which simplifies to $\tilde y_{it} = \tilde{\bm x}_{it}'\bfbeta + \tilde e_{it}$.  The parameter $\bfbeta$ (the coefficient on time-varying regressors) is identified; $\alpha_i$ and $\bm\gamma$ are swept out.
+
+\paragraph{D.2.}  (a)~$y_{it} = \bm x_{it}'\bfbeta + \bm z_i'\bm\gamma + \bar{\bm x}_i'\bm\delta + \delta_0 + \zeta_i + e_{it}$.  (b)~By the Mundlak assumption $\E[\zeta_i\mid \bm x_{it}, \bm z_i] = 0$, and $\bar{\bm x}_i$ is a function of $\{\bm x_{it}\}$, so $\E[\zeta_i\mid \bm x_{it}, \bm z_i, \bar{\bm x}_i] = 0$.  $e_{it}$ is assumed exogenous under the standard panel model.  Hence the composite error is orthogonal to every regressor, and pooled OLS (or RE GLS) is consistent.
+
+\paragraph{D.3.}  By FWL, $\hat\bfbeta_{\text{CRE}}$ is obtained by (i) residualizing $y_{it}$ on $\{\bm z_i, \bar{\bm x}_i, \text{intercept}\}$; (ii) residualizing $\bm x_{it}$ on the same set; (iii) regressing the residuals.  Residualizing $\bm x_{it}$ on $\bar{\bm x}_i$ gives $\bm x_{it} - \bar{\bm x}_i = \tilde{\bm x}_{it}$ (the within variation).  Residualizing $y_{it}$ on $\{\bm z_i, \bar{\bm x}_i\}$ similarly leaves the within-unit variation.  The final regression is therefore identical to within OLS: $\hat\bfbeta_{\text{CRE}} = \hat\bfbeta_{\text{FE}}$.  \emph{Advantage of CRE:} it produces the same $\hat\bfbeta$ as FE while also yielding $\hat{\bm\gamma}$ (the coefficient on the time-invariant $\bm z_i$), which FE cannot.
+
+\paragraph{D.4.}  (a)~$\alpha_i = \delta_0 + \bar{\bm x}_i'\bm\delta + \zeta_i$ means that the unit effect correlates with the regressors only through $\bar{\bm x}_i$, so $\bm\delta = \bm 0$ implies $\text{Cov}(\alpha_i, \bar{\bm x}_i) = 0$, hence $\text{Cov}(\alpha_i, \bm x_{it}) = 0$ when averaged over $t$ --- exactly the RE assumption.  (b)~Under $\bm\delta = \bm 0$, $\alpha_i$ is uncorrelated with $\bm x_{it}$, so including it in the error does not induce OVB; RE is consistent and more efficient than FE.  (c)~The Hausman test compares $\hat\bfbeta_{\text{FE}}$ to $\hat\bfbeta_{\text{RE}}$.  Under the null $\bm\delta = \bm 0$ they have the same probability limit; under the alternative $\bm\delta\neq\bm 0$, RE is inconsistent while FE remains consistent.  The Mundlak $F$-test on the coefficients $\bm\delta$ is algebraically equivalent to the Hausman $\chi^2$ test: both detect the same departure from the RE assumption, and under homoskedasticity the test statistics coincide.
+
+\paragraph{D.5.}  (a)~The difference between RE and FE is a classic signal that the RE assumption fails: $\alpha_i$ is correlated with $\bm x_{it}$, so RE is biased.  By D.3, CRE $=$ FE for $\hat\bfbeta$, explaining the match between Models 2 and 3.  (b)~Model 3 additionally delivers estimates of $\bm\gamma$ (the coefficient on any time-invariant regressors she included) and of $\bm\delta$ (the coefficients on $\bar{\bm x}_i$), which quantify how much of the unit effect is explained by observed regressors.  Neither is available from FE alone, and RE would have returned biased versions of both.
+
+\end{document}

@@ -1,0 +1,188 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\usepackage{amsfonts,amssymb,latexsym}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\DeclareFontFamily{U}{eul}{}
+\DeclareFontShape{U}{eul}{b}{n}{ <5> <6> <7> <8> gen * eurm
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> eurm10}{}
+\DeclareSymbolFont{euler}{U}{eul}{b}{n}
+\DeclareMathSymbol{\bfbeta}{\mathalpha}{euler}{'014}
+\DeclareMathSymbol{\bfeps}{\mathalpha}{euler}{'017}
+\DeclareFontShape{U}{cmr}{b}{n}{ <5> <6> <7> <8> gen * cmr
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmr10}{}
+\DeclareSymbolFont{cmrb}{U}{cmr}{b}{n}
+\DeclareMathSymbol{\omeg}{\mathalpha}{cmrb}{'012}
+\setlength{\topmargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8in}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\pconv}{\xrightarrow{p}}
+\newcommand{\dconv}{\xrightarrow{d}}
+
+\input{stat.sty}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Gulotty}
+\chead{Political Science 307}
+\rhead{Problem Bank \#4}
+\lfoot{\today}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\noindent\textbf{Problem Bank to accompany Homework 4.}  Each item is a short, exam-style question targeting one specific idea from the homework (excluding the AIPW simulation continuation).  The goal is \emph{repetition} --- five short passes on the same concept so the mechanics become reflexive by the midterm.  Try each question on your own before consulting the solutions, which are collected at the end.
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT A: Convergence and the Delta Method
+%%% ===============================================================
+\section*{Concept A: Convergence in probability and the Delta Method}
+
+\begin{enumerate}[label=\textbf{A.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% A.1
+\item  Suppose $X_n \sim N(\mu, \sigma^2/n)$.  Using Chebyshev's inequality, show $X_n \pconv \mu$.  That is, for every $\epsilon > 0$,
+$$\Pr(|X_n - \mu| > \epsilon) \to 0 \text{ as } n \to \infty.$$
+
+%%% A.2
+\item  Let $\sqrt{n}(X_n - \mu) \dconv N(0, \sigma^2)$.  Use the Delta Method with $g(x) = e^x$ to find the asymptotic distribution of $e^{X_n}$ around $e^\mu$.
+
+%%% A.3
+\item  Let $\sqrt{n}(X_n - \mu) \dconv N(0, \sigma^2)$ with $\mu \neq 0$.  Use the Delta Method with $g(x) = x^2$ to find the asymptotic distribution of $X_n^2$.  What happens at $\mu = 0$?
+
+%%% A.4
+\item  Let $(\bar X_n, \bar Y_n)$ satisfy $\sqrt{n}\!\begin{pmatrix}\bar X_n - \mu_X \\ \bar Y_n - \mu_Y\end{pmatrix} \dconv N(\bm 0, \Sigma)$ with $\Sigma = \begin{pmatrix}\sigma_X^2 & \sigma_{XY} \\ \sigma_{XY} & \sigma_Y^2\end{pmatrix}$ and $\mu_Y \neq 0$.  Using the multivariate Delta Method, find the asymptotic distribution of the ratio $R_n = \bar X_n / \bar Y_n$.
+
+%%% A.5
+\item  At $\mu = 0$, the first-order Delta Method degenerates (since $g'(0) = 0$ for $g(x) = x^2$).
+\begin{enumerate}[label=(\alph*)]
+  \item Starting from $g(X_n) = g(\mu) + g'(\mu)(X_n - \mu) + \tfrac{1}{2}g''(\xi)(X_n - \mu)^2$, derive the second-order expansion for $X_n^2$ centered at $\mu = 0$.
+  \item What rate does $X_n^2$ converge at when $\mu = 0$?  What is its limiting distribution?
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT B: Probit and Item Response Theory
+%%% ===============================================================
+\section*{Concept B: Probit / IRT}
+
+Throughout, let $Y_{ij} \in \{0, 1\}$ denote country $i$'s vote on resolution $j$ with
+$$P(Y_{ij} = 1) = \Phi(\theta_i - \beta_j).$$
+
+\begin{enumerate}[label=\textbf{B.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% B.1
+\item  Write the log-likelihood for the full dataset $\{(i, j, Y_{ij})\}$ in terms of $\{\theta_i\}$ and $\{\beta_j\}$.  State what kind of regression (package call) would yield the MLE.
+
+%%% B.2
+\item  Show that the model $P(Y_{ij} = 1) = \Phi(\theta_i - \beta_j)$ is unchanged if one shifts all $\theta_i$ by a constant $c$ and all $\beta_j$ by the same constant $c$.  What identification restriction is standardly imposed to resolve this?
+
+%%% B.3
+\item  The probit likelihood uses a latent variable $Y^*_{ij} = \theta_i - \beta_j + \varepsilon_{ij}$ with $\varepsilon_{ij} \sim N(0, 1)$ and $Y_{ij} = \mathbf 1\{Y^*_{ij} > 0\}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Why is the variance of $\varepsilon$ normalized to $1$ (rather than estimated)?
+  \item If a researcher used $\varepsilon_{ij} \sim N(0, \sigma^2)$ with $\sigma > 0$ unknown, which parameters would remain identified?  Which would not?
+\end{enumerate}
+
+%%% B.4
+\item  The linear probability model (LPM) replaces $\Phi(\theta_i - \beta_j)$ with $\theta_i^{\text{LPM}} - \beta_j^{\text{LPM}}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the marginal effect $\partial P(Y = 1)/\partial \theta_i$ at an arbitrary point in the probit model.
+  \item Compute the same marginal effect in the LPM.
+  \item Under what condition on the country-resolution composition will LPM and probit give similar \emph{rankings} of countries even though the coefficients differ in magnitude?
+\end{enumerate}
+
+%%% B.5
+\item  The probit log-likelihood treats votes as conditionally independent given $\theta_i, \beta_j$.  In UNGA data, votes by the same country within a session are plausibly dependent (repeated measurement of the country's latent position).
+\begin{enumerate}[label=(\alph*)]
+  \item If the within-country votes are positively correlated, what does this do to the model-based standard errors on $\hat\theta_i$?
+  \item State in one sentence how the sandwich (QMLE) standard error fixes this.
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT C: Hypothesis testing (F, Wald, t2 = F)
+%%% ===============================================================
+\section*{Concept C: Hypothesis testing}
+
+\begin{enumerate}[label=\textbf{C.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% C.1
+\item  A researcher estimates $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + e$ with $n = 100$, and reports $\hat\bfe'\hat\bfe = 400$ from the full model and $\hat\bfe'\hat\bfe = 500$ from the restricted model dropping $x_2$ and $x_3$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the $F$-statistic for $H_0: \beta_2 = \beta_3 = 0$.
+  \item State the distribution of the statistic under $H_0$ and homoskedastic normal errors.
+\end{enumerate}
+
+%%% C.2
+\item  For testing $H_0: \beta_j = 0$ using a single coefficient, prove that $t^2 = F$, where $t = \hat\beta_j/\text{se}(\hat\beta_j)$ and $F$ is the $F$-statistic from comparing the regression with and without $x_j$.
+
+%%% C.3
+\item  A researcher computes the HC2 variance estimator
+$$\hat V_{HC2} = (\bfX'\bfX)^{-1}\left(\sum_{i=1}^n \frac{\hat e_i^2}{1 - h_{ii}}\bm x_i\bm x_i'\right)(\bfX'\bfX)^{-1}.$$
+Given $\hat\bfbeta$ and $\hat V_{HC2}$, state the form of the Wald statistic for testing $H_0: \bfR\hat\bfbeta = \bfr$ (where $\bfR$ is $q\times k$).  What is its asymptotic distribution under $H_0$?
+
+%%% C.4
+\item  Under what conditions will the classical $F$-statistic and the heteroskedasticity-robust Wald statistic give \emph{similar} answers?  Under what conditions will they diverge?  Give one sentence for each.
+
+%%% C.5
+\item  A researcher tests $H_0: \beta_1 = 1$ against $H_1: \beta_1 \neq 1$ at the $5\%$ level.  The truth is $\beta_1 = 1.2$, and $\hat\beta_1 \sim N(1.2, 0.01)$ approximately (so se $\approx 0.1$).  Compute the power of the test.
+
+\end{enumerate}
+
+\newpage
+
+%%% ===============================================================
+%%% SOLUTIONS
+%%% ===============================================================
+\section*{Solutions}
+
+\paragraph{A.1.}  Chebyshev's inequality says $\Pr(|X_n - \E X_n| > \epsilon) \leq \Var(X_n)/\epsilon^2$.  Here $\E X_n = \mu$ and $\Var(X_n) = \sigma^2/n$, so $\Pr(|X_n - \mu| > \epsilon) \leq \sigma^2/(n\epsilon^2) \to 0$ as $n \to \infty$.  Hence $X_n \pconv \mu$.
+
+\paragraph{A.2.}  $g(x) = e^x$, $g'(\mu) = e^\mu$.  By the Delta Method,
+$$\sqrt{n}(e^{X_n} - e^\mu) \dconv N(0, (e^\mu)^2\sigma^2) = N(0, e^{2\mu}\sigma^2).$$
+
+\paragraph{A.3.}  $g(x) = x^2$, $g'(\mu) = 2\mu$.  Delta Method: $\sqrt{n}(X_n^2 - \mu^2) \dconv N(0, 4\mu^2\sigma^2)$, valid when $\mu \neq 0$.  At $\mu = 0$ the derivative vanishes; the limiting distribution then degenerates (normal with variance zero) and one needs a higher-order expansion (see A.5).
+
+\paragraph{A.4.}  $g(x, y) = x/y$.  $\nabla g(\mu_X, \mu_Y) = (1/\mu_Y, -\mu_X/\mu_Y^2)'$.  The asymptotic variance is $\nabla g'\Sigma\nabla g = \sigma_X^2/\mu_Y^2 - 2\sigma_{XY}\mu_X/\mu_Y^3 + \sigma_Y^2\mu_X^2/\mu_Y^4$.  So
+$$\sqrt{n}\!\left(\frac{\bar X_n}{\bar Y_n} - \frac{\mu_X}{\mu_Y}\right) \dconv N\!\left(0,\; \frac{\sigma_X^2}{\mu_Y^2} - \frac{2\mu_X\sigma_{XY}}{\mu_Y^3} + \frac{\mu_X^2\sigma_Y^2}{\mu_Y^4}\right).$$
+
+\paragraph{A.5.}  (a)~With $\mu = 0$, $g(X_n) = X_n^2 = 0 + 0 \cdot X_n + \tfrac{1}{2}\cdot 2 \cdot X_n^2 = X_n^2$.  The second-derivative term is the only surviving piece.  (b)~$\sqrt{n}X_n \dconv N(0, \sigma^2)$, so $n X_n^2 = (\sqrt{n}X_n)^2 \dconv \sigma^2\chi^2_1$.  That is, $X_n^2$ converges at rate $1/n$ (not $1/\sqrt{n}$) and the limit is a scaled chi-square on $1$ degree of freedom.
+
+\bigskip
+
+\paragraph{B.1.}  $\log L = \sum_{i,j}\left[Y_{ij}\log\Phi(\theta_i - \beta_j) + (1 - Y_{ij})\log(1 - \Phi(\theta_i - \beta_j))\right]$.  This is fit by \texttt{glm(vote\_yes \~{} country + rcid, family = binomial(link = "probit"))}, where the country and resolution dummies play the role of $\theta_i$ and $-\beta_j$ respectively.
+
+\paragraph{B.2.}  $\Phi((\theta_i + c) - (\beta_j + c)) = \Phi(\theta_i - \beta_j)$ for any constant $c$, so the likelihood is invariant to a common shift.  Standard fix: drop one country (set $\theta_1 = 0$) or one resolution ($\beta_1 = 0$) as the reference category.  Ideal points and difficulties are then identified only up to the chosen origin.
+
+\paragraph{B.3.}  (a)~The scale of $(\theta_i, \beta_j)$ and the scale of $\varepsilon$ are not separately identified: $\Phi((\theta - \beta)/\sigma)$ has the same form as $\Phi(\theta/\sigma - \beta/\sigma)$.  Normalizing $\sigma = 1$ fixes the scale.  (b)~With $\sigma$ free, only the ratios $\theta_i/\sigma$ and $\beta_j/\sigma$ are identified; $\sigma$ itself and the absolute magnitudes of $\theta, \beta$ are not.
+
+\paragraph{B.4.}  (a)~Probit marginal effect: $\partial \Phi(\theta_i - \beta_j)/\partial\theta_i = \phi(\theta_i - \beta_j)$, where $\phi$ is the standard normal density.  It depends on the point $\theta_i - \beta_j$.  (b)~LPM marginal effect: $\partial(\theta_i^{\text{LPM}} - \beta_j^{\text{LPM}})/\partial\theta_i^{\text{LPM}} = 1$ (constant, ignoring $\theta, \beta$ scaling).  (c)~Rankings agree when $\phi$ is roughly constant across the relevant range of $\theta_i - \beta_j$, i.e.\ when the data are concentrated near $\Phi^{-1}(p) \approx 0$, so voting probabilities cluster around $0.5$.  Extreme probabilities stretch out the probit scale relative to the LPM.
+
+\paragraph{B.5.}  (a)~Positive dependence among votes within a country means each vote conveys less information than the independence model assumes, so true standard errors are \emph{larger} than the model-based SEs.  Ignoring dependence makes SEs too small and inference anti-conservative.  (b)~The sandwich estimator replaces the model's information-matrix SE with $\bfA^{-1}\bfB\bfA^{-1}$, where $\bfB$ is an estimate of the actual variance of the score (using cross-products of observed scores, optionally clustered by country).  This automatically inflates SEs when scores are correlated within clusters.
+
+\bigskip
+
+\paragraph{C.1.}  (a)~$F = \frac{(\text{RSS}_R - \text{RSS}_U)/q}{\text{RSS}_U/(n - k)} = \frac{(500 - 400)/2}{400/(100 - 4)} = \frac{50}{4.167} = 12.0$.  (b)~Under $H_0$ and homoskedastic normal errors, $F \sim F_{q, n-k} = F_{2, 96}$.  The observed $12$ is far into the right tail: reject.
+
+\paragraph{C.2.}  Let $\text{RSS}_U = \hat\bfe'\hat\bfe$ (full model) and $\text{RSS}_R$ denote the restricted model sum of squares (drop $x_j$).  The $F$-statistic is $F = (\text{RSS}_R - \text{RSS}_U)/s^2$, where $s^2 = \text{RSS}_U/(n - k)$.  By FWL, $\hat\beta_j = (\tilde x_j'\tilde x_j)^{-1}\tilde x_j'\bfy$, where $\tilde x_j$ is the residual from regressing $x_j$ on the other regressors, and $\hat\beta_j^2\tilde x_j'\tilde x_j = \text{RSS}_R - \text{RSS}_U$.  Also $\Var(\hat\beta_j) = s^2/\tilde x_j'\tilde x_j$, so $t^2 = \hat\beta_j^2/(s^2/\tilde x_j'\tilde x_j) = \hat\beta_j^2\tilde x_j'\tilde x_j/s^2 = (\text{RSS}_R - \text{RSS}_U)/s^2 = F$.
+
+\paragraph{C.3.}  $W = (\bfR\hat\bfbeta - \bfr)'(\bfR\hat V_{HC2}\bfR')^{-1}(\bfR\hat\bfbeta - \bfr)$.  Under $H_0$ and regularity conditions, $W \dconv \chi^2_q$ (the degrees of freedom equals the number of restrictions, here $q$ = rows of $\bfR$).
+
+\paragraph{C.4.}  Similar: under homoskedasticity and large $n$, the HC2 variance estimator converges to the classical variance estimator and $q F \dconv \chi^2_q$ under $H_0$, so the two statistics agree asymptotically.  Divergent: under heteroskedasticity or model misspecification of the variance, the classical $F$ uses the wrong variance (biased, often too small), while HC2/robust Wald remains valid; the two can disagree substantially.
+
+\paragraph{C.5.}  Two-sided $5\%$ critical region: reject if $|(\hat\beta_1 - 1)/0.1| > 1.96$, i.e.\ $\hat\beta_1 < 0.804$ or $\hat\beta_1 > 1.196$.  Under $\hat\beta_1 \sim N(1.2, 0.01)$, $\text{se} = 0.1$, standardize: $Z = (\hat\beta_1 - 1.2)/0.1$.  Rejection region becomes $Z > (1.196 - 1.2)/0.1 = -0.04$ or $Z < (0.804 - 1.2)/0.1 = -3.96$.  Power $= \Pr(Z > -0.04) + \Pr(Z < -3.96) \approx 0.516 + 0.00004 \approx 0.516$.  A barely-significant effect size with se comparable to the deviation from $H_0$ yields power near $50\%$ --- a classic ``powered to detect at the 5\% level only about half the time'' situation.
+
+\end{document}

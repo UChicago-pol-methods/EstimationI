@@ -1,0 +1,228 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsfonts,amssymb,latexsym}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\DeclareFontFamily{U}{eul}{}
+\DeclareFontShape{U}{eul}{b}{n}{ <5> <6> <7> <8> gen * eurm
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> eurm10}{}
+\DeclareSymbolFont{euler}{U}{eul}{b}{n}
+\DeclareMathSymbol{\bfbeta}{\mathalpha}{euler}{'014}
+\DeclareMathSymbol{\bfeps}{\mathalpha}{euler}{'017}
+\DeclareFontShape{U}{cmr}{b}{n}{ <5> <6> <7> <8> gen * cmr
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmr10}{}
+\DeclareSymbolFont{cmrb}{U}{cmr}{b}{n}
+\DeclareMathSymbol{\omeg}{\mathalpha}{cmrb}{'012}
+\setlength{\topmargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8in}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\pconv}{\xrightarrow{p}}
+\newcommand{\dconv}{\xrightarrow{d}}
+
+\input{stat.sty}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Gulotty}
+\chead{Political Science 307}
+\rhead{Problem Bank \#5}
+\lfoot{\today}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\noindent\textbf{Problem Bank to accompany Homework 5.}  Each item is a short, exam-style question targeting one specific idea from the homework (excluding the AIPW simulation continuation).  The goal is \emph{repetition} --- five short passes on the same concept so the mechanics become reflexive by the midterm.  Try each question on your own before consulting the solutions, which are collected at the end.
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT A: Reduced form derivation
+%%% ===============================================================
+\section*{Concept A: Structural and reduced-form equations}
+
+\begin{enumerate}[label=\textbf{A.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% A.1
+\item  Consider the structural system
+\begin{align*}
+  y_1 &= \beta_0 + \beta_1 y_2 + \beta_2 z_1 + u_1, \\
+  y_2 &= \pi_0 + \pi_1 z_1 + \pi_2 z_2 + v_2,
+\end{align*}
+with $z_1, z_2$ exogenous and $y_2$ endogenous.  Substitute the second equation into the first and write the reduced form $y_1 = \alpha_0 + \alpha_1 z_1 + \alpha_2 z_2 + v_1$.  Give $\alpha_0, \alpha_1, \alpha_2$ in terms of the structural parameters.
+
+%%% A.2
+\item  Express the reduced-form error $v_1$ in terms of $u_1$, $v_2$, and $\beta_1$.  State the condition on $(u_1, v_2)$ and $(z_1, z_2)$ under which OLS on the reduced form for $y_1$ consistently estimates $\alpha_0, \alpha_1, \alpha_2$.
+
+%%% A.3
+\item  Suppose the researcher wants the structural coefficient $\beta_1$ (the effect of $y_2$ on $y_1$).
+\begin{enumerate}[label=(\alph*)]
+  \item Using the relationships from A.1, show that $\beta_1 = \alpha_2/\pi_2$.
+  \item Explain why this recovery of $\beta_1$ requires $\pi_2 \neq 0$ --- and connect that requirement to an IV concept.
+\end{enumerate}
+
+%%% A.4
+\item  In a simple supply--demand system with quantity $q$ and price $p$:
+\begin{align*}
+  q &= \alpha_0 - \alpha_1 p + \alpha_2 z^{\text{demand}} + u_d, \\
+  q &= \gamma_0 + \gamma_1 p + \gamma_2 z^{\text{supply}} + u_s,
+\end{align*}
+where $z^{\text{demand}}$ (e.g., income) shifts demand and $z^{\text{supply}}$ (e.g., rainfall) shifts supply.
+\begin{enumerate}[label=(\alph*)]
+  \item Which structural parameter can be identified using $z^{\text{supply}}$ as an instrument?  Which using $z^{\text{demand}}$?
+  \item Why does \emph{not} having an excluded instrument for one of the equations leave that equation un-identified?
+\end{enumerate}
+
+%%% A.5
+\item  Consider the single-equation system $y_1 = \beta_0 + \beta_1 y_2 + u_1$, with $z$ an instrument for $y_2$ via $y_2 = \pi_0 + \pi_1 z + v_2$.  State the order and rank conditions for identification of $\beta_1$, and briefly interpret each.
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT B: IV application and LATE
+%%% ===============================================================
+\section*{Concept B: IV estimation and the Local Average Treatment Effect}
+
+\begin{enumerate}[label=\textbf{B.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% B.1
+\item  A researcher studies the effect of having more than two children ($x_i \in \{0,1\}$) on labor supply ($y_i \in \{0,1\}$), using the sex-of-first-two-children instrument $z_i \in \{0, 1\}$ ($z_i = 1$ for same-sex first two).  She has $n = 100$:
+\begin{center}
+\begin{tabular}{llccc}
+\toprule
+ & & $x = 1$ & $x = 0$ & Total \\
+\midrule
+\multirow{2}{*}{$z = 1$} & $y = 1$ & $5$ & $8$ & $13$ \\
+ & $y = 0$ & $25$ & $2$ & $27$ \\
+\midrule
+\multirow{2}{*}{$z = 0$} & $y = 1$ & $2$ & $40$ & $42$ \\
+ & $y = 0$ & $8$ & $10$ & $18$ \\
+\midrule
+\textbf{Total} & & $40$ & $60$ & $100$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the OLS estimate $\hat\beta_{\text{OLS}}$ of the effect of $x$ on $y$.
+  \item Compute the IV (Wald) estimate $\hat\beta_{\text{IV}} = (\bar y_{z=1} - \bar y_{z=0})/(\bar x_{z=1} - \bar x_{z=0})$.
+\end{enumerate}
+
+%%% B.2
+\item  For a binary instrument $z$ and binary treatment $x$ with Bernoulli outcome $y$, show that the 2SLS estimator equals the Wald estimator
+$$\hat\beta_{\text{IV}} = \frac{\E[y \mid z=1] - \E[y\mid z=0]}{\E[x\mid z=1] - \E[x\mid z=0]}.$$
+
+%%% B.3
+\item  Using the potential-outcomes framework with monotonicity ($x_i(1) \geq x_i(0)$ for all $i$):
+\begin{enumerate}[label=(\alph*)]
+  \item Define \emph{compliers}, \emph{always-takers}, \emph{never-takers}.
+  \item State which subpopulation's average treatment effect is identified by IV (the LATE).
+  \item Why is the LATE not the same as the ATE in general?
+\end{enumerate}
+
+%%% B.4
+\item  The monotonicity assumption says $x_i(1) \geq x_i(0)$ for all $i$ (no defiers).  Give one example in the same-sex instrument setting where monotonicity might plausibly fail.  What does the failure do to the IV estimand?
+
+%%% B.5
+\item  A researcher reports a first-stage regression of $x$ on $z$ with $F = 3.5$ and $\hat\pi_1 = 0.04$ (se $=0.02$).
+\begin{enumerate}[label=(\alph*)]
+  \item Is this a weak instrument?  State a rough rule of thumb.
+  \item What problems arise for IV inference when the first stage is weak?
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT C: GMM and moment conditions
+%%% ===============================================================
+\section*{Concept C: From theory to moment conditions; GMM}
+
+\begin{enumerate}[label=\textbf{C.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% C.1
+\item  A theory says that political violence $V_{it}$ in municipality $i$ and year $t$ depends on a local economic shock proxied by an exogenous interaction $E_i\cdot P_t$, where $E_i$ is time-invariant exposure and $P_t$ is a world price.  The structural equation (with fixed effects absorbed) is
+$$V_{it} = \beta(E_i P_t) + \varepsilon_{it}.$$
+Write the moment condition that encodes the identifying assumption, and state in words what it requires.
+
+%%% C.2
+\item  Suppose the researcher has three commodities $c = 1, 2, 3$, each with its own exposure and price, producing moment conditions $\E[(E_i^{(c)} P_t^{(c)})\varepsilon_{it}] = 0$ for $c = 1, 2, 3$.
+\begin{enumerate}[label=(\alph*)]
+  \item With one parameter $\beta$ and three moment conditions, how many overidentifying restrictions are there?
+  \item State the $J$-statistic (in general form) and the degrees of freedom for its asymptotic null distribution.
+\end{enumerate}
+
+%%% C.3
+\item  A researcher runs the $J$-test and rejects at the $5\%$ level.  In 2--3 sentences, what does rejection mean substantively, and what are two explanations a responsible researcher should investigate?
+
+%%% C.4
+\item  Consider the generic GMM problem with moment vector $\bm g(Z_i; \beta)$ of dimension $L \geq K = \dim(\beta)$, and weight matrix $\bfW$:
+$$\hat\beta_{\text{GMM}} = \arg\min_\beta\;\bar\bfg_n(\beta)'\bfW\bar\bfg_n(\beta).$$
+\begin{enumerate}[label=(\alph*)]
+  \item What choice of $\bfW$ yields 2SLS when $\bm g(Z_i; \beta) = \bfZ_i(y_i - \bfX_i'\beta)$?
+  \item Under heteroskedasticity, what is the efficient weight matrix $\bfW^*$?  Explain in one sentence why this choice minimizes the asymptotic variance.
+\end{enumerate}
+
+%%% C.5
+\item  Consider the simplest GMM problem: a single instrument $z$ for a single endogenous regressor $x$, model $y = \beta x + \varepsilon$.  The moment condition is $\E[z(y - \beta x)] = 0$.
+\begin{enumerate}[label=(\alph*)]
+  \item Solve the sample analog $\frac{1}{n}\sum_i z_i(y_i - \hat\beta x_i) = 0$ for $\hat\beta$.
+  \item Show that $\hat\beta \pconv \beta$ when $\E[zx] \neq 0$ and $\E[z\varepsilon] = 0$.
+  \item What does the identifying assumption $\E[zx] \neq 0$ correspond to in IV language?
+\end{enumerate}
+
+\end{enumerate}
+
+\newpage
+
+%%% ===============================================================
+%%% SOLUTIONS
+%%% ===============================================================
+\section*{Solutions}
+
+\paragraph{A.1.}  Substitute the second equation into the first:
+$$y_1 = \beta_0 + \beta_1(\pi_0 + \pi_1 z_1 + \pi_2 z_2 + v_2) + \beta_2 z_1 + u_1 = (\beta_0 + \beta_1\pi_0) + (\beta_1\pi_1 + \beta_2)z_1 + (\beta_1\pi_2)z_2 + (u_1 + \beta_1 v_2).$$
+So $\alpha_0 = \beta_0 + \beta_1\pi_0$, $\alpha_1 = \beta_1\pi_1 + \beta_2$, $\alpha_2 = \beta_1\pi_2$.
+
+\paragraph{A.2.}  $v_1 = u_1 + \beta_1 v_2$.  OLS on the reduced form is consistent iff $v_1$ is uncorrelated with $(z_1, z_2)$, which holds when $u_1$ and $v_2$ are each uncorrelated with $(z_1, z_2)$.  In practice this is the exogeneity of the instruments --- $z_1$ and $z_2$ are predetermined relative to both structural shocks.
+
+\paragraph{A.3.}  (a)~From A.1, $\alpha_2 = \beta_1\pi_2$, so $\beta_1 = \alpha_2/\pi_2$ when $\pi_2 \neq 0$.  (b)~This is indirect least squares; it requires a nonzero first-stage effect of $z_2$ on $y_2$.  If $\pi_2 = 0$, then $z_2$ does not move $y_2$ and cannot be used to back out $\beta_1$.  In IV language, $\pi_2 \neq 0$ is the relevance condition; the exogeneity of $z_2$ in A.2 is the exclusion restriction.
+
+\paragraph{A.4.}  (a)~$z^{\text{supply}}$ shifts the supply curve along a fixed demand curve, tracing out \emph{demand}; so $z^{\text{supply}}$ identifies the demand slope $-\alpha_1$.  Symmetrically, $z^{\text{demand}}$ identifies the supply slope $\gamma_1$.  (b)~If only one shifter is available, only one curve is traced out; the other slope is not identified because there is no exogenous source of variation in price holding that curve fixed.  This is the classic simultaneity problem: you need one excluded instrument per equation you want to identify.
+
+\paragraph{A.5.}  \emph{Order condition:} at least one instrument excluded from the structural equation --- here $z$ is excluded, giving one instrument, one endogenous regressor, so order holds with equality.  \emph{Rank condition:} $\pi_1 \neq 0$ (the instrument actually predicts $y_2$).  Order is a necessary counting check; rank is the substantive requirement that the instrument carries nontrivial information about the endogenous regressor.
+
+\bigskip
+
+\paragraph{B.1.}  (a)~OLS: $\E[y\mid x=1] = (5+2)/(40) = 0.175$; $\E[y\mid x=0] = (8+40)/60 = 0.800$.  $\hat\beta_{\text{OLS}} = 0.175 - 0.800 = -0.625$.  (b)~Marginals on $z$: $P(x = 1 \mid z=1) = 30/40 = 0.75$; $P(x=1\mid z=0) = 10/60 = 1/6 \approx 0.167$.  First stage: $0.75 - 0.167 = 0.583$.  Reduced form: $\E[y\mid z=1] = 13/40 = 0.325$; $\E[y\mid z=0] = 42/60 = 0.700$; difference $= -0.375$.  $\hat\beta_{\text{IV}} = -0.375/0.583 = -0.643$.  Very close to OLS here but identified under weaker assumptions.
+
+\paragraph{B.2.}  With a single binary $z$ and a single endogenous $x$, the 2SLS coefficient is
+$$\hat\beta_{\text{IV}} = \frac{\text{Cov}(y, z)/\Var(z)}{\text{Cov}(x, z)/\Var(z)} = \frac{\text{Cov}(y,z)}{\text{Cov}(x,z)}.$$
+For binary $z$: $\text{Cov}(y,z) = p(1-p)(\E[y\mid z=1] - \E[y\mid z=0])$ with $p = P(z=1)$, and similarly for $x$.  The $p(1-p)$ factors cancel, leaving the Wald form.
+
+\paragraph{B.3.}  (a)~\emph{Complier:} $x_i(1) = 1, x_i(0) = 0$ (treatment taken only when assigned).  \emph{Always-taker:} $x_i(1) = x_i(0) = 1$.  \emph{Never-taker:} $x_i(1) = x_i(0) = 0$.  Monotonicity excludes \emph{defiers} ($x_i(1) = 0, x_i(0) = 1$).  (b)~IV identifies the LATE: $\E[y(1) - y(0) \mid \text{complier}]$.  (c)~The LATE averages only over compliers, who may differ systematically from the full population.  The ATE averages over everyone.  The two coincide only under homogeneous effects or when the complier population mirrors the whole.
+
+\paragraph{B.4.}  Monotonicity fails if some parents respond \emph{more} likely to have a third child when the first two are of the same sex (the intended direction) but others respond in the opposite direction --- e.g., parents with strong gender preferences who, after two girls, specifically want a third child to try for a boy (so $z = 0$ with one boy and one girl might push them to stop, while $z = 1$ with two girls pushes them to continue).  With defiers, the IV estimand becomes a weighted difference of complier and defier effects, which is not a clean average treatment effect.
+
+\paragraph{B.5.}  (a)~Yes, weak.  Stock--Yogo rule of thumb: first-stage $F > 10$ for a single endogenous variable.  $F = 3.5$ falls well below.  (b)~Consequences of weak instruments: (i) IV point estimates have large finite-sample bias toward OLS; (ii) standard asymptotic normal approximations for $t$-statistics are poor, leading to badly sized tests and invalid confidence intervals; (iii) variance inflates as the denominator (first-stage coefficient) shrinks.  Remedies include reporting Anderson--Rubin confidence sets or using weak-identification-robust inference.
+
+\bigskip
+
+\paragraph{C.1.}  $\E[(E_i P_t)\varepsilon_{it}] = 0$.  In words: the product of local exposure and the world price is uncorrelated with the structural error.  Equivalently, conditional on fixed effects, variation in the shock $E_i P_t$ is not driven by anything (political instability, reverse causation, omitted local factors) that also moves violence.
+
+\paragraph{C.2.}  (a)~$L - K = 3 - 1 = 2$ overidentifying restrictions.  (b)~$J_n = n\bar\bfg_n(\hat\beta)'\hat\bfS^{-1}\bar\bfg_n(\hat\beta)$, where $\hat\bfS$ is a consistent estimate of the variance of the moments.  Under $H_0$ that all $L$ moments are valid, $J_n \dconv \chi^2_{L - K} = \chi^2_2$.
+
+\paragraph{C.3.}  Rejection means the three moment conditions jointly imply inconsistent estimates of $\beta$ --- i.e., not all three commodities can simultaneously be delivering a valid identifying shock.  Explanations to consider: (i) one or more commodities has a violated exclusion restriction (e.g., global oil prices affect violence through channels other than local labor markets, such as government revenue or foreign policy); (ii) treatment effects are heterogeneous across commodities, so the moment conditions identify different parameters and the ``single $\beta$'' assumption is misspecified.
+
+\paragraph{C.4.}  (a)~$\bfW = (\bfZ'\bfZ/n)^{-1}$ yields 2SLS (GMM with the natural weighting by the instrument cross-product).  Under conditional homoskedasticity of $\varepsilon$, 2SLS is asymptotically efficient within the class.  (b)~Under heteroskedasticity, $\bfW^* = \hat\bfS^{-1}$ where $\hat\bfS = \frac{1}{n}\sum_i \bfZ_i\bfZ_i'\hat\varepsilon_i^2$.  Weighting by the inverse variance of the moments gives larger weight to more informative (lower-variance) moment conditions, minimizing the asymptotic variance of the estimator --- exactly the GLS intuition applied to moment space.
+
+\paragraph{C.5.}  (a)~$\frac{1}{n}\sum_i z_i(y_i - \hat\beta x_i) = 0 \Rightarrow \hat\beta = \frac{\sum z_i y_i}{\sum z_i x_i}$.  (b)~By the LLN, $\frac{1}{n}\sum z_i y_i \pconv \E[zy] = \beta\E[zx] + \E[z\varepsilon] = \beta\E[zx]$.  Similarly $\frac{1}{n}\sum z_i x_i \pconv \E[zx] \neq 0$.  By Slutsky, $\hat\beta \pconv \beta\E[zx]/\E[zx] = \beta$.  (c)~$\E[zx] \neq 0$ is the \emph{relevance} (or \emph{first-stage}) condition: the instrument must be correlated with the endogenous variable, else the denominator vanishes.
+
+\end{document}

@@ -1,0 +1,325 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{bm}
+\usepackage{amsfonts,amssymb,latexsym}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\DeclareFontFamily{U}{eul}{}
+\DeclareFontShape{U}{eul}{b}{n}{ <5> <6> <7> <8> gen * eurm
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> eurm10}{}
+\DeclareSymbolFont{euler}{U}{eul}{b}{n}
+\DeclareMathSymbol{\bfbeta}{\mathalpha}{euler}{'014}
+\DeclareMathSymbol{\bfeps}{\mathalpha}{euler}{'017}
+\DeclareFontShape{U}{cmr}{b}{n}{ <5> <6> <7> <8> gen * cmr
+  <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmr10}{}
+\DeclareSymbolFont{cmrb}{U}{cmr}{b}{n}
+\DeclareMathSymbol{\omeg}{\mathalpha}{cmrb}{'012}
+\setlength{\topmargin}{0in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8in}
+
+\newcommand{\E}{\mathbb{E}}
+
+\input{stat.sty}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Gulotty}
+\chead{Political Science 307}
+\rhead{Problem Bank \#3}
+\lfoot{\today}
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\noindent\textbf{Problem Bank to accompany Homework 3.}  Each item is a short, exam-style question targeting one specific idea from the homework.  The goal is \emph{repetition} --- five short passes on the same concept so the mechanics become reflexive by the midterm.  Try each question on your own before consulting the solutions, which are collected at the end.
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT A: Leave-one-out regression via unit dummy
+%%% ===============================================================
+\section*{Concept A: Leave-one-out regression via a unit dummy}
+
+\begin{enumerate}[label=\textbf{A.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% A.1
+\item  Consider data $(x_i, y_i)$ for $i = 1, 2, 3$: $(1, 2), (2, 5), (3, 4)$.  Let $\bfd = (0, 0, 1)'$ be a dummy for observation $3$.
+\begin{enumerate}[label=(\alph*)]
+  \item Run OLS of $\bfy$ on an intercept and $\bfx$ using only observations $1$ and $2$.  Report $\hat\alpha_{(-3)}$ and $\hat\beta_{(-3)}$.
+  \item Run OLS of $\bfy$ on an intercept, $\bfx$, and $\bfd$ using all three observations.  Compare the coefficients on the intercept and $\bfx$ to those in (a).
+  \item Predict $y_3$ from the regression in (a).  Compare to the coefficient on $\bfd$ in (b).
+\end{enumerate}
+
+%%% A.2
+\item  A researcher fits $\bfy = \bfX\bfbeta + \bfd\,\delta + \bfe$, where $\bfd$ is a dummy for observation $n$.  Prove that the $n$th residual is zero: $\hat e_n = 0$.
+
+%%% A.3
+\item  In the same setup as A.2, prove that the coefficient on the dummy is
+$$\hat\delta = y_n - \bm{x}_n'\hat{\bfbeta}_{(-n)},$$
+where $\hat{\bfbeta}_{(-n)}$ is the OLS estimate obtained by running the regression excluding observation $n$.
+
+%%% A.4
+\item  Let $h_{nn} = \bm{x}_n'(\bfX'\bfX)^{-1}\bm{x}_n$ denote the leverage of observation $n$, and let $\hat e_n^{(\text{full})}$ be the $n$th residual from OLS of $\bfy$ on $\bfX$ only (no dummy).
+\begin{enumerate}[label=(\alph*)]
+  \item Using the well-known identity $\hat e_n^{(\text{full})} = (1 - h_{nn})(y_n - \bm{x}_n'\hat{\bfbeta}_{(-n)})$, express $\hat\delta$ (from A.3) in terms of $\hat e_n^{(\text{full})}$ and $h_{nn}$.
+  \item What happens to $\hat\delta$ as $h_{nn} \to 1$?  Interpret.
+\end{enumerate}
+
+%%% A.5
+\item  A researcher augments $\bfX$ with unit dummies $\bfd_1, \ldots, \bfd_n$, one for each of the $n$ observations.
+\begin{enumerate}[label=(\alph*)]
+  \item Why does this fail?  What is the rank of the resulting design matrix?
+  \item Suppose she drops one dummy, leaving $n - 1$ unit dummies plus $\bfX$.  What are the fitted values?  What is the $R^2$?
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT B: Variance estimators LS vs ML
+%%% ===============================================================
+\section*{Concept B: OLS vs.\ ML variance estimators}
+
+\begin{enumerate}[label=\textbf{B.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% B.1
+\item  Under the homoskedastic normal model with $n$ observations and $k$ regressors, define
+$$s_{\text{LS}}^2 = \frac{\hat\bfe'\hat\bfe}{n - k}, \qquad s_{\text{ML}}^2 = \frac{\hat\bfe'\hat\bfe}{n}.$$
+\begin{enumerate}[label=(\alph*)]
+  \item Show $\E[s_{\text{LS}}^2] = \sigma^2$.  \emph{Hint: $\hat\bfe'\hat\bfe = \bfe'\bfM\bfe$ and $\E[\bfe'\bfM\bfe] = \sigma^2 \text{tr}(\bfM)$.}
+  \item Show $\E[s_{\text{ML}}^2] = (n-k)\sigma^2/n$ and state the direction of the bias.
+\end{enumerate}
+
+%%% B.2
+\item  With $n = 20$ and $k = 5$:
+\begin{enumerate}[label=(\alph*)]
+  \item Compute $\E[s_{\text{ML}}^2]/\sigma^2$.  By what percentage does the ML estimator underestimate $\sigma^2$ in expectation?
+  \item Compute $\Var(s_{\text{LS}}^2)/\Var(s_{\text{ML}}^2)$.  Which estimator has larger variance?
+\end{enumerate}
+
+%%% B.3
+\item  Recall $\Var(s_{\text{LS}}^2) = 2\sigma^4/(n - k)$ and $\Var(s_{\text{ML}}^2) = 2(n-k)\sigma^4/n^2$.  Compute the mean squared error of each:
+$$\text{MSE}(s) = \text{Var}(s) + \text{Bias}(s)^2.$$
+For fixed $n$ and $k < n$, which estimator has smaller MSE?
+
+%%% B.4
+\item  Let $n \to \infty$ with $k$ fixed.
+\begin{enumerate}[label=(\alph*)]
+  \item Show $s_{\text{LS}}^2 \to \sigma^2$ in probability.
+  \item Show $s_{\text{ML}}^2 \to \sigma^2$ in probability.
+  \item Both are consistent.  Why does the finite-sample bias of $s_{\text{ML}}^2$ not prevent consistency?
+\end{enumerate}
+
+%%% B.5
+\item  In deriving $\E[s_{\text{LS}}^2]$, the key fact is $\text{tr}(\bfM) = n - k$.  Prove this starting from $\bfM = \bfI - \bfX(\bfX'\bfX)^{-1}\bfX'$ and using properties of the trace.
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT C: Sensitivity analysis (Cinelli--Hazlett)
+%%% ===============================================================
+\section*{Concept C: Sensitivity analysis}
+
+Throughout, use the Cinelli--Hazlett bound: for a single unobserved confounder $Z$,
+$$|\text{bias}| \;=\; \sqrt{\frac{R^2_{Y\sim Z\mid D,\bfX}\,\cdot\, R^2_{D\sim Z\mid \bfX}}{1 - R^2_{D\sim Z\mid \bfX}}}\;\cdot\;\frac{s_e}{sd(\tilde D)}.$$
+
+\begin{enumerate}[label=\textbf{C.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% C.1
+\item  A researcher estimates $\hat\beta_D = 2.0$ with $s_e = 4$ and $sd(\tilde D) = 2$.  Suppose an unobserved confounder has $R^2_{Y\sim Z\mid D,\bfX} = 0.04$ and $R^2_{D\sim Z\mid \bfX} = 0.04$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the implied bias.
+  \item Would the bias overturn the sign of $\hat\beta_D$?
+\end{enumerate}
+
+%%% C.2
+\item  The \emph{robustness value} $RV$ is the partial $R^2$ value $v$ such that if $R^2_{Y\sim Z\mid D,\bfX} = R^2_{D\sim Z\mid \bfX} = v$, the bias would equal $|\hat\beta_D|$.
+\begin{enumerate}[label=(\alph*)]
+  \item Setting bias $= |\hat\beta_D|$, derive the equation
+  $$\frac{v^2}{1 - v} = \left(\frac{|\hat\beta_D|\, sd(\tilde D)}{s_e}\right)^2.$$
+  \item For the numbers in C.1 ($\hat\beta_D = 2$, $s_e = 4$, $sd(\tilde D) = 2$), solve for $RV$.
+\end{enumerate}
+
+%%% C.3
+\item  Explain in 2--3 sentences why the bias formula depends on the \emph{product} of the two partial $R^2$ values, not on either one alone.  What does this imply about a confounder that is highly correlated with $D$ but uncorrelated with $Y$ given $D$?
+
+%%% C.4
+\item  A researcher benchmarks against an observed covariate (incumbency) with $R^2_{Y\sim \text{inc}\mid D,\bfX_{-\text{inc}}} = 0.08$ and $R^2_{D\sim \text{inc}\mid \bfX_{-\text{inc}}} = 0.05$.  She finds $\hat\beta_D = 1.2$ with $s_e = 3$, $sd(\tilde D) = 1$.
+\begin{enumerate}[label=(\alph*)]
+  \item Compute the bias a confounder ``as strong as'' incumbency would induce.
+  \item If the researcher argues the most likely unobserved confounder is \emph{half} as strong as incumbency on each dimension, recompute the bias.
+\end{enumerate}
+
+%%% C.5
+\item  Recall the textbook OVB decomposition $\text{bias} = \text{imbalance} \times \text{impact}$.  In the Cinelli--Hazlett formula:
+\begin{enumerate}[label=(\alph*)]
+  \item Which partial $R^2$ captures imbalance?  Which captures impact?
+  \item Why does the denominator $1 - R^2_{D\sim Z\mid \bfX}$ appear?  Give a one-sentence interpretation.
+\end{enumerate}
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT D: GLS under AR(1)
+%%% ===============================================================
+\section*{Concept D: GLS under an AR(1) error process}
+
+Throughout, let $\bfe_t = \rho\,\bfe_{t-1} + u_t$ with $u_t$ iid $(0, \sigma_u^2)$ and $|\rho| < 1$.  The inverse transformation matrix is (showing the first few rows):
+$$\bfT^{-1} = \begin{bmatrix}
+1 & -\rho & 0 & \cdots \\
+0 & 1 & -\rho & \cdots \\
+0 & 0 & 1 & \cdots \\
+\vdots & \vdots & \vdots & \ddots
+\end{bmatrix}.$$
+
+\begin{enumerate}[label=\textbf{D.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% D.1
+\item  Let $T = 3$.  Write out $\bfT^{-1}$ explicitly as a $3\times 3$ matrix, then compute $\bfT = (\bfT^{-1})^{-1}$.
+
+%%% D.2
+\item  For $T = 3$, compute $\bfT\bfT'$ and verify that (up to the common factor $1/(1-\rho^2)$) it matches
+$$\bfOmega = \frac{1}{1-\rho^2}\begin{bmatrix}1 & \rho & \rho^2 \\ \rho & 1 & \rho \\ \rho^2 & \rho & 1\end{bmatrix}.$$
+(You may verify the diagonal entries and one off-diagonal entry.)
+
+%%% D.3
+\item  The GLS estimator is $\hat\bfbeta_{\text{GLS}} = (\bfX'\bfOmega^{-1}\bfX)^{-1}\bfX'\bfOmega^{-1}\bfy$.
+\begin{enumerate}[label=(\alph*)]
+  \item Define $\tilde\bfy = \bfT^{-1}\bfy$ and $\tilde\bfX = \bfT^{-1}\bfX$.  Show that OLS on $(\tilde\bfy, \tilde\bfX)$ returns $\hat\bfbeta_{\text{GLS}}$.
+  \item What is the conditional variance of the transformed error $\tilde\bfe = \bfT^{-1}\bfe$?  (Up to a scalar.)
+\end{enumerate}
+
+%%% D.4
+\item  Write out the transformed observations $\tilde y_t$ in terms of $y_t, y_{t-1}$, and $\rho$, for $t = 2, 3, \ldots, T$.  Do the same for $\tilde x_t$.  These are the ``quasi-differenced'' data used in Cochrane--Orcutt / Prais--Winsten.
+
+%%% D.5
+\item  What does $\bfT^{-1}$ reduce to when $\rho = 0$?  What about when $\rho \to 1$?  In each case, how does the GLS estimator relate to OLS?
+
+\end{enumerate}
+
+\bigskip
+
+%%% ===============================================================
+%%% CONCEPT E: Nonlinear misspecification
+%%% ===============================================================
+\section*{Concept E: Nonlinear CEFs and what linear regression recovers}
+
+\begin{enumerate}[label=\textbf{E.\arabic*},leftmargin=*,itemsep=10pt]
+
+%%% E.1
+\item  Suppose $\E[Y \mid X] = (\gamma + \theta X)^{1/2}$ with $\gamma, \theta > 0$, and define $u = Y - (\gamma + \theta X)^{1/2}$.  Let $\Var(u\mid X) = \sigma^2$ (homoskedastic).
+\begin{enumerate}[label=(\alph*)]
+  \item Show $\E[u \mid X] = 0$.
+  \item Compute $\E[Y^2 \mid X]$.
+\end{enumerate}
+
+%%% E.2
+\item  A researcher regresses $y_i^2$ on $x_i$ with an intercept:
+$$y_i^2 = \alpha + \beta x_i + e_i.$$
+Using the CEF from E.1:
+\begin{enumerate}[label=(\alph*)]
+  \item What are the population values of $\alpha$ and $\beta$?
+  \item Does this regression identify $\gamma$ and $\theta$?  Under what condition?
+\end{enumerate}
+
+%%% E.3
+\item  Still using the CEF from E.1, construct the error $e_i = y_i^2 - \alpha - \beta x_i$ (with $\alpha, \beta$ as in E.2).
+\begin{enumerate}[label=(\alph*)]
+  \item Show $\E[e_i \mid x_i] = 0$.
+  \item Is $\Var(e_i \mid x_i)$ constant in $x_i$?  Give a brief reason.
+\end{enumerate}
+
+%%% E.4
+\item  Consider the log-linear CEF $\E[Y \mid X] = \exp(a + bX)$ with $Y > 0$.  A researcher regresses $\log y_i$ on $x_i$:
+$$\log y_i = a + b x_i + v_i.$$
+\begin{enumerate}[label=(\alph*)]
+  \item Write $\log y_i = \log\E[Y\mid X] + \log(Y/\E[Y\mid X])$.  Under what condition on $Y$ does $\E[\log(Y/\E[Y\mid X])\mid X] = 0$?
+  \item In general, is $\E[\log Y \mid X] = \log\E[Y\mid X]$?  Name the inequality that decides the sign of the gap.
+\end{enumerate}
+
+%%% E.5
+\item  A researcher is told that the CEF is quadratic: $\E[Y\mid X] = \alpha + \beta X + \gamma X^2$.  She runs a \emph{linear} regression $y = a + bx + e$.
+\begin{enumerate}[label=(\alph*)]
+  \item Using the OVB formula, express the probability limit of the OLS slope $b$ in terms of $\beta$, $\gamma$, and the regression of $x^2$ on $x$.
+  \item Under what distributional symmetry on $X$ does the OLS slope still consistently estimate $\beta$?
+\end{enumerate}
+
+\end{enumerate}
+
+\newpage
+
+%%% ===============================================================
+%%% SOLUTIONS
+%%% ===============================================================
+\section*{Solutions}
+
+\paragraph{A.1.}  (a)~With two points $(1,2)$ and $(2,5)$, the line through them is $y = -1 + 3x$, so $\hat\alpha_{(-3)} = -1$, $\hat\beta_{(-3)} = 3$.  (b)~In the three-observation regression with a unit dummy for observation $3$, the intercept and slope on $\bfx$ remain $-1$ and $3$, identical to (a).  (c)~The prediction from (a) at $x = 3$ is $-1 + 3(3) = 8$.  The actual $y_3 = 4$, so $y_3 - \hat y_3^{\text{(out of sample)}} = 4 - 8 = -4$, which equals $\hat\delta$ (the coefficient on $\bfd$).
+
+\paragraph{A.2.}  By FWL, the regression with $\bfd$ added is equivalent to regressing $\bfM_X \bfy$ on $\bfM_X \bfd$, where $\bfM_X$ annihilates $\bfX$.  The residuals of the full regression coincide with the residuals from this one-variable regression.  Fitted values at observation $n$: since $\bfd$ is $1$ only at position $n$, OLS will always be able to perfectly fit observation $n$ using $\delta$ (an unconstrained scalar).  More directly: the partitioned normal equations force $\bfd'\hat\bfe = \hat e_n = 0$.
+
+\paragraph{A.3.}  By FWL, $\hat\delta = (\bfd'\bfM_X\bfd)^{-1}\bfd'\bfM_X\bfy$.  Write $\bfM_X\bfy = \bfy - \bfX\hat\bfbeta_{(-n)} - (\text{adjustment for obs } n)$; a cleaner route is to note from A.2 that $\hat e_n = 0$, i.e.\ $y_n - \bm{x}_n'\hat\bfbeta - \hat\delta = 0$, so $\hat\delta = y_n - \bm{x}_n'\hat\bfbeta$.  But by the FWL logic (coefficients on $\bfX$ in the full regression equal those from leaving out obs $n$), $\hat\bfbeta = \hat\bfbeta_{(-n)}$, so $\hat\delta = y_n - \bm{x}_n'\hat\bfbeta_{(-n)}$.
+
+\paragraph{A.4.}  (a)~From A.3, $\hat\delta = y_n - \bm{x}_n'\hat\bfbeta_{(-n)}$.  Using the identity $\hat e_n^{(\text{full})} = (1-h_{nn})(y_n - \bm{x}_n'\hat\bfbeta_{(-n)})$, solve: $y_n - \bm{x}_n'\hat\bfbeta_{(-n)} = \hat e_n^{(\text{full})}/(1 - h_{nn})$, so $\hat\delta = \hat e_n^{(\text{full})}/(1 - h_{nn})$.  (b)~As $h_{nn} \to 1$ the denominator vanishes and $\hat\delta$ blows up.  High-leverage points are ``almost'' determined by $\bfX$ alone --- the small residual from the full regression is amplified by $1/(1-h_{nn})$ when one backs it out to the LOO fit.  This is the Cook's-distance / leverage mechanism.
+
+\paragraph{A.5.}  (a)~With $n$ unit dummies, their sum is the vector of ones, which duplicates (some linear combination of) the intercept column already in $\bfX$.  Rank is at most $n$, and the augmented design is exactly singular, so $(\tilde\bfX'\tilde\bfX)^{-1}$ does not exist.  (b)~With $n-1$ dummies, $\bfX$ becomes a saturated design for the $n$ observations: the column span is $\mathbb{R}^n$.  Fitted values equal $\bfy$ exactly, all residuals are $0$, and $R^2 = 1$.
+
+\bigskip
+
+\paragraph{B.1.}  (a)~$\E[\hat\bfe'\hat\bfe] = \E[\bfe'\bfM\bfe] = \sigma^2\,\text{tr}(\bfM) = \sigma^2(n - k)$, so $\E[s_{\text{LS}}^2] = \sigma^2(n-k)/(n-k) = \sigma^2$.  (b)~$\E[s_{\text{ML}}^2] = \sigma^2(n-k)/n < \sigma^2$; the bias is downward.
+
+\paragraph{B.2.}  (a)~$\E[s_{\text{ML}}^2]/\sigma^2 = (n-k)/n = 15/20 = 0.75$, a $25\%$ downward bias.  (b)~$\Var(s_{\text{LS}}^2)/\Var(s_{\text{ML}}^2) = [2\sigma^4/(n-k)] / [2(n-k)\sigma^4/n^2] = n^2/(n-k)^2 = 400/225 \approx 1.78$.  The LS estimator has about $78\%$ higher variance.
+
+\paragraph{B.3.}  MSE$(s_{\text{LS}}^2) = 2\sigma^4/(n-k)$.  For $s_{\text{ML}}^2$: bias $= -k\sigma^2/n$, so bias$^2 = k^2\sigma^4/n^2$, and MSE$(s_{\text{ML}}^2) = 2(n-k)\sigma^4/n^2 + k^2\sigma^4/n^2 = \sigma^4(2n - 2k + k^2)/n^2$.  Compute the ratio or sign of the difference:
+$$\text{MSE}(s_{\text{LS}}^2) - \text{MSE}(s_{\text{ML}}^2) = \sigma^4\left[\frac{2}{n-k} - \frac{2n - 2k + k^2}{n^2}\right].$$
+For $n = 20, k = 5$: $2/15 - (40 - 10 + 25)/400 = 0.1333 - 0.1375 < 0$, so $s_{\text{LS}}^2$ has slightly smaller MSE.  More generally, \emph{neither estimator dominates uniformly}: the ranking depends on $(n, k)$ in a non-monotone way.  $s_{\text{ML}}^2$'s bias$^2$ grows like $k^2\sigma^4/n^2$ while $s_{\text{LS}}^2$'s variance blows up like $1/(n-k)$ as $k$ approaches $n$, so $s_{\text{ML}}^2$ wins both when $k$ is very small (negligible bias, lower variance) and when $k$ is close to $n$ (LS variance explodes).  The bias--variance trade-off is genuine, not monotone in $k/n$.
+
+\paragraph{B.4.}  (a)~$\E[s_{\text{LS}}^2] = \sigma^2$ and $\Var(s_{\text{LS}}^2) = 2\sigma^4/(n-k) \to 0$, so by Chebyshev $s_{\text{LS}}^2 \to \sigma^2$ in probability.  (b)~$s_{\text{ML}}^2 = \frac{n-k}{n} s_{\text{LS}}^2 \to 1 \cdot \sigma^2 = \sigma^2$ by Slutsky, since $(n-k)/n \to 1$.  (c)~Consistency requires only that bias and variance both vanish as $n\to\infty$.  Here the bias $-k\sigma^2/n \to 0$ and the variance $\to 0$, so both estimators converge in probability to $\sigma^2$.  A fixed finite-sample bias is not the same as a non-vanishing asymptotic bias.
+
+\paragraph{B.5.}  $\text{tr}(\bfM) = \text{tr}(\bfI_n) - \text{tr}(\bfX(\bfX'\bfX)^{-1}\bfX') = n - \text{tr}((\bfX'\bfX)^{-1}\bfX'\bfX) = n - \text{tr}(\bfI_k) = n - k$.  The cyclic property of the trace is what makes the second equality work.
+
+\bigskip
+
+\paragraph{C.1.}  (a)~$|\text{bias}| = \sqrt{(0.04)(0.04)/(1 - 0.04)} \cdot (4/2) = \sqrt{0.0016/0.96}\cdot 2 = \sqrt{0.001667}\cdot 2 \approx 0.0408 \cdot 2 = 0.0816$.  (b)~With $\hat\beta_D = 2$ and a worst-case bias of $\approx 0.08$, the sign and qualitative conclusion are unchanged.
+
+\paragraph{C.2.}  (a)~Set $|\text{bias}|^2 = \hat\beta_D^2$: $\frac{v\cdot v}{1-v}\cdot\frac{s_e^2}{sd(\tilde D)^2} = \hat\beta_D^2$, which rearranges to $v^2/(1-v) = (\hat\beta_D\,sd(\tilde D)/s_e)^2$.  (b)~RHS $= (2\cdot 2/4)^2 = 1$, so $v^2 = 1 - v$, i.e.\ $v^2 + v - 1 = 0$.  The positive root is $v = (-1 + \sqrt{5})/2 \approx 0.618$.  A confounder would need to explain $\sim 62\%$ of the residual variation in $Y$ and $D$ to overturn the estimate --- very hard to satisfy.
+
+\paragraph{C.3.}  Bias requires $Z$ to be related to \emph{both} $D$ (to create imbalance) and $Y$ (to matter for the outcome).  If $Z$ strongly predicts $D$ but is unrelated to $Y$ conditional on $D$, the outcome-side partial $R^2$ is zero and the product is zero --- no bias.  This is why ``strong predictors of treatment'' are not automatically threats: they matter only if they also drive the outcome.
+
+\paragraph{C.4.}  (a)~$|\text{bias}| = \sqrt{(0.08)(0.05)/(1 - 0.05)}\cdot (3/1) = \sqrt{0.004/0.95}\cdot 3 = \sqrt{0.00421}\cdot 3 \approx 0.0649\cdot 3 \approx 0.195$.  About $16\%$ of $\hat\beta_D = 1.2$, so the estimate would survive qualitatively.  (b)~Half as strong on each dimension: $R^2_{Y\sim Z} = 0.04$, $R^2_{D\sim Z} = 0.025$.  Bias $= \sqrt{(0.04)(0.025)/(1 - 0.025)}\cdot 3 = \sqrt{0.001026}\cdot 3 \approx 0.0320\cdot 3 \approx 0.096$, about $8\%$ of the estimate.
+
+\paragraph{C.5.}  (a)~$R^2_{D\sim Z\mid \bfX}$ = imbalance (how much $Z$ differs across treatment conditions after netting out $\bfX$).  $R^2_{Y\sim Z\mid D,\bfX}$ = impact (how much $Z$ moves $Y$ once $D$ and $\bfX$ are held fixed).  (b)~The denominator $1 - R^2_{D\sim Z\mid \bfX}$ inflates the bias when $Z$ is a near-perfect predictor of $D$: there is less residual variation in $\tilde D$ with which to identify $\beta_D$, so the same correlation with $Y$ translates into a larger bias per unit of residual treatment variation.
+
+\bigskip
+
+\paragraph{D.1.}  For $T = 3$,
+$$\bfT^{-1} = \begin{bmatrix}1 & -\rho & 0 \\ 0 & 1 & -\rho \\ 0 & 0 & 1\end{bmatrix},\qquad \bfT = \begin{bmatrix}1 & \rho & \rho^2 \\ 0 & 1 & \rho \\ 0 & 0 & 1\end{bmatrix}.$$
+Check: multiply, upper-triangular with ones on the diagonal and zero elsewhere.
+
+\paragraph{D.2.}  Actually $\bfT\bfT' = \Omega$ holds only in the limiting / stationary sense, where the formula has the $1/(1-\rho^2)$ prefactor.  For the truncated $3\times 3$ case, $\bfT\bfT' = \begin{bmatrix}1 + \rho^2 + \rho^4 & \rho + \rho^3 & \rho^2 \\ \rho + \rho^3 & 1 + \rho^2 & \rho \\ \rho^2 & \rho & 1\end{bmatrix}$.  The $(3,3)$ entry is $1$ (as in $\Omega$ times $1-\rho^2$).  The $(2,3)$ entry is $\rho$ (matches $\rho\cdot(1-\rho^2)$ only for the initial condition without stationarity adjustment).  The full stationary identity $\bfT\bfT' = \Omega$ requires taking $T\to\infty$ or modifying the first row of $\bfT^{-1}$ to $(\sqrt{1-\rho^2}, 0, \ldots)$ as in Prais--Winsten.  The problem flags this subtlety deliberately.
+
+\paragraph{D.3.}  (a)~$\tilde\bfy = \bfT^{-1}\bfy$, $\tilde\bfX = \bfT^{-1}\bfX$.  OLS on the transformed data: $(\tilde\bfX'\tilde\bfX)^{-1}\tilde\bfX'\tilde\bfy = (\bfX'(\bfT^{-1})'\bfT^{-1}\bfX)^{-1}\bfX'(\bfT^{-1})'\bfT^{-1}\bfy$.  Since $(\bfT^{-1})'\bfT^{-1} = (\bfT\bfT')^{-1} = \Omega^{-1}$, this is $(\bfX'\Omega^{-1}\bfX)^{-1}\bfX'\Omega^{-1}\bfy = \hat\bfbeta_{\text{GLS}}$.  (b)~$\Var(\tilde\bfe) = \bfT^{-1}\Var(\bfe)(\bfT^{-1})' = \sigma^2 \bfT^{-1}\Omega (\bfT^{-1})' = \sigma^2\bfI$ (in the stationary case, up to the first-observation adjustment).  Transformed errors are homoskedastic and uncorrelated, which is why OLS on the transformed data is efficient.
+
+\paragraph{D.4.}  For $t \geq 2$: $\tilde y_t = y_t - \rho\, y_{t-1}$ and $\tilde x_t = x_t - \rho\, x_{t-1}$.  These are quasi-differences.  The first observation is either dropped (Cochrane--Orcutt) or rescaled by $\sqrt{1-\rho^2}$ (Prais--Winsten) to preserve the stationary covariance structure.
+
+\paragraph{D.5.}  When $\rho = 0$: $\bfT^{-1} = \bfI$, no transformation needed, and GLS = OLS (errors are already iid).  When $\rho \to 1$: $\bfT^{-1}$ becomes the first-difference operator (ignoring the first row), so $\tilde y_t = \Delta y_t$.  GLS then runs OLS on first differences --- the standard remedy for a random walk in errors.
+
+\bigskip
+
+\paragraph{E.1.}  (a)~$\E[u \mid X] = \E[Y \mid X] - (\gamma + \theta X)^{1/2} = 0$ by the definition of the CEF.  (b)~$\E[Y^2\mid X] = \Var(Y\mid X) + \E[Y\mid X]^2 = \sigma^2 + (\gamma + \theta X)$.
+
+\paragraph{E.2.}  (a)~The population projection coefficients satisfy $\E[Y^2\mid X] = \alpha + \beta X$.  From E.1(b), $\E[Y^2\mid X] = (\gamma + \sigma^2) + \theta X$, so $\alpha = \gamma + \sigma^2$ and $\beta = \theta$.  (b)~$\theta$ is identified directly as $\beta$.  But $\gamma$ is confounded with $\sigma^2$: we can recover $\gamma$ only if $\sigma^2$ is known separately (or if homoskedasticity is imposed and $\sigma^2$ is estimated from residuals).  Otherwise only $\gamma + \sigma^2$ is estimable from $\alpha$.
+
+\paragraph{E.3.}  (a)~Write $y_i^2 = \alpha + \beta x_i + e_i$ with $\alpha = \gamma + \sigma^2, \beta = \theta$.  Then $e_i = y_i^2 - \E[Y^2\mid X = x_i]$, so $\E[e_i \mid x_i] = 0$ by definition.  (b)~Generally no.  $\Var(y_i^2\mid x_i)$ depends on higher moments of $Y$ given $X$, which themselves depend on $x_i$ through the mean $(\gamma + \theta x_i)^{1/2}$.  For instance, if $Y \mid X$ is normal, $\Var(Y^2\mid X) = 4\sigma^2\,\E[Y\mid X]^2 + 2\sigma^4$, which grows with $x_i$.  The linear regression in $y^2$ is typically heteroskedastic.
+
+\paragraph{E.4.}  (a)~Write $\log Y = \log\E[Y\mid X] + \log(Y/\E[Y\mid X]) = a + bX + v$.  Then $\E[v\mid X] = 0$ iff $\E[\log(Y/\E[Y\mid X])\mid X] = 0$.  This holds, for example, if $Y/\E[Y\mid X]$ has a distribution that does not depend on $X$ (sometimes called a multiplicative error model: $Y = e^{a+bX}\cdot \eta$ with $\E[\log\eta] = 0$).  (b)~No.  By Jensen's inequality, $\E[\log Y \mid X] \leq \log\E[Y\mid X]$ (since $\log$ is concave), with equality only if $Y$ is degenerate given $X$.  The gap is $-\text{Var}(\log Y\mid X)/2$ to first order for small noise.
+
+\paragraph{E.5.}  (a)~Let $\tilde\delta = \text{Cov}(X, X^2)/\Var(X)$ denote the population projection slope of $X^2$ on $X$.  Then $\text{plim}\,b = \beta + \gamma\tilde\delta$.  (b)~The OLS slope is consistent for $\beta$ when $\tilde\delta = 0$, i.e.\ $\text{Cov}(X, X^2) = 0$.  For $X$ symmetric about $0$, $\E[X^3] = 0$ and $\E[X]\E[X^2] = 0$, so $\text{Cov}(X, X^2) = 0$ and $b \to \beta$.  \emph{Symmetry about $0$ is essential}: if $X$ is symmetric about $\mu \neq 0$, write $X = \mu + Z$ with $Z$ symmetric about zero, then $\text{Cov}(X, X^2) = \text{Cov}(Z, Z^2 + 2\mu Z) = 2\mu\sigma^2 \neq 0$, so $b \to \beta + 2\gamma\mu$.  This is why zero-mean (or more generally, odd-symmetric) $X$ is required for linear regression to be ``accidentally'' consistent when the CEF is quadratic.
+
+\end{document}

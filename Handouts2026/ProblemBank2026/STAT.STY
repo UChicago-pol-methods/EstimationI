@@ -1,0 +1,217 @@
+
+% mainly mathematical and other frequently used symbols
+
+\def\Real{\mathbb{R}}
+
+% variants on letters
+\def\bm{\mathbf}
+\def\bfa{{\bm a}}
+\def\bfb{{\bm b}}
+\def\bfc{{\bm c}}
+\def\bfd{{\bm d}}
+\def\bfe{{\bm e}}
+\def\bff{{\bm f}}
+\def\bfg{{\bm g}}
+\def\bfh{{\bm h}}
+\def\bfi{{\bm i}}
+\def\bfj{{\bm j}}
+\def\bfk{{\bm k}}
+\def\bfl{{\bm l}}
+\def\bfm{{\bm m}}
+\def\bfn{{\bm n}}
+\def\bfo{{\bm o}}
+\def\bfp{{\bm p}}
+\def\bfq{{\bm q}}
+\def\bfr{{\bm r}}
+\def\bfs{{\bm s}}
+\def\bft{{\bm t}}
+\def\bfu{{\bm u}}
+\def\bfv{{\bm v}}
+\def\bfw{{\bm w}}
+\def\bfx{{\bm x}}
+\def\bfy{{\bm y}}
+\def\bfz{{\bm z}}
+
+\def\bfA{{\bm A}}
+\def\bfB{{\bm B}}
+\def\bfC{{\bm C}}
+\def\bfD{{\bm D}}
+\def\bfE{{\bm E}}
+\def\bfF{{\bm F}}
+\def\bfG{{\bm G}}
+\def\bfH{{\bm H}}
+\def\bfI{{\bm I}}
+\def\bfJ{{\bm J}}
+\def\bfK{{\bm K}}
+\def\bfL{{\bm L}}
+\def\bfM{{\bm M}}
+\def\bfN{{\bm N}}
+\def\bfP{{\bm P}}
+\def\bfQ{{\bm Q}}
+\def\bfR{{\bm R}}
+\def\bfS{{\bm S}}
+\def\bfT{{\bm T}}
+\def\bfU{{\bm U}}
+\def\bfV{{\bm V}}
+\def\bfW{{\bm W}}
+\def\bfX{{\bm X}}
+\def\bfY{{\bm Y}}
+\def\bfZ{{\bm Z}}
+
+\def\bfzero{{\bm 0}}
+\def\bfone{{\bm 1}}
+
+\def\rank{\mathrm{rank}}
+\def\tr{\mathrm{tr}}
+
+% lower case Greek
+\def\bfalpha{\boldsymbol{\alpha}}
+%\def\bfbeta{\mbox{\boldmath $\beta$}}
+\def\bfgamma{\boldsymbol{\gamma}}
+\def\e{\epsilon} 
+\def\bfeps{\boldsymbol{\epsilon}} 
+\def\bfepsilon{\boldsymbol{\epsilon}} 
+%\def\bfeps{\mbox{\boldmath $\epsilon$}}
+\def\bfeta{\boldsymbol{\eta}}
+\def\bftheta{\boldsymbol{\theta}}
+\def\bfmu{{\mbox{\boldmath $\mu$}}}
+\def\bfLambda{{\mbox{\boldmath $\Lambda$}}}
+\def\bfxi{\boldsymbol{\xi}}
+\def\bpi{\boldsymbol{\Pi}}
+\def\bfsigma{\boldsymbol{\sigma}}
+\def\bftau{\boldsymbol{\tau}}
+\def\bfphi{\boldsymbol{\phi}}
+\def\bfpsi{\boldsymbol{\psi}}
+\def\bfomega{\mbox{\boldmath $\omega$}}
+
+\def\irho{\rho^{-1}}
+
+% capital Greek
+\def\bfTheta{\boldsymbol{\Theta}}
+\def\bfSigma{\boldsymbol{\Sigma}}
+\def\bfOmega{\mbox{\boldmath $\Omega$}}
+
+% linear model type stuff
+\def\meanx{\bar{x}}
+\def\meanX{\bar{X}}
+\def\meany{\bar{y}}
+\def\meanY{\bar{Y}}
+\def\Cov{\mbox{Cov}}
+\def\Var{\mbox{Var}}
+\def\SE{\mbox{SE}}
+\def\Prob{\mbox{Prob}}
+\def\biint{\meanY-b_{1}\meanX}
+\def\bislope{\frac{\sum_{i}(X_{i}-\meanX)(Y_{i}-\meanY)}{\sum_{i}(X_{i}-\meanX)^2}}
+\def\vareps{\sigma_{\epsilon}^2}
+\def\bfsmallu{\mbox{\bm{$u$}}}
+\def\bfsmalle{\mbox{\bm{$e$}}}
+\def\bfsmallb{\mbox{\bm{$b$}}}
+\def\xbar{\bar{\bfsmallx}}
+\def\bfu{\mbox{\bm{$u$}}}
+\def\sse{\hat{\bfe}'\hat{\bfe}}
+\def\bmx{\mbox{\bm{$X$}}}
+\def\xty{\bfX'\bfy}
+\def\xtx{\bfX'\bfX}
+\def\bhat{\boldsymbol{\hat{\beta}}}
+\def\xb{\bfx \bfbeta}
+\def\xbi{X_i' \bfbeta}
+\def\xbt{X_t' \bfbeta}
+\def\bfyhat{\hat{\bfy}}
+\def\xbhat{\bfx \hat{\bfbeta}}
+\def\xbhati{X_i' \hat{\bfbeta}}
+\def\xtxi{(\bfX'\bfX)^{-1}}
+\def\ixtxone{(\bfX_1' \bfX_1)^{-1}}
+\def\ll{\ln {\cal L}}
+\def\plim{\mbox{plim}}
+\def\gxtx{\bfX'\bfOmega^{-1}\bfX}
+\def\gxtxi{(\gxtx)^{-1}}
+\def\gxty{\bfX'\bfOmega^{-1}\bfy}
+
+% software, phrases, others...
+\def\nullhyp{\mathrm{H_{0}}}
+\def\diag{\mathrm{diag}}
+\def\plim{\mathrm{plim}\ }
+\def\s{{\tt S}}
+\def\S{{\texttt{S}}}
+\def\S+{{\texttt{Splus}}}
+\def\wrt{with respect to}
+\def\WLOG{without loss of generality}
+\def\GM{Gouri\'{e}roux and Monfort}
+\def\pid{party identification}
+\def\bfotimes{\boldsymbol{\otimes}}
+\def\yobs{Y_{\mbox{\footnotesize obs}}}
+\def\ymis{Y_{\mbox{\footnotesize mis}}}
+\def\EM{$EM$}
+
+% way cool vectors and matrices...
+%\newcommand{\yvec}[1]{ \left[   \begin{array}{c}
+%                                y_{1\,#1} \\
+%                                y_{2\,#1} \\
+%                                \vdots \\
+%                                y_{m\,#1} 
+%                                \end{array} \right]
+%                        }
+
+\def\yvec{ \left[ \begin{array}{c}
+                                y_1 \\
+                                y_2 \\
+                                \vdots \\
+                                y_N 
+                                \end{array} \right]
+                        }
+\def\xmat{
+  \left[
+    \begin{array}{cc}
+1 & x_1 \\
+1 & x_2 \\
+\vdots & \vdots \\
+1 & x_N 
+    \end{array}
+  \right] }
+
+\def\xprime{
+  \left[
+    \begin{array}{cccc}
+  1 &   1 & \ldots & 1 \\
+X_1 & X_2 & \ldots & X_N
+    \end{array}
+  \right] }
+
+\def\bmat{
+  \left[
+    \begin{array}{c}
+\bfbeta_1 \\ \bfbeta_2
+    \end{array}
+  \right] }
+
+\def\bhatmat{
+  \left[
+    \begin{array}{c}
+\bhat_1 \\ \bhat_2
+    \end{array}
+  \right] }
+
+\def\umat{
+  \left[
+    \begin{array}{c}
+u_1 \\ u_2 \\ \vdots \\ u_N
+    \end{array}
+  \right] }
+
+\def\xsplitprime{
+  \left[
+    \begin{array}{c}
+\bfX_1' \\ \bfX_2'
+    \end{array}
+  \right] } 
+
+\def\xpxsplit{
+  \left[
+    \begin{array}{cc}
+\bfX_1' \bfX_1 & \bfX_1' \bfX_2  \\
+\bfX_2' \bfX_1 & \bfX_2' \bfX_2 
+    \end{array}
+  \right] }
+
+
+
