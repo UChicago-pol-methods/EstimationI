@@ -388,15 +388,38 @@ Marginal effects are largest near $X'\beta = 0$ (where the CDF is steepest) and 
 \section{MLE}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Likelihood for the Probit Model}
+\begin{frame}{From Bernoulli to the Probit Likelihood}
 
-Recall from Lecture 7: we developed the general MLE framework under normality. Now we apply it to a \textbf{nonlinear} model.
+Each binary outcome is a \textbf{Bernoulli trial}. For a single $Y \in \{0,1\}$ with success probability $p$:
+\[
+f(y \mid p) = p^{y}(1-p)^{1-y}
+\]
 
 \pause
 
-\bigskip
+\textbf{No covariates:} if $Y_1,\ldots,Y_n$ are iid Bernoulli$(p)$, then $S=\sum_i Y_i \sim \text{Binomial}(n,p)$, and
+\[
+L(p) = \binom{n}{S}\, p^{S}(1-p)^{n-S}
+\]
 
-Assuming conditional independence, the likelihood is:
+\pause
+
+\textbf{With covariates:} each trial has its own success probability,
+\[
+p_i = P(Y_i=1 \mid X_i) = \Phi(X_i'\beta)
+\]
+
+\pause
+
+Under conditional independence, the joint density is the product of $n$ heterogeneous Bernoullis --- no binomial coefficient because the trials are distinguishable through $X_i$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Likelihood for the Probit Model}
+
+Viewing that joint density as a function of $\beta$ gives the \textbf{likelihood}:
 
 \[
 L_n(\beta)
@@ -523,32 +546,66 @@ All three are \textbf{moment conditions}: find $\theta$ s.t.\ $\frac{1}{n}\sum_i
 
 \begin{frame}{Iterative Estimation: Newton--Raphson}
 
-Unlike OLS, the Probit MLE has no closed-form solution.
+\begin{columns}
+\begin{column}{0.46\textwidth}
+
+Probit MLE has no closed form --- iterate.
 
 \pause
 
-\textbf{Newton--Raphson} iterates:
+\textbf{Quadratic Taylor expansion} of $\ell_n$ at $\beta^{(t)}$:
 \[
-\beta^{(t+1)} = \beta^{(t)} - \left[H_n(\beta^{(t)})\right]^{-1} S_n(\beta^{(t)})
+\ell_n(\beta) \approx \ell_n^{(t)} + S_n^{(t)}\Delta + \tfrac{1}{2} H_n^{(t)}\Delta^2
+\]
+with $\Delta = \beta - \beta^{(t)}$.
+
+\pause
+
+Jump to its max:
+\[
+\boxed{\beta^{(t+1)} = \beta^{(t)} - \bigl[H_n^{(t)}\bigr]^{-1} S_n^{(t)}}
 \]
 
-where $H_n(\beta) = \partial S_n / \partial \beta' = \partial^2 \ell_n / \partial \beta \partial \beta'$ is the Hessian.
-
 \pause
 
-\bigskip
+Repeat until convergence. Fast (3--6 steps) because $\ell_n$ is concave.
 
-\textbf{Algorithm:}
-\begin{enumerate}
-    \item Start with an initial guess $\beta^{(0)}$ (e.g., OLS estimates)
-    \item Compute score $S_n(\beta^{(t)})$ and Hessian $H_n(\beta^{(t)})$
-    \item Update: $\beta^{(t+1)} = \beta^{(t)} - H_n^{-1} S_n$
-    \item Repeat until convergence: $\|\beta^{(t+1)} - \beta^{(t)}\| < \varepsilon$
-\end{enumerate}
+\end{column}
+\begin{column}{0.54\textwidth}
 
-\pause
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=5.4cm,
+  xlabel={$\beta$}, ylabel={$\ell_n(\beta)$},
+  domain=-0.8:4, samples=120,
+  xmin=-0.8, xmax=4,
+  ymin=0.5, ymax=5.6,
+  xtick={0, 1.06, 1.78, 2},
+  xticklabels={$\beta^{(0)}$, $\beta^{(1)}$, $\beta^{(2)}$, $\beta_{\text{MLE}}$},
+  xticklabel style={font=\tiny},
+  ytick=\empty,
+  axis lines=left,
+  legend style={at={(0.97,0.05)}, anchor=south east, font=\tiny, draw=none, fill=none},
+  every axis plot/.append style={thick}
+]
+\addplot[blue, domain=-0.8:4] {5 - 0.5*(x-2)^2 - 0.05*(x-2)^4};
+\addlegendentry{$\ell_n(\beta)$}
+\addplot[alertpurple, dashed, domain=-0.5:2.6] {2.2 + 3.6*x - 1.7*x^2};
+\addlegendentry{quadratic at $\beta^{(0)}$}
+\addplot[mark=*, only marks, mark size=1.5pt, black]
+  coordinates {(0, 2.2) (1.06, 4.52) (1.78, 4.976)};
+\draw[gray, dotted] (axis cs:0, 0.5) -- (axis cs:0, 2.2);
+\draw[gray, dotted] (axis cs:1.06, 0.5) -- (axis cs:1.06, 4.52);
+\draw[gray, dotted] (axis cs:1.78, 0.5) -- (axis cs:1.78, 4.976);
+\end{axis}
+\end{tikzpicture}
 
-In practice, \texttt{glm()} in R handles this automatically via Fisher scoring (a variant of Newton--Raphson).
+\vspace{-4pt}
+{\scriptsize Each step peaks the local quadratic and jumps there. \texttt{glm()} does this via \textbf{Fisher scoring}.}
+
+\end{column}
+\end{columns}
 
 \end{frame}
 
@@ -607,196 +664,6 @@ Efficiency & Lower & Higher (if correct) \\
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Asymptotics}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Fisher Information for Probit}
-
-The Fisher information matrix is:
-\[
-\mathcal{I}(\beta)
-=
-\mathbb{E}\left[\frac{\phi(X'\beta)^2}{\Phi(X'\beta)(1-\Phi(X'\beta))} \, XX'\right]
-\]
-
-\pause
-
-\textbf{Derivation:} By the information matrix equality,
-\[
-\mathcal{I}(\beta) = \mathbb{E}[s_i(\beta) s_i(\beta)'] = -\mathbb{E}\left[\frac{\partial^2 \ell_i(\beta)}{\partial \beta \partial \beta'}\right]
-\]
-
-\pause
-
-The weight $\frac{\phi(X'\beta)^2}{\Phi(X'\beta)(1-\Phi(X'\beta))}$ is largest when $X'\beta \approx 0$ (where we have the most ``information'' about $\beta$) and smallest in the tails.
-
-\pause
-
-\bigskip
-
-Compare with OLS: $\mathbb{E}[X X'] / \sigma^2$. In Probit, the effective ``variance'' changes with $X$.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Hessian and Outer Product of Scores}
-
-The expected Hessian:
-\[
--\mathbb{E}\!\left[\frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]
-=
-\mathbb{E}\!\left[\frac{\phi(X'\beta)^2}{\Phi(X'\beta)(1-\Phi(X'\beta))} X X'\right]
-\]
-
-\pause
-
-\bigskip
-
-The outer product of scores:
-\[
-\mathbb{E}[s_i s_i']
-=
-\mathbb{E}\!\left[\frac{\phi(X'\beta)^2}{\Phi(X'\beta)^2(1-\Phi(X'\beta))^2} \underbrace{(Y_i - \Phi)^2}_{\Phi(1-\Phi)} X X'\right]
-\]
-
-\pause
-
-\bigskip
-
-These two expressions \emph{look} different. Are they equal?
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Information Matrix Equality}
-
-Since $\mathbb{E}[(Y_i - \Phi)^2 \mid X_i] = \Phi(1-\Phi)$, one factor of $\Phi(1-\Phi)$ in the denominator cancels:
-
-\[
-\mathbb{E}[s_i s_i']
-=
-\mathbb{E}\!\left[\frac{\phi(X'\beta)^2}{\Phi(X'\beta)(1-\Phi(X'\beta))} X X'\right]
-= -\mathbb{E}\!\left[\frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]
-\]
-
-\pause
-
-\bigskip
-
-This gives the \textbf{information matrix equality} (under correct specification):
-\[
-\boxed{\mathbb{E}[s_i s_i'] = -\mathbb{E}\!\left[\frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]}
-\]
-
-\pause
-
-\bigskip
-
-When this equality holds, model-based SEs and sandwich SEs agree. When it fails (misspecification), only the sandwich is valid.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}[fragile]{From Fisher Information to the SEs You See in R}
-
-\texttt{summary(glm(...))} reports standard errors.  Where do they come from?\pause
-
-\begin{lstlisting}
-# Model-based SEs = sqrt of diagonal of inverse Hessian
-sqrt(diag(vcov(probit)))
-#  (Intercept)       X1        X2
-#     0.241       0.058     0.103
-
-# These are the SEs in summary() output
-summary(probit)$coefficients[, "Std. Error"]
-#     same numbers
-\end{lstlisting}\pause
-
-\begin{itemize}
-\item \texttt{vcov(probit)} $= \hat{\mathcal{H}}^{-1} = \left[-\frac{1}{n}\sum_i \frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]^{-1}$\pause
-\item Under correct specification, $\hat{\mathcal{H}}^{-1} = \hat{\mathcal{I}}^{-1}$ (information equality), so one matrix suffices.\pause
-\item Under misspecification, you need the sandwich: \texttt{vcovHC(probit)} $= \hat{\mathcal{H}}^{-1}\hat{\mathcal{I}}\,\hat{\mathcal{H}}^{-1}$.
-\end{itemize}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Asymptotic Normality: Derivation Sketch}
-
-Taylor-expand the score around $\beta_0$:
-\[
-0 = S_n(\hat\beta) \approx S_n(\beta_0) + H_n(\beta_0)(\hat\beta - \beta_0)
-\]
-
-\pause
-
-Rearranging:
-\[
-\sqrt{n}(\hat\beta - \beta_0) \approx \left[-\frac{1}{n}H_n(\beta_0)\right]^{-1} \frac{1}{\sqrt{n}} S_n(\beta_0)
-\]
-
-\pause
-
-By the law of large numbers: $\frac{1}{n}H_n(\beta_0) \overset{p}{\to} -\mathcal{I}(\beta_0)$.
-
-\pause
-
-By the CLT: $\frac{1}{\sqrt{n}} S_n(\beta_0) \overset{d}{\to} N(0, \mathcal{I}(\beta_0))$.
-
-\pause
-
-Combining:
-\[
-\boxed{\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} N\!\left(0,\; \mathcal{I}(\beta_0)^{-1}\right)}
-\]
-
-\pause
-
-Same structure as Lecture 7, but now for a nonlinear model. The asymptotic tools (WLLN, CLT) will be developed formally in Lecture 10.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{The Sandwich Under Misspecification}
-
-\textbf{What if $\Phi$ is the wrong link function?}
-
-\pause
-
-If the true CEF is $G_0(X'\beta)$ but we estimate Probit, the information matrix equality \textbf{fails}:
-\[
-\mathbb{E}[s_i s_i'] \neq -\mathbb{E}\!\left[\frac{\partial^2 \ell_i}{\partial \beta \partial \beta'}\right]
-\]
-
-\pause
-
-The asymptotic variance becomes the \textbf{sandwich} (recall Lectures 5--6):
-\[
-\operatorname{Var}(\sqrt{n}(\hat\beta - \beta_0))
-=
-\underbrace{H^{-1}}_{\text{bread}}
-\underbrace{\mathbb{E}[s_i s_i']}_{\text{meat}}
-\underbrace{H^{-1}}_{\text{bread}}
-\]
-
-where $H = -\mathbb{E}[\partial^2 \ell_i / \partial\beta\partial\beta']$.
-
-\pause
-
-\textbf{Quasi-MLE} (QMLE): Even with the wrong $G$, the index $X'\beta$ can be consistently estimated (up to scale) --- a form of semi-parametric resilience.
-
-\pause
-
-\textbf{Practical implication:} Use robust (sandwich) SEs for Probit, just as for OLS. Same \texttt{sandwich} package in R. \textit{(HW4 Q2 fits a probit IRT on UN votes.)}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Poisson QMLE}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -833,6 +700,63 @@ Same problem as LPM: a linear model $\mathbb{E}[Y \mid X] = X'\beta$ can predict
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{The Poisson Distribution}
+
+A random variable $Y$ is \textbf{Poisson} with rate $\lambda > 0$ if it takes nonnegative integer values with probability mass
+\[
+P(Y = k) = \frac{\lambda^{k} e^{-\lambda}}{k!}, \qquad k = 0, 1, 2, \ldots
+\]
+
+\pause
+
+\bigskip
+
+\textbf{Properties:}
+\begin{itemize}
+    \item Support: $\{0, 1, 2, \ldots\}$ --- a counting distribution
+    \item Mean: $\mathbb{E}[Y] = \lambda$
+    \item Variance: $\operatorname{Var}(Y) = \lambda$ \quad (\textbf{equidispersion}: variance equals mean)
+\end{itemize}
+
+\pause
+
+\bigskip
+
+The single parameter $\lambda$ pins down every moment --- a very restrictive assumption.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why ``Poisson'' Regression?}
+
+Poisson regression is conventionally written as a \textbf{log-linear} model for the conditional mean:
+\[
+\log \mathbb{E}[Y_i \mid X_i] = X_i'\beta
+\quad\Longleftrightarrow\quad
+\mathbb{E}[Y_i \mid X_i] = \exp(X_i'\beta)
+\]
+
+\pause
+
+\bigskip
+
+The full model assumes the conditional distribution is Poisson with that rate:
+\[
+\lambda_i = \exp(X_i'\beta), \qquad Y_i \mid X_i \sim \text{Poisson}(\lambda_i)
+\]
+which gives $\mathbb{E}[Y_i\mid X_i] = \lambda_i$ and automatically respects $\lambda_i > 0$.
+
+\pause
+
+\bigskip
+
+We will see the name outlives the distributional assumption: consistency for $\beta$ needs only the log-linear mean $\log \mathbb{E}[Y\mid X] = X'\beta$. $Y$ need not be integer, and the variance need not equal the mean.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{Why $\exp(X'\beta)$? Invariance}
 
 Positivity is not the only reason. The exponential mean is natural when the \textbf{mechanism} implies scale invariance:\pause
@@ -855,34 +779,27 @@ The choice between $X'\beta$ and $\exp(X'\beta)$ is not just about the data form
 
 \begin{frame}{The Poisson Quasi-Log-Likelihood}
 
-The Poisson log-likelihood for a single observation:
+If $Y_i\mid X_i \sim \text{Poisson}(\lambda_i)$ with $\lambda_i = \exp(X_i'\beta)$, the log-likelihood for one observation is
 \[
 \ell_i(\beta) = Y_i \cdot X_i'\beta - \exp(X_i'\beta) - \log(Y_i!)
 \]
 
 \pause
 
-The score (gradient):
+\textbf{Why ``quasi''?} We maximize this $\ell_i$ even when we do \emph{not} believe $Y$ is Poisson. It is a true likelihood only under the full distributional assumption; otherwise it is simply an \textbf{objective function} borrowed from the Poisson form.
+
+\pause
+
+Score:
 \[
-s_i(\beta) = \left(Y_i - \exp(X_i'\beta)\right) X_i
+s_i(\beta) = \bigl(Y_i - \exp(X_i'\beta)\bigr) X_i
+\qquad\Longrightarrow\qquad
+\boxed{\sum_{i=1}^n X_i\bigl(Y_i - \exp(X_i'\beta)\bigr) = 0}
 \]
 
 \pause
 
-Setting the total score to zero:
-\[
-\boxed{\sum_{i=1}^n X_i\left(Y_i - \exp(X_i'\beta)\right) = 0}
-\]
-
-\pause
-
-\bigskip
-
-Compare to OLS: $\sum X_i(Y_i - X_i'\beta) = 0$.
-
-\medskip
-
-Same structure --- a \textbf{nonlinear moment condition}. No observation-specific weights (unlike probit).
+Compare to OLS: $\sum X_i(Y_i - X_i'\beta) = 0$. Same structure --- a \textbf{nonlinear moment condition}, with no observation-specific weights (unlike probit).
 
 \end{frame}
 
@@ -975,7 +892,7 @@ This is almost \textbf{never correct} in practice. With overdispersion:
 
 \pause
 
-The information matrix equality \textbf{fails} $\Rightarrow$ model-based SEs are wrong.
+When $\operatorname{Var}(Y\mid X) \neq \mathbb{E}[Y \mid X]$, model-based SEs are wrong.
 
 \pause
 
@@ -1130,7 +1047,7 @@ coeftest(probit, vcov = vcovHC(probit, type = "HC1"))
 \bigskip
 
 \begin{itemize}
-    \item Model-based SEs rely on the information matrix equality (correct specification)
+    \item Model-based SEs rely on correct specification of $\Phi$ as the link
     \item Sandwich SEs are valid even under misspecification (QMLE)
     \item If model-based and robust SEs differ substantially, this signals possible misspecification
 \end{itemize}
