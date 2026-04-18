@@ -275,13 +275,17 @@ Y_i = \mathbf{1}\{Y_i^* > 0\}
 
 \pause
 
-Assume $\varepsilon_i \sim N(0,1)$. Then:\pause
+Assume $\varepsilon_i \sim N(0,1)$. Then:
+\pause
 \[
+\begin{aligned}
 P(Y_i=1 \mid X_i)
-=
-P(\varepsilon_i > -X_i'\beta)
-=
-\Phi(X_i'\beta)
+  &= P(Y_i^* > 0 \mid X_i) && \text{(definition of $Y_i$)} \\[2pt]
+  &= P(X_i'\beta + \varepsilon_i > 0 \mid X_i) && \text{(substitute $Y_i^*$)} \\[2pt]
+  &= P(\varepsilon_i > -X_i'\beta \mid X_i) && \text{(rearrange)} \\[2pt]
+  &= 1 - \Phi(-X_i'\beta) && \text{(CDF of } \varepsilon_i\text{)} \\[2pt]
+  &= \Phi(X_i'\beta) && \text{(symmetry of } N(0,1)\text{)}
+\end{aligned}
 \]
 
 \pause
@@ -291,28 +295,143 @@ This is the \textbf{Probit model}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Identification and Scale Normalization}
+\begin{frame}{Where does $Y_i^*$ come from? Random Utility}
 
-In the latent model $Y_i^* = X_i'\beta + \varepsilon_i$, $\varepsilon_i \sim N(0,\sigma^2)$:\pause
+Think of $Y_i^*$ as the difference in utility between two choices.
+
+\pause
+
+Agent $i$ chooses between alternatives $0$ and $1$, with utilities:
 \[
-P(Y_i=1 \mid X_i)
-=
-\Phi\left(\frac{X_i'\beta}{\sigma}\right)
+U_{i1} = X_i'\beta_1 + \varepsilon_{i1}, \qquad
+U_{i0} = X_i'\beta_0 + \varepsilon_{i0}
 \]
 
 \pause
 
-Only $\beta/\sigma$ is identified --- the data cannot distinguish $(\beta, \sigma)$ from $(c\beta, c\sigma)$.
+Agent picks alternative $1$ whenever $U_{i1} > U_{i0}$:
+\[
+Y_i = 1 \iff X_i'(\beta_1 - \beta_0) + (\varepsilon_{i1} - \varepsilon_{i0}) > 0
+\]
 
 \pause
 
-\textbf{Normalization:} Set $\operatorname{Var}(\varepsilon_i) = 1$.
+Define $\beta \equiv \beta_1 - \beta_0$ and $\varepsilon_i \equiv \varepsilon_{i1} - \varepsilon_{i0}$:
+\[
+Y_i^* = X_i'\beta + \varepsilon_i, \qquad Y_i = \mathbf{1}\{Y_i^* > 0\}
+\]
 
 \pause
 
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50, title=Key Point]
-Probit coefficients are identified only up to scale. We cannot interpret $\beta_j$ the same way as in OLS. This is fundamentally different from the linear model.
-\end{tcolorbox}
+\begin{itemize}
+  \item Only the \emph{difference} $\beta_1 - \beta_0$ is identified --- the levels are not.
+  \item $\varepsilon_{ij}$ iid $N(0, \tfrac{1}{2}) \Rightarrow \varepsilon_i \sim N(0,1)$: \textbf{probit}.
+  \item $\varepsilon_{ij}$ iid Type-I extreme value $\Rightarrow \varepsilon_i$ logistic: \textbf{logit}.
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Identification and Scale Normalization}
+
+Now let $\varepsilon_i \sim N(0, \sigma^2)$ with $\sigma$ unknown. Since $\varepsilon_i/\sigma \sim N(0,1)$:
+\pause
+\[
+P(Y_i=1 \mid X_i)
+= P\!\left(\varepsilon_i > -X_i'\beta \mid X_i\right)
+= P\!\left(\frac{\varepsilon_i}{\sigma} > -\frac{X_i'\beta}{\sigma}\right)
+= \Phi\!\left(\frac{X_i'\beta}{\sigma}\right)
+\]
+
+\pause
+
+The likelihood depends on $(\beta, \sigma)$ only through the ratio $\beta/\sigma$: for any $c>0$, $(\beta,\sigma)$ and $(c\beta, c\sigma)$ yield identical $P(Y_i=1 \mid X_i)$ for every $X_i$.
+
+\pause
+
+\textbf{Normalization:} Set $\operatorname{Var}(\varepsilon_i) = 1$. The ``$\beta$'' we estimate is really $\beta/\sigma$ --- identified only up to scale.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Scale Is to Probit What the Intercept Is to OLS}
+
+The non-identification is the scale analog of a familiar location problem.
+
+\pause
+\bigskip
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l|ll}
+ & \textbf{OLS (location)} & \textbf{Probit (scale)} \\ \hline
+Model & $Y = \alpha + X'\beta + \varepsilon$ & $Y^{*} = X'\beta + \varepsilon$,\ $Y=\mathbf{1}\{Y^{*}>0\}$ \\
+Data identify only & $\alpha + E[\varepsilon]$ & $\beta/\sigma$ \\
+Absorbed by & intercept $\alpha$ & coefficients $\beta$ \\
+Normalization & $E[\varepsilon]=0$ & $\operatorname{Var}(\varepsilon)=1$ \\
+\end{tabular}
+\end{center}
+
+\pause
+\bigskip
+
+Shifting the $\varepsilon$ distribution left/right moves the intercept by the same amount; stretching it wider/narrower scales $\beta$ by the same factor. In each case a single nuisance parameter rides along with a coefficient, and we normalize it away.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Picture: Same $P(Y=1\mid X)$, Different $(\beta, \sigma)$}
+
+Two probit DGPs. The data see only the shaded tail $P(\varepsilon_i > -X_i'\beta)$.
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=4.5cm,
+  samples=100,
+  xmin=-6, xmax=6, ymin=0, ymax=0.45,
+  xtick={-1,0}, xticklabels={$-X'\beta$, $0$},
+  ytick=\empty,
+  axis lines=middle,
+  title={$\sigma=1,\ X'\beta=1$}
+]
+\addplot[blue!25, draw=none, domain=-1:5] {exp(-x^2/2)/sqrt(2*pi)} \closedcycle;
+\addplot[blue, thick, domain=-5:5] {exp(-x^2/2)/sqrt(2*pi)};
+\draw[dashed] (axis cs:-1,0) -- (axis cs:-1,0.40);
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.5cm, height=4.5cm,
+  samples=100,
+  xmin=-6, xmax=6, ymin=0, ymax=0.45,
+  xtick={-2,0}, xticklabels={$-X'\beta$, $0$},
+  ytick=\empty,
+  axis lines=middle,
+  title={$\sigma=2,\ X'\beta=2$}
+]
+\addplot[blue!25, draw=none, domain=-2:6] {exp(-x^2/8)/(2*sqrt(2*pi))} \closedcycle;
+\addplot[blue, thick, domain=-6:6] {exp(-x^2/8)/(2*sqrt(2*pi))};
+\draw[dashed] (axis cs:-2,0) -- (axis cs:-2,0.25);
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
+
+\pause
+\medskip
+
+Both shaded areas equal $\Phi(X_i'\beta/\sigma) = \Phi(1)$. Doubling $\sigma$ and $\beta$ together leaves the choice probability unchanged for every $X_i$ --- so the likelihood cannot distinguish them.
 
 \end{frame}
 
