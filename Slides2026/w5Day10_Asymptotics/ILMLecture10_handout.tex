@@ -259,15 +259,48 @@ That is, the random variable concentrates about a point in a certain interval.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{Unpacking the Definition}
+
+\vspace{0.5em}
+\[
+\underbrace{\lim_{n\to\infty}}_{\substack{\text{\textbf{3rd:} take }n\to\infty\\ \text{(after $\delta$ is fixed)}}}\;
+\underbrace{\Pr\!\Big(\,|\,X_n - \underbrace{c}_{\substack{\text{limit}\\\text{value}}}\,|\;\leq\;\underbrace{\delta}_{\substack{\text{tolerance}\\ \text{(fixed first)}}}\Big)}_{\substack{\text{\textbf{2nd:} for each }n,\text{ how often}\\ X_n\text{ lands within }\delta\text{ of }c}}
+\;=\;\underbrace{1}_{\substack{\text{\textbf{4th:} in the limit,}\\ \text{probability }\to 1}}
+\]
+
+\vspace{0.8em}
+\textbf{Order of operations.}
+\begin{enumerate}
+\item \textbf{Pick} a tolerance $\delta>0$ (any positive number, however small).
+\item \textbf{Compute} $\Pr(|X_n-c|\leq\delta)$ at each sample size $n$ --- a sequence of numbers in $[0,1]$.
+\item \textbf{Take} the limit of that sequence as $n\to\infty$.
+\item \textbf{Require} the limit to equal $1$, \emph{for every} $\delta$ you could have picked.
+\end{enumerate}
+
+\vspace{0.3em}
+\alert{Not} a claim that $X_n$ equals $c$, or even that $\Pr(|X_n-c|\leq\delta)=1$ at any finite $n$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{Plim example}
-\begin{itemize}
-\item Define a random variable $Z_n$ that takes on values 0 and $a_n$ with probability $1-p_n$ and $p_n$ respectively, \pause
-\item Intuitively $Z_n$ should converge to 0 if either $p_n\rightarrow 0$ or $a_n\rightarrow 0$.\pause
-\item Consider any $\delta>0$.  If $a_n\rightarrow 0$, then for $n$ large enough, $a_n<\delta$. If so $Pr(|Z_n|\leq \delta)=1$.\pause
-\item If $p_n\rightarrow 0$ then $1-p_n\rightarrow 1$.\pause
-\item  $1-p_n$ of the time $Z_n=0<\delta$, so $Pr(|Z_n|\leq \delta) \geq 1-p_n$\pause
-\item Therefore $Pr(|Z_n|\leq \delta)\rightarrow 1$ as $p_n\rightarrow 0$
-\end{itemize}
+\textbf{Setup.} $Z_n$ takes two values:
+$$Z_n = \begin{cases} 0 & \text{w.p. } 1-p_n \\ a_n & \text{w.p. } p_n \end{cases}$$
+When does $Z_n\overset{p}{\to}0$?  Fix any $\delta>0$ and track $\Pr(|Z_n|\leq\delta)$.\pause
+
+\begin{description}
+\item[Case 1: the spike shrinks, $a_n\to 0$.] \hfill\\
+Eventually $a_n<\delta$, so \emph{both} values of $Z_n$ lie within $\delta$:
+$\Pr(|Z_n|\leq\delta)=1$.\pause
+\item[Case 2: the spike becomes rare, $p_n\to 0$.] \hfill\\
+The mass at $0$ alone already covers $\delta$:
+$\Pr(|Z_n|\leq\delta)\geq 1-p_n\to 1$.
+\end{description}
+\pause
+\begin{tcolorbox}[colback=blue!5,colframe=structure]
+\textbf{Payoff.} $E[Z_n]=p_n a_n$ can diverge (let $a_n=n$, $p_n=1/\sqrt{n}$) while $Z_n\overset{p}{\to}0$. Probability limits and expectations are not the same object.
+\end{tcolorbox}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -430,9 +463,9 @@ E[X] &\geq \int_{a}^{\infty} x f(x) dx  \geq \int_{a}^{\infty} a f(x)dx = a P(X 
   \draw[->, thick, darkgreen] (5.5, 0.55) -- (5.5, 0.15);
 
   % Add annotation
-  \node[right, font=\small] at (6.2, 2.8) {$\displaystyle\int_a^\infty \underbrace{x}_{\geq\, a} f(x)\,dx$};
-  \node[right, font=\small] at (6.2, 1.8) {$\displaystyle\geq\; a \int_a^\infty f(x)\,dx$};
-  \node[right, font=\small] at (6.2, 1.0) {$= a\cdot P(X \geq a)$};
+  \node[right, font=\small] at (6.2, 3.3) {$\displaystyle\int_a^\infty \underbrace{x}_{\geq\, a} f(x)\,dx$};
+  \node[right, font=\small] at (6.2, 2.0) {$\displaystyle\geq\; a \int_a^\infty f(x)\,dx$};
+  \node[right, font=\small] at (6.2, 0.8) {$= a\cdot P(X \geq a)$};
 
 \end{tikzpicture}
 \end{center}
@@ -680,10 +713,30 @@ $1/n^2 = o(1/n)$ & $\frac{1/n^2}{1/n} = 1/n \to 0$ \checkmark & $1/n^2$ vanishes
 \end{tabular}
 \renewcommand{\arraystretch}{1.0}
 
-\pause
-\medskip
+\end{frame}
 
-When we write $f(x) = g(x) + O(x^3)$, the leftover terms are at most on the order of $x^3$. With $x = t/\sqrt n$, that is $O(n^{-3/2})$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Taylor Expansion: A Review}
+
+For a smooth function $f$ and a point $a$, the Taylor series expresses $f(x)$ near $a$ using the derivatives of $f$ at $a$:
+\[
+f(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(a)}{k!}(x-a)^k = f(a) + f'(a)(x-a) + \tfrac{1}{2}f''(a)(x-a)^2 + \cdots
+\]
+
+\pause
+
+\textbf{Truncating.} Keep the first $K{+}1$ terms; collect the rest as a remainder:
+\[
+f(x) \;=\; \underbrace{\sum_{k=0}^{K} \frac{f^{(k)}(a)}{k!}(x-a)^k}_{\text{polynomial approximation}} \;+\; \underbrace{R_K(x)}_{\text{remainder, shrinks as }x\to a}
+\]
+
+\pause
+
+\textbf{Example.} $f(x) = \ln(1+x)$ at $a = 0$, with $f'(0)=1,\ f''(0)=-1,\ f'''(0)=2,\ldots$:
+\[
+\ln(1+x) \;=\; x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + \cdots
+\]
 
 \end{frame}
 
@@ -746,13 +799,16 @@ $o_p(1)$ in a proof denotes a term that vanishes in probability. \textit{HW4 Q7:
 \begin{frame}{Slutsky's Lemma: Combining $\overset{p}{\to}$ and $\overset{d}{\to}$}
 
 \begin{prop}[Slutsky's Lemma]
-If $X_n \overset{d}{\to} X$ and $Y_n \overset{p}{\to} c$, then
-$X_n + Y_n \overset{d}{\to} X + c$, $\;X_n Y_n \overset{d}{\to} cX$, and $X_n/Y_n \overset{d}{\to} X/c$ (if $c\neq 0$).
+Suppose $X_n \overset{d}{\to} X$ and $Y_n \overset{p}{\to} c$ (a constant). Then
+\begin{itemize}\setlength\itemsep{1pt}
+\item $X_n + Y_n \overset{d}{\to} X + c$
+\item $X_n Y_n \overset{d}{\to} c\,X$
+\item $X_n / Y_n \overset{d}{\to} X/c$ \quad (if $c\neq 0$)
+\end{itemize}
+A random limit for $Y_n$ is \emph{not} enough --- it must settle on a constant.
 \end{prop}
 
 \textbf{Special case.} If $R_n = o_p(1)$, then $X_n + R_n \overset{d}{\to} X$ --- an $o_p(1)$ remainder cannot affect a limiting distribution.
-
-\medskip
 
 The recipe: $\sqrt{n}(\hat\theta - \theta) = \underbrace{\textnormal{(CLT term)}}_{\overset{d}{\to}\,N} + \underbrace{R_n}_{o_p(1)}$. Slutsky discards $R_n$.
 
