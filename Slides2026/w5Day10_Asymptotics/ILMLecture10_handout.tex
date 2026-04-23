@@ -1,5 +1,5 @@
 
-\documentclass[aspectratio=169, handout]{beamer}
+\documentclass[handout, aspectratio=169]{beamer}
 
 %\usepackage[table]{xcolor}
 \mode<presentation> {
@@ -909,55 +909,126 @@ $$Z_n=\sqrt{n}(\bar{X}_n-\mu)$$
 \begin{frame}{The Central Limit Theorem}
 
 \begin{thm}[Lindeberg--L\'evy CLT]
-Let $X_1, X_2, \ldots$ be iid with $\mathbb{E}[X_i] = \mu$ and $\operatorname{Var}(X_i) = \sigma^2 < \infty$. Then:
+Let $X_1, X_2, \ldots$ be iid with $\mathbb{E}[X_i] = \mu$ and $\operatorname{Var}(X_i) = \sigma^2 < \infty$. Then
 \[
-\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0, \sigma^2)
+\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0, \sigma^2).
 \]
-Equivalently: $\frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \overset{d}{\to} N(0, 1)$.
+Equivalently, $\displaystyle \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \overset{d}{\to} N(0, 1)$.
 \end{thm}
 
 \pause
 
-\textbf{Key conditions:}
-\begin{itemize}
-    \item \textbf{iid} --- can be relaxed (Lindeberg--Feller allows heterogeneity)
-    \item \textbf{Finite variance} --- essential; without it, convergence may fail or be to a non-normal limit
-\end{itemize}
+\medskip
 
-\pause
-
-The limit distribution is $N(0,\sigma^2)$ regardless of the distribution of $X_i$ --- Bernoulli, exponential, or uniform data all yield an approximately normal sample mean for large $n$. \textit{(HW4 Q4(e) applies this to an influence-function average $\psi(Z_i)$.)}
+In words: once rescaled by $\sqrt n$, the sample mean has an approximately normal sampling distribution for large $n$ --- no matter what distribution the data were drawn from.
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Sketch of the CLT Proof}
+\begin{frame}{CLT: Conditions and Universality}
 
-\textbf{Goal.} Show $M_{Z_n}(t) \to e^{t^2/2}$ for $Z_n = \tfrac{\sqrt n\,(\bar X_n - \mu)}{\sigma}$. The continuity theorem then gives $Z_n \overset{d}{\to} N(0,1)$.
+\textbf{What is required:}
+\begin{itemize}
+    \item \textbf{iid} --- can be relaxed (Lindeberg--Feller allows heterogeneity).
+    \item \textbf{Finite variance} --- essential; without it, convergence may fail or be to a non-normal limit (stable laws).
+\end{itemize}
+
+\pause
 
 \medskip
 
-Standardize $W_i = (X_i - \mu)/\sigma$ so $\mathbb{E}[W_i]=0,\ \mathbb{E}[W_i^2]=1$, and $Z_n = \tfrac{1}{\sqrt n}\sum_i W_i$. By independence,
+\textbf{Universality.} The limit is $N(0,\sigma^2)$ regardless of the distribution of $X_i$: Bernoulli, exponential, or uniform data all yield an approximately normal sample mean for large $n$. Only $\mu$ and $\sigma^2$ enter the limit.
+
+\pause
+
+\medskip
+
+\textit{HW4 Q4(e) applies this to an influence-function average $\psi(Z_i)$.}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sketch of the CLT Proof: Setup}
+
+\textbf{Goal.} Show $M_{Z_n}(t) \to e^{t^2/2}$ for $Z_n = \dfrac{\sqrt n\,(\bar X_n - \mu)}{\sigma}$. The MGF continuity theorem then gives $Z_n \overset{d}{\to} N(0,1)$.
+
+\pause
+
+\medskip
+
+\textbf{Standardize.} Let $W_i = (X_i - \mu)/\sigma$. Then
 \[
-M_{Z_n}(t) = \bigl[M_W(t/\sqrt n)\bigr]^n.
+\mathbb{E}[W_i] = 0, \qquad \mathbb{E}[W_i^2] = 1, \qquad Z_n = \tfrac{1}{\sqrt n}\sum_{i=1}^n W_i.
 \]
 
 \pause
 
-Taylor-expand $M_W$ around $0$, using $M_W(0)=1,\ M_W'(0)=\mathbb{E}[W]=0,\ M_W''(0)=\mathbb{E}[W^2]=1$:
+\medskip
+
+\textbf{Factor via independence.} Since the $W_i$ are iid, the MGF of the sum factors:
 \[
-M_W(s) = 1 + \tfrac{1}{2}s^2 + O(s^3) \;\;\Longrightarrow\;\;
-M_W\!\bigl(t/\sqrt n\bigr) = 1 + \tfrac{t^2}{2n} + O(n^{-3/2}).
+M_{Z_n}(t) \;=\; \mathbb{E}\!\left[\exp\!\Big(\tfrac{t}{\sqrt n}\sum_i W_i\Big)\right] \;=\; \bigl[M_W(t/\sqrt n)\bigr]^n.
+\]
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sketch of the CLT Proof: Taylor-Expand the MGF}
+
+Taylor-expand $M_W(s)$ around $s=0$:
+\[
+M_W(s) \;=\; M_W(0) + M_W'(0)\,s + \tfrac{1}{2}M_W''(0)\,s^2 + O(s^3).
 \]
 
 \pause
 
-Raise to the $n$-th power and apply the exponential limit:
+\medskip
+
+Evaluate the derivatives using the moment identities $M_W^{(k)}(0) = \mathbb{E}[W^k]$:
 \[
-M_{Z_n}(t) = \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
+M_W(0) = 1, \qquad M_W'(0) = \mathbb{E}[W] = 0, \qquad M_W''(0) = \mathbb{E}[W^2] = 1.
 \]
-\textit{Recipe: Taylor-expand the MGF, raise to $n$ via independence, take the exponential limit.}
+Hence $M_W(s) = 1 + \tfrac{1}{2}s^2 + O(s^3).$
+
+\pause
+
+\medskip
+
+Plug in $s = t/\sqrt n$:
+\[
+M_W\!\bigl(t/\sqrt n\bigr) \;=\; 1 + \frac{t^2}{2n} + O(n^{-3/2}).
+\]
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sketch of the CLT Proof: Exponential Limit}
+
+Raise to the $n$-th power:
+\[
+M_{Z_n}(t) \;=\; \bigl[M_W(t/\sqrt n)\bigr]^n \;=\; \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n.
+\]
+
+\pause
+
+\medskip
+
+Apply the exponential limit $(1 + x/n)^n \to e^x$. The $O(n^{-3/2})$ term vanishes faster than $1/n$, so it drops out:
+\[
+M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
+\]
+
+\pause
+
+\medskip
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Recipe.} Taylor-expand the MGF, raise to the $n$-th power via independence, take the exponential limit.
+\end{tcolorbox}
 
 \end{frame}
 
