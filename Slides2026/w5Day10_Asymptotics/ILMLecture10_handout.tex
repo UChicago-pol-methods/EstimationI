@@ -817,49 +817,6 @@ The recipe: $\sqrt{n}(\hat\theta - \theta) = \underbrace{\textnormal{(CLT term)}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Mathematical Tools for the CLT}
-\setcounter{subsection}{1}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Taylor Approximation}
-
-We know $f(a)$ and its derivatives at $a$, and want to approximate $f(b)$ for $b$ near $a$. Build the approximation one derivative at a time:
-\[
-f(b) = f(a) + f'(a)(b-a) + \tfrac{1}{2}f''(a)(b-a)^2 + O\!\bigl((b-a)^3\bigr).
-\]
-The $O((b-a)^3)$ remainder shrinks fast: if $b-a = t/\sqrt n$, then $(b-a)^2 = t^2/n$ and $(b-a)^3 = O(n^{-3/2})$ --- negligible compared to the first two terms.
-
-\begin{center}
-\includegraphics[width=3.2in]{approx.png}
-\end{center}
-
-\textit{The delta method uses the first-order expansion; the CLT proof uses the second-order expansion of the MGF.}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Three Tools the CLT Proof Will Need}
-
-\textbf{1.~Taylor expansion (2nd order):} $f(b) = f(a) + f'(a)(b-a) + \tfrac{1}{2}f''(a)(b-a)^2 + O\!\bigl((b-a)^3\bigr).$ For $b-a = t/\sqrt n$, the $O$ term is $O(n^{-3/2})$.
-
-\medskip
-
-\textbf{2.~Exponential limit:} $(1 + x/n)^n \to e^x$. (Take logs, Taylor-expand $\ln(1+x/n)$, multiply by $n$.)
-
-\medskip
-
-\textbf{3.~Moment generating function:} $M_X(t) = \mathbb{E}[e^{tX}]$. Three properties we use:
-\begin{itemize}\setlength\itemsep{1pt}
-  \item $M_X^{(k)}(0) = \mathbb{E}[X^k]$ (Taylor expansion in $t$ generates moments).
-  \item Independence: $M_{X_1+\cdots+X_n}(t) = [M_X(t)]^n$ for iid sums.
-  \item Continuity: $M_{X_n}(t)\to M_X(t)$ near $0$ $\Rightarrow X_n \overset{d}{\to} X$.
-\end{itemize}
-\textit{Target: $Z\sim N(0,1) \Rightarrow M_Z(t) = e^{t^2/2}$. CLT proof shows the MGF of the standardized sample mean converges to this.}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Central Limit Theory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -950,87 +907,7 @@ In words: once rescaled by $\sqrt n$, the sample mean has an approximately norma
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Sketch of the CLT Proof: Setup}
-
-\textbf{Goal.} Show $M_{Z_n}(t) \to e^{t^2/2}$ for $Z_n = \dfrac{\sqrt n\,(\bar X_n - \mu)}{\sigma}$. The MGF continuity theorem then gives $Z_n \overset{d}{\to} N(0,1)$.
-
-\pause
-
-\medskip
-
-\textbf{Standardize.} Let $W_i = (X_i - \mu)/\sigma$. Then
-\[
-\mathbb{E}[W_i] = 0, \qquad \mathbb{E}[W_i^2] = 1, \qquad Z_n = \tfrac{1}{\sqrt n}\sum_{i=1}^n W_i.
-\]
-
-\pause
-
-\medskip
-
-\textbf{Factor via independence.} Since the $W_i$ are iid, the MGF of the sum factors:
-\[
-M_{Z_n}(t) \;=\; \mathbb{E}\!\left[\exp\!\Big(\tfrac{t}{\sqrt n}\sum_i W_i\Big)\right] \;=\; \bigl[M_W(t/\sqrt n)\bigr]^n.
-\]
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Sketch of the CLT Proof: Taylor-Expand the MGF}
-
-Taylor-expand $M_W(s)$ around $s=0$:
-\[
-M_W(s) \;=\; M_W(0) + M_W'(0)\,s + \tfrac{1}{2}M_W''(0)\,s^2 + O(s^3).
-\]
-
-\pause
-
-\medskip
-
-Evaluate the derivatives using the moment identities $M_W^{(k)}(0) = \mathbb{E}[W^k]$:
-\[
-M_W(0) = 1, \qquad M_W'(0) = \mathbb{E}[W] = 0, \qquad M_W''(0) = \mathbb{E}[W^2] = 1.
-\]
-Hence $M_W(s) = 1 + \tfrac{1}{2}s^2 + O(s^3).$
-
-\pause
-
-\medskip
-
-Plug in $s = t/\sqrt n$:
-\[
-M_W\!\bigl(t/\sqrt n\bigr) \;=\; 1 + \frac{t^2}{2n} + O(n^{-3/2}).
-\]
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Sketch of the CLT Proof: Exponential Limit}
-
-Raise to the $n$-th power:
-\[
-M_{Z_n}(t) \;=\; \bigl[M_W(t/\sqrt n)\bigr]^n \;=\; \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n.
-\]
-
-\pause
-
-\medskip
-
-Apply the exponential limit $(1 + x/n)^n \to e^x$. The $O(n^{-3/2})$ term vanishes faster than $1/n$, so it drops out:
-\[
-M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
-\]
-
-\pause
-
-\medskip
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Recipe.} Taylor-expand the MGF, raise to the $n$-th power via independence, take the exponential limit.
-\end{tcolorbox}
-
-\end{frame}
+% [Sketch of the CLT Proof frames moved to Lecture 11]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1149,13 +1026,11 @@ CLT & $\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0,\sigma^2)$ & Asymptotic no
 
 \pause
 
-\textbf{The CLT proof brought together:}
-\begin{enumerate}
-\item Taylor expansion of the MGF (second-order approximation)
-\item $O(\cdot)$ notation to track the remainder
-\item The exponential limit $(1 + x/n)^n \to e^x$
-\item MGF continuity theorem to conclude convergence in distribution
-\end{enumerate}
+\textbf{What we are taking on faith (proved next lecture):}
+\begin{itemize}
+\item The CLT itself. To prove it we need \emph{moment generating functions} --- an intuitive but nontrivial tool that deserves its own treatment. We will slow down on it at the start of Lecture 11.
+\item For today: treat $\sqrt n(\bar X_n - \mu) \overset{d}{\to} N(0,\sigma^2)$ as a given and use it.
+\end{itemize}
 
 \end{frame}
 
@@ -1163,17 +1038,21 @@ CLT & $\sqrt{n}(\bar{X}_n - \mu) \overset{d}{\to} N(0,\sigma^2)$ & Asymptotic no
 
 \begin{frame}{Looking Ahead}
 
-\textbf{Lecture 11} introduces the \textbf{Delta Method} and applies all of today's tools to OLS:
+\textbf{Lecture 11} finishes the CLT proof and then applies today's tools to OLS:
 \begin{itemize}
-    \item \textbf{Delta Method}: Taylor expansion + CLT $\Rightarrow$ distribution of $h(\hat\beta)$
-    \item \textbf{Consistency}: WLLN $\Rightarrow$ $\frac{1}{n}\bm{X'X} \overset{p}{\to} Q_{XX}$, CMT $\Rightarrow$ $\hat\beta \overset{p}{\to} \beta$
-    \item \textbf{Asymptotic normality}: Multivariate CLT $\Rightarrow$ $\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} N(0, V_\beta)$
-    \item \textbf{Wald tests}: Delta method $\Rightarrow$ test nonlinear hypotheses about $\beta$
+    \item \textbf{Moment generating functions}: definition, intuition, and how to recover moments (with a worked example).
+    \item \textbf{Sketch of the CLT proof} via MGFs: factor via independence, Taylor-expand, take the exponential limit.
+    \item \textbf{Delta Method}: Taylor expansion + CLT $\Rightarrow$ distribution of $h(\hat\beta)$.
+    \item \textbf{Consistency}: WLLN $\Rightarrow$ $\frac{1}{n}\bm{X'X} \overset{p}{\to} Q_{XX}$, CMT $\Rightarrow$ $\hat\beta \overset{p}{\to} \beta$.
+    \item \textbf{Asymptotic normality}: Multivariate CLT $\Rightarrow$ $\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} N(0, V_\beta)$.
+    \item \textbf{Wald tests}: Delta method $\Rightarrow$ test nonlinear hypotheses about $\beta$.
 \end{itemize}
 
-\pause
+\end{frame}
 
-\bigskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Looking Ahead: Probit Justified}
 
 \textbf{These tools also justify what we did informally in Lecture 9 (Probit):}
 \begin{itemize}

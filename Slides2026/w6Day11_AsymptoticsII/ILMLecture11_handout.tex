@@ -18,6 +18,7 @@
 \useinnertheme{rectangles}
 }
 \usepackage{amsmath}
+\providecommand{\Var}{\mathrm{Var}}
 \usepackage{tcolorbox}
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{structure}{fg= blue}
@@ -104,6 +105,367 @@ text}{fg=red}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Finishing the CLT: Moment Generating Functions}
+\setcounter{subsection}{1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Where We Left Off}
+
+\textbf{Last lecture.} Stated the CLT:
+\[
+\sqrt n\,(\bar X_n - \mu) \;\overset{d}{\to}\; N(0,\sigma^2).
+\]
+True for any iid sample with finite variance; we did not prove it.
+
+\pause
+
+\medskip
+
+\textbf{Today.} The proof requires one tool we have not developed: the \textbf{moment generating function}. We will:
+\begin{enumerate}\setlength\itemsep{2pt}
+\item Define the MGF and work a complete example.
+\item Sketch the CLT proof in three steps.
+\item Turn to the delta method and OLS asymptotics.
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{What Is a Moment Generating Function?}
+
+\begin{defn}[Moment generating function]
+For a random variable $X$,
+\[
+M_X(t) \;\equiv\; \mathbb{E}\!\bigl[e^{tX}\bigr] \;=\; \int e^{tx}\,f(x)\,dx,
+\]
+defined for $t$ in some open interval around $0$ where the expectation is finite.
+\end{defn}
+
+\pause
+
+\medskip
+
+\textbf{Two facts make the MGF useful.}
+\begin{enumerate}\setlength\itemsep{6pt}
+\item Its derivatives at $0$ are the moments: $M_X^{(k)}(0) = \mathbb{E}[X^k]$ (next slide).
+\item For independent $X$ and $Y$, $M_{X+Y}(t) = M_X(t)\,M_Y(t)$.
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Example: The Distribution of a Sum (Two Fair Dice)}
+
+\textbf{Setup.} Independent rolls $X, Y$, each uniform on $\{1, 2, \ldots, 6\}$. What is the pmf of $X + Y$?
+
+\pause
+
+\medskip
+
+\textbf{Count pairs.} Each of the $36$ pairs $(x, y)$ is equally likely. For each possible sum $s$, count the pairs with $x + y = s$:
+\[
+\begin{array}{c|ccccccccccc}
+s & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\\hline
+\#\text{pairs} & 1 & 2 & 3 & 4 & 5 & 6 & 5 & 4 & 3 & 2 & 1 \\
+\end{array}
+\]
+So $p_{X+Y}(s) = \#\text{pairs}/36$. Triangular, peaked at $7$.
+
+\pause
+
+\medskip
+
+\textbf{The formula.} The count at $s$ is the number of ways $X = x$ can pair with $Y = s - x$, weighted by their joint pmf:
+\[
+p_{X+Y}(s) \;=\; \sum_x\, p_X(x)\,p_Y(s - x).
+\]
+This is the \textbf{convolution} of the two pmfs. For continuous $X, Y$, replace the sum with an integral.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why the Product Property Matters}
+
+For continuous $X, Y$, the convolution is an integral with the same structure:
+\[
+f_{X+Y}(s) \;=\; \int f_X(x)\,f_Y(s - x)\,dx.
+\]
+
+\pause
+
+\medskip
+
+This integral is awkward to compute once, and worse to iterate $n$ times for a sum $X_1 + \cdots + X_n$.
+
+\pause
+
+\medskip
+
+In MGF terms, the same computation is just a product:
+\[
+M_{X_1 + \cdots + X_n}(t) \;=\; M_{X_1}(t)\cdots M_{X_n}(t).
+\]
+The CLT proof exploits this at every step.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why ``Moment Generating''? (1 of 2)}
+
+\textbf{Taylor-expand $e^{tX}$ in powers of $t$:}
+\[
+e^{tX} \;=\; 1 + tX + \frac{(tX)^2}{2!} + \frac{(tX)^3}{3!} + \cdots
+\]
+
+\pause
+
+\medskip
+
+\textbf{Take expectations term by term} (valid whenever the MGF exists near $0$):
+\[
+M_X(t) \;=\; \mathbb{E}[e^{tX}] \;=\; 1 + t\,\mathbb{E}[X] + \frac{t^2}{2!}\mathbb{E}[X^2] + \frac{t^3}{3!}\mathbb{E}[X^3] + \cdots
+\]
+
+\pause
+
+\medskip
+
+This is a power series in $t$ whose coefficients are the moments $\mathbb{E}[X^k]/k!$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why ``Moment Generating''? (2 of 2)}
+
+\textbf{Compare to the ordinary Taylor series of $M_X$ at $0$:}
+\[
+M_X(t) \;=\; M_X(0) + M_X'(0)\,t + \frac{M_X''(0)}{2!}\,t^2 + \frac{M_X'''(0)}{3!}\,t^3 + \cdots
+\]
+
+\pause
+
+\medskip
+
+Two power series in $t$ for the same function must have equal coefficients. Match them:
+\[
+\boxed{\;M_X^{(k)}(0) \;=\; \mathbb{E}[X^k]\; \text{ for every } k \geq 0.\;}
+\]
+
+\pause
+
+\medskip
+
+Differentiating $M_X$ at $0$ pulls out the moment of order $k$ --- that is why ``moment generating.'' One analytic function encodes the entire sequence of moments.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Worked Example: Exponential($\lambda$)}
+
+\textbf{Setup.} $X \sim \text{Exp}(\lambda)$, density $f(x) = \lambda e^{-\lambda x}$ for $x \geq 0$. We know $\mathbb{E}[X] = 1/\lambda$. \emph{Recover it from the MGF.}
+
+\pause
+
+\medskip
+
+\textbf{Step 1 --- Compute the MGF.}
+\[
+M_X(t) \;=\; \int_0^\infty e^{tx}\,\lambda e^{-\lambda x}\,dx
+\;=\; \lambda\int_0^\infty e^{-(\lambda-t)x}\,dx
+\;=\; \frac{\lambda}{\lambda - t},\qquad t < \lambda.
+\]
+
+\pause
+
+\medskip
+
+\textbf{Step 2 --- Differentiate at $0$.}
+\[
+M_X'(t) \;=\; \frac{\lambda}{(\lambda-t)^2}
+\qquad\Longrightarrow\qquad
+M_X'(0) \;=\; \frac{1}{\lambda} \;=\; \mathbb{E}[X]. \;\;\checkmark
+\]
+
+\pause
+
+\medskip
+
+No integration of $x\,f(x)$: we computed the MGF once and read the mean off the derivative at $0$. Higher moments work the same way.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Worked Example: Standard Normal}
+
+\textbf{Setup.} $Z \sim N(0,1)$ has MGF (derive once and commit to memory)
+\[
+M_Z(t) \;=\; \mathbb{E}[e^{tZ}] \;=\; e^{t^2/2}.
+\]
+\emph{This is the target of the CLT proof.} Every step of the proof tries to show $M_{Z_n}(t) \to e^{t^2/2}$.
+
+\pause
+
+\medskip
+
+\textbf{Pull off moments by differentiation.}
+\begin{align*}
+M_Z'(t) &= t\,e^{t^2/2}, & M_Z'(0) &= 0 = \mathbb{E}[Z]. \\
+M_Z''(t) &= (1 + t^2)\,e^{t^2/2}, & M_Z''(0) &= 1 = \mathbb{E}[Z^2]. \\
+M_Z'''(t) &= (3t + t^3)\,e^{t^2/2}, & M_Z'''(0) &= 0 = \mathbb{E}[Z^3]. \\
+M_Z^{(4)}(t) &= (3 + 6t^2 + t^4)\,e^{t^2/2}, & M_Z^{(4)}(0) &= 3 = \mathbb{E}[Z^4].
+\end{align*}
+
+\pause
+
+\emph{Odd moments vanish (symmetry); even moments are $1, 3, 15, 105, \ldots$. One function $e^{t^2/2}$ encodes all of them.}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Why MGFs Are the Right Tool for Sums}
+
+\textbf{The key property.} If $X \perp Y$, then
+\[
+M_{X+Y}(t) = \mathbb{E}[e^{t(X+Y)}] = \mathbb{E}[e^{tX}\,e^{tY}]
+\stackrel{\perp}{=} \mathbb{E}[e^{tX}]\,\mathbb{E}[e^{tY}]
+= M_X(t)\,M_Y(t).
+\]
+For an iid sum $S_n = X_1 + \cdots + X_n$: \quad $M_{S_n}(t) = \bigl[M_X(t)\bigr]^n.$
+
+\pause
+
+\medskip
+
+\textbf{Compare the density domain.} Adding independent RVs convolves densities, $f_{X+Y}(z) = \int f_X(x)\,f_Y(z-x)\,dx$ --- a painful integral. In the MGF domain, a product.
+
+\pause
+
+\medskip
+
+\emph{This is why the CLT proof uses MGFs:} sums $\to$ products $\to$ powers $\to$ something we can Taylor-expand.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The MGF Continuity Theorem}
+
+\begin{thm}[L\'evy continuity, MGF version]
+Suppose $M_{X_n}(t) \to M_X(t)$ for every $t$ in some open interval around $0$, and $M_X$ is the MGF of a proper distribution. Then $X_n \overset{d}{\to} X.$
+\end{thm}
+
+\pause
+
+\medskip
+
+\textbf{Why we need this.} Convergence of CDFs is hard to show directly; MGFs are analytic. The theorem lets us work at the level of MGFs and \emph{conclude} convergence in distribution for free.
+
+\pause
+
+\medskip
+
+\textbf{The plan for the CLT proof.}
+\begin{enumerate}\setlength\itemsep{1pt}
+\item Standardize the sample mean as $Z_n$; compute $M_{Z_n}(t)$ via the factorization property.
+\item Show $M_{Z_n}(t) \to e^{t^2/2}$.
+\item Continuity theorem $\Rightarrow Z_n \overset{d}{\to} N(0,1)$.
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sketch of the CLT Proof: Setup}
+
+\textbf{Goal.} Show $M_{Z_n}(t) \to e^{t^2/2}$ for $Z_n = \dfrac{\sqrt n\,(\bar X_n - \mu)}{\sigma}$. The MGF continuity theorem then gives $Z_n \overset{d}{\to} N(0,1)$.
+
+\pause
+
+\medskip
+
+\textbf{Standardize.} Let $W_i = (X_i - \mu)/\sigma$. Then
+\[
+\mathbb{E}[W_i] = 0, \qquad \mathbb{E}[W_i^2] = 1, \qquad Z_n = \tfrac{1}{\sqrt n}\sum_{i=1}^n W_i.
+\]
+
+\pause
+
+\medskip
+
+\textbf{Factor via independence.} Since the $W_i$ are iid, the MGF of the sum factors (previous slide):
+\[
+M_{Z_n}(t) \;=\; \mathbb{E}\!\left[\exp\!\Big(\tfrac{t}{\sqrt n}\sum_i W_i\Big)\right] \;=\; \bigl[M_W(t/\sqrt n)\bigr]^n.
+\]
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sketch of the CLT Proof: Taylor-Expand the MGF}
+
+Taylor-expand $M_W(s)$ around $s=0$:
+\[
+M_W(s) \;=\; M_W(0) + M_W'(0)\,s + \tfrac{1}{2}M_W''(0)\,s^2 + O(s^3).
+\]
+
+\pause
+
+\medskip
+
+Evaluate the derivatives using the moment identities $M_W^{(k)}(0) = \mathbb{E}[W^k]$ (two slides back):
+\[
+M_W(0) = 1, \qquad M_W'(0) = \mathbb{E}[W] = 0, \qquad M_W''(0) = \mathbb{E}[W^2] = 1.
+\]
+Hence $M_W(s) = 1 + \tfrac{1}{2}s^2 + O(s^3).$
+
+\pause
+
+\medskip
+
+Plug in $s = t/\sqrt n$:
+\[
+M_W\!\bigl(t/\sqrt n\bigr) \;=\; 1 + \frac{t^2}{2n} + O(n^{-3/2}).
+\]
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Sketch of the CLT Proof: Exponential Limit}
+
+Raise to the $n$-th power (independence):
+\[
+M_{Z_n}(t) \;=\; \bigl[M_W(t/\sqrt n)\bigr]^n \;=\; \left[1 + \frac{t^2/2}{n} + O(n^{-3/2})\right]^n.
+\]
+
+\pause
+
+\medskip
+
+Apply the exponential limit $(1 + x/n)^n \to e^x$. The $O(n^{-3/2})$ term vanishes faster than $1/n$, so it drops out:
+\[
+M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
+\]
+
+\pause
+
+\medskip
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{The whole proof on one line.} Taylor-expand the MGF, raise to the $n$-th power via independence, take the exponential limit, and invoke continuity.
+\end{tcolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Delta Method}
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,19 +512,57 @@ For now, take this as given. Once $\bm{b}$ is approximately normal, we can ask: 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{The Delta Method}
-\begin{itemize}
-\item Define a $J\times K$ matrix of partial derivatives across $J$ functions and $K$ variables.
-\begin{align*}
-\bm{C}(\bm{b})&=\frac{\partial \bm{f(b)}}{\partial \bm{b}'}\\
-\text{plim}\bm{C}(\bm{b})&=\text{plim}\frac{\partial \bm{f(b)}}{\partial \bm{b}'}\\
-&=\frac{\partial \bm{f(\beta)}}{\partial \bm{\beta}'}\equiv \bm{\Gamma} \tag{Slutsky}
-\end{align*}
-\item The Taylor approximation from $\bm{\beta}$ to $\bm{b}$ is then
-$$\bm{f(b)}=\bm{f}(\bm{\beta})+\bm{\Gamma}\times(\bm{b}-\bm{\beta})+O_p(n^{-1})$$\pause
-\item The asymptotic distribution is: $\bm{f(b)}\overset{a}{\sim} N(\bm{f}(\bm{\beta}),\ \bm{\Gamma}[\text{Asy. Var}(\bm{b}-\bm{\beta})]\bm{\Gamma}')$\pause
-\item Estimate this approximation with $\bm{C}[s^2(\bm{X}'\bm{X})^{-1}]\bm{C}'$. \textit{(HW4 Q1b: $g(x)=e^x \Rightarrow \sigma^2 e^{2\mu}$.)}
-\end{itemize}
+\begin{frame}{The Delta Method: Linearization}
+
+\textbf{The Jacobian.} For a smooth $\bm{f}: \mathbb{R}^K \to \mathbb{R}^J$, define the $J\times K$ matrix of partial derivatives
+\[
+\bm{C}(\bm{b}) \;=\; \frac{\partial \bm{f}(\bm{b})}{\partial \bm{b}'}.
+\]
+
+\pause
+
+\medskip
+
+\textbf{Evaluate at the truth.} Consistency of $\bm{b}$ plus continuity of $\bm{C}$:
+\[
+\operatorname{plim}\bm{C}(\bm{b}) \;=\; \frac{\partial \bm{f}(\bm{\beta})}{\partial \bm{\beta}'} \;\equiv\; \bm{\Gamma}. \qquad\text{(Slutsky)}
+\]
+
+\pause
+
+\medskip
+
+\textbf{First-order Taylor expansion} from $\bm{\beta}$ to $\bm{b}$:
+\[
+\bm{f}(\bm{b}) \;=\; \bm{f}(\bm{\beta}) \;+\; \bm{\Gamma}\,(\bm{b} - \bm{\beta}) \;+\; O_p(n^{-1}).
+\]
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{The Delta Method: Asymptotic Distribution}
+
+Combine the Taylor expansion with $\bm{b} \overset{a}{\sim} N(\bm{\beta},\ \operatorname{Asy.Var}(\bm{b}))$:
+\[
+\bm{f}(\bm{b}) \;\overset{a}{\sim}\; N\!\Bigl(\bm{f}(\bm{\beta}),\; \bm{\Gamma}\,[\operatorname{Asy.Var}(\bm{b})]\,\bm{\Gamma}'\Bigr).
+\]
+
+\pause
+
+\medskip
+
+\textbf{Estimator.} Plug in $\bm{C}(\hat{\bm{\beta}})$ and the estimated variance of $\hat{\bm{\beta}}$:
+\[
+\widehat{\operatorname{Asy.Var}}\bigl(\bm{f}(\hat{\bm{\beta}})\bigr) \;=\; \bm{C}(\hat{\bm{\beta}})\,\bigl[s^2(\bm{X}'\bm{X})^{-1}\bigr]\,\bm{C}(\hat{\bm{\beta}})'.
+\]
+
+\pause
+
+\medskip
+
+\textit{HW4 Q1(b) is the scalar case: $g(x) = e^x$ gives $[g'(\mu)]^2\sigma^2 = \sigma^2 e^{2\mu}$.}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -206,24 +606,61 @@ Log-log gasoline demand with lagged consumption,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Delta Method for the Long-Run Elasticities}
+\begin{frame}{Delta Method for Long-Run Elasticities: Partials}
 
-Stack the two long-run elasticities as $\bm{f}(\bm{\beta}) = \bigl(\beta_2/(1-\beta_4),\ \beta_3/(1-\beta_4)\bigr)'$. The gradient is
+Stack the two long-run elasticities as a vector-valued function of $\bm\beta = (\beta_1, \beta_2, \beta_3, \beta_4)'$:
 \[
-\bm{C}(\bm{\beta}) = \frac{\partial \bm{f}}{\partial \bm{\beta}'} =
+\bm{f}(\bm\beta) \;=\; \begin{pmatrix} f_1(\bm\beta) \\ f_2(\bm\beta) \end{pmatrix}
+\;=\; \begin{pmatrix} \beta_2/(1-\beta_4) \\ \beta_3/(1-\beta_4) \end{pmatrix}.
+\]
+
+\pause
+
+\medskip
+
+\textbf{Partials of $f_1 = \beta_2/(1-\beta_4)$:}
+\begin{itemize}\setlength\itemsep{2pt}
+\item $\partial f_1 / \partial \beta_1 = 0$ --- intercept does not enter.
+\item $\partial f_1 / \partial \beta_2 = 1/(1-\beta_4)$ --- $f_1$ is linear in $\beta_2$ with that slope.
+\item $\partial f_1 / \partial \beta_3 = 0$ --- $\beta_3$ does not enter.
+\item $\partial f_1 / \partial \beta_4 = \beta_2/(1-\beta_4)^2$ --- chain rule on $1/(1-\beta_4)$.
+\end{itemize}
+
+\pause
+
+\medskip
+
+\textbf{Partials of $f_2 = \beta_3/(1-\beta_4)$.} Same pattern with the roles of $\beta_2$ and $\beta_3$ swapped: only $\partial f_2/\partial\beta_3$ and $\partial f_2/\partial\beta_4$ are nonzero.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Delta Method for Long-Run Elasticities: The Sandwich}
+
+Stack the partials into the $2 \times 4$ Jacobian (one row per function, one column per coefficient):
+\[
+\bm{C}(\bm\beta) \;=\; \frac{\partial \bm f}{\partial \bm\beta'} \;=\;
 \begin{bmatrix}
-0 & \tfrac{1}{1-\beta_4} & 0 & \tfrac{\beta_2}{(1-\beta_4)^2} \\
+0 & \tfrac{1}{1-\beta_4} & 0 & \tfrac{\beta_2}{(1-\beta_4)^2} \\[2pt]
 0 & 0 & \tfrac{1}{1-\beta_4} & \tfrac{\beta_3}{(1-\beta_4)^2}
 \end{bmatrix}.
 \]
 
 \pause
 
-Plug $\hat{\bm{\beta}}$ into $\bm{C}$ and sandwich:
+\medskip
+
+Plug in $\hat{\bm\beta}$ and sandwich with the estimated variance of $\hat{\bm\beta}$:
 \[
-\widehat{\Var}(\hat{\bm{f}}) = \bm{C}(\hat{\bm{\beta}})\,\hat{\bm{V}}_{\hat\beta}\,\bm{C}(\hat{\bm{\beta}})'.
+\widehat{\Var}(\hat{\bm f}) \;=\; \bm{C}(\hat{\bm\beta})\,\hat{\bm V}_{\hat\beta}\,\bm{C}(\hat{\bm\beta})'.
 \]
-The rows of $\bm{C}$ are gradient vectors --- one per scalar function we want a SE for.
+
+\pause
+
+\medskip
+
+Result is $2 \times 2$: diagonal entries are the variances of the long-run price and income elasticities, off-diagonal is their covariance.
 
 \end{frame}
 
@@ -279,6 +716,35 @@ The same delta-method machinery handles AMEs, long-run elasticities, and any oth
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Consistency of OLS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Consistency of OLS: The Question}
+
+\textbf{What we just assumed.} The delta method required $\hat{\bm\beta}$ to be close to $\bm\beta$ for large $n$. Is it?
+
+\pause
+
+\medskip
+
+\textbf{What we are about to show.} Under the assumptions on the next slide,
+\[
+\hat{\bm\beta} \;\overset{p}{\to}\; \bm\beta,
+\]
+i.e.\ $\Pr(\|\hat{\bm\beta} - \bm\beta\| > \epsilon) \to 0$ for every $\epsilon > 0$.
+
+\pause
+
+\medskip
+
+\textbf{Tools}, all from Lecture 10:
+\begin{itemize}\setlength\itemsep{2pt}
+\item \textbf{WLLN}: sample moments converge in probability to population moments.
+\item \textbf{CMT}: continuous functions of convergent sequences converge.
+\end{itemize}
+The next few slides apply these to $\hat{\bm\beta}$, written as a function of sample moments.
+
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Target of Estimation}
@@ -797,7 +1263,7 @@ s(\hat{\theta}_3) = \sqrt{\bm{R}' \bm{\hat{V}}_{\hat{\beta}} \bm{R}}
 \]
 \end{itemize}
 
-This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\beta$. Same logic as the long-run elasticity from the gas consumption example.
+This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\beta$.
 
 \end{frame}
 
@@ -838,12 +1304,8 @@ $\beta_{ed}=5.4$, $\beta_{cons}=-10.7$,  $\bm{\hat{V}}_{\hat{\beta}}=\begin{bmat
 at 10 years of education:
 $$x' \hat{\beta} \pm 1.96 \cdot \sqrt{\bm{x}' \bm{\hat{V}}_{\hat{\beta}} \bm{x}}$$
 $$(1\ 10) \begin{pmatrix}-10.7\\ 5.4\end{pmatrix} \pm 1.96 \cdot \sqrt{(1\ 10) \begin{bmatrix} 13.52&-1.18\\-1.18&.11\end{bmatrix}\begin{pmatrix}1\\ 10\end{pmatrix}}$$
-
-$$43.3 \pm 1.96 \cdot \sqrt{0.87}$$
-$$43.3 \pm 1.83$$
-compare to 22 years of education
-$$107 \pm 1.96 \cdot \sqrt{14.8}$$
-$$107 \pm 7.5$$
+$$43.3 \pm 1.96 \cdot \sqrt{0.87} = 43.3 \pm 1.83$$
+compare to 22 years of education: $\;107 \pm 1.96 \cdot \sqrt{14.8} = 107 \pm 7.5$
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -940,22 +1402,51 @@ These results hold \textbf{without normality} --- only requiring iid data with f
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Influence Functions and AIPW (Preview)}
+\begin{frame}{Beyond OLS: the OLS Argument as a Template}
 
-The toolkit (CLT, Slutsky, $o_p$ algebra) extends beyond OLS. Many estimators admit an \textbf{influence function representation}:
+\textbf{Recap what we just did.} In the normality step we wrote
 \[
-\sqrt{n}(\hat\theta - \theta) \;=\; \frac{1}{\sqrt{n}}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1), \quad \mathbb{E}[\psi(Z)]=0,
+\sqrt n(\hat{\bm\beta} - \bm\beta) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \underbrace{\bm{Q}_{XX}^{-1}\,\bm{x}_i\,e_i}_{\psi(Z_i)} \;+\; o_p(1),
 \]
-so the CLT delivers $\sqrt{n}(\hat\theta-\theta)\overset{d}{\to} N(0,\mathrm{Var}(\psi))$. (OLS: $\psi(Z) = Q_{XX}^{-1} X e$.)
+a sample mean of mean-zero random vectors plus a negligible remainder. CLT $+$ Slutsky then delivered asymptotic normality.
 
 \pause
 
-\textbf{AIPW (ATE).} The influence function is
+\medskip
+
+The whole argument turned on two things:
+\begin{enumerate}\setlength\itemsep{2pt}
+\item Expressing $\sqrt n(\hat\theta - \theta)$ as a sample mean of an iid, mean-zero random quantity.
+\item Controlling the leftover as $o_p(1)$.
+\end{enumerate}
+Nothing about the argument was specific to OLS. Next slide: the general version.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Influence Functions (Preview)}
+
+\textbf{The general template.} Many estimators $\hat\theta$ admit the same representation:
 \[
-\psi(Z) = \mu_1(X)-\mu_0(X) - \tau + \tfrac{D}{p}(Y-\mu_1(X)) - \tfrac{1-D}{1-p}(Y-\mu_0(X)).
+\sqrt n(\hat\theta - \theta) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1), \qquad \mathbb{E}[\psi(Z)] = 0.
+\]
+The function $\psi$ is the estimator's \textbf{influence function}: it measures how much a single observation $Z_i$ moves $\hat\theta$ around $\theta$.
+
+\pause
+
+\medskip
+
+CLT on the sample mean, Slutsky to absorb the $o_p(1)$:
+\[
+\sqrt n(\hat\theta - \theta) \;\overset{d}{\to}\; N\bigl(0,\ \mathrm{Var}(\psi)\bigr).
 \]
 
-\textit{HW4 Q4--Q9 builds this end to end: Q4 derives $\psi$, Q5 isolates the plug-in remainder $R_n$, Q6 proves Neyman orthogonality $\mathbb{E}[1-D/p\mid X]=0$, Q7 uses conditional Chebyshev to show $R_n = o_p(n^{-1/2})$, Q8 closes with Slutsky.}
+\pause
+
+\medskip
+
+\emph{HW4 Q4--Q9 builds this template for the AIPW estimator of the average treatment effect.}
 
 \end{frame}
 
