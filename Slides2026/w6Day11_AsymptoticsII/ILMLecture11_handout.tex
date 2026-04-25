@@ -156,7 +156,12 @@ defined for $t$ in some open interval around $0$ where the expectation is finite
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Example: The Distribution of a Sum (Two Fair Dice)}
+\begin{frame}{Example 1: Uniform}
+If $X\sim U(0,1)$, and $Y\sim U(0,1)$, what is the distribution of $X+Y$?
+
+\end{frame}
+
+\begin{frame}{Example 2: The Distribution of a Sum (Two Fair Dice)}
 
 \textbf{Setup.} Independent rolls $X, Y$, each uniform on $\{1, 2, \ldots, 6\}$. What is the pmf of $X + Y$?
 
@@ -208,7 +213,6 @@ In MGF terms, the same computation is just a product:
 \[
 M_{X_1 + \cdots + X_n}(t) \;=\; M_{X_1}(t)\cdots M_{X_n}(t).
 \]
-The CLT proof exploits this at every step.
 
 \end{frame}
 
@@ -322,10 +326,6 @@ M_Z'''(t) &= (3t + t^3)\,e^{t^2/2}, & M_Z'''(0) &= 0 = \mathbb{E}[Z^3]. \\
 M_Z^{(4)}(t) &= (3 + 6t^2 + t^4)\,e^{t^2/2}, & M_Z^{(4)}(0) &= 3 = \mathbb{E}[Z^4].
 \end{align*}
 
-\pause
-
-\emph{Odd moments vanish (symmetry); even moments are $1, 3, 15, 105, \ldots$. One function $e^{t^2/2}$ encodes all of them.}
-
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -344,7 +344,7 @@ For an iid sum $S_n = X_1 + \cdots + X_n$: \quad $M_{S_n}(t) = \bigl[M_X(t)\bigr
 
 \medskip
 
-\textbf{Compare the density domain.} Adding independent RVs convolves densities, $f_{X+Y}(z) = \int f_X(x)\,f_Y(z-x)\,dx$ --- a painful integral. In the MGF domain, a product.
+\textbf{Compare the density domain.} Adding independent RVs convolves densities, $f_{X+Y}(z) = \int f_X(x)\,f_Y(z-x)\,dx$.
 
 \pause
 
@@ -366,7 +366,7 @@ Suppose $M_{X_n}(t) \to M_X(t)$ for every $t$ in some open interval around $0$, 
 
 \medskip
 
-\textbf{Why we need this.} Convergence of CDFs is hard to show directly; MGFs are analytic. The theorem lets us work at the level of MGFs and \emph{conclude} convergence in distribution for free.
+\textbf{Why we need this.} The theorem lets us work at the level of MGFs and \emph{conclude} convergence in distribution for free.
 
 \pause
 
@@ -472,10 +472,10 @@ M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
 
 \begin{frame}{Today's Claims}
 \begin{itemize}
-\item The least squares estimator $\hat{\beta}$ is \emph{consistent} for the projection coefficient $\beta$.
-\item There is an asymptotic normal approximation to the distribution of $\hat{\beta}$ (once normalized).
+\item The least squares estimator $\hat{\bm{\beta}}$ is \emph{consistent} for the projection coefficient $\bm{\beta}$.
+\item There is an asymptotic normal approximation to the distribution of $\hat{\bm{\beta}}$ (once normalized).
 \item Similarly, the error variance estimators $\hat{\sigma}^2$ and $s^2$ are consistent for $\sigma^2$.
-\item There is a consistent estimator of $\bm{V}_\beta$, either under homoskedasticity $\bm{\hat{V}}^0_\beta$, or otherwise.
+\item There is a consistent estimator of $\bm{V}_\beta$, either under homoskedasticity $\hat{\bm{V}}^0_\beta$, or otherwise.
 \item We can use z-statistics for asymptotic standard errors, confidence intervals, and prediction intervals.
 \end{itemize}
 
@@ -499,14 +499,14 @@ M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Asymptotic Normality of $\bm{b}$ (Preview)}
+\begin{frame}{Asymptotic Normality of $\hat{\bm{\beta}}$ (Preview)}
 \textbf{Claim} (proved later this lecture): if errors are iid with mean zero and finite variance and $\bm{X}$ is full rank, the CLT gives:
-$$\bm{b}\overset{a}{\sim} N\!\left[\bm{\beta},\ \frac{\sigma^2}{n}  \left[\text{plim}\frac{\bm{X'X}}{n}\right]^{-1}\right], \qquad \text{estimated by } s^2(\bm{X}'\bm{X})^{-1}$$
+$$\hat{\bm{\beta}}\overset{a}{\sim} N\!\left[\bm{\beta},\ \frac{\sigma^2}{n}  \left[\text{plim}\frac{\bm{X'X}}{n}\right]^{-1}\right], \qquad \text{estimated by } s^2(\bm{X}'\bm{X})^{-1}$$
 
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-For now, take this as given. Once $\bm{b}$ is approximately normal, we can ask: what is the distribution of a \emph{function} of $\bm{b}$?
+For now, take this as given. Once $\hat{\bm{\beta}}$ is approximately normal, we can ask: what is the distribution of a \emph{function} of $\hat{\bm{\beta}}$?
 \end{tcolorbox}
 \end{frame}
 
@@ -516,25 +516,25 @@ For now, take this as given. Once $\bm{b}$ is approximately normal, we can ask: 
 
 \textbf{The Jacobian.} For a smooth $\bm{f}: \mathbb{R}^K \to \mathbb{R}^J$, define the $J\times K$ matrix of partial derivatives
 \[
-\bm{C}(\bm{b}) \;=\; \frac{\partial \bm{f}(\bm{b})}{\partial \bm{b}'}.
+\bm{C}(\bm{b}) \;=\; \frac{\partial \bm{f}(\hat{\bm{\beta}})}{\partial \hat{\bm{\beta}}'}.
 \]
 
 \pause
 
 \medskip
 
-\textbf{Evaluate at the truth.} Consistency of $\bm{b}$ plus continuity of $\bm{C}$:
+\textbf{Evaluate at the truth.} Consistency of $\hat{\bm{\beta}}$ plus continuity of $\bm{C}$:
 \[
-\operatorname{plim}\bm{C}(\bm{b}) \;=\; \frac{\partial \bm{f}(\bm{\beta})}{\partial \bm{\beta}'} \;\equiv\; \bm{\Gamma}. \qquad\text{(Slutsky)}
+\operatorname{plim}\bm{C}(\hat{\bm{\beta}}) \;=\; \frac{\partial \bm{f}(\bm{\beta})}{\partial \bm{\beta}'} \;\equiv\; \bm{\Gamma}. \qquad\text{(Slutsky)}
 \]
 
 \pause
 
 \medskip
 
-\textbf{First-order Taylor expansion} from $\bm{\beta}$ to $\bm{b}$:
+\textbf{First-order Taylor expansion} from $\bm{\beta}$ to $\hat{\bm{\beta}}$:
 \[
-\bm{f}(\bm{b}) \;=\; \bm{f}(\bm{\beta}) \;+\; \bm{\Gamma}\,(\bm{b} - \bm{\beta}) \;+\; O_p(n^{-1}).
+\bm{f}(\hat{\bm{\beta}}) \;=\; \bm{f}(\bm{\beta}) \;+\; \bm{\Gamma}\,(\hat{\bm{\beta}} - \bm{\beta}) \;+\; O_p(n^{-1}).
 \]
 
 \end{frame}
@@ -543,9 +543,9 @@ For now, take this as given. Once $\bm{b}$ is approximately normal, we can ask: 
 
 \begin{frame}{The Delta Method: Asymptotic Distribution}
 
-Combine the Taylor expansion with $\bm{b} \overset{a}{\sim} N(\bm{\beta},\ \operatorname{Asy.Var}(\bm{b}))$:
+Combine the Taylor expansion with $\hat{\bm{\beta}} \overset{a}{\sim} N(\bm{\beta},\ \operatorname{Asy.Var}(\hat{\bm{\beta}}))$:
 \[
-\bm{f}(\bm{b}) \;\overset{a}{\sim}\; N\!\Bigl(\bm{f}(\bm{\beta}),\; \bm{\Gamma}\,[\operatorname{Asy.Var}(\bm{b})]\,\bm{\Gamma}'\Bigr).
+\bm{f}(\hat{\bm{\beta}}) \;\overset{a}{\sim}\; N\!\Bigl(\bm{f}(\bm{\beta}),\; \bm{\Gamma}\,[\operatorname{Asy.Var}(\hat{\bm{\beta}})]\,\bm{\Gamma}'\Bigr).
 \]
 
 \pause
@@ -599,7 +599,7 @@ Log-log gasoline demand with lagged consumption,
 \[
 \frac{\beta_2}{1-\beta_4} \quad\text{(price)}, \qquad \frac{\beta_3}{1-\beta_4} \quad\text{(income)}.
 \]
-\item Both are nonlinear in $\bm\beta$ --- next slide gets their standard errors via the delta method.
+\item Both are nonlinear in $\bm{\beta}$ --- next slide gets their standard errors via the delta method.
 \end{itemize}
 
 \end{frame}
@@ -608,9 +608,9 @@ Log-log gasoline demand with lagged consumption,
 
 \begin{frame}{Delta Method for Long-Run Elasticities: Partials}
 
-Stack the two long-run elasticities as a vector-valued function of $\bm\beta = (\beta_1, \beta_2, \beta_3, \beta_4)'$:
+Stack the two long-run elasticities as a vector-valued function of $\bm{\beta} = (\beta_1, \beta_2, \beta_3, \beta_4)'$:
 \[
-\bm{f}(\bm\beta) \;=\; \begin{pmatrix} f_1(\bm\beta) \\ f_2(\bm\beta) \end{pmatrix}
+\bm{f}(\bm{\beta}) \;=\; \begin{pmatrix} f_1(\bm{\beta}) \\ f_2(\bm{\beta}) \end{pmatrix}
 \;=\; \begin{pmatrix} \beta_2/(1-\beta_4) \\ \beta_3/(1-\beta_4) \end{pmatrix}.
 \]
 
@@ -640,7 +640,7 @@ Stack the two long-run elasticities as a vector-valued function of $\bm\beta = (
 
 Stack the partials into the $2 \times 4$ Jacobian (one row per function, one column per coefficient):
 \[
-\bm{C}(\bm\beta) \;=\; \frac{\partial \bm f}{\partial \bm\beta'} \;=\;
+\bm{C}(\bm{\beta}) \;=\; \frac{\partial \bm f}{\partial \bm{\beta}'} \;=\;
 \begin{bmatrix}
 0 & \tfrac{1}{1-\beta_4} & 0 & \tfrac{\beta_2}{(1-\beta_4)^2} \\[2pt]
 0 & 0 & \tfrac{1}{1-\beta_4} & \tfrac{\beta_3}{(1-\beta_4)^2}
@@ -651,9 +651,9 @@ Stack the partials into the $2 \times 4$ Jacobian (one row per function, one col
 
 \medskip
 
-Plug in $\hat{\bm\beta}$ and sandwich with the estimated variance of $\hat{\bm\beta}$:
+Plug in $\hat{\bm{\beta}}$ and sandwich with the estimated variance of $\hat{\bm{\beta}}$:
 \[
-\widehat{\Var}(\hat{\bm f}) \;=\; \bm{C}(\hat{\bm\beta})\,\hat{\bm V}_{\hat\beta}\,\bm{C}(\hat{\bm\beta})'.
+\widehat{\Var}(\hat{\bm f}) \;=\; \bm{C}(\hat{\bm{\beta}})\,\hat{\bm{V}}_{\hat{\beta}}\,\bm{C}(\hat{\bm{\beta}})'.
 \]
 
 \pause
@@ -690,26 +690,26 @@ Long-run price elasticity $\approx -0.41 \pm 0.30$; income elasticity $\approx 0
 
 \begin{frame}{Delta Method for Probit: Average Marginal Effects}
 
-Recall from Lecture 9: the Probit average marginal effect is a \textbf{nonlinear function} of $\hat\beta$:
+Recall from Lecture 9: the Probit average marginal effect is a \textbf{nonlinear function} of $\hat{\bm{\beta}}$:
 \[
-\widehat{\text{AME}}_j = \frac{1}{n}\sum_{i=1}^n \phi(X_i'\hat\beta)\,\hat\beta_j
+\widehat{\text{AME}}_j = \frac{1}{n}\sum_{i=1}^n \phi(\bm{X}_i'\hat{\bm{\beta}})\,\hat{\beta}_j
 \]
 
 \pause
 
-Apply the delta method. Define $h(\beta) = \text{AME}_j(\beta)$. Then:
+Apply the delta method. Define $h(\bm{\beta}) = \text{AME}_j(\bm{\beta})$. Then:
 \[
-\operatorname{Asy.Var}(\widehat{\text{AME}}_j) = \nabla h(\hat\beta)' \cdot \widehat{\operatorname{Var}}(\hat\beta) \cdot \nabla h(\hat\beta)
+\operatorname{Asy.Var}(\widehat{\text{AME}}_j) = \nabla h(\hat{\bm{\beta}})' \cdot \widehat{\operatorname{Var}}(\hat{\bm{\beta}}) \cdot \nabla h(\hat{\bm{\beta}})
 \]
 
 \pause
 
-where $\nabla h$ accounts for both the direct effect ($\hat\beta_j$) and the indirect effect through $\phi(X_i'\hat\beta)$.
+where $\nabla h$ accounts for both the direct effect ($\hat{\beta}_j$) and the indirect effect through $\phi(\bm{X}_i'\hat{\bm{\beta}})$.
 
 \pause
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-The same delta-method machinery handles AMEs, long-run elasticities, and any other smooth transformation of $\hat\theta$.
+The same delta-method machinery handles AMEs, long-run elasticities, and any other smooth transformation of $\hat{\bm{\theta}}$.
 \end{tcolorbox}
 
 \end{frame}
@@ -720,7 +720,7 @@ The same delta-method machinery handles AMEs, long-run elasticities, and any oth
 
 \begin{frame}{Consistency of OLS: The Question}
 
-\textbf{What we just assumed.} The delta method required $\hat{\bm\beta}$ to be close to $\bm\beta$ for large $n$. Is it?
+\textbf{What we just assumed.} The delta method required $\hat{\bm{\beta}}$ to be close to $\bm{\beta}$ for large $n$. Is it?
 
 \pause
 
@@ -728,9 +728,9 @@ The same delta-method machinery handles AMEs, long-run elasticities, and any oth
 
 \textbf{What we are about to show.} Under the assumptions on the next slide,
 \[
-\hat{\bm\beta} \;\overset{p}{\to}\; \bm\beta,
+\hat{\bm{\beta}} \;\overset{p}{\to}\; \bm{\beta},
 \]
-i.e.\ $\Pr(\|\hat{\bm\beta} - \bm\beta\| > \epsilon) \to 0$ for every $\epsilon > 0$.
+i.e.\ $\Pr(\|\hat{\bm{\beta}} - \bm{\beta}\| > \epsilon) \to 0$ for every $\epsilon > 0$.
 
 \pause
 
@@ -741,7 +741,7 @@ i.e.\ $\Pr(\|\hat{\bm\beta} - \bm\beta\| > \epsilon) \to 0$ for every $\epsilon 
 \item \textbf{WLLN}: sample moments converge in probability to population moments.
 \item \textbf{CMT}: continuous functions of convergent sequences converge.
 \end{itemize}
-The next few slides apply these to $\hat{\bm\beta}$, written as a function of sample moments.
+The next few slides apply these to $\hat{\bm{\beta}}$, written as a function of sample moments.
 
 \end{frame}
 
@@ -769,7 +769,7 @@ The next few slides apply these to $\hat{\bm\beta}$, written as a function of sa
 \pause
 \item \textbf{Route 2} (Algebraic):
 \begin{itemize}
-\item Write $\hat\beta - \beta$ as a product of sample moments
+\item Write $\hat{\bm{\beta}} - \bm{\beta}$ as a product of sample moments
 \item Apply WLLN to each piece, CMT/Slutsky to combine
 \end{itemize}
 \end{itemize}
@@ -784,8 +784,8 @@ Both routes use the same tools from Lecture 10. Route 1 generalizes to nonlinear
 
 \begin{frame}{OLS is a function of sample moments}
 \begin{itemize}
-\item $\bm{\hat{\beta}}=\left(\frac{1}{n}\sum_{i=1}^n\bm{x}_i\bm{x}'_i\right)^{-1}\left(\frac{1}{n}\sum_{i=1}^n\bm{x}_iY_i\right)=\bm{\hat{Q}}_{XX}^{-1}\bm{\hat{Q}}_{XY}$ \pause
-\item $\bm{\hat{Q}}_{XX}$, $\bm{\hat{Q}}_{XY}$ are sample moments
+\item $\hat{\bm{\beta}}=\left(\frac{1}{n}\sum_{i=1}^n\bm{x}_i\bm{x}'_i\right)^{-1}\left(\frac{1}{n}\sum_{i=1}^n\bm{x}_iY_i\right)=\hat{\bm{Q}}_{XX}^{-1}\hat{\bm{Q}}_{XY}$ \pause
+\item $\hat{\bm{Q}}_{XX}$, $\hat{\bm{Q}}_{XY}$ are sample moments
 \end{itemize}
 \end{frame}
 
@@ -795,7 +795,7 @@ Both routes use the same tools from Lecture 10. Route 1 generalizes to nonlinear
 \begin{itemize}
 \item If $(\bm{x}_i,\ Y_i)$ are iid, then $\bm{x}_i\bm{x}_i'$, $\bm{x}_iY_i'$ are iid.\pause
 \item Recall from Lecture 10: WLLN says that if $\theta_i$ are iid with finite variance, $\frac{1}{n} \sum_{i=1}^n \theta_i \overset{p}{\to} \mathbb{E}[\theta]$\pause
-\item $\bm{\hat{Q}}_{XX} \overset{p}{\to} \bm{Q}_{XX}$, \quad $\bm{\hat{Q}}_{XY} \overset{p}{\to} \bm{Q}_{XY}$
+\item $\hat{\bm{Q}}_{XX} \overset{p}{\to} \bm{Q}_{XX}$, \quad $\hat{\bm{Q}}_{XY} \overset{p}{\to} \bm{Q}_{XY}$
 \end{itemize}
 \end{frame}
 
@@ -805,8 +805,8 @@ Both routes use the same tools from Lecture 10. Route 1 generalizes to nonlinear
 \begin{itemize}
 \item Recall from Lecture 10: if $Z_n\rightarrow_p c$ and $g(u)$ is continuous at $c$, then $g(Z_n)\rightarrow_p g(c)$.\pause
 \item CMT tells us that plims survive continuous functions.\pause
-\item $\bm{\hat{\beta}}=g(\bm{\hat{Q}}_{XX}, \bm{\hat{Q}}_{XY})$ is a continuous function (matrix inversion is continuous at nonsingular matrices).\pause
-\item $\bm{\hat{\beta}}=\bm{\hat{Q}}_{XX}^{-1}\bm{\hat{Q}}_{XY}\rightarrow_p \bm{Q}_{XX}^{-1}\bm{Q}_{XY}=\bm{\beta}$
+\item $\hat{\bm{\beta}}=g(\hat{\bm{Q}}_{XX}, \hat{\bm{Q}}_{XY})$ is a continuous function (matrix inversion is continuous at nonsingular matrices).\pause
+\item $\hat{\bm{\beta}}=\hat{\bm{Q}}_{XX}^{-1}\hat{\bm{Q}}_{XY}\rightarrow_p \bm{Q}_{XX}^{-1}\bm{Q}_{XY}=\bm{\beta}$
 \end{itemize}
 \end{frame}
 
@@ -814,12 +814,12 @@ Both routes use the same tools from Lecture 10. Route 1 generalizes to nonlinear
 
 \begin{frame}{Proof of Consistency of OLS: Route 2, Step 1}
 \begin{align*}
-\bm{\hat{\beta}}&=(\bm{X'X})^{-1}\bm{X'y} \tag{Definition}\\ \pause
+\hat{\bm{\beta}}&=(\bm{X'X})^{-1}\bm{X'y} \tag{Definition}\\ \pause
 &=(\bm{X'X})^{-1}\bm{X}'(\bm{X}\bm{\beta}+\bm{e}) \tag{Assumption 1}\\  \pause
 &=\bm{\beta}+(\bm{X'X})^{-1}\bm{X'e} \tag{Inverse prop.}\\  \pause
 &=(\bm{\beta}+(1/n)n(\bm{X'X})^{-1}\bm{X'e}) \\ \pause
 &=(\bm{\beta}+(\frac{1}{n}(\frac{1}{n})^{-1}(\bm{X'X})^{-1}\bm{X'e})) \tag{trick}\\ \pause
-\bm{\hat{\beta}}&=\bm{\beta}+(\frac{1}{n}\bm{X'X})^{-1}) ( \frac{1}{n}\bm{X'e})
+\hat{\bm{\beta}}&=\bm{\beta}+(\frac{1}{n}\bm{X'X})^{-1}) ( \frac{1}{n}\bm{X'e})
 \end{align*}
  \end{frame}
 
@@ -827,12 +827,12 @@ Both routes use the same tools from Lecture 10. Route 1 generalizes to nonlinear
 
 \begin{frame}{Proof of Consistency of OLS: Route 2, Step 2}
 \begin{align*}
-\bm{\hat{\beta}}&=\bm{\beta}+(\frac{1}{n}\bm{X'X})^{-1}) ( \frac{1}{n}\bm{X'e}) \\ \pause
-\text{plim}\bm{\hat{\beta}}-\bm{\beta}&=((\text{plim}\frac{1}{n}\bm{X'X})^{-1}) \text{plim} \frac{1}{n}\bm{X'e} \tag{Slutsky}\\ \pause
+\hat{\bm{\beta}}&=\bm{\beta}+(\frac{1}{n}\bm{X'X})^{-1}) ( \frac{1}{n}\bm{X'e}) \\ \pause
+\text{plim}\hat{\bm{\beta}}-\bm{\beta}&=((\text{plim}\frac{1}{n}\bm{X'X})^{-1}) \text{plim} \frac{1}{n}\bm{X'e} \tag{Slutsky}\\ \pause
 &=\bm{Q}_{XX}^{-1} \mathbb{E}[Xe]\\
 &=\bm{Q}_{XX}^{-1} 0
 \end{align*}
-The least squares estimator $\hat{\beta}$ is \emph{consistent} for the projection coefficient $\beta$.
+The least squares estimator $\hat{\bm{\beta}}$ is \emph{consistent} for the projection coefficient $\bm{\beta}$.
 
 \pause
 
@@ -849,7 +849,7 @@ The least squares estimator $\hat{\beta}$ is \emph{consistent} for the projectio
 \begin{frame}{Asymptotic Normality: Algebraic Setup}
 Start from the sampling error decomposition:
 \begin{align*}
-\bm{\hat{\beta}} - \bm{\beta}
+\hat{\bm{\beta}} - \bm{\beta}
 &= \left( \frac{1}{n} \sum_{i=1}^n X_i X_i' \right)^{-1}
     \left( \frac{1}{n} \sum_{i=1}^n X_i e_i \right)
     \tag{1}
@@ -859,11 +859,11 @@ Start from the sampling error decomposition:
 
 Multiply both sides by $\sqrt{n}$:
 \begin{align*}
-\sqrt{n}(\bm{\hat{\beta}} - \bm{\beta})
+\sqrt{n}(\hat{\bm{\beta}} - \bm{\beta})
 &= \left( \frac{1}{n} \sum_{i=1}^n X_i X_i' \right)^{-1}
     \left( \frac{1}{\sqrt{n}} \sum_{i=1}^n X_i e_i \right)
     \tag{2} \\
-&= \bm{\hat{Q}}_{XX}^{-1}
+&= \hat{\bm{Q}}_{XX}^{-1}
     \left( \frac{1}{\sqrt{n}} \sum_{i=1}^n X_i e_i \right)
     \tag{3}
 \end{align*}
@@ -878,8 +878,8 @@ Now we need the distribution of $\frac{1}{\sqrt{n}} \sum X_i e_i$. This is a sum
 
 \begin{frame}{Asymptotic Normality: Applying CLT and Slutsky}
 \begin{align*}
-\sqrt{n}(\bm{\hat{\beta}} - \bm{\beta})
-&= \underbrace{\bm{\hat{Q}}_{XX}^{-1}}_{\overset{p}{\to}\, \bm{Q}_{XX}^{-1}}
+\sqrt{n}(\hat{\bm{\beta}} - \bm{\beta})
+&= \underbrace{\hat{\bm{Q}}_{XX}^{-1}}_{\overset{p}{\to}\, \bm{Q}_{XX}^{-1}}
     \cdot \underbrace{\frac{1}{\sqrt{n}} \sum_{i=1}^n X_i e_i}_{\overset{d}{\to}\, N(0, \Omega)}
 \end{align*}
 where $\Omega = \mathbb{E}[X_i X_i' e_i^2]$.
@@ -888,7 +888,7 @@ where $\Omega = \mathbb{E}[X_i X_i' e_i^2]$.
 
 By Slutsky's theorem ($\overset{p}{\to} \times \overset{d}{\to}$):
 \begin{align*}
-\sqrt{n}(\bm{\hat{\beta}} - \bm{\beta})
+\sqrt{n}(\hat{\bm{\beta}} - \bm{\beta})
 \xrightarrow{d}\; N\!\left( 0,\, \bm{Q}_{XX}^{-1} \Omega\, \bm{Q}_{XX}^{-1} \right)
     \equiv N(0,\, \bm{V}_{\beta})
 \end{align*}
@@ -916,7 +916,7 @@ $$\bm{V}_\beta^0=\sigma^2\bm{Q}_{XX}^{-1}=\sigma^2\begin{bmatrix}1&\rho\\ \rho &
 
 \begin{frame}{Heteroskedastic Covariance Matrix Estimation}
 \begin{itemize}
-\item The asymptotic covariance matrix of $\sqrt{n}(\hat{\beta}-\beta)$ is $\bm{Q}_{XX}^{-1} \Omega \bm{Q}_{XX}^{-1}$.
+\item The asymptotic covariance matrix of $\sqrt{n}(\hat{\bm{\beta}}-\bm{\beta})$ is $\bm{Q}_{XX}^{-1} \Omega \bm{Q}_{XX}^{-1}$.
 \item This is the \textbf{sandwich form} from Lecture 6 --- now with its asymptotic justification.
 \end{itemize}
 
@@ -943,7 +943,7 @@ Add and subtract population errors:
 
 \pause
 
-The remainder vanishes: $\hat{e}_i - e_i = X_i'(\beta - \hat\beta) \overset{p}{\to} 0$ by consistency of $\hat\beta$.
+The remainder vanishes: $\hat{e}_i - e_i = \bm{X}_i'(\bm{\beta} - \hat{\bm{\beta}}) \overset{p}{\to} 0$ by consistency of $\hat{\bm{\beta}}$.
 
 \pause
 
@@ -1034,7 +1034,7 @@ Asy. variance & $\bm{Q}_{XX}^{-1}\Omega\bm{Q}_{XX}^{-1}$ & Random $X$, $n$ large
 W &= (\bm{q}-\bm{\theta})'[\widehat{Var}(\bm{q}-\bm{\theta})]^{-1}(\bm{q}-\bm{\theta})
 \end{align*}
 \item $W \sim\chi^2_J$ if $\bm{q}$ is Normal and $Var(\bm{q}-\bm{\theta})=\bm{\Sigma}$
-\item $W \overset{a}{\sim}\chi^2_J$ with CLT on $\bm{q}$ and consistency for $\bm{\hat{\Sigma}}$
+\item $W \overset{a}{\sim}\chi^2_J$ with CLT on $\bm{q}$ and consistency for $\hat{\bm{\Sigma}}$
 \end{itemize}
 \end{frame}
 
@@ -1074,7 +1074,7 @@ D = \frac{x - \mu}{\sigma} \sim \mathcal{N}(0,1) \quad \Rightarrow \quad D^2 \si
 \]
 \item In multivariate form:
 \[
-W = (\bm{q} - \bm{\theta})' \bm{\hat{\Sigma}}^{-1} (\bm{q} - \bm{\theta})
+W = (\bm{q} - \bm{\theta})' \hat{\bm{\Sigma}}^{-1} (\bm{q} - \bm{\theta})
 \]
 \item If $\bm{q}$ is consistent and asymptotically normal:
 \[
@@ -1100,12 +1100,12 @@ $$\begin{bmatrix} 0&0& 1& 0&0\\0& 0& 0& 1&-1\end{bmatrix} \begin{bmatrix} \beta_
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Wald Test for Linear Restrictions}
-$$W=(\bm{R}\bm{\hat{\beta}}-\bm{r})'[\bm{R}\hat{\bm{V}}_{\hat\beta}\bm{R}']^{-1}(\bm{R}\bm{\hat{\beta}}-\bm{r})$$
+$$W=(\bm{R}\hat{\bm{\beta}}-\bm{r})'[\bm{R}\hat{\bm{V}}_{\hat{\beta}}\bm{R}']^{-1}(\bm{R}\hat{\bm{\beta}}-\bm{r})$$
 $$W \overset{a}{\sim} \chi^2_q$$
 \begin{itemize}
-\item If we use $\hat{\bm{V}}_{\hat\beta} = s^2(\bm{X}'\bm{X})^{-1}$ (homoskedasticity + normality), then $W/q$ is exactly the $F$ statistic distributed $F_{q,n-k}$.
+\item If we use $\hat{\bm{V}}_{\hat{\beta}} = s^2(\bm{X}'\bm{X})^{-1}$ (homoskedasticity + normality), then $W/q$ is exactly the $F$ statistic distributed $F_{q,n-k}$.
 \item Without normality, the CLT tells us $W/q$ is approximately $F_{q,n-k}$.
-\item Without normality or homoskedasticity, use $\hat{\bm{V}}_{\hat\beta}^{HC}$ (sandwich) and $W \overset{a}{\sim} \chi^2_q$.
+\item Without normality or homoskedasticity, use $\hat{\bm{V}}_{\hat{\beta}}^{HC}$ (sandwich) and $W \overset{a}{\sim} \chi^2_q$.
 \end{itemize}
 
 \pause
@@ -1148,7 +1148,7 @@ Both test $H_0: \beta_{ed} = \beta_{women} = 0$ using the sandwich covariance.
 
 \begin{frame}{Applying the Delta Method to OLS}
 
-Earlier we introduced the delta method in general: if $\hat\theta$ is asymptotically normal, then any smooth function $h(\hat\theta)$ is also asymptotically normal.
+Earlier we introduced the delta method in general: if $\hat{\bm{\theta}}$ is asymptotically normal, then any smooth function $h(\hat{\bm{\theta}})$ is also asymptotically normal.
 
 \pause
 
@@ -1156,14 +1156,14 @@ Earlier we introduced the delta method in general: if $\hat\theta$ is asymptotic
 
 Now we have the specific ingredients for OLS:
 \begin{itemize}
-  \item $\hat\beta$ is asymptotically normal (proved in the previous sections)
-  \item $\bm{\hat{V}}_{\hat\beta}$ is a consistent estimator of its covariance (sandwich or homoskedastic)
-  \item For any differentiable $\theta = r(\beta)$, the gradient $\bm{R} = \frac{\partial r}{\partial \beta}\big|_{\hat\beta}$ gives:
+  \item $\hat{\bm{\beta}}$ is asymptotically normal (proved in the previous sections)
+  \item $\hat{\bm{V}}_{\hat{\beta}}$ is a consistent estimator of its covariance (sandwich or homoskedastic)
+  \item For any differentiable $\theta = r(\bm{\beta})$, the gradient $\bm{R} = \frac{\partial r}{\partial \bm{\beta}}\big|_{\hat{\bm{\beta}}}$ gives:
 \end{itemize}
 
 \begin{tcolorbox}
-$$s(\hat{\theta})=\sqrt{\bm{R}'\bm{\hat{V}}_{\hat{\beta}}\bm{R}}$$
-This works for \textbf{any} differentiable function of $\hat\beta$ --- linear or nonlinear.
+$$s(\hat{\theta})=\sqrt{\bm{R}'\hat{\bm{V}}_{\hat{\beta}}\bm{R}}$$
+This works for \textbf{any} differentiable function of $\hat{\bm{\beta}}$ --- linear or nonlinear.
 \end{tcolorbox}
 
 \pause
@@ -1203,7 +1203,7 @@ $$\theta_1=100\beta_1$$
 \item $\bm{R}=\begin{pmatrix}100\\ 0\\ 0\\ 0\end{pmatrix}$
 \item Asymptotic standard error:
 \[
-s(\hat{\theta}_1) = \sqrt{\bm{R}' \bm{\hat{V}}_{\hat{\beta}} \bm{R}} = 100 \cdot \sqrt{\hat{\text{Var}}(\hat{\beta}_1)}
+s(\hat{\theta}_1) = \sqrt{\bm{R}' \hat{\bm{V}}_{\hat{\beta}} \bm{R}} = 100 \cdot \sqrt{\hat{\text{Var}}(\hat{\beta}_1)}
 \]
 \end{itemize}
 
@@ -1231,7 +1231,7 @@ This is just rescaling --- the SE scales linearly.
 \]
 \item Asymptotic standard error:
 \[
-s(\hat{\theta}_2) = \sqrt{\bm{R}' \bm{\hat{V}}_{\hat{\beta}} \bm{R}}
+s(\hat{\theta}_2) = \sqrt{\bm{R}' \hat{\bm{V}}_{\hat{\beta}} \bm{R}}
 \]
 \end{itemize}
 
@@ -1259,11 +1259,11 @@ This is a linear combination of two coefficients --- the SE depends on their cov
 \]
 \item Asymptotic standard error:
 \[
-s(\hat{\theta}_3) = \sqrt{\bm{R}' \bm{\hat{V}}_{\hat{\beta}} \bm{R}}
+s(\hat{\theta}_3) = \sqrt{\bm{R}' \hat{\bm{V}}_{\hat{\beta}} \bm{R}}
 \]
 \end{itemize}
 
-This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\beta$.
+This is nonlinear --- $\bm{R}$ itself depends on $\bm{\beta}$, estimated at $\hat{\bm{\beta}}$.
 
 \end{frame}
 
@@ -1273,8 +1273,8 @@ This is nonlinear --- $\bm{R}$ itself depends on $\beta$, estimated at $\hat\bet
 
 In asymptotic inference the $t$-statistic is called the $z$-statistic:
 \[
-T(\theta) = \frac{\hat\theta - \theta}{s(\hat\theta)}
-= \frac{\sqrt n(\hat\theta - \theta)}{\sqrt{\hat V_\theta}}
+T(\theta) = \frac{\hat{\theta} - \theta}{s(\hat{\theta})}
+= \frac{\sqrt n(\hat{\theta} - \theta)}{\sqrt{\hat{V}_\theta}}
 \xrightarrow{d} N(0,1).
 \]
 Under $H_0: \theta = \theta_0$, reject at level $\alpha$ if $|T| > z_{\alpha/2}$ (e.g.\ $z_{0.025} = 1.96$).
@@ -1285,13 +1285,13 @@ Under $H_0: \theta = \theta_0$, reject at level $\alpha$ if $|T| > z_{\alpha/2}$
 
 \begin{frame}{Regression Intervals}
 
-For the CEF $m(x) = x'\beta$, the target parameter $\theta = r(\beta) = x'\beta$ has gradient $\bm R = x$, so the delta method gives
+For the CEF $m(\bm{x}) = \bm{x}'\bm{\beta}$, the target parameter $\theta = r(\bm{\beta}) = \bm{x}'\bm{\beta}$ has gradient $\bm{R} = \bm{x}$, so the delta method gives
 \[
-s(\hat\theta) = \sqrt{\bm x' \bm{\hat V}_{\hat\beta}\, \bm x}.
+s(\hat{\theta}) = \sqrt{\bm{x}' \hat{\bm{V}}_{\hat{\beta}}\, \bm{x}}.
 \]
-A $95\%$ CI for $\mathbb{E}[Y \mid X = x]$ is
+A $95\%$ CI for $\mathbb{E}[Y \mid \bm{X} = \bm{x}]$ is
 \[
-x'\hat\beta \;\pm\; 1.96 \cdot \sqrt{\bm x' \bm{\hat V}_{\hat\beta}\, \bm x}.
+\bm{x}'\hat{\bm{\beta}} \;\pm\; 1.96 \cdot \sqrt{\bm{x}' \hat{\bm{V}}_{\hat{\beta}}\, \bm{x}}.
 \]
 
 \end{frame}
@@ -1300,9 +1300,9 @@ x'\hat\beta \;\pm\; 1.96 \cdot \sqrt{\bm x' \bm{\hat V}_{\hat\beta}\, \bm x}.
 
 \begin{frame}{Example: Prestige $\sim$ Education}
 
-$\beta_{ed}=5.4$, $\beta_{cons}=-10.7$,  $\bm{\hat{V}}_{\hat{\beta}}=\begin{bmatrix} 13.52&-1.18\\-1.18&.11\end{bmatrix}$\\
+$\hat{\beta}_{ed}=5.4$, $\hat{\beta}_{cons}=-10.7$,  $\hat{\bm{V}}_{\hat{\beta}}=\begin{bmatrix} 13.52&-1.18\\-1.18&.11\end{bmatrix}$\\
 at 10 years of education:
-$$x' \hat{\beta} \pm 1.96 \cdot \sqrt{\bm{x}' \bm{\hat{V}}_{\hat{\beta}} \bm{x}}$$
+$$\bm{x}' \hat{\bm{\beta}} \pm 1.96 \cdot \sqrt{\bm{x}' \hat{\bm{V}}_{\hat{\beta}} \bm{x}}$$
 $$(1\ 10) \begin{pmatrix}-10.7\\ 5.4\end{pmatrix} \pm 1.96 \cdot \sqrt{(1\ 10) \begin{bmatrix} 13.52&-1.18\\-1.18&.11\end{bmatrix}\begin{pmatrix}1\\ 10\end{pmatrix}}$$
 $$43.3 \pm 1.96 \cdot \sqrt{0.87} = 43.3 \pm 1.83$$
 compare to 22 years of education: $\;107 \pm 1.96 \cdot \sqrt{14.8} = 107 \pm 7.5$
@@ -1334,11 +1334,11 @@ car::deltaMethod(mod0, "income / education")
 
 \begin{frame}{Application: Ridge Regression}
 \begin{itemize}
-\item Suppose $Y=X'\beta+e$ with $\mathbb{E}[Xe]=0$
-$$\hat{\beta}_R=\left(\sum_{i=1}^n X_iX_i'+\lambda \bm{I}_k\right)^{-1}\left(\sum_{i=1}^n X_iY_i\right)$$
+\item Suppose $Y=\bm{X}'\bm{\beta}+e$ with $\mathbb{E}[\bm{X}e]=\bm{0}$
+$$\hat{\bm{\beta}}_R=\left(\sum_{i=1}^n \bm{X}_i\bm{X}_i'+\lambda \bm{I}_k\right)^{-1}\left(\sum_{i=1}^n \bm{X}_iY_i\right)$$
 \item Where $\lambda>0$ is a constant, added to the diagonals of the covariance matrix.
-\item This is biased, shrinks $\hat{\beta}$.
-\item Arises from solving $\min_\beta (\bm{y}-\bm{X}\beta)'(\bm{y}-\bm{X}\beta)+\lambda(\beta'\beta-c)$
+\item This is biased, shrinks $\hat{\bm{\beta}}$.
+\item Arises from solving $\min_{\bm{\beta}} (\bm{y}-\bm{X}\bm{\beta})'(\bm{y}-\bm{X}\bm{\beta})+\lambda(\bm{\beta}'\bm{\beta}-c)$
 \end{itemize}
 \end{frame}
 
@@ -1354,12 +1354,12 @@ $$\hat{\beta}_R=\left(\sum_{i=1}^n X_iX_i'+\lambda \bm{I}_k\right)^{-1}\left(\su
 
 \begin{frame}{Ridge is Consistent (via CMT)}
 \begin{align*}
-\text{plim}\ \hat{\beta}_R
-&= \text{plim} \left( \frac{1}{n} \sum_{i=1}^n X_i X_i' + \frac{\lambda}{n} \bm{I}_k \right)^{-1}
-\left( \frac{1}{n} \sum_{i=1}^n X_i Y_i \right) \\[4pt]
-&= \left( \mathbb{E}[X_i X_i'] + \underbrace{\text{plim}\,\frac{\lambda}{n}}_{\to\, 0}\, \bm{I}_k \right)^{-1}
-\mathbb{E}[X_i Y_i] \\[4pt]
-&= \left( \mathbb{E}[X_i X_i'] \right)^{-1} \mathbb{E}[X_i Y_i] = \beta
+\text{plim}\ \hat{\bm{\beta}}_R
+&= \text{plim} \left( \frac{1}{n} \sum_{i=1}^n \bm{X}_i \bm{X}_i' + \frac{\lambda}{n} \bm{I}_k \right)^{-1}
+\left( \frac{1}{n} \sum_{i=1}^n \bm{X}_i Y_i \right) \\[4pt]
+&= \left( \mathbb{E}[\bm{X}_i \bm{X}_i'] + \underbrace{\text{plim}\,\frac{\lambda}{n}}_{\to\, 0}\, \bm{I}_k \right)^{-1}
+\mathbb{E}[\bm{X}_i Y_i] \\[4pt]
+&= \left( \mathbb{E}[\bm{X}_i \bm{X}_i'] \right)^{-1} \mathbb{E}[\bm{X}_i Y_i] = \bm{\beta}
 \end{align*}
 
 \pause
@@ -1375,7 +1375,7 @@ $$\hat{\beta}_R=\left(\sum_{i=1}^n X_iX_i'+\lambda \bm{I}_k\right)^{-1}\left(\su
 
 \begin{frame}{What We Proved Today}
 
-The OLS estimator $\bm{\hat{\beta}}=(\bm{X}'\bm{X})^{-1}\bm{X}'y$ is:
+The OLS estimator $\hat{\bm{\beta}}=(\bm{X}'\bm{X})^{-1}\bm{X}'y$ is:
 
 \medskip
 
@@ -1384,10 +1384,10 @@ The OLS estimator $\bm{\hat{\beta}}=(\bm{X}'\bm{X})^{-1}\bm{X}'y$ is:
 \toprule
 \textbf{Property} & \textbf{Tool (from Lectures 10--11)} & \textbf{Result} \\
 \midrule
-Consistent & WLLN + CMT & $\text{plim}\ \hat\beta = \beta$ \\
-Asy. normal & Multivariate CLT + Slutsky & $\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} N(0, V_\beta)$ \\
+Consistent & WLLN + CMT & $\text{plim}\ \hat{\bm{\beta}} = \bm{\beta}$ \\
+Asy. normal & Multivariate CLT + Slutsky & $\sqrt{n}(\hat{\bm{\beta}} - \bm{\beta}) \overset{d}{\to} N(\bm{0}, \bm{V}_\beta)$ \\
 Testable & Wald statistic & $W \overset{a}{\sim} \chi^2_q$ \\
-Robust & Sandwich estimator & $\hat{V}_\beta^{HC} \overset{p}{\to} V_\beta$ \\
+Robust & Sandwich estimator & $\hat{\bm{V}}_\beta^{HC} \overset{p}{\to} \bm{V}_\beta$ \\
 \bottomrule
 \end{tabular}
 \renewcommand{\arraystretch}{1.0}
@@ -1406,7 +1406,7 @@ These results hold \textbf{without normality} --- only requiring iid data with f
 
 \textbf{Recap what we just did.} In the normality step we wrote
 \[
-\sqrt n(\hat{\bm\beta} - \bm\beta) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \underbrace{\bm{Q}_{XX}^{-1}\,\bm{x}_i\,e_i}_{\psi(Z_i)} \;+\; o_p(1),
+\sqrt n(\hat{\bm{\beta}} - \bm{\beta}) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \underbrace{\bm{Q}_{XX}^{-1}\,\bm{x}_i\,e_i}_{\psi(Z_i)} \;+\; o_p(1),
 \]
 a sample mean of mean-zero random vectors plus a negligible remainder. CLT $+$ Slutsky then delivered asymptotic normality.
 
@@ -1416,7 +1416,7 @@ a sample mean of mean-zero random vectors plus a negligible remainder. CLT $+$ S
 
 The whole argument turned on two things:
 \begin{enumerate}\setlength\itemsep{2pt}
-\item Expressing $\sqrt n(\hat\theta - \theta)$ as a sample mean of an iid, mean-zero random quantity.
+\item Expressing $\sqrt n(\hat{\theta} - \theta)$ as a sample mean of an iid, mean-zero random quantity.
 \item Controlling the leftover as $o_p(1)$.
 \end{enumerate}
 Nothing about the argument was specific to OLS. Next slide: the general version.
@@ -1427,11 +1427,11 @@ Nothing about the argument was specific to OLS. Next slide: the general version.
 
 \begin{frame}{Influence Functions (Preview)}
 
-\textbf{The general template.} Many estimators $\hat\theta$ admit the same representation:
+\textbf{The general template.} Many estimators $\hat{\theta}$ admit the same representation:
 \[
-\sqrt n(\hat\theta - \theta) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1), \qquad \mathbb{E}[\psi(Z)] = 0.
+\sqrt n(\hat{\theta} - \theta) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1), \qquad \mathbb{E}[\psi(Z)] = 0.
 \]
-The function $\psi$ is the estimator's \textbf{influence function}: it measures how much a single observation $Z_i$ moves $\hat\theta$ around $\theta$.
+The function $\psi$ is the estimator's \textbf{influence function}: it measures how much a single observation $Z_i$ moves $\hat{\theta}$ around $\theta$.
 
 \pause
 
@@ -1439,7 +1439,7 @@ The function $\psi$ is the estimator's \textbf{influence function}: it measures 
 
 CLT on the sample mean, Slutsky to absorb the $o_p(1)$:
 \[
-\sqrt n(\hat\theta - \theta) \;\overset{d}{\to}\; N\bigl(0,\ \mathrm{Var}(\psi)\bigr).
+\sqrt n(\hat{\theta} - \theta) \;\overset{d}{\to}\; N\bigl(0,\ \mathrm{Var}(\psi)\bigr).
 \]
 
 \pause
@@ -1459,7 +1459,7 @@ CLT on the sample mean, Slutsky to absorb the $o_p(1)$:
 \pause
 
 \begin{itemize}
-    \item OLS is \textbf{inconsistent}: $\text{plim}\,\hat\beta = \beta + Q_{XX}^{-1}\mathbb{E}[Xe] \neq \beta$
+    \item OLS is \textbf{inconsistent}: $\text{plim}\,\hat{\bm{\beta}} = \bm{\beta} + \bm{Q}_{XX}^{-1}\mathbb{E}[\bm{X}e] \neq \bm{\beta}$
     \item No amount of data can fix this --- the bias does not vanish.
 \end{itemize}
 

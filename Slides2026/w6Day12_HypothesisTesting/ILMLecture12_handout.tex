@@ -110,9 +110,9 @@ and showed how to construct robust tests and confidence intervals.
 \textbf{Today:} We go deeper into the \emph{practice} of hypothesis testing.
 
 \begin{itemize}
-\item The F test: a criterion-based alternative
-\item Score (LM) tests: testing from the restricted model
-\item The trinity of classical tests
+\item Constrained least squares: equality \emph{and} inequality constraints
+\item Partial identification: when the data only pins $\bm{\beta}$ to a feasible set
+\item The F test (recap), Score (LM) tests, and the trinity of classical tests
 \item Test inversion for confidence regions
 \item Multiple testing and Bonferroni corrections
 \item Power: what determines whether you can detect an effect?
@@ -203,121 +203,308 @@ The key outputs from CLS are $\text{SSE}_R = \sum \tilde{e}_i^2$ and $\tilde{\si
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Beyond Equality: Inequality Constraints}
+
+The CLS formulation extends naturally to inequalities:
+$$\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \arg\min_{\bm{\beta}\,\in\,\mathcal{B}} \;\sum_{i=1}^n (Y_i - \bm{X}_i'\bm{\beta})^2$$
+
+\noindent where the \textbf{feasible set} $\mathcal{B} \subseteq \mathbb{R}^k$ is defined by linear inequalities $\bm{R}'\bm{\beta} \leq \bm{r}$.
+
+\pause
+\bigskip
+
+\textbf{Examples:}
+\begin{itemize}
+\item \textbf{Sign restrictions}: $\beta_j \geq 0$ (a variance, a price-elasticity sign, a share)
+\item \textbf{Box constraints}: $0 \leq \beta_j \leq 1$ (mixing weights, probabilities)
+\item \textbf{Monotonicity}: $\beta_1 \leq \beta_2 \leq \beta_3$ (ordered effects)
+\item \textbf{Theory bounds}: $\bm{\beta} \in [\underline{\bm{\beta}},\, \overline{\bm{\beta}}]$ from prior knowledge
+\end{itemize}
+
+\pause
+\bigskip
+
+The feasible set $\mathcal{B}$ is a \emph{polyhedron} (an intersection of half-spaces) rather than a single point or a linear subspace.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Solving Inequality CLS: KKT Conditions}
+
+Lagrangian: $L(\bm{\beta}, \bm{\lambda}) = \tfrac{1}{2}(\bm{Y} - \bm{X}\bm{\beta})'(\bm{Y} - \bm{X}\bm{\beta}) + \bm{\lambda}'(\bm{R}'\bm{\beta} - \bm{r})$.
+
+\pause
+\smallskip
+
+\textbf{KKT conditions} at the optimum:
+\begin{align*}
+\bm{X}'\bm{X}\tilde{\bm{\beta}} - \bm{X}'\bm{Y} + \bm{R}\tilde{\bm{\lambda}} &= \bm{0} \quad &&\text{(stationarity)} \\
+\bm{R}'\tilde{\bm{\beta}} &\leq \bm{r} \quad &&\text{(primal feasibility)} \\
+\tilde{\bm{\lambda}} &\geq \bm{0} \quad &&\text{(dual feasibility)} \\
+\tilde{\lambda}_j\,(\bm{R}_j'\tilde{\bm{\beta}} - r_j) &= 0 \quad &&\text{(complementary slackness)}
+\end{align*}
+
+\pause
+\smallskip
+
+\textbf{Two cases:}
+\begin{itemize}
+\item $\hat{\bm{\beta}}_{\text{OLS}} \in \mathcal{B}$: no constraint binds, so $\tilde{\bm{\beta}} = \hat{\bm{\beta}}_{\text{OLS}}$.
+\item $\hat{\bm{\beta}}_{\text{OLS}} \notin \mathcal{B}$: some constraints bind ($\tilde{\lambda}_j > 0$); the binding constraints behave as equalities and we recover the equality-CLS formula on that face.
+\end{itemize}
+
+\pause
+\smallskip
+
+This is a \emph{quadratic program}.  In R: \texttt{quadprog::solve.QP()}.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Why Inequality Constraints? Partial Identification}
+
+Sometimes the data and minimal assumptions only tell us $\bm{\beta}$ lies in a \emph{set}, not a point.
+
+\pause
+\smallskip
+
+\textbf{The identified set:} $\Theta_I = \{\bm{\beta} : \bm{\beta} \text{ is consistent with the data and assumptions}\}$.
+\begin{itemize}
+\item \textbf{Point identification}: $\Theta_I = \{\bm{\beta}_0\}$ — a single value
+\item \textbf{Partial identification}: $\Theta_I$ is a non-degenerate set, often a polyhedron
+\end{itemize}
+
+\pause
+\smallskip
+
+\textbf{Where it shows up:} missing data, censoring, interval-valued outcomes, treatment effect bounds, set-identified moment inequalities.
+
+\pause
+\smallskip
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+The identified set \emph{is} a feasible set $\mathcal{B}$.  Estimation under partial identification reports both a point (e.g., the inequality-CLS solution on $\mathcal{B}$) and the \emph{width} of $\mathcal{B}$ — and the width does \emph{not} shrink with $n$.
+\end{tcolorbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{A Worked Example: NSW Job Training}
+
+The \textbf{National Supported Work Demonstration} (1976--77) randomly assigned disadvantaged workers to a 9--12 month training program ($X_i = 1$) or a control group ($X_i = 0$).  LaLonde (1986) used it to benchmark non-experimental evaluators.
+
+\pause
+\smallskip
+
+\textbf{Outcome.} $Y_i = 1$ if subject $i$ had positive earnings in 1978 (employed at follow-up).
+
+\pause
+\smallskip
+
+\textbf{Sample} (Dehejia--Wahba experimental sample, $n = 445$):
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+& $n$ & Employed in 1978 & $\bar{Y}_{\text{obs}}$ \\
+\midrule
+Treatment ($X=1$) & 185 & 140 & $0.757$ \\
+Control ($X=0$)   & 260 & 168 & $0.646$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\pause
+\smallskip
+
+\textbf{Naive ATE:} $\bar{Y}_{\text{obs}}(1) - \bar{Y}_{\text{obs}}(0) = 0.757 - 0.646 = 0.111$ (an 11 pp employment effect).
+
+\pause
+\smallskip
+
+NSW's actual follow-up was nearly complete.  \textbf{What if 30\% had been lost?}  The next slides treat that as a thought experiment to see what the data could still pin down.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Manski Decomposition (30\% Missing)}
+
+Suppose only 70\% of subjects could be located in 1978.  Let $D_i = 1$ if observed; $P(D_i = 1) = 0.7$.
+
+\pause
+\smallskip
+
+For each arm, by the law of total probability:
+$$E[Y \mid X = x] \;=\; \underbrace{p(x)\,\bar{Y}_{\text{obs}}(x)}_{\text{identified}} \;+\; \underbrace{(1 - p(x))\,E[Y \mid X = x,\, D = 0]}_{\text{unknown}}$$
+
+\pause
+\smallskip
+
+The first term is identified from observed respondents.  The second is unknown — but since $Y \in \{0, 1\}$, the unknown conditional mean lies in $[0, 1]$, so:
+
+$$\boxed{\;\;p(x)\,\bar{Y}_{\text{obs}}(x) \;\leq\; E[Y \mid X = x] \;\leq\; p(x)\,\bar{Y}_{\text{obs}}(x) + (1 - p(x))\;\;}$$
+
+\pause
+\smallskip
+
+The lower bound replaces every missing $Y$ with $0$ (worst case for that arm); the upper bound replaces every missing $Y$ with $1$.  These are \textbf{sharp}: no narrower bound is consistent with the data alone.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Worst-Case Bounds: Apply to NSW}
+
+Plug in $p(x) = 0.7$ for each arm.
+
+\pause
+\smallskip
+
+\textbf{Treatment} ($\bar{Y}_{\text{obs}} = 0.757$):
+$$0.7 \cdot 0.757 \;\leq\; E[Y\mid X{=}1] \;\leq\; 0.7 \cdot 0.757 + 0.3 \quad\Longrightarrow\quad E[Y\mid X{=}1] \in [0.530,\, 0.830]$$
+
+\textbf{Control} ($\bar{Y}_{\text{obs}} = 0.646$):
+$$0.7 \cdot 0.646 \;\leq\; E[Y\mid X{=}0] \;\leq\; 0.7 \cdot 0.646 + 0.3 \quad\Longrightarrow\quad E[Y\mid X{=}0] \in [0.452,\, 0.752]$$
+
+\pause
+\smallskip
+
+\textbf{ATE bounds.} $\theta = E[Y\mid X{=}1] - E[Y\mid X{=}0]$ is smallest when arm 1 is at its lower bound \emph{and} arm 0 at its upper bound (largest in the opposite corner):
+$$\theta \;\in\; [\,0.530 - 0.752,\;\; 0.830 - 0.452\,] \;=\; [-0.22,\;\, 0.38]$$
+
+\pause
+\smallskip
+
+The naive estimate $0.11$ sits inside, but the bound is wide enough that we cannot even sign the effect.  Width $= 0.60$.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Tighter Bounds via Monotone Selection}
+
+\textbf{Plausible assumption.} Subjects lost to follow-up — transient, moving, out of the labor force — are weakly \emph{less} likely to be employed than those we observe in the same arm:
+$$E[Y \mid X = x,\, D = 0] \;\leq\; E[Y \mid X = x,\, D = 1] \;=\; \bar{Y}_{\text{obs}}(x).$$
+
+\pause
+\smallskip
+
+\textbf{Effect.} The upper bound now replaces missing $Y$ with $\bar{Y}_{\text{obs}}(x)$, not with $1$, so $E[Y\mid X{=}x] \leq \bar{Y}_{\text{obs}}(x)$.  The lower bound is unchanged.
+
+\pause
+\smallskip
+
+\textbf{Apply to NSW:}
+$$E[Y\mid X{=}1] \in [0.530,\, 0.757], \qquad E[Y\mid X{=}0] \in [0.452,\, 0.646],$$
+$$\theta \;\in\; [\,0.530 - 0.646,\;\; 0.757 - 0.452\,] \;=\; [-0.12,\;\, 0.30].$$
+
+\pause
+\smallskip
+
+Width drops from $0.60$ to $0.42$.  Still crosses zero — an 11 pp underlying effect is too small for one mild assumption to settle the sign at 30\% missing.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{The Identified Set as an Inequality-CLS Feasible Set}
+
+Write the CEF as a linear regression $E[Y \mid X] = \beta_0 + \beta_1 X$, so $\beta_0 = E[Y\mid X{=}0]$ and $\beta_0 + \beta_1 = E[Y\mid X{=}1]$.
+
+\pause
+\smallskip
+
+The four MTS bounds map directly to four linear inequalities on $\bm{\beta} = (\beta_0, \beta_1)'$:
+$$\mathcal{B} \;=\; \bigl\{\bm{\beta}:\;\; 0.452 \le \beta_0 \le 0.646,\;\; 0.530 \le \beta_0 + \beta_1 \le 0.757\bigr\}.$$
+
+\pause
+\smallskip
+
+\textbf{Inequality CLS} on the observed sample:
+$$\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \arg\min_{\bm{\beta}\,\in\,\mathcal{B}} \;\sum_{i:\,D_i=1} (Y_i - \beta_0 - \beta_1 X_i)^2.$$
+
+\pause
+\smallskip
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+$\mathcal{B}$ \emph{is} the identified set: it pins $\beta_1$ to the interval $[-0.12,\, 0.30]$.  An inequality-CLS point estimate is just one $\bm{\beta}$ inside $\mathcal{B}$; reporting that point hides the bound.  Report the interval.
+\end{tcolorbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Computing the Bounds in R}
+
+\begin{lstlisting}
+u  <- "https://users.nber.org/~rdehejia/data/nswre74_"
+cn <- c("treat","age","educ","black","hispan","married",
+        "nodegree","re74","re75","re78")
+d  <- rbind(read.table(paste0(u,"treated.txt"), col.names=cn),
+            read.table(paste0(u,"control.txt"), col.names=cn))
+y1 <- mean(d$re78[d$treat==1] > 0)    # 0.7568   (n = 185)
+y0 <- mean(d$re78[d$treat==0] > 0)    # 0.6462   (n = 260)
+p  <- 0.7                              # 70% located, 30% missing
+ate_wc  <- c(p*y1 - (p*y0+1-p), (p*y1+1-p) - p*y0)  # [-0.22, 0.38]
+ate_mts <- c(p*y1 - y0, y1 - p*y0)                  # [-0.12, 0.30]
+\end{lstlisting}
+
+\pause
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{What to report:} ``The NSW employment ATE lies in $[-0.12,\,0.30]$ under monotone selection (naive estimate $0.11$).''
+\end{tcolorbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Setting Up the Linear Program}
+
+Reparameterize from $\bm{\beta}$ to the conditional means $\bm{\mu} = (\mu_0, \mu_1)'$ where $\mu_x = E[Y\mid X{=}x]$.  Then $\beta_0 = \mu_0$ and $\beta_1 = \mu_1 - \mu_0 = \bm{c}'\bm{\mu}$ with $\bm{c} = (-1, 1)'$.
+
+\pause
+\smallskip
+
+Each MTS bound is a row $\bm{a}_j'\bm{\mu} \;\{\ge,\le\}\; r_j$.  Stack the four:
+$$\underbrace{\begin{pmatrix} 1 & 0 \\ 1 & 0 \\ 0 & 1 \\ 0 & 1 \end{pmatrix}}_{A}\!\begin{pmatrix}\mu_0\\ \mu_1\end{pmatrix}\;\underbrace{\begin{matrix}\ge\\ \le\\ \ge\\ \le\end{matrix}}_{\texttt{dir}}\;\underbrace{\begin{pmatrix}0.452\\ 0.646\\ 0.530\\ 0.757\end{pmatrix}}_{\texttt{rhs}}.$$
+
+\pause
+\smallskip
+
+Why $\bm{\mu}$ and not $\bm{\beta}$?  \texttt{lpSolve} defaults variables to $\ge 0$; conditional means satisfy this automatically, but $\beta_1$ can be negative.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Bounds via \texttt{lpSolve}}
+
+Two LPs — minimize and maximize $\bm{c}'\bm{\mu} = \mu_1 - \mu_0$ over the same feasible set:
+
+\begin{lstlisting}
+library(lpSolve)
+A   <- rbind(c(1,0), c(1,0), c(0,1), c(0,1))
+dir <- c(">=", "<=", ">=", "<=")
+rhs <- c(0.452, 0.646, 0.530, 0.757)
+c(b1_lo = lp("min", c(-1,1), A, dir, rhs)$objval,
+  b1_hi = lp("max", c(-1,1), A, dir, rhs)$objval)
+# b1_lo  b1_hi:  -0.116  0.305
+\end{lstlisting}
+
+\pause
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\texttt{lpSolve} confirms $\beta_1 \in [-0.12,\,0.30]$.  More parameters or constraints just adds rows to $A$, \texttt{dir}, and \texttt{rhs}.
+\end{tcolorbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The F Test}
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{The F Test: Idea}
+\begin{frame}{The F Test (Recap from Section)}
 
-The F test asks: \textbf{how much does the fit worsen when we impose the null?}
-
-\pause
-\bigskip
-
-\begin{itemize}
-\item Run the \textbf{unrestricted} regression: get $\text{SSE}_U = \sum(Y_i - \bm{X}_i'\hat{\bm{\beta}}_{\text{OLS}})^2$
-\item Run the \textbf{restricted} regression (imposing $H_0$): get $\text{SSE}_R = \sum(Y_i - \bm{X}_i'\tilde{\bm{\beta}}_{\text{CLS}})^2$
-
-\pause
-\bigskip
-\item Since $H_0$ constrains the parameter space, $\text{SSE}_R \geq \text{SSE}_U$ always.
-\item If the fit barely worsens $\Rightarrow$ the restriction is consistent with the data.
-\item If the fit worsens a lot $\Rightarrow$ the restriction is costly $\Rightarrow$ evidence against $H_0$.
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{The F Statistic}
-
-Testing $H_0\colon \bm{R}'\bm{\beta} = \bm{r}$ with $q$ restrictions:
-
-$$\boxed{F = \frac{(\text{SSE}_R - \text{SSE}_U)/q}{\text{SSE}_U/(n-k)} = \frac{(\tilde{\sigma}^2 - \hat{\sigma}^2)/q}{\hat{\sigma}^2/(n-k)}}$$
+Compare the unrestricted SSE to the restricted (CLS) SSE.  Testing $H_0\colon \bm{R}'\bm{\beta} = \bm{r}$ with $q$ restrictions:
+$$F \;=\; \frac{(\text{SSE}_R - \text{SSE}_U)/q}{\text{SSE}_U/(n-k)} \;=\; \frac{W^0}{q}$$
 
 \pause
 \smallskip
 
 \begin{itemize}
-\item \textbf{Numerator}: average increase in residual variance per restriction
-\item \textbf{Denominator}: unrestricted estimate of error variance ($s^2$)
-\item Reject $H_0$ when $F$ is large
+\item \textbf{Distribution}: under normal homoskedastic errors, $F \sim F_{q,\,n-k}$ exactly; asymptotically (any iid errors), $qF \xrightarrow{d} \chi^2_q$.
+\item \textbf{Heteroskedasticity}: the $F_{q,n-k}$ distribution is no longer valid — use the robust Wald test from Lecture~11.
+\item \textbf{In R}: \texttt{anova(mod\_R, mod\_U)}.
 \end{itemize}
 
 \pause
 \smallskip
 
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Key relationship:} For linear hypotheses, $F = W^0 / q$ where $W^0$ is the homoskedastic Wald statistic.  Under homoskedasticity and normality, $F \sim F_{q,\,n-k}$ exactly. Asymptotically, $F \xrightarrow{d} \chi^2_q/q$.
-\end{tcolorbox}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{F Test: When and Why}
-
-\textbf{Advantages:}
-\begin{itemize}
-\item Directly computable from standard output (just need SSE from two regressions)
-\item Exact distribution under normality + homoskedasticity
-\item Slightly more conservative than $\chi^2$ critical values (good in small samples)
-\end{itemize}
-
-\pause
-\smallskip
-
-\textbf{Limitations:}
-\begin{itemize}
-\item Requires homoskedasticity for the $F_{q,n-k}$ distribution to be valid
-\item Under heteroskedasticity, use the robust Wald test from Lecture~11 instead
-\end{itemize}
-
-\pause
-\smallskip
-
-\begin{tcolorbox}[colback=red!5, colframe=red!50]
-\textbf{Hansen's warning:} Many packages automatically report an ``F-statistic'' testing that all slopes are zero.  With modern sample sizes this is nearly always significant. \textbf{There is no reason to report this F statistic.}
-\end{tcolorbox}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{F Test in R}
-\begin{lstlisting}
-mod_U <- lm(lwage ~ education + exper + I(exper^2) +
-              female + union, data = wages)
-mod_R <- lm(lwage ~ education + exper + I(exper^2),
-              data = wages)
-
-# Manual F test
-SSE_U <- sum(resid(mod_U)^2)
-SSE_R <- sum(resid(mod_R)^2)
-q <- 2; n <- nobs(mod_U); k <- length(coef(mod_U))
-F_stat <- ((SSE_R - SSE_U)/q) / (SSE_U/(n - k))
-p_val  <- 1 - pf(F_stat, q, n - k)
-
-# Or simply:
-anova(mod_R, mod_U)
-\end{lstlisting}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Example: Joint Significance}
-
-Wage regression with ``Male Union Member'' and ``Female Union Member'' indicators.
-
-\bigskip
-\textbf{Test:} $H_0$: Union membership has no effect on wages (both coefficients = 0).
-
-\pause
-\bigskip
-
-\begin{itemize}
-\item $W = 23$ (Wald), so $F = 23/2 = 11.5$, $p < 0.001$. \textbf{Reject.}
-\end{itemize}
-
-\pause
-\bigskip
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Interpretation:} Rejecting the joint null means \emph{at least one} coefficient is nonzero. It does not mean both are.  Always examine both the joint test and individual t-statistics for a complete picture.
+The package-default ``F-statistic that all slopes equal zero'' is rarely a scientifically interesting hypothesis. Hansen: there is no reason to report it.
 \end{tcolorbox}
 \end{frame}
 
@@ -1012,14 +1199,19 @@ When testing:
 \begin{center}
 \renewcommand{\arraystretch}{1.3}
 \small
-\begin{tabular}{p{2.8cm}p{9cm}}
+\renewcommand{\arraystretch}{1.15}
+\footnotesize
+\begin{tabular}{p{2.8cm}p{9.5cm}}
 \toprule
 \textbf{Topic} & \textbf{Key Takeaway} \\
 \midrule
-F test & Measures fit loss from imposing $H_0$; $F = W^0/q$; needs homoskedasticity \\
-Score test & Tests from restricted model; equivalent to $F$ for linear restrictions \\
-Trinity & Wald, Score, F agree for linear $H_0$ in normal model \\
-Test inversion & Confidence sets $=$ non-rejected values; essential for nonlinear parameters \\
+CLS & Equality $\bm{R}'\bm{\beta} = \bm{r}$ via Lagrange; gives $\text{SSE}_R$ for $F$ and Score \\
+Inequality CLS & Feasible set $\mathcal{B}$ as a polyhedron; quadratic program with KKT \\
+Partial ID & $\Theta_I$ has width that does not vanish with $n$; report bounds, not just a point \\
+F test & $F = W^0/q$; $\sim F_{q,n-k}$ under normal homo.; use robust Wald otherwise \\
+Score test & From restricted model; equivalent to $F$ for linear restrictions \\
+Trinity & Wald, Score, $F$ agree for linear $H_0$ in normal model \\
+Test inversion & Confidence sets = non-rejected values; essential for nonlinear parameters \\
 Bonferroni & With $k$ tests, use $\alpha/k$ to control familywise error \\
 Power & $\delta = \text{effect}/\text{se}$; grows with $\sqrt{n}$; 50\% power needs $\delta \approx 2$ \\
 Practical advice & Report SEs, CIs, $p$-values; focus on magnitudes; consider power \\
