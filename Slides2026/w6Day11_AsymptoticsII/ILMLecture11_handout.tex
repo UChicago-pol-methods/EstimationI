@@ -156,12 +156,7 @@ defined for $t$ in some open interval around $0$ where the expectation is finite
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Example 1: Uniform}
-If $X\sim U(0,1)$, and $Y\sim U(0,1)$, what is the distribution of $X+Y$?
-
-\end{frame}
-
-\begin{frame}{Example 2: The Distribution of a Sum (Two Fair Dice)}
+\begin{frame}{Example: The Distribution of a Sum (Two Fair Dice)}
 
 \textbf{Setup.} Independent rolls $X, Y$, each uniform on $\{1, 2, \ldots, 6\}$. What is the pmf of $X + Y$?
 
@@ -187,32 +182,6 @@ So $p_{X+Y}(s) = \#\text{pairs}/36$. Triangular, peaked at $7$.
 p_{X+Y}(s) \;=\; \sum_x\, p_X(x)\,p_Y(s - x).
 \]
 This is the \textbf{convolution} of the two pmfs. For continuous $X, Y$, replace the sum with an integral.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Why the Product Property Matters}
-
-For continuous $X, Y$, the convolution is an integral with the same structure:
-\[
-f_{X+Y}(s) \;=\; \int f_X(x)\,f_Y(s - x)\,dx.
-\]
-
-\pause
-
-\medskip
-
-This integral is awkward to compute once, and worse to iterate $n$ times for a sum $X_1 + \cdots + X_n$.
-
-\pause
-
-\medskip
-
-In MGF terms, the same computation is just a product:
-\[
-M_{X_1 + \cdots + X_n}(t) \;=\; M_{X_1}(t)\cdots M_{X_n}(t).
-\]
 
 \end{frame}
 
@@ -470,24 +439,6 @@ M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Today's Claims}
-\begin{itemize}
-\item The least squares estimator $\hat{\bm{\beta}}$ is \emph{consistent} for the projection coefficient $\bm{\beta}$.
-\item There is an asymptotic normal approximation to the distribution of $\hat{\bm{\beta}}$ (once normalized).
-\item Similarly, the error variance estimators $\hat{\sigma}^2$ and $s^2$ are consistent for $\sigma^2$.
-\item There is a consistent estimator of $\bm{V}_\beta$, either under homoskedasticity $\hat{\bm{V}}^0_\beta$, or otherwise.
-\item We can use z-statistics for asymptotic standard errors, confidence intervals, and prediction intervals.
-\end{itemize}
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Strategy:} Apply the tools from Lecture 10 --- WLLN, CLT, CMT --- plus the delta method (introduced today) to derive the asymptotic properties of OLS.
-\end{tcolorbox}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{frame}{Motivation: Distribution of a Function of Estimators}
 \begin{itemize}
 \item Suppose we want to estimate some function of parameters $f(b_1, b_2)=b_1/b_2$.\pause
@@ -495,19 +446,6 @@ M_{Z_n}(t) \;\longrightarrow\; e^{t^2/2}. \qquad \blacksquare
 \item We can use the \textbf{Delta Method} (Asymptotic Normality + Taylor Expansion) to approximate it.\pause
 \item The idea: if $\bm{b}$ is approximately normal (by the CLT), then a smooth function $\bm{f(b)}$ is also approximately normal, with variance determined by the derivatives of $f$.
 \end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Asymptotic Normality of $\hat{\bm{\beta}}$ (Preview)}
-\textbf{Claim} (proved later this lecture): if errors are iid with mean zero and finite variance and $\bm{X}$ is full rank, the CLT gives:
-$$\hat{\bm{\beta}}\overset{a}{\sim} N\!\left[\bm{\beta},\ \frac{\sigma^2}{n}  \left[\text{plim}\frac{\bm{X'X}}{n}\right]^{-1}\right], \qquad \text{estimated by } s^2(\bm{X}'\bm{X})^{-1}$$
-
-\pause
-
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-For now, take this as given. Once $\hat{\bm{\beta}}$ is approximately normal, we can ask: what is the distribution of a \emph{function} of $\hat{\bm{\beta}}$?
-\end{tcolorbox}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -758,30 +696,6 @@ The next few slides apply these to $\hat{\bm{\beta}}$, written as a function of 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Proof Outline: Two Routes to Consistency}
-\begin{itemize}
-\item \textbf{Route 1} (Method of Moments):
-\begin{itemize}
-\item WLLN: sample moments converge to population moments
-\item CMT: continuous functions of convergent sequences converge
-\item OLS is a continuous function of sample moments
-\end{itemize}
-\pause
-\item \textbf{Route 2} (Algebraic):
-\begin{itemize}
-\item Write $\hat{\bm{\beta}} - \bm{\beta}$ as a product of sample moments
-\item Apply WLLN to each piece, CMT/Slutsky to combine
-\end{itemize}
-\end{itemize}
-
-\pause
-
-Both routes use the same tools from Lecture 10. Route 1 generalizes to nonlinear estimators (MLE, GMM); Route 2 gives an explicit formula for the sampling error.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{frame}{OLS is a function of sample moments}
 \begin{itemize}
 \item $\hat{\bm{\beta}}=\left(\frac{1}{n}\sum_{i=1}^n\bm{x}_i\bm{x}'_i\right)^{-1}\left(\frac{1}{n}\sum_{i=1}^n\bm{x}_iY_i\right)=\hat{\bm{Q}}_{XX}^{-1}\hat{\bm{Q}}_{XY}$ \pause
@@ -903,17 +817,6 @@ Same decomposition as Probit MLE in Lecture 9: CLT for the numerator, WLLN/CMT f
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Covariance of coefficient estimators under homoskedasticity}
-\begin{itemize}
-\item Assume $Y=\beta_1X_1+\beta_2X_2+e$ with $E[ee']=\sigma^2\bm{I}$.
-\item Suppose $E[X_1]=0$, $E[X_2]=0$, $Var[X_1]=1$, $Var[X_2]=1$, $corr[X_1, X_2]=\rho$
-$$\bm{V}_\beta^0=\sigma^2\bm{Q}_{XX}^{-1}=\sigma^2\begin{bmatrix}1&\rho\\ \rho &1 \end{bmatrix}^{-1}=\frac{\sigma^2}{1-\rho^2}\begin{bmatrix}1&-\rho\\ -\rho &1 \end{bmatrix}$$
-\item If $X_1$ and $X_2$ are positively correlated, $\hat{\beta}_1$ and $\hat{\beta}_2$ are negatively correlated.
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{frame}{Heteroskedastic Covariance Matrix Estimation}
 \begin{itemize}
 \item The asymptotic covariance matrix of $\sqrt{n}(\hat{\bm{\beta}}-\bm{\beta})$ is $\bm{Q}_{XX}^{-1} \Omega \bm{Q}_{XX}^{-1}$.
@@ -986,35 +889,6 @@ GMM & $(G'WG)^{-1}G'W$ & $\mathbb{E}[g_i g_i']$ & --- \\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Variances: Exact vs Asymptotic}
-
-\renewcommand{\arraystretch}{1.4}
-\begin{tabular}{lll}
-\toprule
-\textbf{Object} & \textbf{Formula} & \textbf{When to use} \\
-\midrule
-Exact variance & $(\bm{X}'\bm{X})^{-1}(\bm{X}'\bm{D}\bm{X})(\bm{X}'\bm{X})^{-1}$ & Fixed $X$, any $n$ \\
-\quad (homosk.) & $\sigma^2(\bm{X}'\bm{X})^{-1}$ & $+ E[ee']=\sigma^2 I$ \\
-\midrule
-Asy. variance & $\bm{Q}_{XX}^{-1}\Omega\bm{Q}_{XX}^{-1}$ & Random $X$, $n$ large \\
-\quad (homosk.) & $\sigma^2 \bm{Q}_{XX}^{-1}$ & $+ E[e^2|X]=\sigma^2$ \\
-\bottomrule
-\end{tabular}
-\renewcommand{\arraystretch}{1.0}
-
-\pause
-
-\bigskip
-
-\begin{itemize}
-    \item The exact variance conditions on $X$; the asymptotic variance averages over $X$.
-    \item For large $n$: $\frac{1}{n}\bm{X'X} \approx Q_{XX}$, so they agree.
-    \item In practice, we always estimate using the sandwich (or its homoskedastic special case).
-\end{itemize}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Asymptotic Properties: Wald Test}
 \setcounter{subsection}{1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1144,34 +1018,6 @@ Both test $H_0: \beta_{ed} = \beta_{women} = 0$ using the sandwich covariance.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Delta Method Applied to OLS}
 \setcounter{subsection}{1}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Applying the Delta Method to OLS}
-
-Earlier we introduced the delta method in general: if $\hat{\bm{\theta}}$ is asymptotically normal, then any smooth function $h(\hat{\bm{\theta}})$ is also asymptotically normal.
-
-\pause
-
-\bigskip
-
-Now we have the specific ingredients for OLS:
-\begin{itemize}
-  \item $\hat{\bm{\beta}}$ is asymptotically normal (proved in the previous sections)
-  \item $\hat{\bm{V}}_{\hat{\beta}}$ is a consistent estimator of its covariance (sandwich or homoskedastic)
-  \item For any differentiable $\theta = r(\bm{\beta})$, the gradient $\bm{R} = \frac{\partial r}{\partial \bm{\beta}}\big|_{\hat{\bm{\beta}}}$ gives:
-\end{itemize}
-
-\begin{tcolorbox}
-$$s(\hat{\theta})=\sqrt{\bm{R}'\hat{\bm{V}}_{\hat{\beta}}\bm{R}}$$
-This works for \textbf{any} differentiable function of $\hat{\bm{\beta}}$ --- linear or nonlinear.
-\end{tcolorbox}
-
-\pause
-
-Let's work through three examples of increasing complexity.
-
-\end{frame}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Running Example: Log Wage Regression}
@@ -1329,7 +1175,66 @@ car::deltaMethod(mod0, "income / education")
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Application: Ridge Regression}
+\section{Summary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{What We Proved Today}
+
+The OLS estimator $\hat{\bm{\beta}}=(\bm{X}'\bm{X})^{-1}\bm{X}'y$ is:
+
+\medskip
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{lll}
+\toprule
+\textbf{Property} & \textbf{Tool (from Lectures 10--11)} & \textbf{Result} \\
+\midrule
+Consistent & WLLN + CMT & $\text{plim}\ \hat{\bm{\beta}} = \bm{\beta}$ \\
+Asy. normal & Multivariate CLT + Slutsky & $\sqrt{n}(\hat{\bm{\beta}} - \bm{\beta}) \overset{d}{\to} N(\bm{0}, \bm{V}_\beta)$ \\
+Testable & Wald statistic & $W \overset{a}{\sim} \chi^2_q$ \\
+Robust & Sandwich estimator & $\hat{\bm{V}}_\beta^{HC} \overset{p}{\to} \bm{V}_\beta$ \\
+\bottomrule
+\end{tabular}
+\renewcommand{\arraystretch}{1.0}
+
+\pause
+
+\bigskip
+
+These results hold \textbf{without normality} --- only requiring iid data with finite 4th moments and $\mathbb{E}[\bm{x}e] = 0$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Looking Ahead}
+
+\textbf{What happens when $\mathbb{E}[\bm{x}e] \neq 0$?}
+
+\pause
+
+\begin{itemize}
+    \item OLS is \textbf{inconsistent}: $\text{plim}\,\hat{\bm{\beta}} = \bm{\beta} + \bm{Q}_{XX}^{-1}\mathbb{E}[\bm{X}e] \neq \bm{\beta}$
+    \item No amount of data can fix this --- the bias does not vanish.
+\end{itemize}
+
+\pause
+
+\bigskip
+
+\textbf{Lectures 13--14 (IV and 2SLS):} Find instruments $Z$ with $\mathbb{E}[Ze] = 0$ and $\mathbb{E}[ZX'] \neq 0$.
+\begin{itemize}
+    \item Replace the OLS moment condition $\mathbb{E}[X(Y - X'\beta)] = 0$ with $\mathbb{E}[Z(Y - X'\beta)] = 0$
+    \item Same asymptotic machinery: WLLN, CLT, Slutsky, sandwich --- applied to a different estimating equation
+    \item This is another instance of the GMM framework: $\mathbb{E}[g(W_i, \theta_0)] = 0$
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Appendix: Ridge Regression}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}{Application: Ridge Regression}
@@ -1368,113 +1273,5 @@ $$\hat{\bm{\beta}}_R=\left(\sum_{i=1}^n \bm{X}_i\bm{X}_i'+\lambda \bm{I}_k\right
   \item Biased in finite samples, consistent asymptotically.
 \end{itemize}
 \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Summary}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{What We Proved Today}
-
-The OLS estimator $\hat{\bm{\beta}}=(\bm{X}'\bm{X})^{-1}\bm{X}'y$ is:
-
-\medskip
-
-\renewcommand{\arraystretch}{1.4}
-\begin{tabular}{lll}
-\toprule
-\textbf{Property} & \textbf{Tool (from Lectures 10--11)} & \textbf{Result} \\
-\midrule
-Consistent & WLLN + CMT & $\text{plim}\ \hat{\bm{\beta}} = \bm{\beta}$ \\
-Asy. normal & Multivariate CLT + Slutsky & $\sqrt{n}(\hat{\bm{\beta}} - \bm{\beta}) \overset{d}{\to} N(\bm{0}, \bm{V}_\beta)$ \\
-Testable & Wald statistic & $W \overset{a}{\sim} \chi^2_q$ \\
-Robust & Sandwich estimator & $\hat{\bm{V}}_\beta^{HC} \overset{p}{\to} \bm{V}_\beta$ \\
-\bottomrule
-\end{tabular}
-\renewcommand{\arraystretch}{1.0}
-
-\pause
-
-\bigskip
-
-These results hold \textbf{without normality} --- only requiring iid data with finite 4th moments and $\mathbb{E}[\bm{x}e] = 0$.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Beyond OLS: the OLS Argument as a Template}
-
-\textbf{Recap what we just did.} In the normality step we wrote
-\[
-\sqrt n(\hat{\bm{\beta}} - \bm{\beta}) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \underbrace{\bm{Q}_{XX}^{-1}\,\bm{x}_i\,e_i}_{\psi(Z_i)} \;+\; o_p(1),
-\]
-a sample mean of mean-zero random vectors plus a negligible remainder. CLT $+$ Slutsky then delivered asymptotic normality.
-
-\pause
-
-\medskip
-
-The whole argument turned on two things:
-\begin{enumerate}\setlength\itemsep{2pt}
-\item Expressing $\sqrt n(\hat{\theta} - \theta)$ as a sample mean of an iid, mean-zero random quantity.
-\item Controlling the leftover as $o_p(1)$.
-\end{enumerate}
-Nothing about the argument was specific to OLS. Next slide: the general version.
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Influence Functions (Preview)}
-
-\textbf{The general template.} Many estimators $\hat{\theta}$ admit the same representation:
-\[
-\sqrt n(\hat{\theta} - \theta) \;=\; \frac{1}{\sqrt n}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1), \qquad \mathbb{E}[\psi(Z)] = 0.
-\]
-The function $\psi$ is the estimator's \textbf{influence function}: it measures how much a single observation $Z_i$ moves $\hat{\theta}$ around $\theta$.
-
-\pause
-
-\medskip
-
-CLT on the sample mean, Slutsky to absorb the $o_p(1)$:
-\[
-\sqrt n(\hat{\theta} - \theta) \;\overset{d}{\to}\; N\bigl(0,\ \mathrm{Var}(\psi)\bigr).
-\]
-
-\pause
-
-\medskip
-
-\emph{HW4 Q4--Q9 builds this template for the AIPW estimator of the average treatment effect.}
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}{Looking Ahead}
-
-\textbf{What happens when $\mathbb{E}[\bm{x}e] \neq 0$?}
-
-\pause
-
-\begin{itemize}
-    \item OLS is \textbf{inconsistent}: $\text{plim}\,\hat{\bm{\beta}} = \bm{\beta} + \bm{Q}_{XX}^{-1}\mathbb{E}[\bm{X}e] \neq \bm{\beta}$
-    \item No amount of data can fix this --- the bias does not vanish.
-\end{itemize}
-
-\pause
-
-\bigskip
-
-\textbf{Lectures 13--14 (IV and 2SLS):} Find instruments $Z$ with $\mathbb{E}[Ze] = 0$ and $\mathbb{E}[ZX'] \neq 0$.
-\begin{itemize}
-    \item Replace the OLS moment condition $\mathbb{E}[X(Y - X'\beta)] = 0$ with $\mathbb{E}[Z(Y - X'\beta)] = 0$
-    \item Same asymptotic machinery: WLLN, CLT, Slutsky, sandwich --- applied to a different estimating equation
-    \item This is another instance of the GMM framework: $\mathbb{E}[g(W_i, \theta_0)] = 0$
-\end{itemize}
-
-\end{frame}
-
 
 \end{document}
