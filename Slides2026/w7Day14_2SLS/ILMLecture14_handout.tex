@@ -419,7 +419,32 @@ LATE is \textbf{instrument-dependent}: different instruments $\Rightarrow$ diffe
 \item This may differ from ATE or ATT
 \end{itemize}
 \item \textbf{Policy relevance:} LATE answers ``what is the return for people affected by the policy?'' --- exactly the right parameter for evaluating that policy.
+\item \alert{Caveat:} AK control for state and year-of-birth fixed effects.  Whether the LATE interpretation survives the inclusion of those controls is exactly the question Blandhol et al.\ (2025) raise --- see next slide.
 \end{itemize}
+\end{frame}
+
+
+\begin{frame}{When Is TSLS \emph{Actually} LATE? (Blandhol et al.\ 2025)}
+\begin{itemize}
+\item The LATE interpretation of TSLS hides a requirement: \alert{rich covariates},
+$$\mathbb{E}[Z\mid X] = \mathbb{L}[Z\mid X].$$
+The conditional mean of $Z$ given $X$ must coincide with its linear projection.
+\item Holds automatically when there are no covariates (the Wald case), the spec is \emph{saturated} in $X$, or $Z\perp X$ by design.
+\item Otherwise the TSLS estimand mixes complier effects with always-taker effects, and \emph{some always-taker weights are necessarily negative} --- it is not even a non-negatively-weighted average of subgroup treatment effects.
+\item In a survey of 99 published IV-with-covariates papers, BBMT find \emph{one} that used a saturated specification.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{TSLS-LATE: Practical Workflow (BBMT 2025)}
+\begin{enumerate}\itemsep=4pt
+\item \textbf{Report TSLS without covariates} if exogeneity doesn't require them.  Avoid kitchen-sink controls --- adding covariates makes rich covariates \emph{less} likely to hold.
+\item \textbf{Report the Ramsey RESET test} for a regression of $Z$ on $X$ (R: \texttt{lmtest::resettest}; Stata: \texttt{estat ovtest}).  The null is rich covariates; rejection means the LATE interpretation fails.
+\item \textbf{If RESET rejects, estimate $\beta_{\text{rich}}$ via DDML PLIV} and report alongside TSLS.  R packages: \texttt{ddml}, \texttt{DoubleML}.
+\item \textbf{If $Z$ is binary, also report the unconditional ACR/LATE.}  Equals the unconditional LATE when treatment is binary; estimated via DDML or IPSW (Słoczyński et al.\ 2024).
+\end{enumerate}
+\medskip
+\small The MTE framework (next section) is the principled alternative when you want to know which causal parameter you are estimating.
 \end{frame}
 
 
