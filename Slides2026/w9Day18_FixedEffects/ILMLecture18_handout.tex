@@ -701,6 +701,23 @@ summary(ab_mod)
 \end{frame}
 
 
+\begin{frame}{Critical Assessment: When Lagged-Instrument GMM Works}
+\begin{itemize}
+\item \textbf{What the exclusion restriction really requires.}  Lagged levels $Y_{is}$ ($s\le t-2$) are valid instruments for $\Delta Y_{it-1}$ \alert{only if $e_{it}$ is serially uncorrelated}.  This is a substantive assumption about the structural error --- not a regularity condition --- and it is testable (AR(2) test on differenced residuals).
+\item \textbf{Where the technique struggles in applied work.}
+\begin{itemize}
+\item \textbf{Persistent series} ($\rho\to 1$): Arellano-Bond instruments become weak; Blundell-Bond System GMM was developed for this case but inherits its own validity concerns.
+\item \textbf{Short panels with many lags:} the instrument count grows quadratically in $T$.  Roodman (2009) shows the Sargan test loses power as instruments proliferate --- passing it stops being informative.  ``Collapse lags'' is a band-aid, not a fix.
+\item \textbf{Plausible serial correlation in} $e_{it}$: most political-economy outcomes (vote shares, conflict, regime quality) have persistent unobserved drivers.  When AR(2) rejects, the moment conditions fail by your own diagnostic.
+\end{itemize}
+\item \textbf{Why it's less common today.}  Applied work has shifted toward design-based identification --- DiD with staggered adoption, RD, shift-share IV with explicit exposure mappings --- where the exclusion restriction is defended from institutional knowledge rather than from a serial-correlation assumption nobody can verify ex ante.
+\end{itemize}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+Lagged-instrument GMM remains useful as a \emph{benchmark} for dynamic panels, but rarely as the headline estimate in modern applied work.
+\end{tcolorbox}
+\end{frame}
+
+
 \begin{frame}{Choosing a Panel Estimator}
 \centering
 \vspace{-6pt}

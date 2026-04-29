@@ -306,6 +306,18 @@ $$H=(\hat{\beta}_{IV}-\hat{\beta}_{OLS})'[Avar(\hat{\beta}_{IV})-Avar(\hat{\beta
 \end{frame}
 
 
+\begin{frame}{DWH $\to$ GMM Distance Form}
+\begin{itemize}
+\item The classical Hausman statistic
+$$H=(\hat{\beta}_{IV}-\hat{\beta}_{OLS})'\bigl[\text{Avar}(\hat{\beta}_{IV})-\text{Avar}(\hat{\beta}_{OLS})\bigr]^{-1}(\hat{\beta}_{IV}-\hat{\beta}_{OLS})$$
+requires the difference of variances to be positive semidefinite --- which holds \alert{only under conditional homoskedasticity}.  Under heteroskedasticity the inverse can fail.
+\item \textbf{Fix (Lecture 16):} the GMM \emph{distance test}.  Compute efficient GMM twice --- $\bar{J}$ with the original instruments, $\hat{J}$ adding $X_2$ as its own instrument (valid under $H_0:E[X_2 e]=0$):
+$$C=\hat{J}-\bar{J}\xrightarrow{d}\chi^2_{k_2} \quad \text{under } H_0.$$
+\item Same null as DWH; no homoskedasticity required.  Report this under heteroskedasticity.
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}{Testing Overidentifying Restrictions: Sargan Test}
 \begin{itemize}
 \item When $l>k$, we have $q=l-k$ ``extra'' moment conditions.

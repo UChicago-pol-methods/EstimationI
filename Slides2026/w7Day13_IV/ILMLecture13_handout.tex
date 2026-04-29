@@ -303,6 +303,8 @@ $$Y_1 = \bm{x}'\beta + e$$
 \item When $l>k$: \textbf{overidentified} ($q=l-k$ overidentifying restrictions)
 \item When $l<k$: \textbf{underidentified} (cannot estimate $\beta$)
 \end{itemize}
+\medskip
+\small\alert{Aside.}\, \emph{Lagged values of the endogenous regressor are sometimes proposed as instruments.  Whether the exclusion restriction holds depends on the autocorrelation structure of the structural error --- developed in Lecture 18 (dynamic panels).}
 \end{frame}
 
 
@@ -511,13 +513,28 @@ $$\xrightarrow{p}\; (Q_{XZ}Q_{ZZ}^{-1}Q_{ZX})^{-1}Q_{XZ}Q_{ZZ}^{-1}\underbrace{E
 \end{frame}
 
 
+\begin{frame}{Just-Identified IV: Asymptotic Distribution}
+\begin{itemize}
+\item For just-identified IV ($l=k$), $\hat{\beta}_{IV}=(Z'X)^{-1}Z'Y$, and
+$$\sqrt{n}(\hat{\beta}_{IV}-\beta) = \left(\frac{Z'X}{n}\right)^{-1}\frac{Z'e}{\sqrt{n}}.$$
+\item WLLN: $\dfrac{Z'X}{n}\xrightarrow{p}Q\equiv\mathbb{E}[\bm{z}\bm{x}']$ ($k\times k$ since $l=k$).
+\item CLT: $\dfrac{Z'e}{\sqrt{n}}\xrightarrow{d} N(0,\Omega)$, $\Omega\equiv\mathbb{E}[\bm{z}\bm{z}'e^2]$.
+\item Slutsky:
+\end{itemize}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+$$\sqrt{n}(\hat{\beta}_{IV}-\beta)\xrightarrow{d} N\!\left(0,\;Q^{-1}\Omega\, Q^{-1\prime}\right).$$
+\end{tcolorbox}
+The general 2SLS sandwich (next slide) reduces to this when $l=k$.
+\end{frame}
+
+
 \begin{frame}{Asymptotic Distribution (Hansen Thm.\ 12.2)}
 \begin{thm}[Asymptotic Normality]
 Under regularity conditions:
 $$\sqrt{n}(\hat{\beta}_{2SLS}-\beta)\xrightarrow{d} N(0, V_\beta)$$
 where:
 $$V_\beta = (Q_{XZ}Q_{ZZ}^{-1}Q_{ZX})^{-1}Q_{XZ}Q_{ZZ}^{-1}\Omega Q_{ZZ}^{-1}Q_{ZX}(Q_{XZ}Q_{ZZ}^{-1}Q_{ZX})^{-1}$$
-with $Q_{XZ}=E[XZ']$, $Q_{ZZ}=E[ZZ']$, $Q_{ZX}=E[ZX']$, $\Omega=E[Z'Zee'Z]$.
+with $Q_{XZ}=E[\bm{x}_i\bm{z}_i']$, $Q_{ZZ}=E[\bm{z}_i\bm{z}_i']$, $Q_{ZX}=E[\bm{z}_i\bm{x}_i']$, $\Omega=E[\bm{z}_i\bm{z}_i'e_i^2]$.
 \end{thm}
 \begin{itemize}
 \item Under homoskedasticity ($E[e^2\mid Z]=\sigma^2$), this simplifies to:
@@ -527,7 +544,23 @@ $$V_\beta = \sigma^2(Q_{XZ}Q_{ZZ}^{-1}Q_{ZX})^{-1}$$
 \end{frame}
 
 
-\begin{frame}{Variance Estimation}
+\begin{frame}{Sample Analogs: Plug-in Variance for Just-Identified IV}
+\begin{itemize}
+\item Replace population moments with sample averages.  Form residuals $\hat{e}_i = Y_i - \bm{x}_i'\hat{\beta}_{IV}$ (using the original $\bm{x}_i$, not $\hat{\bm{x}}_i$).
+\item Sample analogs:
+$$\hat{Q}=\frac{1}{n}\sum_{i=1}^n \bm{z}_i\bm{x}_i', \qquad \hat{\Omega}=\frac{1}{n}\sum_{i=1}^n \bm{z}_i\bm{z}_i'\hat{e}_i^2.$$
+\end{itemize}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+$$\widehat{\text{Var}}(\hat{\beta}_{IV})=\frac{1}{n}\,\hat{Q}^{-1}\hat{\Omega}\,\hat{Q}^{-1\prime}$$
+\end{tcolorbox}
+\begin{itemize}
+\item \textbf{What you do with data:} compute $\hat{Q}$ as a matrix of cross-products, compute residuals, compute $\hat{\Omega}$ as a $z\bar{z}'$-weighted average of squared residuals, sandwich them.
+\item Under conditional homoskedasticity $\hat{\Omega}=\hat{\sigma}^2\,\hat{Q}_{ZZ}$, recovering the classical formula.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Variance Estimation: 2SLS}
 \begin{itemize}
 \item \textbf{Homoskedastic} variance estimator:
 $$\hat{V}_\beta = \hat{\sigma}^2(X'P_ZX)^{-1}, \qquad \hat{\sigma}^2 = \frac{\hat{e}'\hat{e}}{n-k}$$
@@ -535,6 +568,24 @@ where $\hat{e}=Y-X\hat{\beta}_{2SLS}$ (use \textbf{original} $X$, not $\hat{X}$)
 \item \textbf{Heteroskedastic-robust} (analogous to HC):
 $$\hat{V}_\beta = (X'P_ZX)^{-1}\left(\sum_{i=1}^n \hat{e}_i^2 \hat{X}_i\hat{X}_i'\right)(X'P_ZX)^{-1}$$
 \item \alert{Important:} Standard errors from the ``naive'' second-stage regression (regressing $Y$ on $\hat{X}$ and reading off SEs) are \textbf{incorrect} --- they use $\hat{X}$ instead of $X$ in the residuals.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Wald Tests with IV/2SLS}
+\begin{itemize}
+\item To test the linear restriction $H_0:\bm{R}\beta=\bm{r}$ ($q$ restrictions), form
+$$W_n = n(\bm{R}\hat{\beta}-\bm{r})'\bigl(\bm{R}\,\hat{V}\,\bm{R}'\bigr)^{-1}(\bm{R}\hat{\beta}-\bm{r})\xrightarrow{d}\chi^2_q,$$
+where $\hat{V}=\hat{Q}^{-1}\hat{\Omega}\hat{Q}^{-1\prime}$ (just-identified) or the 2SLS sandwich (overidentified).
+\item Reject $H_0$ at level $\alpha$ if $W_n>\chi^2_{q,1-\alpha}$.  For a single coefficient: $t=\sqrt{W_n}$, compare to $\pm 1.96$.
+\end{itemize}
+\medskip
+\textbf{Example: equality of IV slopes across two independent samples.}
+\begin{itemize}
+\item Sample 1 (e.g., women), sample 2 (e.g., men), each just identified, separate $\hat{\beta}_j$, $\hat{V}_j$.
+\item Independence (different individuals) $\Rightarrow \hat{\beta}_1\perp\hat{\beta}_2$ asymptotically.
+\item Test $H_0:\beta_1=\beta_2$ via
+$$W_n = n(\hat{\beta}_1-\hat{\beta}_2)'\bigl(\hat{V}_1+\hat{V}_2\bigr)^{-1}(\hat{\beta}_1-\hat{\beta}_2)\xrightarrow{d}\chi^2_k.$$
 \end{itemize}
 \end{frame}
 

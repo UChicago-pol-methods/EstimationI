@@ -203,6 +203,36 @@ The key outputs from CLS are $\text{SSE}_R = \sum \tilde{e}_i^2$ and $\tilde{\si
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Worked Example: CLS for a Linear Restriction}
+
+\textbf{Setup.}\, Wage regression with separate returns to general experience and firm-specific tenure:
+$$\log w_i = \beta_0 + \beta_1\,\text{educ}_i + \beta_2\,\text{exper}_i + \beta_3\,\text{tenure}_i + e_i.$$
+Becker--Mincer human-capital theory predicts these have \emph{different} returns: firm-specific human capital should pay more at the current employer than general experience does.  We want to \emph{test} this --- formally, $H_0: \beta_2 = \beta_3$ vs.\ $H_1: \beta_2 \ne \beta_3$.
+
+\medskip
+
+\alert{Important framing.}\, We do not impose the restriction because we believe it.  We compute the restricted estimator to obtain $\text{SSE}_R$, which feeds the $F$ statistic that \emph{tests} the restriction.
+
+\pause
+\bigskip
+
+\textbf{Approach 1: Reparameterize.}\, Under $H_0$ the model becomes
+$$\log w_i = \beta_0 + \beta_1\,\text{educ}_i + \beta_2\,(\text{exper}_i + \text{tenure}_i) + e_i,$$
+which is just OLS on the new combined regressor:
+\begin{lstlisting}
+mod_R <- lm(lwage ~ educ + I(exper + tenure), data = wages)
+\end{lstlisting}
+
+\textbf{Approach 2: Apply the boxed CLS formula directly} with $\bm{R}' = (0, 0, 1, -1)$ and $\bm{r} = 0$.
+
+\pause
+\bigskip
+
+Both give the same $\tilde{\bm{\beta}}_{\text{CLS}}$ and the same $\text{SSE}_R = \sum \tilde{e}_i^2$, which feed the $F$ statistic developed later in this lecture.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Beyond Equality: Inequality Constraints}
 
 The CLS formulation extends naturally to inequalities:
@@ -228,34 +258,26 @@ The feasible set $\mathcal{B}$ is a \emph{polyhedron} (an intersection of half-s
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Solving Inequality CLS: KKT Conditions}
+\begin{frame}{Solving Inequality CLS: Two Cases}
 
-Lagrangian: $L(\bm{\beta}, \bm{\lambda}) = \tfrac{1}{2}(\bm{Y} - \bm{X}\bm{\beta})'(\bm{Y} - \bm{X}\bm{\beta}) + \bm{\lambda}'(\bm{R}'\bm{\beta} - \bm{r})$.
-
-\pause
-\smallskip
-
-\textbf{KKT conditions} at the optimum:
-\begin{align*}
-\bm{X}'\bm{X}\tilde{\bm{\beta}} - \bm{X}'\bm{Y} + \bm{R}\tilde{\bm{\lambda}} &= \bm{0} \quad &&\text{(stationarity)} \\
-\bm{R}'\tilde{\bm{\beta}} &\leq \bm{r} \quad &&\text{(primal feasibility)} \\
-\tilde{\bm{\lambda}} &\geq \bm{0} \quad &&\text{(dual feasibility)} \\
-\tilde{\lambda}_j\,(\bm{R}_j'\tilde{\bm{\beta}} - r_j) &= 0 \quad &&\text{(complementary slackness)}
-\end{align*}
+\textbf{Strategy.}\, Solve unconstrained OLS first, then check whether the result satisfies the constraints.
 
 \pause
-\smallskip
+\bigskip
 
-\textbf{Two cases:}
-\begin{itemize}
-\item $\hat{\bm{\beta}}_{\text{OLS}} \in \mathcal{B}$: no constraint binds, so $\tilde{\bm{\beta}} = \hat{\bm{\beta}}_{\text{OLS}}$.
-\item $\hat{\bm{\beta}}_{\text{OLS}} \notin \mathcal{B}$: some constraints bind ($\tilde{\lambda}_j > 0$); the binding constraints behave as equalities and we recover the equality-CLS formula on that face.
-\end{itemize}
+\textbf{Case 1: $\hat{\bm{\beta}}_{\text{OLS}} \in \mathcal{B}$.}\, No constraint binds; the constrained and unconstrained problems have the same solution:
+$$\tilde{\bm{\beta}}_{\text{CLS}} = \hat{\bm{\beta}}_{\text{OLS}}.$$
 
 \pause
-\smallskip
+\bigskip
 
-This is a \emph{quadratic program}.  In R: \texttt{quadprog::solve.QP()}.
+\textbf{Case 2: $\hat{\bm{\beta}}_{\text{OLS}} \notin \mathcal{B}$.}\, The constrained solution sits on the boundary of $\mathcal{B}$.  On the face where one or more constraints bind, those constraints hold with equality, and the solution is given by the \emph{equality}-CLS formula from earlier in this lecture, applied to the binding constraints only.
+
+\pause
+\bigskip
+
+Conceptually, you are projecting $\hat{\bm{\beta}}_{\text{OLS}}$ onto the feasible region $\mathcal{B}$.  Picking which constraints bind is what makes the inequality case harder than the equality case --- in practice this is solved by a \emph{quadratic program}.  In R: \texttt{quadprog::solve.QP()}.
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1206,7 +1228,7 @@ When testing:
 \textbf{Topic} & \textbf{Key Takeaway} \\
 \midrule
 CLS & Equality $\bm{R}'\bm{\beta} = \bm{r}$ via Lagrange; gives $\text{SSE}_R$ for $F$ and Score \\
-Inequality CLS & Feasible set $\mathcal{B}$ as a polyhedron; quadratic program with KKT \\
+Inequality CLS & Feasible set $\mathcal{B}$ as a polyhedron; project OLS onto $\mathcal{B}$ via QP \\
 Partial ID & $\Theta_I$ has width that does not vanish with $n$; report bounds, not just a point \\
 F test & $F = W^0/q$; $\sim F_{q,n-k}$ under normal homo.; use robust Wald otherwise \\
 Score test & From restricted model; equivalent to $F$ for linear restrictions \\
