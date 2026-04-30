@@ -592,6 +592,173 @@ cat("\nSargan J-stat:", round(J, 3), "  p-value:", round(1 - pchisq(J, 1), 3), "
 ```
 
 
+## When TSLS-with-controls isn't LATE: Dube & Vargas (2013)
+
+Up to here we have presented IV under heterogeneity as estimating a LATE on compliers. That story is exactly correct for the **Wald** estimator (binary $Z$, no covariates). It is *not* generally correct for **TSLS with covariates** — which is what almost all applied IV papers actually report.
+
+[Blandhol, Bonney, Mogstad, and Torgovitsky (2025)](https://www.nber.org/papers/w27331) — "BBMT" — show that TSLS-with-controls reflects compliers *and* always-takers, and that some always-taker weights are necessarily negative, unless a strong condition called **rich covariates** holds. Rich covariates is essentially that the controls $X$ enter the model flexibly enough that the linear projection $\mathbb{L}[Z\mid X]$ coincides with the conditional mean $\mathbb{E}[Z\mid X]$. Linear-in-FE specifications almost never satisfy this.
+
+This section walks through their recommended workflow on a real applied IV paper: Dube and Vargas (2013), "Commodity Price Shocks and Civil Conflict: Evidence from Colombia."
+
+### The setup, in one paragraph
+
+Dube and Vargas ask whether commodity-price shocks affect violence in Colombian municipalities. The mechanism is labor-market: a rise in the price of a *labor-intensive* commodity (coffee) raises local wages, raises the opportunity cost of joining an armed group, and reduces violence. Their identification strategy is an interaction instrument: $Z_{it} = E_i \times P_t$, where $E_i$ is municipality $i$'s pre-period coffee exposure and $P_t$ is the world coffee price. World prices are exogenous to violence in any one Colombian municipality (a small-open-economy argument); local exposure is a fixed geographic feature. The interaction shifts local economic conditions through the labor-market channel they hypothesize.
+
+The structural specification is
+
+$$\text{Violence}_{it} = \alpha_i + \gamma_t + \beta\,(E_i P_t) + \delta\,\text{lpop}_{it} + \varepsilon_{it},$$
+
+with municipality fixed effects $\alpha_i$, year fixed effects $\gamma_t$, log population as a control, and three instruments $(Z_{1it}, Z_{2it}, Z_{3it})$ that are alternative interactions of coffee exposure with world-price proxies. We focus on one outcome — *guerrilla attacks per 1000 population* (`gueratt`) — and one endogenous regressor (the coffee interaction).
+
+### Load the data
+
+```{r}
+#| label: dube-load
+#| message: false
+library(haven)
+library(fixest)
+library(lmtest)
+library(sandwich)
+library(ddml)
+library(glmnet)
+
+dube <- read_dta("data/origmun_violence_commodities.dta")
+dube <- subset(dube, !is.na(cofintxlinternalp))   # drop missings on endogenous regressor
+cat("rows:", nrow(dube),
+    "  munis:", length(unique(dube$origmun)),
+    "  years:", min(dube$year), "to", max(dube$year), "\n")
+```
+
+`dube` is an unbalanced panel: ~17,600 municipality-year observations across 998 municipalities and 18 years (1988–2005).
+
+### Step 1: TSLS with linear FE (the "standard" specification)
+
+Estimate the structural equation via 2SLS, with municipality and year fixed effects entered linearly and three coffee instruments. We use heteroskedasticity-robust standard errors here for simplicity (the original paper clusters at the department level).
+
+```{r}
+#| label: dube-tsls
+tsls <- feols(
+  gueratt ~ lpop | origmun + year |
+    cofintxlinternalp ~ rxltop3cof + txltop3cof + rtxltop3cof,
+  data = dube, vcov = "hetero"
+)
+summary(tsls)
+```
+
+The TSLS estimate of $\beta$ on the coffee interaction is the headline number — under the standard interpretation, "the LATE of coffee-driven economic activity on guerrilla attacks." The BBMT critique asks: is that interpretation actually warranted here?
+
+### Step 2: Why rich covariates is implausible here
+
+The instrument is $Z_{it} = E_i \times P_t$ — a *multiplicative* function of a muni-fixed exposure and a year-varying price. After conditioning on muni FE (which absorb $E_i$-level effects) and year FE (which absorb $P_t$-level effects), the residual variation in $Z$ is the interaction itself.
+
+A linear projection $\mathbb{L}[Z\mid X]$ with FE entered additively is at most $\alpha_i + \gamma_t$. It cannot reproduce the multiplicative structure $E_i \cdot P_t$. So $\mathbb{E}[Z\mid X] \neq \mathbb{L}[Z\mid X]$ — rich covariates fails by construction outside a fully-saturated muni $\times$ year specification, which would absorb all the identifying variation.
+
+The Ramsey RESET test detects this kind of misspecification. It adds polynomial powers of the fitted values $\hat{Z} = \mathbb{L}[Z\mid X]$ to the regression of $Z$ on $X$ and tests whether they jointly contribute. Rejection means the linear projection is missing systematic variation — i.e., rich covariates fails.
+
+### Step 3: Run the RESET test
+
+We run RESET on each of the three instruments separately. (When there are multiple instruments, BBMT recommend a bootstrapped joint version; for a teaching walkthrough, looking at each instrument is informative.)
+
+```{r}
+#| label: dube-reset
+#| message: false
+reset_one <- function(z) {
+  ## Step 1: regress instrument on controls (linear FE specification)
+  fit <- feols(as.formula(paste(z, "~ lpop | origmun + year")), data = dube)
+  zhat <- fitted(fit)
+  ## Step 2: add polynomial powers of fitted values, test joint significance
+  d <- dube
+  d$zhat2 <- zhat^2
+  d$zhat3 <- zhat^3
+  fit_aug <- feols(as.formula(paste(z, "~ lpop + zhat2 + zhat3 | origmun + year")),
+                   data = d, vcov = "hetero")
+  wt <- fixest::wald(fit_aug, c("zhat2", "zhat3"))
+  c(F = unname(wt$stat), p = unname(wt$p))
+}
+
+reset_results <- t(sapply(c("rxltop3cof", "txltop3cof", "rtxltop3cof"), reset_one))
+round(reset_results, 4)
+```
+
+If the RESET p-values are small (all clearly below 0.05), the linear-in-FE specification fails to capture $\mathbb{E}[Z\mid X]$ — rich covariates is rejected, and the LATE interpretation of TSLS is unjustified. The estimand mixes complier and always-taker effects, with some always-taker weights necessarily negative.
+
+### Step 4: DoubleML PLIV — relaxing the linear-FE assumption
+
+The fix BBMT recommend is to estimate $\beta$ via **partially linear IV** (PLIV) with the conditional means $\mathbb{E}[Y\mid X]$ and $\mathbb{E}[Z\mid X]$ estimated *nonparametrically* by ML, with sample-splitting (cross-fitting) to avoid first-stage bias contaminating $\hat{\beta}$. The model is
+
+$$Y = D\beta + g(X) + e, \qquad Z = m(X) + v, \qquad \mathbb{E}[v\mid X]=0.$$
+
+`g` and `m` are estimated by an ML learner (lasso, random forest, gradient boosting, ...). The Neyman-orthogonal score residualizes $Y$ and $Z$ against the estimated $\hat{g}, \hat{m}$ and runs IV on the residuals.
+
+We use the `ddml` package with lasso (`glmnet`) as the learner — fast and well-suited to our high-dimensional design (998 muni dummies + 18 year dummies + lpop). Cross-fitting uses 5 folds.
+
+Two implementation details matter for speed:
+
+- We build the design matrix as a *sparse* matrix using `Matrix::sparse.model.matrix`. The dense expansion is ~135 MB; the sparse version is ~1.8 MB and `glmnet` consumes it directly.
+- We pass `shortstack = TRUE` to `ddml_pliv`. The default runs an inner cross-validation loop to compute ensemble weights across multiple ML learners — but with one learner the ensemble weight is trivially 1, so the inner loop is pure overhead. `shortstack` skips it. With these two changes, the chunk runs in roughly 20 seconds; without them, several minutes.
+
+```{r}
+#| label: dube-ddml
+#| cache: true
+#| message: false
+
+## Build the design matrix: muni dummies, year dummies, lpop -- sparse for glmnet
+X <- Matrix::sparse.model.matrix(
+  ~ factor(origmun) + factor(year) + lpop, data = dube
+)[, -1]
+y <- dube$gueratt
+D <- dube$cofintxlinternalp
+Z <- as.matrix(dube[, c("rxltop3cof", "txltop3cof", "rtxltop3cof")])
+
+set.seed(42)
+ddml_fit <- ddml_pliv(
+  y = y, D = D, Z = Z, X = X,
+  learners      = list(list(fun = ddml::mdl_glmnet)),
+  sample_folds  = 5,
+  shortstack    = TRUE,
+  silent        = TRUE
+)
+summary(ddml_fit)
+```
+
+`ddml_pliv` reports the PLIV point estimate and a heteroskedasticity-robust standard error. Because $g(X)$ and $m(X)$ are estimated nonparametrically, the rich-covariates condition is satisfied by construction (asymptotically), so PLIV delivers $\beta_{\text{rich}}$ — a non-negatively-weighted average of conditional LATEs.
+
+### Step 5: Compare TSLS and DDML PLIV
+
+```{r}
+#| label: dube-compare
+tsls_b  <- coef(tsls)["fit_cofintxlinternalp"]
+tsls_se <- summary(tsls)$se["fit_cofintxlinternalp"]
+
+ddml_summary <- summary(ddml_fit)
+ddml_b  <- ddml_summary["D_r", "Estimate",   "nnls"]
+ddml_se <- ddml_summary["D_r", "Std. Error", "nnls"]
+
+data.frame(
+  Estimator = c("TSLS (linear FE)", "DDML PLIV (lasso)"),
+  Estimate  = c(tsls_b,  ddml_b),
+  SE        = c(tsls_se, ddml_se),
+  row.names = NULL
+)
+```
+
+If the two estimates are similar in magnitude, the linear-in-FE specification was approximately right and TSLS is approximately weakly causal — even if RESET technically rejects. If they differ, the linear-FE specification was hiding signal, and the headline TSLS number is mixing in negatively-weighted always-taker effects.
+
+A third quantity worth knowing — the *unconditional* ACR/LATE — would require a binary instrument and a separate IPSW or DDML implementation. Dube–Vargas instruments are continuous, so we stop at the PLIV step here.
+
+### Reading the result
+
+Three observations:
+
+1. **RESET rejected, hard.** All three instruments produce $F$-statistics far above any conventional threshold, with p-values indistinguishable from zero. The linear-FE specification is decisively *not* a faithful representation of $\mathbb{E}[Z\mid X]$. By BBMT, the LATE interpretation of the TSLS estimate is unjustified.
+
+2. **The estimates differ.** DDML PLIV gives $\hat\beta \approx -1.02$ versus TSLS's $\hat\beta \approx -0.78$ — about 30% more negative in magnitude. This is the divergence RESET predicted. The qualitative finding (coffee price shocks reduce guerrilla violence) survives, but the magnitude moves meaningfully when we stop forcing the conditional means to be linear in additively-entered FE.
+
+3. **What we have not done.** PLIV gives $\beta_{\text{rich}}$ — a non-negatively-weighted average of conditional LATEs. It does not give us the *unconditional* LATE, which is what most readers implicitly imagine when they read an IV coefficient. Recovering that is a separate problem (BBMT recommendation #4: estimate the unconditional ACR via DDML or IPSW), and is much harder when the instrument is continuous as it is here.
+
+The take-away is not that Dube–Vargas got the wrong answer. It is that "TSLS with controls = LATE on compliers" — the way IV estimates are routinely interpreted in applied work — is a stronger claim than the spec actually supports. Running RESET tells you whether you've earned that interpretation; DDML PLIV is a principled alternative when you haven't.
+
+
 ## Connection to GMM
 
 IV and 2SLS are special cases of the **Generalized Method of Moments** (GMM). We will see in Chapter 11 that 2SLS is a [special case of GMM](ch11-gmm.qmd#thm-gmm-2sls). The moment condition $E[Z_i(Y_i - X_i'\beta)] = 0$ defines both:
