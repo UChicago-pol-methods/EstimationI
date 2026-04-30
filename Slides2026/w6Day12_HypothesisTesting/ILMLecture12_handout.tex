@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169, handout]{beamer}
+\documentclass[handout, aspectratio=169]{beamer}
 
 %\usepackage[table]{xcolor}
 \mode<presentation> {
@@ -173,6 +173,26 @@ The restricted residuals and variance estimate are:
 $$\tilde{e}_i = Y_i - \bm{X}_i'\tilde{\bm{\beta}}_{\text{CLS}}, \qquad \tilde{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n \tilde{e}_i^2$$
 
 Since the restriction constrains the parameter space: $\tilde{\sigma}^2 \geq \hat{\sigma}^2$ always.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Variance of the CLS Estimator (Robust)}
+
+For SEs and CIs on $\tilde{\bm{\beta}}_{\text{cls}}$ itself, we need its asymptotic variance.  Hansen \S 8.7, no homoskedasticity assumed.
+
+\pause
+\smallskip
+
+\textbf{Robust ``meat'' with restricted residuals.}\, Let $\hat{\bm{Q}}_{XX} = \tfrac{1}{n}\bm{X}'\bm{X}$.
+$$\tilde{\bm{\Omega}} \;=\; \frac{1}{n-k+q}\sum_{i=1}^n \bm{X}_i\bm{X}_i'\,\tilde{e}_i^2, \qquad \tilde{\bm{V}}_\beta \;=\; \hat{\bm{Q}}_{XX}^{-1}\,\tilde{\bm{\Omega}}\,\hat{\bm{Q}}_{XX}^{-1}.$$
+The Lecture~11 sandwich, but with $\tilde{e}_i$ and an $n-k+q$ d.f.\ adjustment.
+
+\pause
+\smallskip
+
+\textbf{Project onto the constraint.}\, With $\tilde{\bm{A}} = \hat{\bm{Q}}_{XX}^{-1}\bm{R}\bigl(\bm{R}'\hat{\bm{Q}}_{XX}^{-1}\bm{R}\bigr)^{-1}\bm{R}'$ --- the matrix that maps $\hat{\bm{\beta}}_{\text{ols}}$ to $\tilde{\bm{\beta}}_{\text{cls}}$:
+$$\boxed{\;\tilde{\bm{V}}_{\text{cls}} \;=\; (\bm{I} - \tilde{\bm{A}})\,\tilde{\bm{V}}_\beta\,(\bm{I} - \tilde{\bm{A}})'\;}$$
+Hansen \S 8.7 unfolds this into four terms.  SE for $\bm{h}'\tilde{\bm{\beta}}_{\text{cls}}$ ($\bm{h}$ outside the row space of $\bm{R}$): $s(\bm{h}'\tilde{\bm{\beta}}_{\text{cls}}) = \sqrt{n^{-1}\bm{h}'\tilde{\bm{V}}_{\text{cls}}\bm{h}}$.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
