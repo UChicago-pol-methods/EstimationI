@@ -203,18 +203,21 @@ The key outputs from CLS are $\text{SSE}_R = \sum \tilde{e}_i^2$ and $\tilde{\si
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Worked Example: CLS for a Linear Restriction}
+\begin{frame}{Worked Example: CLS for a Linear Restriction}
 
 \textbf{Setup.}\, Wage regression with separate returns to general experience and firm-specific tenure:
 $$\log w_i = \beta_0 + \beta_1\,\text{educ}_i + \beta_2\,\text{exper}_i + \beta_3\,\text{tenure}_i + e_i.$$
 Becker--Mincer human-capital theory predicts these have \emph{different} returns: firm-specific human capital should pay more at the current employer than general experience does.  We want to \emph{test} this --- formally, $H_0: \beta_2 = \beta_3$ vs.\ $H_1: \beta_2 \ne \beta_3$.
 
-\medskip
+\pause
+\bigskip
 
 \alert{Important framing.}\, We do not impose the restriction because we believe it.  We compute the restricted estimator to obtain $\text{SSE}_R$, which feeds the $F$ statistic that \emph{tests} the restriction.
 
-\pause
-\bigskip
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Worked Example: Two Ways to Compute CLS}
 
 \textbf{Approach 1: Reparameterize.}\, Under $H_0$ the model becomes
 $$\log w_i = \beta_0 + \beta_1\,\text{educ}_i + \beta_2\,(\text{exper}_i + \text{tenure}_i) + e_i,$$
@@ -222,6 +225,9 @@ which is just OLS on the new combined regressor:
 \begin{lstlisting}
 mod_R <- lm(lwage ~ educ + I(exper + tenure), data = wages)
 \end{lstlisting}
+
+\pause
+\bigskip
 
 \textbf{Approach 2: Apply the boxed CLS formula directly} with $\bm{R}' = (0, 0, 1, -1)$ and $\bm{r} = 0$.
 
@@ -272,11 +278,17 @@ $$\tilde{\bm{\beta}}_{\text{CLS}} = \hat{\bm{\beta}}_{\text{OLS}}.$$
 \bigskip
 
 \textbf{Case 2: $\hat{\bm{\beta}}_{\text{OLS}} \notin \mathcal{B}$.}\, The constrained solution sits on the boundary of $\mathcal{B}$.  On the face where one or more constraints bind, those constraints hold with equality, and the solution is given by the \emph{equality}-CLS formula from earlier in this lecture, applied to the binding constraints only.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Inequality CLS as a Projection}
+
+Conceptually, you are projecting $\hat{\bm{\beta}}_{\text{OLS}}$ onto the feasible region $\mathcal{B}$.
 
 \pause
 \bigskip
 
-Conceptually, you are projecting $\hat{\bm{\beta}}_{\text{OLS}}$ onto the feasible region $\mathcal{B}$.  Picking which constraints bind is what makes the inequality case harder than the equality case --- in practice this is solved by a \emph{quadratic program}.  In R: \texttt{quadprog::solve.QP()}.
+Picking which constraints bind is what makes the inequality case harder than the equality case --- in practice this is solved by a \emph{quadratic program}.  In R: \texttt{quadprog::solve.QP()}.
 
 \end{frame}
 
@@ -331,14 +343,15 @@ Control ($X=0$)   & 260 & 168 & $0.646$ \\
 \bottomrule
 \end{tabular}
 \end{center}
+\end{frame}
 
-\pause
-\smallskip
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{NSW: Naive ATE and a Missing-Data Thought Experiment}
 
 \textbf{Naive ATE:} $\bar{Y}_{\text{obs}}(1) - \bar{Y}_{\text{obs}}(0) = 0.757 - 0.646 = 0.111$ (an 11 pp employment effect).
 
 \pause
-\smallskip
+\bigskip
 
 NSW's actual follow-up was nearly complete.  \textbf{What if 30\% had been lost?}  The next slides treat that as a thought experiment to see what the data could still pin down.
 \end{frame}
@@ -585,7 +598,7 @@ so the Score test and the F test always give the same accept/reject decision.
 For linear regression with linear restrictions, the Score test offers nothing new over $F$ or Wald.
 
 \pause
-\smallskip
+\bigskip
 
 \textbf{But} in more complex settings, Score tests have a major advantage:
 
@@ -595,18 +608,23 @@ For linear regression with linear restrictions, the Score test offers nothing ne
 \end{itemize}
 
 \pause
-\smallskip
+\bigskip
 
 \textbf{Example:} Testing for heteroskedasticity (Breusch--Pagan).  The null is homoskedastic OLS---easy.  The unrestricted model allows $\text{Var}(e_i \mid X_i)$ to vary with $X$, which requires modeling the variance function.  The Score test only needs the OLS residuals.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Score Tests: More Settings Where They Help}
+
+The same logic --- estimate only under $H_0$, evaluate the score --- applies whenever the null gives a clean model and the alternative is messy.
 
 \pause
-\smallskip
+\bigskip
 
-\textbf{Same idea applies to:}
 \begin{itemize}
-\item Testing for serial correlation (Breusch--Godfrey): null is OLS with iid errors
-\item Testing for omitted nonlinearities: null is a simple linear specification
-\item Any setting where $H_0$ gives you a clean model but $H_1$ is messy
+\item \textbf{Serial correlation} (Breusch--Godfrey): null is OLS with iid errors.
+\item \textbf{Omitted nonlinearities}: null is a simple linear specification.
+\item Any setting where $H_0$ gives you a clean model but $H_1$ is messy.
 \end{itemize}
 \end{frame}
 
@@ -722,13 +740,25 @@ From Lecture~11, this can be inaccurate for ratios (Fieller's problem).
 \textbf{Approach 2:} Rewrite as a \emph{linear} restriction $\beta_1 - \theta\beta_2 = 0$ and invert:
 $$\hat{C} = \left\{\theta \;:\; \frac{(\hat{\beta}_1 - \theta\hat{\beta}_2)^2}{\bm{R}'(\theta)\hat{\bm{V}}\bm{R}(\theta)} \leq 1.96^2\right\}$$
 where $\bm{R}(\theta) = (1, -\theta)'$.  This requires a grid search over $\theta$.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Test Inversion vs.\ Delta Method: Hansen's Example}
+
+\textbf{Setup.}  Peak experience in a wage equation, $\theta = -50\beta_1/\beta_2$.
 
 \pause
 \bigskip
 
-\textbf{Hansen's example:}  Peak experience $= -50\beta_1/\beta_2$.\\
-Delta method CI: $[29.8,\; 29.9]$. \quad Inverted linear test CI: $[29.1,\; 30.6]$.\\
-The delta method interval is \textbf{far too narrow}.
+\begin{itemize}
+\item \textbf{Delta method CI:} $[29.8,\; 29.9]$
+\item \textbf{Inverted linear-test CI:} $[29.1,\; 30.6]$
+\end{itemize}
+
+\pause
+\bigskip
+
+The delta method interval is \textbf{far too narrow} --- the ratio's sampling distribution is poorly approximated by a normal centered at $\hat{\theta}$.  Inverting the test for the equivalent linear restriction does not require that approximation.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
