@@ -198,9 +198,84 @@ $$\text{Ideology}_i = \text{Ideology}_i^* + u_i$$
 \text{MilSpend}_B &= \gamma_0 + \gamma_1\;\text{MilSpend}_A + e_B
 \end{align*}
 \item $\text{MilSpend}_B$ appears on the RHS of equation 1, but is determined in equation 2 (which depends on $\text{MilSpend}_A$).
-\item OLS on either equation is inconsistent: the regressor is correlated with the error by construction.
+\item Assumptions on the structural errors:
+\begin{itemize}
+\item $\mathbb{E}[e_A]=\mathbb{E}[e_B]=0$, $\text{Var}(e_A)=\sigma_A^2$, $\text{Var}(e_B)=\sigma_B^2$
+\item $\mathbb{E}[e_A e_B]=0$: structural shocks uncorrelated across equations
+\end{itemize}
 \item \textbf{Other examples:} Trade policy and trade flows; campaign spending and vote share; policing levels and crime rates.
 \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Simultaneity: Solving the Reduced Form}
+\begin{itemize}
+\item Substitute equation 1 into equation 2 to express $\text{MilSpend}_B$ in terms of \emph{exogenous} shocks only:
+\begin{align*}
+B &= \gamma_0 + \gamma_1(\alpha_0+\alpha_1 B + e_A) + e_B\\
+(1-\gamma_1\alpha_1)\,B &= (\gamma_0+\gamma_1\alpha_0) + \gamma_1 e_A + e_B\\
+B &= \underbrace{\frac{\gamma_0+\gamma_1\alpha_0}{1-\gamma_1\alpha_1}}_{\text{constant}} + \underbrace{\frac{\gamma_1 e_A + e_B}{1-\gamma_1\alpha_1}}_{\text{reduced-form error}}
+\end{align*}
+\item The reduced form makes the dependence on $e_A$ explicit: $B$ moves whenever $e_A$ moves.
+\item Stability requires $|\gamma_1\alpha_1|<1$ (feedback loop converges).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Simultaneity: Why $\mathbb{E}[B\,e_A]\neq 0$}
+\begin{itemize}
+\item Take the covariance of the regressor with the structural error in equation 1:
+\begin{align*}
+\text{Cov}(B, e_A) &= \mathbb{E}\!\left[\frac{\gamma_1 e_A + e_B}{1-\gamma_1\alpha_1}\cdot e_A\right]\\
+&= \frac{\gamma_1\,\mathbb{E}[e_A^2] + \mathbb{E}[e_A e_B]}{1-\gamma_1\alpha_1}\\
+&= \frac{\gamma_1\,\sigma_A^2}{1-\gamma_1\alpha_1}\;\neq\;0
+\end{align*}
+\item Bias vanishes only if $\gamma_1=0$ (no feedback from $A$ to $B$).
+\item \textbf{Intuition:} a positive $e_A$ raises $A$, which raises $B$ through equation 2. OLS reads this feedback as a causal effect of $B$ on $A$.
+\item OLS is inconsistent: $\text{plim}\;\hat{\alpha}_1 = \alpha_1 + \text{Cov}(B,e_A)/\text{Var}(B)$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Simultaneity: Geometric View}
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\vspace{0.3cm}
+\begin{tikzpicture}
+\begin{axis}[
+  xlabel={$B$}, ylabel={$A$},
+  xmin=0, xmax=3.2, ymin=0, ymax=5.5,
+  axis lines=left,
+  xtick=\empty, ytick=\empty,
+  width=\textwidth, height=5.5cm,
+  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west, draw=none, fill=none},
+  every axis x label/.style={at={(axis description cs:1,0)}, anchor=north},
+  every axis y label/.style={at={(axis description cs:0,1)}, anchor=south east}
+]
+\addplot[blue, thick, domain=0:3.2] {1 + 0.5*x};
+\addlegendentry{$A=\alpha_0+\alpha_1 B$}
+\addplot[blue, thick, dashed, domain=0:3.2] {3 + 0.5*x};
+\addlegendentry{after shock $+e_A$}
+\addplot[red, thick, domain=0.5:2.7] {(x - 0.5)/0.4};
+\addlegendentry{$B=\gamma_0+\gamma_1 A$}
+\node[circle, fill=black, inner sep=1.3pt, label={[font=\scriptsize]below right:$E_0$}] at (axis cs:1.125, 1.5625) {};
+\node[circle, fill=black, inner sep=1.3pt, label={[font=\scriptsize]below right:$E_1$}] at (axis cs:2.125, 4.0625) {};
+\draw[dotted] (axis cs:1.125, 0) -- (axis cs:1.125, 1.5625);
+\draw[dotted] (axis cs:2.125, 0) -- (axis cs:2.125, 4.0625);
+\end{axis}
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.45\textwidth}
+\small
+\begin{itemize}
+\item $E_0$: equilibrium when $e_A=0$.
+\item A positive shock $e_A$ shifts country A's reaction curve up.
+\item New equilibrium $E_1$: \emph{both} $A$ \emph{and} $B$ rise.
+\item Mechanism: $e_A\!\uparrow\,\Rightarrow A\!\uparrow\,\Rightarrow B\!\uparrow$ along B's reaction.
+\item Same conclusion as the algebra: $\text{Cov}(B,e_A)=\frac{\gamma_1\sigma_A^2}{1-\gamma_1\alpha_1}>0$.
+\end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 
 
@@ -308,6 +383,36 @@ $$Y_1 = \bm{x}'\beta + e$$
 \end{frame}
 
 
+\begin{frame}{Causal Diagram for IV}
+\begin{center}
+\begin{tikzpicture}[
+  >={Stealth[length=2.5mm]},
+  obs/.style={circle, draw, thick, minimum size=10mm, fill=blue!5},
+  unobs/.style={circle, draw, thick, dashed, minimum size=10mm, fill=gray!10}
+]
+\node[obs] (Z) at (0,0) {$Z$};
+\node[obs] (X) at (3.5,0) {$X$};
+\node[obs] (Y) at (7,0) {$Y$};
+\node[unobs] (U) at (5.25, 2) {$U$};
+
+\draw[->, thick] (Z) -- node[above, font=\scriptsize]{relevance} (X);
+\draw[->, thick] (X) -- node[above, font=\scriptsize]{$\beta$} (Y);
+\draw[->, thick, gray] (U) -- (X);
+\draw[->, thick, gray] (U) -- (Y);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+\small
+\begin{itemize}
+\item $U$ (dashed, unobserved): \textbf{confounder} of $X$ and $Y$ --- the source of $\mathbb{E}[Xe]\neq 0$.
+\item \textbf{Relevance:} arrow $Z\to X$ --- the instrument moves the regressor.
+\item \textbf{Exogeneity:} \emph{no} arrow $U\to Z$ --- the instrument is unconfounded.
+\item \textbf{Exclusion:} \emph{no} direct arrow $Z\to Y$ --- $Z$ affects $Y$ \emph{only through} $X$.
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}{Example: Labeling the IV Setup}
 \textbf{Do democratic institutions cause economic growth?} (Acemoglu, Johnson \& Robinson 2001)
 \vspace{0.2cm}
@@ -330,28 +435,28 @@ $$\text{GDP/capita}_i = \beta_1\;\text{Latitude}_i + \beta_2\;\underbrace{\text{
 
 \begin{frame}{Reduced Form: Definitions}
 \begin{itemize}
-\item The \textbf{reduced form} expresses all endogenous variables as functions of instruments only.
-\item For the endogenous regressors $\bm{y}_2$ ($k_2\times 1$):
-$$\bm{y}_2 = \Gamma'\bm{z}+\bm{u}_2 = \Gamma_{12}'\bm{z}_1+\Gamma_{22}'\bm{z}_2+\bm{u}_2, \qquad \mathbb{E}[\bm{z}\bm{u}_2']=0$$
-where $\Gamma$ is $l\times k_2$, defined by $\Gamma = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{y}_2']$.
-\item The full projection of all regressors $\bm{x}=(\bm{x}_1', \bm{y}_2')'$ on $\bm{z}$:
-$$\bar{\Gamma} = \begin{bmatrix} \bm{I}_{k_1} & \Gamma_{12}\\ \bm{0} & \Gamma_{22}\end{bmatrix} = \left[\begin{matrix} \bm{I}_{k_1}\\ \bm{0}\end{matrix}\quad \Gamma\right] = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{x}']$$
-\item Key: OLS consistently estimates $\Gamma$ and $\bar{\Gamma}$ because $\bm{z}$ is exogenous.
+\item The \textbf{reduced form} is the linear projection of each endogenous variable on the instruments $\bm{z}$:
+$$\bm{y}_2 = \Gamma'\bm{z}+\bm{u}_2, \qquad \Gamma = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{y}_2'], \qquad \mathbb{E}[\bm{z}\bm{u}_2']=0$$
+\item Because $\bm{z}$ is exogenous, OLS \textbf{consistently estimates} $\Gamma$ --- this is what makes IV work.
+\item Partition $\Gamma$ to match $\bm{z}=(\bm{z}_1', \bm{z}_2')'$:
+$$\bm{y}_2 = \Gamma_{12}'\bm{z}_1+\Gamma_{22}'\bm{z}_2+\bm{u}_2$$
+\item Now project the full regressor vector $\bm{x}=(\bm{x}_1', \bm{y}_2')'$ on $\bm{z}$. Since $\bm{z}_1=\bm{x}_1$, the projection of $\bm{x}_1$ is $\bm{x}_1$ itself:
+$$\bar{\Gamma} = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{x}'] = \begin{bmatrix} \bm{I}_{k_1} & \Gamma_{12}\\ \bm{0} & \Gamma_{22}\end{bmatrix}$$
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}{Reduced Form for $Y$}
 \begin{itemize}
-\item Plugging the reduced form for $\bm{y}_2$ into the structural equation:
+\item Substitute the reduced form for $\bm{y}_2$ into the structural equation (using $\bm{x}_1=\bm{z}_1$):
 \begin{align*}
 Y_1 &= \bm{z}_1'\beta_1 + (\Gamma_{12}'\bm{z}_1 + \Gamma_{22}'\bm{z}_2+\bm{u}_2)'\beta_2 + e\\
-&= \bm{z}_1'\underbrace{(\beta_1+\Gamma_{12}\beta_2)}_{\lambda_1} + \bm{z}_2'\underbrace{\Gamma_{22}\beta_2}_{\lambda_2} + \underbrace{(\bm{u}_2'\beta_2+e)}_{u_1}\\
-&= \bm{z}'\lambda + u_1
+&= \bm{z}_1'\underbrace{(\beta_1+\Gamma_{12}\beta_2)}_{\lambda_1} + \bm{z}_2'\underbrace{\Gamma_{22}\beta_2}_{\lambda_2} + \underbrace{\bm{u}_2'\beta_2+e}_{u_1}
 \end{align*}
-\item The \textbf{structural} parameters are $\beta_1, \beta_2$.
-\item The \textbf{reduced form} parameters are $\lambda, \Gamma$.
-\item Relationship: $\lambda = \bar{\Gamma}\beta$.
+\item The reduced-form error $u_1$ is orthogonal to $\bm{z}$ ($\mathbb{E}[\bm{z}u_1]=0$), so OLS consistently estimates $\lambda$.
+\item Stacking: $\lambda = \bar{\Gamma}\beta$, which is just the matrix multiplication
+$$\begin{bmatrix} \bm{I}_{k_1} & \Gamma_{12}\\ \bm{0} & \Gamma_{22}\end{bmatrix}\!\!\begin{bmatrix}\beta_1\\ \beta_2\end{bmatrix} = \begin{bmatrix}\beta_1+\Gamma_{12}\beta_2\\ \Gamma_{22}\beta_2\end{bmatrix}=\begin{bmatrix}\lambda_1\\ \lambda_2\end{bmatrix}$$
+\item \textbf{Structural} parameters: $\beta_1,\beta_2$. \quad \textbf{Reduced-form} parameters: $\lambda, \Gamma$.
 \end{itemize}
 \end{frame}
 
