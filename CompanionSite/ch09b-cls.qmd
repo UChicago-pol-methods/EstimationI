@@ -1,0 +1,302 @@
+---
+title: "10. Constrained Least Squares"
+subtitle: "Equality and inequality restrictions, and partial identification"
+---
+
+The previous chapter tested restrictions by comparing an unrestricted Wald statistic with a robust covariance matrix to its critical value. Some restricted-vs.-unrestricted machinery (the distance test, the LR-style criterion comparison) needs the *restricted* estimator: minimize SSE subject to the restriction. That is **constrained least squares** (CLS).
+
+CLS is also useful in its own right:
+
+- **Theory imposes structure.** Adding-up constraints (shares sum to 1), monotonicity (returns to schooling weakly increasing), sign restrictions (a price elasticity is non-positive) can all be encoded as restrictions on $\bm{\beta}$.
+- **Partial identification.** When the data and minimal assumptions tell us only that $\bm{\beta}$ lies in a *set*, not a single point, inequality CLS lets us estimate that set and report the bounds.
+
+This chapter covers:
+
+1. Equality CLS — two ways to compute (reparameterize, or apply the closed-form formula)
+2. The connection back to the Wald test (restricted SSE feeds the homoskedastic special case; the robust Wald is the right thing to report)
+3. Inequality CLS — when the restriction is one-sided, via quadratic programming
+4. A partial-identification application: bounds on the NSW employment ATE under missing data
+
+```{r}
+#| label: setup
+#| message: false
+library(sandwich)
+library(lmtest)
+library(estimatr)
+library(car)
+library(carData)
+library(quadprog)   # QP for inequality CLS
+library(lpSolve)    # LP for the bounds at the end
+options(digits = 4)
+data(Salaries)
+```
+
+
+## The setup
+
+CLS minimizes the sum of squared errors subject to $q$ linear restrictions:
+$$
+\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \arg\min_{\bm{\beta}} \; \sum_{i=1}^{n}(Y_i - \bm{X}_i'\bm{\beta})^2
+\quad \text{s.t.} \quad \bm{R}'\bm{\beta} \;=\; \bm{r}
+$$
+where $\bm{R}$ is $k \times q$ and $\bm{r}$ is $q \times 1$. Three common forms:
+
+| Restriction | $\bm{R}'$ | $\bm{r}$ |
+|---|---|---|
+| $\beta_3 = 0$ (exclusion) | $(0, 0, 1, 0)$ | $0$ |
+| $\beta_2 = \beta_3$ (equality of two coefficients) | $(0, 1, -1, 0)$ | $0$ |
+| $\beta_2 + \beta_3 = 1$ (adding-up) | $(0, 1, 1, 0)$ | $1$ |
+
+The exclusion restriction is the trivial case --- "drop the regressor." The other two need either reparameterization or the closed-form formula below.
+
+
+## Equality CLS by reparameterization
+
+Use the `Salaries` data from `carData`. The model:
+$$
+\text{salary}_i = \alpha + \gamma_{\text{rank}} + \delta_{\text{discipline}} + \beta_2\,\text{yrs.since.phd}_i + \beta_3\,\text{yrs.service}_i + e_i.
+$$
+A natural restriction to test is $H_0: \beta_2 = \beta_3$ --- does an additional year since the PhD pay the same as an additional year of service at this institution? Becker--Mincer human-capital theory would predict the two should *differ* (firm-specific tenure should pay more), so the equality is something we test against, not something we believe a priori.
+
+```{r}
+#| label: cls-reparam
+mod_U <- lm(salary ~ rank + discipline + yrs.since.phd + yrs.service,
+            data = Salaries)
+
+## Reparameterize: under H0, regress on the SUM of the two
+mod_R <- lm(salary ~ rank + discipline + I(yrs.since.phd + yrs.service),
+            data = Salaries)
+
+cbind(unrestricted = c(coef(mod_U), NA),
+      restricted   = c(coef(mod_R)[1:4], NA, NA, coef(mod_R)[5]))
+```
+
+In the restricted regression, the coefficient on `I(yrs.since.phd + yrs.service)` is the common $\tilde{\beta}_2 = \tilde{\beta}_3$. This is just OLS on a rebuilt design matrix --- no special machinery needed.
+
+Note that the unrestricted estimates have *opposite signs* (+535 for `yrs.since.phd`, −477 for `yrs.service`): once `rank` is in the model, `yrs.service` measures extra years at the same rank without promotion, which signals lower productivity or weaker outside options and depresses salary. The two variables are nearly collinear ($\rho = 0.91$), so forcing them equal averages a strong positive against a strong negative --- the constrained common coefficient will land near zero, exactly the signal that the restriction is at odds with the data.
+
+
+## Equality CLS via the closed-form formula
+
+The general formula. Solving the constrained minimization with Lagrange multipliers gives
+$$
+\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \hat{\bm{\beta}}_{\text{OLS}} - (\bm{X}'\bm{X})^{-1}\bm{R}\bigl[\bm{R}'(\bm{X}'\bm{X})^{-1}\bm{R}\bigr]^{-1}\bigl(\bm{R}'\hat{\bm{\beta}}_{\text{OLS}} - \bm{r}\bigr).
+$$
+Read it as: start from unrestricted OLS, subtract a correction proportional to *how far OLS violates the restriction*. If OLS already satisfies the restriction ($\bm{R}'\hat{\bm{\beta}}_{\text{OLS}} = \bm{r}$), the correction is zero.
+
+```{r}
+#| label: cls-formula
+beta_OLS <- coef(mod_U)
+X <- model.matrix(mod_U)
+y <- Salaries$salary
+
+## Build R for the restriction beta_phd = beta_service
+R <- matrix(0, nrow = length(beta_OLS), ncol = 1)
+R[which(names(beta_OLS) == "yrs.since.phd"), 1] <-  1
+R[which(names(beta_OLS) == "yrs.service"),   1] <- -1
+r <- 0
+
+XX_inv <- solve(crossprod(X))
+correction <- XX_inv %*% R %*%
+  solve(t(R) %*% XX_inv %*% R) %*% (t(R) %*% beta_OLS - r)
+beta_CLS <- as.vector(beta_OLS - correction)
+names(beta_CLS) <- names(beta_OLS)
+beta_CLS
+```
+
+The two `yrs.since.phd` and `yrs.service` entries should now be equal --- and equal to the coefficient on `I(yrs.since.phd + yrs.service)` from the reparameterized fit:
+
+```{r}
+#| label: cls-formula-check
+common_value <- coef(mod_R)[["I(yrs.since.phd + yrs.service)"]]
+c(formula_phd     = unname(beta_CLS["yrs.since.phd"]),
+  formula_service = unname(beta_CLS["yrs.service"]),
+  reparam_common  = common_value)
+```
+
+All three match. Two routes, same answer.
+
+
+## Restricted SSE and the test
+
+The headline test of $H_0: \beta_2 = \beta_3$ is the **robust Wald** built directly from the unrestricted estimator and a heteroskedasticity-robust covariance matrix. The restricted CLS estimator is not needed for this test --- but it is what makes the *classical F* well-defined as a homoskedastic special case.
+
+```{r}
+#| label: cls-robust-wald
+## Headline: robust Wald (use this).
+linearHypothesis(mod_U, "yrs.since.phd = yrs.service",
+                 vcov. = vcovHC(mod_U, type = "HC1"))
+```
+
+Behind the scenes the classical F equals
+$$
+F \;=\; \frac{(\text{SSE}_R - \text{SSE}_U)/q}{\text{SSE}_U/(n - k)},
+$$
+a comparison of the *restricted* CLS sum of squares to the unrestricted OLS sum of squares. We can compute this from CLS directly and confirm `linearHypothesis()` returns the same thing under its homoskedastic default:
+
+```{r}
+#| label: cls-f-test
+SSE_U <- sum(residuals(mod_U)^2)
+SSE_R <- sum(residuals(mod_R)^2)
+n     <- nrow(Salaries)
+k     <- length(coef(mod_U))
+q     <- 1
+
+F_stat <- ((SSE_R - SSE_U) / q) / (SSE_U / (n - k))
+p_val  <- 1 - pf(F_stat, q, n - k)
+c(F = F_stat, p = p_val)
+```
+
+Under heteroskedasticity the classical $F$ has the wrong null distribution (it ignores the variation in $\text{Var}(e_i \mid X_i)$); the robust Wald above is what you should report. CLS earns its keep here mainly when you actually need the *restricted estimator itself* --- for inequality constraints (next sections), for the GMM distance test you saw in the IV chapter, or for imposing a theoretical structure as the headline regression.
+
+
+## Inequality CLS
+
+Equality CLS pins $\bm{\beta}$ to a $(k-q)$-dimensional subspace. **Inequality CLS** restricts $\bm{\beta}$ to a feasible region $\mathcal{B}$ defined by linear inequalities $\bm{R}'\bm{\beta} \le \bm{r}$ --- a polyhedron rather than a subspace. Examples:
+
+- **Sign restrictions**: $\beta_j \ge 0$ (a variance, a non-negative elasticity, a share)
+- **Box constraints**: $0 \le \beta_j \le 1$ (mixing weights, probabilities)
+- **Monotonicity**: $\beta_1 \le \beta_2 \le \beta_3$ (ordered effects, e.g., dose-response that should be weakly increasing)
+
+The strategy is two-step. Compute unrestricted OLS first. If $\hat{\bm{\beta}}_{\text{OLS}} \in \mathcal{B}$, no constraint binds and $\tilde{\bm{\beta}}_{\text{CLS}} = \hat{\bm{\beta}}_{\text{OLS}}$. Otherwise the constrained solution sits on the boundary of $\mathcal{B}$, where one or more constraints hold with equality. Conceptually you are *projecting* OLS onto the feasible region.
+
+The general algorithm is a quadratic program: minimize $\frac{1}{2}\bm{\beta}'(\bm{X}'\bm{X})\bm{\beta} - (\bm{X}'\bm{y})'\bm{\beta}$ subject to the inequalities. In R, use `quadprog::solve.QP()`:
+
+```{r}
+#| label: cls-qp
+## Suppose we want to estimate the salary regression but
+## restrict the discipline coefficient to be NON-NEGATIVE
+## (theoretical-economics premium, say).
+mod_qp <- lm(salary ~ rank + discipline + yrs.since.phd + yrs.service,
+             data = Salaries)
+beta_OLS <- coef(mod_qp)
+disc_idx <- which(names(beta_OLS) == "disciplineB")
+cat("OLS coefficient on disciplineB:", round(beta_OLS[disc_idx], 1), "\n")
+
+## QP setup
+X <- model.matrix(mod_qp)
+y <- Salaries$salary
+Dmat <- crossprod(X)
+dvec <- crossprod(X, y)
+
+## Constraint: beta_disciplineB >= 0  (i.e. A' beta >= 0 with A picking that entry)
+Amat <- matrix(0, nrow = ncol(X), ncol = 1)
+Amat[disc_idx, 1] <- 1
+bvec <- 0
+
+qp <- solve.QP(Dmat = Dmat, dvec = dvec,
+               Amat = Amat, bvec = bvec, meq = 0)
+data.frame(coef = names(beta_OLS),
+           OLS  = beta_OLS,
+           CLS  = qp$solution,
+           row.names = NULL)
+```
+
+OLS already gave a positive `disciplineB` coefficient, so the constraint doesn't bind --- inequality CLS returns the same answer. If the unrestricted estimate had been negative, `solve.QP` would return a solution with that coefficient pinned to exactly $0$ (the boundary) and the other coefficients adjusted accordingly.
+
+A more interesting case: a negative-by-default coefficient with a sign restriction to test what the constrained estimate looks like. We force a `disciplineB` $\le 0$ constraint, which OLS *does* violate, and watch the projection happen:
+
+```{r}
+#| label: cls-qp-bind
+## Reverse the constraint: require disciplineB <= 0 (unrealistic, illustrative)
+Amat[disc_idx, 1] <- -1   # -1 * beta_disciplineB >= 0 means beta_disciplineB <= 0
+bvec <- 0
+
+qp_bind <- solve.QP(Dmat = Dmat, dvec = dvec,
+                    Amat = Amat, bvec = bvec, meq = 0)
+data.frame(coef = names(beta_OLS),
+           OLS  = beta_OLS,
+           CLS  = qp_bind$solution,
+           row.names = NULL)
+```
+
+Now the constraint binds: the constrained `disciplineB` coefficient is exactly zero, and the other coefficients move to absorb the difference. This is what "projection onto the feasible region" looks like in practice.
+
+
+## Partial identification: bounds on the NSW employment ATE
+
+Inequality CLS becomes substantive when the *identified set* itself is a polyhedron. The setup: the National Supported Work Demonstration (Lalonde 1986; Dehejia & Wahba 1999) randomly assigned disadvantaged workers to a job-training program. Outcome: positive earnings in 1978.
+
+```{r}
+#| label: nsw-load
+#| cache: true
+u  <- "https://users.nber.org/~rdehejia/data/nswre74_"
+cn <- c("treat","age","educ","black","hispan","married",
+        "nodegree","re74","re75","re78")
+nsw <- rbind(read.table(paste0(u, "treated.txt"), col.names = cn),
+             read.table(paste0(u, "control.txt"), col.names = cn))
+nsw$y <- as.numeric(nsw$re78 > 0)
+
+y1 <- mean(nsw$y[nsw$treat == 1])
+y0 <- mean(nsw$y[nsw$treat == 0])
+naive_ate <- y1 - y0
+c(y1 = y1, y0 = y0, naive_ATE = naive_ate)
+```
+
+The naive ATE on the experimental sample is about $0.11$ --- an 11 percentage-point employment effect. NSW's actual follow-up was nearly complete. The interesting question is what we could still pin down if a chunk of the sample had been *missing* at follow-up.
+
+### Worst-case bounds
+
+Suppose only $p = 70\%$ of subjects could be located in 1978. Within each arm, by the law of total probability,
+$$E[Y \mid X = x] = p \cdot \bar{Y}_{\text{obs}}(x) + (1-p) \cdot \underbrace{E[Y \mid X = x, \text{missing}]}_{\text{unknown}}.$$
+The unknown conditional mean lies in $[0, 1]$ (because $Y$ is binary), giving the *sharp* worst-case bounds:
+$$p\,\bar{Y}_{\text{obs}}(x) \;\le\; E[Y \mid X{=}x] \;\le\; p\,\bar{Y}_{\text{obs}}(x) + (1-p).$$
+
+```{r}
+#| label: worst-case-bounds
+p <- 0.7
+lo_y1 <- p * y1;             hi_y1 <- p * y1 + (1 - p)
+lo_y0 <- p * y0;             hi_y0 <- p * y0 + (1 - p)
+
+ate_lo <- lo_y1 - hi_y0      # smallest ATE: arm 1 low, arm 0 high
+ate_hi <- hi_y1 - lo_y0      # largest:      arm 1 high, arm 0 low
+
+c(ATE_lo = ate_lo, ATE_hi = ate_hi, width = ate_hi - ate_lo)
+```
+
+Without any further assumption, the data + 30% missingness leaves the ATE pinned only to $[-0.22, 0.38]$ --- wide enough that we cannot even sign the effect.
+
+### Tighter bounds via monotone selection
+
+A mild (and often credible) assumption: those *lost* to follow-up are weakly *less* likely to be employed than those we observed in the same arm. Formally, $E[Y \mid X{=}x, \text{missing}] \le \bar{Y}_{\text{obs}}(x)$. This tightens the upper bound (the missing group can't contribute more than $\bar{Y}_{\text{obs}}$), leaving the lower bound unchanged:
+
+```{r}
+#| label: mts-bounds
+hi_y1_mts <- y1   # MTS: replace 1 with Y_obs
+hi_y0_mts <- y0
+
+ate_lo_mts <- lo_y1 - hi_y0_mts
+ate_hi_mts <- hi_y1_mts - lo_y0
+
+c(ATE_lo = ate_lo_mts, ATE_hi = ate_hi_mts, width = ate_hi_mts - ate_lo_mts)
+```
+
+The width drops from $0.60$ to $0.42$. The interval still crosses zero --- an 11 pp underlying effect is too small for one mild assumption to settle the sign at 30% missing --- but the bounds *are* informative now.
+
+### The identified set as inequality CLS via `lpSolve`
+
+Both bounds above came from closed-form arithmetic. With more constraints --- multiple monotonicity assumptions, or a parameter that's not just $\mu_1 - \mu_0$ --- the closed-form gets unwieldy. Phrase it instead as a **linear program** over the feasible region.
+
+Reparameterize from the regression coefficients to the conditional means $\bm{\mu} = (\mu_0, \mu_1)$ where $\mu_x = E[Y \mid X{=}x]$. The MTS bounds become four inequalities:
+$$
+0.452 \le \mu_0 \le 0.646, \qquad 0.530 \le \mu_1 \le 0.757.
+$$
+The ATE is $\mu_1 - \mu_0 = \bm{c}'\bm{\mu}$ with $\bm{c} = (-1, 1)'$.
+
+```{r}
+#| label: lp-bounds
+A   <- rbind(c(1,0), c(1,0), c(0,1), c(0,1))
+dir <- c(">=", "<=", ">=", "<=")
+rhs <- c(lo_y0, hi_y0_mts, lo_y1, hi_y1_mts)
+c_ate <- c(-1, 1)
+
+c(ATE_lo = lp("min", c_ate, A, dir, rhs)$objval,
+  ATE_hi = lp("max", c_ate, A, dir, rhs)$objval)
+```
+
+Same answer (`ATE_lo` ≈ −0.12, `ATE_hi` ≈ 0.30), but now the recipe extends to any number of constraints. Adding another assumption is just another row in `A`, `dir`, `rhs`.
+
+
+## What CLS is for, in one sentence
+
+The Wald test handles most "is this restriction true?" questions without ever computing the restricted estimator. CLS earns its place when you need the *restricted estimator itself*: imposing a theoretical structure as the headline regression (equality form), or estimating an *identified set* when the data alone do not pin $\bm{\beta}$ down (inequality form). Both reduce to the same idea: minimize SSE on a restricted set of parameter values.

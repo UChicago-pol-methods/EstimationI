@@ -1,5 +1,5 @@
 ---
-title: "11. GMM"
+title: "12. GMM"
 subtitle: "Generalized method of moments"
 ---
 

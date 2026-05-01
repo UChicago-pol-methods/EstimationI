@@ -1,5 +1,5 @@
 ---
-title: "13. Fixed Effects and Modern DiD"
+title: "14. Fixed Effects and Modern DiD"
 subtitle: "Random effects, Hausman test, CRE, dynamic panels, and new DiD methods"
 ---
 

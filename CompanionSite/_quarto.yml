@@ -32,13 +32,15 @@ website:
             href: ch08-asymptotics.qmd
           - text: "9. Hypothesis Testing"
             href: ch09-testing.qmd
-          - text: "10. Instrumental Variables and 2SLS"
+          - text: "10. Constrained Least Squares"
+            href: ch09b-cls.qmd
+          - text: "11. Instrumental Variables and 2SLS"
             href: ch10-iv.qmd
-          - text: "11. GMM"
+          - text: "12. GMM"
             href: ch11-gmm.qmd
-          - text: "12. Panel Data"
+          - text: "13. Panel Data"
             href: ch12-panel.qmd
-          - text: "13. Fixed Effects and Modern DiD"
+          - text: "14. Fixed Effects and Modern DiD"
             href: ch13-fixed-effects.qmd
     right:
       - icon: github

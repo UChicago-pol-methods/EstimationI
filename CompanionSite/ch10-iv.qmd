@@ -1,5 +1,5 @@
 ---
-title: "10. Instrumental Variables and 2SLS"
+title: "11. Instrumental Variables and 2SLS"
 subtitle: "Endogeneity, the IV and 2SLS estimators, weak instruments, and LATE"
 ---
 

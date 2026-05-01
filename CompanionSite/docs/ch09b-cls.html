@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>10. Constrained Least Squares – Estimation I: Computational Companion</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-3bbbbd466991e281563892c5dce73c3d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+  MathJax = {
+    tex: {
+      macros: {
+        E: "\\mathbb{E}",
+        Var: "\\text{Var}",
+        Cov: "\\text{Cov}",
+        plim: "\\text{plim}",
+        inprob: "\\xrightarrow{p}",
+        indist: "\\xrightarrow{d}",
+        bhat: "\\hat{\\boldsymbol{\\beta}}",
+        N: "\\mathcal{N}",
+        tr: "\\text{tr}",
+        rank: "\\text{rank}",
+        SE: "\\text{SE}",
+        diag: "\\text{diag}"
+      }
+    }
+  };
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Estimation I: Computational Companion</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapters" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapters</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapters">    
+        <li>
+    <a class="dropdown-item" href="./ch01-review.html">
+ <span class="dropdown-text">1. Probability and Linear Algebra</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch02-cef-blp.html">
+ <span class="dropdown-text">2. The CEF and Best Linear Predictor</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch03-ols.html">
+ <span class="dropdown-text">3. Multivariate OLS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch04-sensitivity.html">
+ <span class="dropdown-text">4. Sensitivity and Leverage</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch05-gls.html">
+ <span class="dropdown-text">5. Efficiency and GLS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch06-small-sample.html">
+ <span class="dropdown-text">6. Small Sample Inference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch07-probit.html">
+ <span class="dropdown-text">7. Probit, Poisson QMLE, and Nonlinear Models</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch08-asymptotics.html">
+ <span class="dropdown-text">8. Asymptotics</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch09-testing.html">
+ <span class="dropdown-text">9. Hypothesis Testing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch09b-cls.html">
+ <span class="dropdown-text">10. Constrained Least Squares</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch10-iv.html">
+ <span class="dropdown-text">11. Instrumental Variables and 2SLS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch11-gmm.html">
+ <span class="dropdown-text">12. GMM</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch12-panel.html">
+ <span class="dropdown-text">13. Panel Data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch13-fixed-effects.html">
+ <span class="dropdown-text">14. Fixed Effects and Modern DiD</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/UChicago-pol-methods/EstimationI"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-setup" id="toc-the-setup" class="nav-link active" data-scroll-target="#the-setup"><span class="header-section-number">1</span> The setup</a></li>
+  <li><a href="#equality-cls-by-reparameterization" id="toc-equality-cls-by-reparameterization" class="nav-link" data-scroll-target="#equality-cls-by-reparameterization"><span class="header-section-number">2</span> Equality CLS by reparameterization</a></li>
+  <li><a href="#equality-cls-via-the-closed-form-formula" id="toc-equality-cls-via-the-closed-form-formula" class="nav-link" data-scroll-target="#equality-cls-via-the-closed-form-formula"><span class="header-section-number">3</span> Equality CLS via the closed-form formula</a></li>
+  <li><a href="#restricted-sse-and-the-test" id="toc-restricted-sse-and-the-test" class="nav-link" data-scroll-target="#restricted-sse-and-the-test"><span class="header-section-number">4</span> Restricted SSE and the test</a></li>
+  <li><a href="#inequality-cls" id="toc-inequality-cls" class="nav-link" data-scroll-target="#inequality-cls"><span class="header-section-number">5</span> Inequality CLS</a></li>
+  <li><a href="#partial-identification-bounds-on-the-nsw-employment-ate" id="toc-partial-identification-bounds-on-the-nsw-employment-ate" class="nav-link" data-scroll-target="#partial-identification-bounds-on-the-nsw-employment-ate"><span class="header-section-number">6</span> Partial identification: bounds on the NSW employment ATE</a>
+  <ul class="collapse">
+  <li><a href="#worst-case-bounds" id="toc-worst-case-bounds" class="nav-link" data-scroll-target="#worst-case-bounds"><span class="header-section-number">6.1</span> Worst-case bounds</a></li>
+  <li><a href="#tighter-bounds-via-monotone-selection" id="toc-tighter-bounds-via-monotone-selection" class="nav-link" data-scroll-target="#tighter-bounds-via-monotone-selection"><span class="header-section-number">6.2</span> Tighter bounds via monotone selection</a></li>
+  <li><a href="#the-identified-set-as-inequality-cls-via-lpsolve" id="toc-the-identified-set-as-inequality-cls-via-lpsolve" class="nav-link" data-scroll-target="#the-identified-set-as-inequality-cls-via-lpsolve"><span class="header-section-number">6.3</span> The identified set as inequality CLS via <code>lpSolve</code></a></li>
+  </ul></li>
+  <li><a href="#what-cls-is-for-in-one-sentence" id="toc-what-cls-is-for-in-one-sentence" class="nav-link" data-scroll-target="#what-cls-is-for-in-one-sentence"><span class="header-section-number">7</span> What CLS is for, in one sentence</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">10. Constrained Least Squares</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Equality and inequality restrictions, and partial identification</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The previous chapter tested restrictions by comparing an unrestricted Wald statistic with a robust covariance matrix to its critical value. Some restricted-vs.-unrestricted machinery (the distance test, the LR-style criterion comparison) needs the <em>restricted</em> estimator: minimize SSE subject to the restriction. That is <strong>constrained least squares</strong> (CLS).</p>
+<p>CLS is also useful in its own right:</p>
+<ul>
+<li><strong>Theory imposes structure.</strong> Adding-up constraints (shares sum to 1), monotonicity (returns to schooling weakly increasing), sign restrictions (a price elasticity is non-positive) can all be encoded as restrictions on <span class="math inline">\(\bm{\beta}\)</span>.</li>
+<li><strong>Partial identification.</strong> When the data and minimal assumptions tell us only that <span class="math inline">\(\bm{\beta}\)</span> lies in a <em>set</em>, not a single point, inequality CLS lets us estimate that set and report the bounds.</li>
+</ul>
+<p>This chapter covers:</p>
+<ol type="1">
+<li>Equality CLS — two ways to compute (reparameterize, or apply the closed-form formula)</li>
+<li>The connection back to the Wald test (restricted SSE feeds the homoskedastic special case; the robust Wald is the right thing to report)</li>
+<li>Inequality CLS — when the restriction is one-sided, via quadratic programming</li>
+<li>A partial-identification application: bounds on the NSW employment ATE under missing data</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(estimatr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'car' was built under R version 4.5.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'carData' was built under R version 4.5.2</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(carData)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quadprog)   <span class="co"># QP for inequality CLS</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lpSolve)    <span class="co"># LP for the bounds at the end</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">4</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Salaries)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="the-setup" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="the-setup"><span class="header-section-number">1</span> The setup</h2>
+<p>CLS minimizes the sum of squared errors subject to <span class="math inline">\(q\)</span> linear restrictions: <span class="math display">\[
+\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \arg\min_{\bm{\beta}} \; \sum_{i=1}^{n}(Y_i - \bm{X}_i'\bm{\beta})^2
+\quad \text{s.t.} \quad \bm{R}'\bm{\beta} \;=\; \bm{r}
+\]</span> where <span class="math inline">\(\bm{R}\)</span> is <span class="math inline">\(k \times q\)</span> and <span class="math inline">\(\bm{r}\)</span> is <span class="math inline">\(q \times 1\)</span>. Three common forms:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Restriction</th>
+<th><span class="math inline">\(\bm{R}'\)</span></th>
+<th><span class="math inline">\(\bm{r}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\beta_3 = 0\)</span> (exclusion)</td>
+<td><span class="math inline">\((0, 0, 1, 0)\)</span></td>
+<td><span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta_2 = \beta_3\)</span> (equality of two coefficients)</td>
+<td><span class="math inline">\((0, 1, -1, 0)\)</span></td>
+<td><span class="math inline">\(0\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\beta_2 + \beta_3 = 1\)</span> (adding-up)</td>
+<td><span class="math inline">\((0, 1, 1, 0)\)</span></td>
+<td><span class="math inline">\(1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The exclusion restriction is the trivial case — “drop the regressor.” The other two need either reparameterization or the closed-form formula below.</p>
+</section>
+<section id="equality-cls-by-reparameterization" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="equality-cls-by-reparameterization"><span class="header-section-number">2</span> Equality CLS by reparameterization</h2>
+<p>Use the <code>Salaries</code> data from <code>carData</code>. The model: <span class="math display">\[
+\text{salary}_i = \alpha + \gamma_{\text{rank}} + \delta_{\text{discipline}} + \beta_2\,\text{yrs.since.phd}_i + \beta_3\,\text{yrs.service}_i + e_i.
+\]</span> A natural restriction to test is <span class="math inline">\(H_0: \beta_2 = \beta_3\)</span> — does an additional year since the PhD pay the same as an additional year of service at this institution? Becker–Mincer human-capital theory would predict the two should <em>differ</em> (firm-specific tenure should pay more), so the equality is something we test against, not something we believe a priori.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mod_U <span class="ot">&lt;-</span> <span class="fu">lm</span>(salary <span class="sc">~</span> rank <span class="sc">+</span> discipline <span class="sc">+</span> yrs.since.phd <span class="sc">+</span> yrs.service,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> Salaries)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Reparameterize: under H0, regress on the SUM of the two</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>mod_R <span class="ot">&lt;-</span> <span class="fu">lm</span>(salary <span class="sc">~</span> rank <span class="sc">+</span> discipline <span class="sc">+</span> <span class="fu">I</span>(yrs.since.phd <span class="sc">+</span> yrs.service),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> Salaries)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">unrestricted =</span> <span class="fu">c</span>(<span class="fu">coef</span>(mod_U), <span class="cn">NA</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">restricted   =</span> <span class="fu">c</span>(<span class="fu">coef</span>(mod_R)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fu">coef</span>(mod_R)[<span class="dv">5</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              unrestricted restricted
+(Intercept)        69869.0  72017.929
+rankAssocProf      12831.5  13886.660
+rankProf           45287.7  48116.640
+disciplineB        14505.2  13720.558
+yrs.since.phd        534.6         NA
+yrs.service         -476.7         NA
+                        NA     -6.376</code></pre>
+</div>
+</div>
+<p>In the restricted regression, the coefficient on <code>I(yrs.since.phd + yrs.service)</code> is the common <span class="math inline">\(\tilde{\beta}_2 = \tilde{\beta}_3\)</span>. This is just OLS on a rebuilt design matrix — no special machinery needed.</p>
+<p>Note that the unrestricted estimates have <em>opposite signs</em> (+535 for <code>yrs.since.phd</code>, −477 for <code>yrs.service</code>): once <code>rank</code> is in the model, <code>yrs.service</code> measures extra years at the same rank without promotion, which signals lower productivity or weaker outside options and depresses salary. The two variables are nearly collinear (<span class="math inline">\(\rho = 0.91\)</span>), so forcing them equal averages a strong positive against a strong negative — the constrained common coefficient will land near zero, exactly the signal that the restriction is at odds with the data.</p>
+</section>
+<section id="equality-cls-via-the-closed-form-formula" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="equality-cls-via-the-closed-form-formula"><span class="header-section-number">3</span> Equality CLS via the closed-form formula</h2>
+<p>The general formula. Solving the constrained minimization with Lagrange multipliers gives <span class="math display">\[
+\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \hat{\bm{\beta}}_{\text{OLS}} - (\bm{X}'\bm{X})^{-1}\bm{R}\bigl[\bm{R}'(\bm{X}'\bm{X})^{-1}\bm{R}\bigr]^{-1}\bigl(\bm{R}'\hat{\bm{\beta}}_{\text{OLS}} - \bm{r}\bigr).
+\]</span> Read it as: start from unrestricted OLS, subtract a correction proportional to <em>how far OLS violates the restriction</em>. If OLS already satisfies the restriction (<span class="math inline">\(\bm{R}'\hat{\bm{\beta}}_{\text{OLS}} = \bm{r}\)</span>), the correction is zero.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>beta_OLS <span class="ot">&lt;-</span> <span class="fu">coef</span>(mod_U)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(mod_U)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> Salaries<span class="sc">$</span>salary</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="do">## Build R for the restriction beta_phd = beta_service</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="fu">length</span>(beta_OLS), <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>R[<span class="fu">which</span>(<span class="fu">names</span>(beta_OLS) <span class="sc">==</span> <span class="st">"yrs.since.phd"</span>), <span class="dv">1</span>] <span class="ot">&lt;-</span>  <span class="dv">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>R[<span class="fu">which</span>(<span class="fu">names</span>(beta_OLS) <span class="sc">==</span> <span class="st">"yrs.service"</span>),   <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>XX_inv <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">crossprod</span>(X))</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>correction <span class="ot">&lt;-</span> XX_inv <span class="sc">%*%</span> R <span class="sc">%*%</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve</span>(<span class="fu">t</span>(R) <span class="sc">%*%</span> XX_inv <span class="sc">%*%</span> R) <span class="sc">%*%</span> (<span class="fu">t</span>(R) <span class="sc">%*%</span> beta_OLS <span class="sc">-</span> r)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>beta_CLS <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(beta_OLS <span class="sc">-</span> correction)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(beta_CLS) <span class="ot">&lt;-</span> <span class="fu">names</span>(beta_OLS)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>beta_CLS</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  (Intercept) rankAssocProf      rankProf   disciplineB yrs.since.phd 
+    72017.929     13886.660     48116.640     13720.558        -6.376 
+  yrs.service 
+       -6.376 </code></pre>
+</div>
+</div>
+<p>The two <code>yrs.since.phd</code> and <code>yrs.service</code> entries should now be equal — and equal to the coefficient on <code>I(yrs.since.phd + yrs.service)</code> from the reparameterized fit:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>common_value <span class="ot">&lt;-</span> <span class="fu">coef</span>(mod_R)[[<span class="st">"I(yrs.since.phd + yrs.service)"</span>]]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">formula_phd     =</span> <span class="fu">unname</span>(beta_CLS[<span class="st">"yrs.since.phd"</span>]),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula_service =</span> <span class="fu">unname</span>(beta_CLS[<span class="st">"yrs.service"</span>]),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">reparam_common  =</span> common_value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    formula_phd formula_service  reparam_common 
+         -6.376          -6.376          -6.376 </code></pre>
+</div>
+</div>
+<p>All three match. Two routes, same answer.</p>
+</section>
+<section id="restricted-sse-and-the-test" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="restricted-sse-and-the-test"><span class="header-section-number">4</span> Restricted SSE and the test</h2>
+<p>The headline test of <span class="math inline">\(H_0: \beta_2 = \beta_3\)</span> is the <strong>robust Wald</strong> built directly from the unrestricted estimator and a heteroskedasticity-robust covariance matrix. The restricted CLS estimator is not needed for this test — but it is what makes the <em>classical F</em> well-defined as a homoskedastic special case.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Headline: robust Wald (use this).</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(mod_U, <span class="st">"yrs.since.phd = yrs.service"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">vcov. =</span> <span class="fu">vcovHC</span>(mod_U, <span class="at">type =</span> <span class="st">"HC1"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Linear hypothesis test:
+yrs.since.phd - yrs.service = 0
+
+Model 1: restricted model
+Model 2: salary ~ rank + discipline + yrs.since.phd + yrs.service
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df    F Pr(&gt;F)  
+1    392                 
+2    391  1 2.84  0.093 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Behind the scenes the classical F equals <span class="math display">\[
+F \;=\; \frac{(\text{SSE}_R - \text{SSE}_U)/q}{\text{SSE}_U/(n - k)},
+\]</span> a comparison of the <em>restricted</em> CLS sum of squares to the unrestricted OLS sum of squares. We can compute this from CLS directly and confirm <code>linearHypothesis()</code> returns the same thing under its homoskedastic default:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>SSE_U <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">residuals</span>(mod_U)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>SSE_R <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">residuals</span>(mod_R)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>n     <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Salaries)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>k     <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(mod_U))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>q     <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>F_stat <span class="ot">&lt;-</span> ((SSE_R <span class="sc">-</span> SSE_U) <span class="sc">/</span> q) <span class="sc">/</span> (SSE_U <span class="sc">/</span> (n <span class="sc">-</span> k))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>p_val  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_stat, q, n <span class="sc">-</span> k)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">F =</span> F_stat, <span class="at">p =</span> p_val)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      F       p 
+5.37937 0.02089 </code></pre>
+</div>
+</div>
+<p>Under heteroskedasticity the classical <span class="math inline">\(F\)</span> has the wrong null distribution (it ignores the variation in <span class="math inline">\(\text{Var}(e_i \mid X_i)\)</span>); the robust Wald above is what you should report. CLS earns its keep here mainly when you actually need the <em>restricted estimator itself</em> — for inequality constraints (next sections), for the GMM distance test you saw in the IV chapter, or for imposing a theoretical structure as the headline regression.</p>
+</section>
+<section id="inequality-cls" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="inequality-cls"><span class="header-section-number">5</span> Inequality CLS</h2>
+<p>Equality CLS pins <span class="math inline">\(\bm{\beta}\)</span> to a <span class="math inline">\((k-q)\)</span>-dimensional subspace. <strong>Inequality CLS</strong> restricts <span class="math inline">\(\bm{\beta}\)</span> to a feasible region <span class="math inline">\(\mathcal{B}\)</span> defined by linear inequalities <span class="math inline">\(\bm{R}'\bm{\beta} \le \bm{r}\)</span> — a polyhedron rather than a subspace. Examples:</p>
+<ul>
+<li><strong>Sign restrictions</strong>: <span class="math inline">\(\beta_j \ge 0\)</span> (a variance, a non-negative elasticity, a share)</li>
+<li><strong>Box constraints</strong>: <span class="math inline">\(0 \le \beta_j \le 1\)</span> (mixing weights, probabilities)</li>
+<li><strong>Monotonicity</strong>: <span class="math inline">\(\beta_1 \le \beta_2 \le \beta_3\)</span> (ordered effects, e.g., dose-response that should be weakly increasing)</li>
+</ul>
+<p>The strategy is two-step. Compute unrestricted OLS first. If <span class="math inline">\(\hat{\bm{\beta}}_{\text{OLS}} \in \mathcal{B}\)</span>, no constraint binds and <span class="math inline">\(\tilde{\bm{\beta}}_{\text{CLS}} = \hat{\bm{\beta}}_{\text{OLS}}\)</span>. Otherwise the constrained solution sits on the boundary of <span class="math inline">\(\mathcal{B}\)</span>, where one or more constraints hold with equality. Conceptually you are <em>projecting</em> OLS onto the feasible region.</p>
+<p>The general algorithm is a quadratic program: minimize <span class="math inline">\(\frac{1}{2}\bm{\beta}'(\bm{X}'\bm{X})\bm{\beta} - (\bm{X}'\bm{y})'\bm{\beta}\)</span> subject to the inequalities. In R, use <code>quadprog::solve.QP()</code>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Suppose we want to estimate the salary regression but</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="do">## restrict the discipline coefficient to be NON-NEGATIVE</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="do">## (theoretical-economics premium, say).</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>mod_qp <span class="ot">&lt;-</span> <span class="fu">lm</span>(salary <span class="sc">~</span> rank <span class="sc">+</span> discipline <span class="sc">+</span> yrs.since.phd <span class="sc">+</span> yrs.service,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> Salaries)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>beta_OLS <span class="ot">&lt;-</span> <span class="fu">coef</span>(mod_qp)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>disc_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">names</span>(beta_OLS) <span class="sc">==</span> <span class="st">"disciplineB"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"OLS coefficient on disciplineB:"</span>, <span class="fu">round</span>(beta_OLS[disc_idx], <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>OLS coefficient on disciplineB: 14505 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">## QP setup</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(mod_qp)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> Salaries<span class="sc">$</span>salary</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Dmat <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>dvec <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X, y)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Constraint: beta_disciplineB &gt;= 0  (i.e. A' beta &gt;= 0 with A picking that entry)</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>Amat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="fu">ncol</span>(X), <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>Amat[disc_idx, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>bvec <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>qp <span class="ot">&lt;-</span> <span class="fu">solve.QP</span>(<span class="at">Dmat =</span> Dmat, <span class="at">dvec =</span> dvec,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">Amat =</span> Amat, <span class="at">bvec =</span> bvec, <span class="at">meq =</span> <span class="dv">0</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">coef =</span> <span class="fu">names</span>(beta_OLS),</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">OLS  =</span> beta_OLS,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">CLS  =</span> qp<span class="sc">$</span>solution,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">row.names =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           coef     OLS     CLS
+1   (Intercept) 69869.0 69869.0
+2 rankAssocProf 12831.5 12831.5
+3      rankProf 45287.7 45287.7
+4   disciplineB 14505.2 14505.2
+5 yrs.since.phd   534.6   534.6
+6   yrs.service  -476.7  -476.7</code></pre>
+</div>
+</div>
+<p>OLS already gave a positive <code>disciplineB</code> coefficient, so the constraint doesn’t bind — inequality CLS returns the same answer. If the unrestricted estimate had been negative, <code>solve.QP</code> would return a solution with that coefficient pinned to exactly <span class="math inline">\(0\)</span> (the boundary) and the other coefficients adjusted accordingly.</p>
+<p>A more interesting case: a negative-by-default coefficient with a sign restriction to test what the constrained estimate looks like. We force a <code>disciplineB</code> <span class="math inline">\(\le 0\)</span> constraint, which OLS <em>does</em> violate, and watch the projection happen:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Reverse the constraint: require disciplineB &lt;= 0 (unrealistic, illustrative)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>Amat[disc_idx, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span>   <span class="co"># -1 * beta_disciplineB &gt;= 0 means beta_disciplineB &lt;= 0</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>bvec <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>qp_bind <span class="ot">&lt;-</span> <span class="fu">solve.QP</span>(<span class="at">Dmat =</span> Dmat, <span class="at">dvec =</span> dvec,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">Amat =</span> Amat, <span class="at">bvec =</span> bvec, <span class="at">meq =</span> <span class="dv">0</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">coef =</span> <span class="fu">names</span>(beta_OLS),</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">OLS  =</span> beta_OLS,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">CLS  =</span> qp_bind<span class="sc">$</span>solution,</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">row.names =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           coef     OLS        CLS
+1   (Intercept) 69869.0  8.028e+04
+2 rankAssocProf 12831.5  1.381e+04
+3      rankProf 45287.7  4.721e+04
+4   disciplineB 14505.2  2.034e-13
+5 yrs.since.phd   534.6  2.635e+02
+6   yrs.service  -476.7 -3.583e+02</code></pre>
+</div>
+</div>
+<p>Now the constraint binds: the constrained <code>disciplineB</code> coefficient is exactly zero, and the other coefficients move to absorb the difference. This is what “projection onto the feasible region” looks like in practice.</p>
+</section>
+<section id="partial-identification-bounds-on-the-nsw-employment-ate" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="partial-identification-bounds-on-the-nsw-employment-ate"><span class="header-section-number">6</span> Partial identification: bounds on the NSW employment ATE</h2>
+<p>Inequality CLS becomes substantive when the <em>identified set</em> itself is a polyhedron. The setup: the National Supported Work Demonstration (Lalonde 1986; Dehejia &amp; Wahba 1999) randomly assigned disadvantaged workers to a job-training program. Outcome: positive earnings in 1978.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>u  <span class="ot">&lt;-</span> <span class="st">"https://users.nber.org/~rdehejia/data/nswre74_"</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>cn <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"treat"</span>,<span class="st">"age"</span>,<span class="st">"educ"</span>,<span class="st">"black"</span>,<span class="st">"hispan"</span>,<span class="st">"married"</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"nodegree"</span>,<span class="st">"re74"</span>,<span class="st">"re75"</span>,<span class="st">"re78"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>nsw <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">read.table</span>(<span class="fu">paste0</span>(u, <span class="st">"treated.txt"</span>), <span class="at">col.names =</span> cn),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">read.table</span>(<span class="fu">paste0</span>(u, <span class="st">"control.txt"</span>), <span class="at">col.names =</span> cn))</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>nsw<span class="sc">$</span>y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(nsw<span class="sc">$</span>re78 <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(nsw<span class="sc">$</span>y[nsw<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>y0 <span class="ot">&lt;-</span> <span class="fu">mean</span>(nsw<span class="sc">$</span>y[nsw<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>naive_ate <span class="ot">&lt;-</span> y1 <span class="sc">-</span> y0</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">y1 =</span> y1, <span class="at">y0 =</span> y0, <span class="at">naive_ATE =</span> naive_ate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       y1        y0 naive_ATE 
+   0.7568    0.6462    0.1106 </code></pre>
+</div>
+</div>
+<p>The naive ATE on the experimental sample is about <span class="math inline">\(0.11\)</span> — an 11 percentage-point employment effect. NSW’s actual follow-up was nearly complete. The interesting question is what we could still pin down if a chunk of the sample had been <em>missing</em> at follow-up.</p>
+<section id="worst-case-bounds" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="worst-case-bounds"><span class="header-section-number">6.1</span> Worst-case bounds</h3>
+<p>Suppose only <span class="math inline">\(p = 70\%\)</span> of subjects could be located in 1978. Within each arm, by the law of total probability, <span class="math display">\[E[Y \mid X = x] = p \cdot \bar{Y}_{\text{obs}}(x) + (1-p) \cdot \underbrace{E[Y \mid X = x, \text{missing}]}_{\text{unknown}}.\]</span> The unknown conditional mean lies in <span class="math inline">\([0, 1]\)</span> (because <span class="math inline">\(Y\)</span> is binary), giving the <em>sharp</em> worst-case bounds: <span class="math display">\[p\,\bar{Y}_{\text{obs}}(x) \;\le\; E[Y \mid X{=}x] \;\le\; p\,\bar{Y}_{\text{obs}}(x) + (1-p).\]</span></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>lo_y1 <span class="ot">&lt;-</span> p <span class="sc">*</span> y1;             hi_y1 <span class="ot">&lt;-</span> p <span class="sc">*</span> y1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>lo_y0 <span class="ot">&lt;-</span> p <span class="sc">*</span> y0;             hi_y0 <span class="ot">&lt;-</span> p <span class="sc">*</span> y0 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>ate_lo <span class="ot">&lt;-</span> lo_y1 <span class="sc">-</span> hi_y0      <span class="co"># smallest ATE: arm 1 low, arm 0 high</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>ate_hi <span class="ot">&lt;-</span> hi_y1 <span class="sc">-</span> lo_y0      <span class="co"># largest:      arm 1 high, arm 0 low</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ATE_lo =</span> ate_lo, <span class="at">ATE_hi =</span> ate_hi, <span class="at">width =</span> ate_hi <span class="sc">-</span> ate_lo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> ATE_lo  ATE_hi   width 
+-0.2226  0.3774  0.6000 </code></pre>
+</div>
+</div>
+<p>Without any further assumption, the data + 30% missingness leaves the ATE pinned only to <span class="math inline">\([-0.22, 0.38]\)</span> — wide enough that we cannot even sign the effect.</p>
+</section>
+<section id="tighter-bounds-via-monotone-selection" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="tighter-bounds-via-monotone-selection"><span class="header-section-number">6.2</span> Tighter bounds via monotone selection</h3>
+<p>A mild (and often credible) assumption: those <em>lost</em> to follow-up are weakly <em>less</em> likely to be employed than those we observed in the same arm. Formally, <span class="math inline">\(E[Y \mid X{=}x, \text{missing}] \le \bar{Y}_{\text{obs}}(x)\)</span>. This tightens the upper bound (the missing group can’t contribute more than <span class="math inline">\(\bar{Y}_{\text{obs}}\)</span>), leaving the lower bound unchanged:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>hi_y1_mts <span class="ot">&lt;-</span> y1   <span class="co"># MTS: replace 1 with Y_obs</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>hi_y0_mts <span class="ot">&lt;-</span> y0</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>ate_lo_mts <span class="ot">&lt;-</span> lo_y1 <span class="sc">-</span> hi_y0_mts</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>ate_hi_mts <span class="ot">&lt;-</span> hi_y1_mts <span class="sc">-</span> lo_y0</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ATE_lo =</span> ate_lo_mts, <span class="at">ATE_hi =</span> ate_hi_mts, <span class="at">width =</span> ate_hi_mts <span class="sc">-</span> ate_lo_mts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> ATE_lo  ATE_hi   width 
+-0.1164  0.3044  0.4209 </code></pre>
+</div>
+</div>
+<p>The width drops from <span class="math inline">\(0.60\)</span> to <span class="math inline">\(0.42\)</span>. The interval still crosses zero — an 11 pp underlying effect is too small for one mild assumption to settle the sign at 30% missing — but the bounds <em>are</em> informative now.</p>
+</section>
+<section id="the-identified-set-as-inequality-cls-via-lpsolve" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="the-identified-set-as-inequality-cls-via-lpsolve"><span class="header-section-number">6.3</span> The identified set as inequality CLS via <code>lpSolve</code></h3>
+<p>Both bounds above came from closed-form arithmetic. With more constraints — multiple monotonicity assumptions, or a parameter that’s not just <span class="math inline">\(\mu_1 - \mu_0\)</span> — the closed-form gets unwieldy. Phrase it instead as a <strong>linear program</strong> over the feasible region.</p>
+<p>Reparameterize from the regression coefficients to the conditional means <span class="math inline">\(\bm{\mu} = (\mu_0, \mu_1)\)</span> where <span class="math inline">\(\mu_x = E[Y \mid X{=}x]\)</span>. The MTS bounds become four inequalities: <span class="math display">\[
+0.452 \le \mu_0 \le 0.646, \qquad 0.530 \le \mu_1 \le 0.757.
+\]</span> The ATE is <span class="math inline">\(\mu_1 - \mu_0 = \bm{c}'\bm{\mu}\)</span> with <span class="math inline">\(\bm{c} = (-1, 1)'\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>A   <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>), <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>), <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"&gt;="</span>, <span class="st">"&lt;="</span>, <span class="st">"&gt;="</span>, <span class="st">"&lt;="</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>rhs <span class="ot">&lt;-</span> <span class="fu">c</span>(lo_y0, hi_y0_mts, lo_y1, hi_y1_mts)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>c_ate <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ATE_lo =</span> <span class="fu">lp</span>(<span class="st">"min"</span>, c_ate, A, dir, rhs)<span class="sc">$</span>objval,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ATE_hi =</span> <span class="fu">lp</span>(<span class="st">"max"</span>, c_ate, A, dir, rhs)<span class="sc">$</span>objval)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> ATE_lo  ATE_hi 
+-0.1164  0.3044 </code></pre>
+</div>
+</div>
+<p>Same answer (<code>ATE_lo</code> ≈ −0.12, <code>ATE_hi</code> ≈ 0.30), but now the recipe extends to any number of constraints. Adding another assumption is just another row in <code>A</code>, <code>dir</code>, <code>rhs</code>.</p>
+</section>
+</section>
+<section id="what-cls-is-for-in-one-sentence" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="what-cls-is-for-in-one-sentence"><span class="header-section-number">7</span> What CLS is for, in one sentence</h2>
+<p>The Wald test handles most “is this restriction true?” questions without ever computing the restricted estimator. CLS earns its place when you need the <em>restricted estimator itself</em>: imposing a theoretical structure as the headline regression (equality form), or estimating an <em>identified set</em> when the data alone do not pin <span class="math inline">\(\bm{\beta}\)</span> down (inequality form). Both reduce to the same idea: minimize SSE on a restricted set of parameter values.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "10. Constrained Least Squares"</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Equality and inequality restrictions, and partial identification"</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>The previous chapter tested restrictions by comparing an unrestricted Wald statistic with a robust covariance matrix to its critical value. Some restricted-vs.-unrestricted machinery (the distance test, the LR-style criterion comparison) needs the *restricted* estimator: minimize SSE subject to the restriction. That is **constrained least squares** (CLS).</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>CLS is also useful in its own right:</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Theory imposes structure.** Adding-up constraints (shares sum to 1), monotonicity (returns to schooling weakly increasing), sign restrictions (a price elasticity is non-positive) can all be encoded as restrictions on $\bm{\beta}$.</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Partial identification.** When the data and minimal assumptions tell us only that $\bm{\beta}$ lies in a *set*, not a single point, inequality CLS lets us estimate that set and report the bounds.</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>This chapter covers:</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Equality CLS — two ways to compute (reparameterize, or apply the closed-form formula)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>The connection back to the Wald test (restricted SSE feeds the homoskedastic special case; the robust Wald is the right thing to report)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Inequality CLS — when the restriction is one-sided, via quadratic programming</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>A partial-identification application: bounds on the NSW employment ATE under missing data</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(estimatr)</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(carData)</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quadprog)   <span class="co"># QP for inequality CLS</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lpSolve)    <span class="co"># LP for the bounds at the end</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">4</span>)</span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Salaries)</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## The setup</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>CLS minimizes the sum of squared errors subject to $q$ linear restrictions:</span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \arg\min_{\bm{\beta}} \; \sum_{i=1}^{n}(Y_i - \bm{X}_i'\bm{\beta})^2</span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>\quad \text{s.t.} \quad \bm{R}'\bm{\beta} \;=\; \bm{r}</span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>where $\bm{R}$ is $k \times q$ and $\bm{r}$ is $q \times 1$. Three common forms:</span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Restriction <span class="pp">|</span> $\bm{R}'$ <span class="pp">|</span> $\bm{r}$ <span class="pp">|</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\beta_3 = 0$ (exclusion) <span class="pp">|</span> $(0, 0, 1, 0)$ <span class="pp">|</span> $0$ <span class="pp">|</span></span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\beta_2 = \beta_3$ (equality of two coefficients) <span class="pp">|</span> $(0, 1, -1, 0)$ <span class="pp">|</span> $0$ <span class="pp">|</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\beta_2 + \beta_3 = 1$ (adding-up) <span class="pp">|</span> $(0, 1, 1, 0)$ <span class="pp">|</span> $1$ <span class="pp">|</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>The exclusion restriction is the trivial case --- "drop the regressor." The other two need either reparameterization or the closed-form formula below.</span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## Equality CLS by reparameterization</span></span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>Use the <span class="in">`Salaries`</span> data from <span class="in">`carData`</span>. The model:</span>
+<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>\text{salary}_i = \alpha + \gamma_{\text{rank}} + \delta_{\text{discipline}} + \beta_2\,\text{yrs.since.phd}_i + \beta_3\,\text{yrs.service}_i + e_i.</span>
+<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>A natural restriction to test is $H_0: \beta_2 = \beta_3$ --- does an additional year since the PhD pay the same as an additional year of service at this institution? Becker--Mincer human-capital theory would predict the two should *differ* (firm-specific tenure should pay more), so the equality is something we test against, not something we believe a priori.</span>
+<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-reparam</span></span>
+<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a>mod_U <span class="ot">&lt;-</span> <span class="fu">lm</span>(salary <span class="sc">~</span> rank <span class="sc">+</span> discipline <span class="sc">+</span> yrs.since.phd <span class="sc">+</span> yrs.service,</span>
+<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> Salaries)</span>
+<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a><span class="do">## Reparameterize: under H0, regress on the SUM of the two</span></span>
+<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a>mod_R <span class="ot">&lt;-</span> <span class="fu">lm</span>(salary <span class="sc">~</span> rank <span class="sc">+</span> discipline <span class="sc">+</span> <span class="fu">I</span>(yrs.since.phd <span class="sc">+</span> yrs.service),</span>
+<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> Salaries)</span>
+<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">unrestricted =</span> <span class="fu">c</span>(<span class="fu">coef</span>(mod_U), <span class="cn">NA</span>),</span>
+<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a>      <span class="at">restricted   =</span> <span class="fu">c</span>(<span class="fu">coef</span>(mod_R)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>], <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fu">coef</span>(mod_R)[<span class="dv">5</span>]))</span>
+<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a>In the restricted regression, the coefficient on <span class="in">`I(yrs.since.phd + yrs.service)`</span> is the common $\tilde{\beta}_2 = \tilde{\beta}_3$. This is just OLS on a rebuilt design matrix --- no special machinery needed.</span>
+<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a>Note that the unrestricted estimates have *opposite signs* (+535 for <span class="in">`yrs.since.phd`</span>, −477 for <span class="in">`yrs.service`</span>): once <span class="in">`rank`</span> is in the model, <span class="in">`yrs.service`</span> measures extra years at the same rank without promotion, which signals lower productivity or weaker outside options and depresses salary. The two variables are nearly collinear ($\rho = 0.91$), so forcing them equal averages a strong positive against a strong negative --- the constrained common coefficient will land near zero, exactly the signal that the restriction is at odds with the data.</span>
+<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-82"><a href="#cb29-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-83"><a href="#cb29-83" aria-hidden="true" tabindex="-1"></a><span class="fu">## Equality CLS via the closed-form formula</span></span>
+<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a>The general formula. Solving the constrained minimization with Lagrange multipliers gives</span>
+<span id="cb29-86"><a href="#cb29-86" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-87"><a href="#cb29-87" aria-hidden="true" tabindex="-1"></a>\tilde{\bm{\beta}}_{\text{CLS}} \;=\; \hat{\bm{\beta}}_{\text{OLS}} - (\bm{X}'\bm{X})^{-1}\bm{R}\bigl[\bm{R}'(\bm{X}'\bm{X})^{-1}\bm{R}\bigr]^{-1}\bigl(\bm{R}'\hat{\bm{\beta}}_{\text{OLS}} - \bm{r}\bigr).</span>
+<span id="cb29-88"><a href="#cb29-88" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-89"><a href="#cb29-89" aria-hidden="true" tabindex="-1"></a>Read it as: start from unrestricted OLS, subtract a correction proportional to *how far OLS violates the restriction*. If OLS already satisfies the restriction ($\bm{R}'\hat{\bm{\beta}}_{\text{OLS}} = \bm{r}$), the correction is zero.</span>
+<span id="cb29-90"><a href="#cb29-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-93"><a href="#cb29-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-94"><a href="#cb29-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-formula</span></span>
+<span id="cb29-95"><a href="#cb29-95" aria-hidden="true" tabindex="-1"></a>beta_OLS <span class="ot">&lt;-</span> <span class="fu">coef</span>(mod_U)</span>
+<span id="cb29-96"><a href="#cb29-96" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(mod_U)</span>
+<span id="cb29-97"><a href="#cb29-97" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> Salaries<span class="sc">$</span>salary</span>
+<span id="cb29-98"><a href="#cb29-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-99"><a href="#cb29-99" aria-hidden="true" tabindex="-1"></a><span class="do">## Build R for the restriction beta_phd = beta_service</span></span>
+<span id="cb29-100"><a href="#cb29-100" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="fu">length</span>(beta_OLS), <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb29-101"><a href="#cb29-101" aria-hidden="true" tabindex="-1"></a>R[<span class="fu">which</span>(<span class="fu">names</span>(beta_OLS) <span class="sc">==</span> <span class="st">"yrs.since.phd"</span>), <span class="dv">1</span>] <span class="ot">&lt;-</span>  <span class="dv">1</span></span>
+<span id="cb29-102"><a href="#cb29-102" aria-hidden="true" tabindex="-1"></a>R[<span class="fu">which</span>(<span class="fu">names</span>(beta_OLS) <span class="sc">==</span> <span class="st">"yrs.service"</span>),   <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb29-103"><a href="#cb29-103" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb29-104"><a href="#cb29-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-105"><a href="#cb29-105" aria-hidden="true" tabindex="-1"></a>XX_inv <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">crossprod</span>(X))</span>
+<span id="cb29-106"><a href="#cb29-106" aria-hidden="true" tabindex="-1"></a>correction <span class="ot">&lt;-</span> XX_inv <span class="sc">%*%</span> R <span class="sc">%*%</span></span>
+<span id="cb29-107"><a href="#cb29-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">solve</span>(<span class="fu">t</span>(R) <span class="sc">%*%</span> XX_inv <span class="sc">%*%</span> R) <span class="sc">%*%</span> (<span class="fu">t</span>(R) <span class="sc">%*%</span> beta_OLS <span class="sc">-</span> r)</span>
+<span id="cb29-108"><a href="#cb29-108" aria-hidden="true" tabindex="-1"></a>beta_CLS <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(beta_OLS <span class="sc">-</span> correction)</span>
+<span id="cb29-109"><a href="#cb29-109" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(beta_CLS) <span class="ot">&lt;-</span> <span class="fu">names</span>(beta_OLS)</span>
+<span id="cb29-110"><a href="#cb29-110" aria-hidden="true" tabindex="-1"></a>beta_CLS</span>
+<span id="cb29-111"><a href="#cb29-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-112"><a href="#cb29-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-113"><a href="#cb29-113" aria-hidden="true" tabindex="-1"></a>The two <span class="in">`yrs.since.phd`</span> and <span class="in">`yrs.service`</span> entries should now be equal --- and equal to the coefficient on <span class="in">`I(yrs.since.phd + yrs.service)`</span> from the reparameterized fit:</span>
+<span id="cb29-114"><a href="#cb29-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-117"><a href="#cb29-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-118"><a href="#cb29-118" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-formula-check</span></span>
+<span id="cb29-119"><a href="#cb29-119" aria-hidden="true" tabindex="-1"></a>common_value <span class="ot">&lt;-</span> <span class="fu">coef</span>(mod_R)[[<span class="st">"I(yrs.since.phd + yrs.service)"</span>]]</span>
+<span id="cb29-120"><a href="#cb29-120" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">formula_phd     =</span> <span class="fu">unname</span>(beta_CLS[<span class="st">"yrs.since.phd"</span>]),</span>
+<span id="cb29-121"><a href="#cb29-121" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula_service =</span> <span class="fu">unname</span>(beta_CLS[<span class="st">"yrs.service"</span>]),</span>
+<span id="cb29-122"><a href="#cb29-122" aria-hidden="true" tabindex="-1"></a>  <span class="at">reparam_common  =</span> common_value)</span>
+<span id="cb29-123"><a href="#cb29-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-124"><a href="#cb29-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-125"><a href="#cb29-125" aria-hidden="true" tabindex="-1"></a>All three match. Two routes, same answer.</span>
+<span id="cb29-126"><a href="#cb29-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-127"><a href="#cb29-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-128"><a href="#cb29-128" aria-hidden="true" tabindex="-1"></a><span class="fu">## Restricted SSE and the test</span></span>
+<span id="cb29-129"><a href="#cb29-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-130"><a href="#cb29-130" aria-hidden="true" tabindex="-1"></a>The headline test of $H_0: \beta_2 = \beta_3$ is the **robust Wald** built directly from the unrestricted estimator and a heteroskedasticity-robust covariance matrix. The restricted CLS estimator is not needed for this test --- but it is what makes the *classical F* well-defined as a homoskedastic special case.</span>
+<span id="cb29-131"><a href="#cb29-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-134"><a href="#cb29-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-135"><a href="#cb29-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-robust-wald</span></span>
+<span id="cb29-136"><a href="#cb29-136" aria-hidden="true" tabindex="-1"></a><span class="do">## Headline: robust Wald (use this).</span></span>
+<span id="cb29-137"><a href="#cb29-137" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(mod_U, <span class="st">"yrs.since.phd = yrs.service"</span>,</span>
+<span id="cb29-138"><a href="#cb29-138" aria-hidden="true" tabindex="-1"></a>                 <span class="at">vcov. =</span> <span class="fu">vcovHC</span>(mod_U, <span class="at">type =</span> <span class="st">"HC1"</span>))</span>
+<span id="cb29-139"><a href="#cb29-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-140"><a href="#cb29-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-141"><a href="#cb29-141" aria-hidden="true" tabindex="-1"></a>Behind the scenes the classical F equals</span>
+<span id="cb29-142"><a href="#cb29-142" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-143"><a href="#cb29-143" aria-hidden="true" tabindex="-1"></a>F \;=\; \frac{(\text{SSE}_R - \text{SSE}_U)/q}{\text{SSE}_U/(n - k)},</span>
+<span id="cb29-144"><a href="#cb29-144" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-145"><a href="#cb29-145" aria-hidden="true" tabindex="-1"></a>a comparison of the *restricted* CLS sum of squares to the unrestricted OLS sum of squares. We can compute this from CLS directly and confirm <span class="in">`linearHypothesis()`</span> returns the same thing under its homoskedastic default:</span>
+<span id="cb29-146"><a href="#cb29-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-149"><a href="#cb29-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-150"><a href="#cb29-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-f-test</span></span>
+<span id="cb29-151"><a href="#cb29-151" aria-hidden="true" tabindex="-1"></a>SSE_U <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">residuals</span>(mod_U)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb29-152"><a href="#cb29-152" aria-hidden="true" tabindex="-1"></a>SSE_R <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">residuals</span>(mod_R)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb29-153"><a href="#cb29-153" aria-hidden="true" tabindex="-1"></a>n     <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Salaries)</span>
+<span id="cb29-154"><a href="#cb29-154" aria-hidden="true" tabindex="-1"></a>k     <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">coef</span>(mod_U))</span>
+<span id="cb29-155"><a href="#cb29-155" aria-hidden="true" tabindex="-1"></a>q     <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb29-156"><a href="#cb29-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-157"><a href="#cb29-157" aria-hidden="true" tabindex="-1"></a>F_stat <span class="ot">&lt;-</span> ((SSE_R <span class="sc">-</span> SSE_U) <span class="sc">/</span> q) <span class="sc">/</span> (SSE_U <span class="sc">/</span> (n <span class="sc">-</span> k))</span>
+<span id="cb29-158"><a href="#cb29-158" aria-hidden="true" tabindex="-1"></a>p_val  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pf</span>(F_stat, q, n <span class="sc">-</span> k)</span>
+<span id="cb29-159"><a href="#cb29-159" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">F =</span> F_stat, <span class="at">p =</span> p_val)</span>
+<span id="cb29-160"><a href="#cb29-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-161"><a href="#cb29-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-162"><a href="#cb29-162" aria-hidden="true" tabindex="-1"></a>Under heteroskedasticity the classical $F$ has the wrong null distribution (it ignores the variation in $\text{Var}(e_i \mid X_i)$); the robust Wald above is what you should report. CLS earns its keep here mainly when you actually need the *restricted estimator itself* --- for inequality constraints (next sections), for the GMM distance test you saw in the IV chapter, or for imposing a theoretical structure as the headline regression.</span>
+<span id="cb29-163"><a href="#cb29-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-164"><a href="#cb29-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-165"><a href="#cb29-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## Inequality CLS</span></span>
+<span id="cb29-166"><a href="#cb29-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-167"><a href="#cb29-167" aria-hidden="true" tabindex="-1"></a>Equality CLS pins $\bm{\beta}$ to a $(k-q)$-dimensional subspace. **Inequality CLS** restricts $\bm{\beta}$ to a feasible region $\mathcal{B}$ defined by linear inequalities $\bm{R}'\bm{\beta} \le \bm{r}$ --- a polyhedron rather than a subspace. Examples:</span>
+<span id="cb29-168"><a href="#cb29-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-169"><a href="#cb29-169" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Sign restrictions**: $\beta_j \ge 0$ (a variance, a non-negative elasticity, a share)</span>
+<span id="cb29-170"><a href="#cb29-170" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Box constraints**: $0 \le \beta_j \le 1$ (mixing weights, probabilities)</span>
+<span id="cb29-171"><a href="#cb29-171" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Monotonicity**: $\beta_1 \le \beta_2 \le \beta_3$ (ordered effects, e.g., dose-response that should be weakly increasing)</span>
+<span id="cb29-172"><a href="#cb29-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-173"><a href="#cb29-173" aria-hidden="true" tabindex="-1"></a>The strategy is two-step. Compute unrestricted OLS first. If $\hat{\bm{\beta}}_{\text{OLS}} \in \mathcal{B}$, no constraint binds and $\tilde{\bm{\beta}}_{\text{CLS}} = \hat{\bm{\beta}}_{\text{OLS}}$. Otherwise the constrained solution sits on the boundary of $\mathcal{B}$, where one or more constraints hold with equality. Conceptually you are *projecting* OLS onto the feasible region.</span>
+<span id="cb29-174"><a href="#cb29-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-175"><a href="#cb29-175" aria-hidden="true" tabindex="-1"></a>The general algorithm is a quadratic program: minimize $\frac{1}{2}\bm{\beta}'(\bm{X}'\bm{X})\bm{\beta} - (\bm{X}'\bm{y})'\bm{\beta}$ subject to the inequalities. In R, use <span class="in">`quadprog::solve.QP()`</span>:</span>
+<span id="cb29-176"><a href="#cb29-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-179"><a href="#cb29-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-180"><a href="#cb29-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-qp</span></span>
+<span id="cb29-181"><a href="#cb29-181" aria-hidden="true" tabindex="-1"></a><span class="do">## Suppose we want to estimate the salary regression but</span></span>
+<span id="cb29-182"><a href="#cb29-182" aria-hidden="true" tabindex="-1"></a><span class="do">## restrict the discipline coefficient to be NON-NEGATIVE</span></span>
+<span id="cb29-183"><a href="#cb29-183" aria-hidden="true" tabindex="-1"></a><span class="do">## (theoretical-economics premium, say).</span></span>
+<span id="cb29-184"><a href="#cb29-184" aria-hidden="true" tabindex="-1"></a>mod_qp <span class="ot">&lt;-</span> <span class="fu">lm</span>(salary <span class="sc">~</span> rank <span class="sc">+</span> discipline <span class="sc">+</span> yrs.since.phd <span class="sc">+</span> yrs.service,</span>
+<span id="cb29-185"><a href="#cb29-185" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> Salaries)</span>
+<span id="cb29-186"><a href="#cb29-186" aria-hidden="true" tabindex="-1"></a>beta_OLS <span class="ot">&lt;-</span> <span class="fu">coef</span>(mod_qp)</span>
+<span id="cb29-187"><a href="#cb29-187" aria-hidden="true" tabindex="-1"></a>disc_idx <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">names</span>(beta_OLS) <span class="sc">==</span> <span class="st">"disciplineB"</span>)</span>
+<span id="cb29-188"><a href="#cb29-188" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"OLS coefficient on disciplineB:"</span>, <span class="fu">round</span>(beta_OLS[disc_idx], <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb29-189"><a href="#cb29-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-190"><a href="#cb29-190" aria-hidden="true" tabindex="-1"></a><span class="do">## QP setup</span></span>
+<span id="cb29-191"><a href="#cb29-191" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(mod_qp)</span>
+<span id="cb29-192"><a href="#cb29-192" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> Salaries<span class="sc">$</span>salary</span>
+<span id="cb29-193"><a href="#cb29-193" aria-hidden="true" tabindex="-1"></a>Dmat <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X)</span>
+<span id="cb29-194"><a href="#cb29-194" aria-hidden="true" tabindex="-1"></a>dvec <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(X, y)</span>
+<span id="cb29-195"><a href="#cb29-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-196"><a href="#cb29-196" aria-hidden="true" tabindex="-1"></a><span class="do">## Constraint: beta_disciplineB &gt;= 0  (i.e. A' beta &gt;= 0 with A picking that entry)</span></span>
+<span id="cb29-197"><a href="#cb29-197" aria-hidden="true" tabindex="-1"></a>Amat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, <span class="at">nrow =</span> <span class="fu">ncol</span>(X), <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb29-198"><a href="#cb29-198" aria-hidden="true" tabindex="-1"></a>Amat[disc_idx, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb29-199"><a href="#cb29-199" aria-hidden="true" tabindex="-1"></a>bvec <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb29-200"><a href="#cb29-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-201"><a href="#cb29-201" aria-hidden="true" tabindex="-1"></a>qp <span class="ot">&lt;-</span> <span class="fu">solve.QP</span>(<span class="at">Dmat =</span> Dmat, <span class="at">dvec =</span> dvec,</span>
+<span id="cb29-202"><a href="#cb29-202" aria-hidden="true" tabindex="-1"></a>               <span class="at">Amat =</span> Amat, <span class="at">bvec =</span> bvec, <span class="at">meq =</span> <span class="dv">0</span>)</span>
+<span id="cb29-203"><a href="#cb29-203" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">coef =</span> <span class="fu">names</span>(beta_OLS),</span>
+<span id="cb29-204"><a href="#cb29-204" aria-hidden="true" tabindex="-1"></a>           <span class="at">OLS  =</span> beta_OLS,</span>
+<span id="cb29-205"><a href="#cb29-205" aria-hidden="true" tabindex="-1"></a>           <span class="at">CLS  =</span> qp<span class="sc">$</span>solution,</span>
+<span id="cb29-206"><a href="#cb29-206" aria-hidden="true" tabindex="-1"></a>           <span class="at">row.names =</span> <span class="cn">NULL</span>)</span>
+<span id="cb29-207"><a href="#cb29-207" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-208"><a href="#cb29-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-209"><a href="#cb29-209" aria-hidden="true" tabindex="-1"></a>OLS already gave a positive <span class="in">`disciplineB`</span> coefficient, so the constraint doesn't bind --- inequality CLS returns the same answer. If the unrestricted estimate had been negative, <span class="in">`solve.QP`</span> would return a solution with that coefficient pinned to exactly $0$ (the boundary) and the other coefficients adjusted accordingly.</span>
+<span id="cb29-210"><a href="#cb29-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-211"><a href="#cb29-211" aria-hidden="true" tabindex="-1"></a>A more interesting case: a negative-by-default coefficient with a sign restriction to test what the constrained estimate looks like. We force a <span class="in">`disciplineB`</span> $\le 0$ constraint, which OLS *does* violate, and watch the projection happen:</span>
+<span id="cb29-212"><a href="#cb29-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-215"><a href="#cb29-215" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-216"><a href="#cb29-216" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cls-qp-bind</span></span>
+<span id="cb29-217"><a href="#cb29-217" aria-hidden="true" tabindex="-1"></a><span class="do">## Reverse the constraint: require disciplineB &lt;= 0 (unrealistic, illustrative)</span></span>
+<span id="cb29-218"><a href="#cb29-218" aria-hidden="true" tabindex="-1"></a>Amat[disc_idx, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1</span>   <span class="co"># -1 * beta_disciplineB &gt;= 0 means beta_disciplineB &lt;= 0</span></span>
+<span id="cb29-219"><a href="#cb29-219" aria-hidden="true" tabindex="-1"></a>bvec <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb29-220"><a href="#cb29-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-221"><a href="#cb29-221" aria-hidden="true" tabindex="-1"></a>qp_bind <span class="ot">&lt;-</span> <span class="fu">solve.QP</span>(<span class="at">Dmat =</span> Dmat, <span class="at">dvec =</span> dvec,</span>
+<span id="cb29-222"><a href="#cb29-222" aria-hidden="true" tabindex="-1"></a>                    <span class="at">Amat =</span> Amat, <span class="at">bvec =</span> bvec, <span class="at">meq =</span> <span class="dv">0</span>)</span>
+<span id="cb29-223"><a href="#cb29-223" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">coef =</span> <span class="fu">names</span>(beta_OLS),</span>
+<span id="cb29-224"><a href="#cb29-224" aria-hidden="true" tabindex="-1"></a>           <span class="at">OLS  =</span> beta_OLS,</span>
+<span id="cb29-225"><a href="#cb29-225" aria-hidden="true" tabindex="-1"></a>           <span class="at">CLS  =</span> qp_bind<span class="sc">$</span>solution,</span>
+<span id="cb29-226"><a href="#cb29-226" aria-hidden="true" tabindex="-1"></a>           <span class="at">row.names =</span> <span class="cn">NULL</span>)</span>
+<span id="cb29-227"><a href="#cb29-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-228"><a href="#cb29-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-229"><a href="#cb29-229" aria-hidden="true" tabindex="-1"></a>Now the constraint binds: the constrained <span class="in">`disciplineB`</span> coefficient is exactly zero, and the other coefficients move to absorb the difference. This is what "projection onto the feasible region" looks like in practice.</span>
+<span id="cb29-230"><a href="#cb29-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-231"><a href="#cb29-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-232"><a href="#cb29-232" aria-hidden="true" tabindex="-1"></a><span class="fu">## Partial identification: bounds on the NSW employment ATE</span></span>
+<span id="cb29-233"><a href="#cb29-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-234"><a href="#cb29-234" aria-hidden="true" tabindex="-1"></a>Inequality CLS becomes substantive when the *identified set* itself is a polyhedron. The setup: the National Supported Work Demonstration (Lalonde 1986; Dehejia &amp; Wahba 1999) randomly assigned disadvantaged workers to a job-training program. Outcome: positive earnings in 1978.</span>
+<span id="cb29-235"><a href="#cb29-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-238"><a href="#cb29-238" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-239"><a href="#cb29-239" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: nsw-load</span></span>
+<span id="cb29-240"><a href="#cb29-240" aria-hidden="true" tabindex="-1"></a><span class="co">#| cache: true</span></span>
+<span id="cb29-241"><a href="#cb29-241" aria-hidden="true" tabindex="-1"></a>u  <span class="ot">&lt;-</span> <span class="st">"https://users.nber.org/~rdehejia/data/nswre74_"</span></span>
+<span id="cb29-242"><a href="#cb29-242" aria-hidden="true" tabindex="-1"></a>cn <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"treat"</span>,<span class="st">"age"</span>,<span class="st">"educ"</span>,<span class="st">"black"</span>,<span class="st">"hispan"</span>,<span class="st">"married"</span>,</span>
+<span id="cb29-243"><a href="#cb29-243" aria-hidden="true" tabindex="-1"></a>        <span class="st">"nodegree"</span>,<span class="st">"re74"</span>,<span class="st">"re75"</span>,<span class="st">"re78"</span>)</span>
+<span id="cb29-244"><a href="#cb29-244" aria-hidden="true" tabindex="-1"></a>nsw <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">read.table</span>(<span class="fu">paste0</span>(u, <span class="st">"treated.txt"</span>), <span class="at">col.names =</span> cn),</span>
+<span id="cb29-245"><a href="#cb29-245" aria-hidden="true" tabindex="-1"></a>             <span class="fu">read.table</span>(<span class="fu">paste0</span>(u, <span class="st">"control.txt"</span>), <span class="at">col.names =</span> cn))</span>
+<span id="cb29-246"><a href="#cb29-246" aria-hidden="true" tabindex="-1"></a>nsw<span class="sc">$</span>y <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(nsw<span class="sc">$</span>re78 <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb29-247"><a href="#cb29-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-248"><a href="#cb29-248" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(nsw<span class="sc">$</span>y[nsw<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb29-249"><a href="#cb29-249" aria-hidden="true" tabindex="-1"></a>y0 <span class="ot">&lt;-</span> <span class="fu">mean</span>(nsw<span class="sc">$</span>y[nsw<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb29-250"><a href="#cb29-250" aria-hidden="true" tabindex="-1"></a>naive_ate <span class="ot">&lt;-</span> y1 <span class="sc">-</span> y0</span>
+<span id="cb29-251"><a href="#cb29-251" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">y1 =</span> y1, <span class="at">y0 =</span> y0, <span class="at">naive_ATE =</span> naive_ate)</span>
+<span id="cb29-252"><a href="#cb29-252" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-253"><a href="#cb29-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-254"><a href="#cb29-254" aria-hidden="true" tabindex="-1"></a>The naive ATE on the experimental sample is about $0.11$ --- an 11 percentage-point employment effect. NSW's actual follow-up was nearly complete. The interesting question is what we could still pin down if a chunk of the sample had been *missing* at follow-up.</span>
+<span id="cb29-255"><a href="#cb29-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-256"><a href="#cb29-256" aria-hidden="true" tabindex="-1"></a><span class="fu">### Worst-case bounds</span></span>
+<span id="cb29-257"><a href="#cb29-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-258"><a href="#cb29-258" aria-hidden="true" tabindex="-1"></a>Suppose only $p = 70\%$ of subjects could be located in 1978. Within each arm, by the law of total probability,</span>
+<span id="cb29-259"><a href="#cb29-259" aria-hidden="true" tabindex="-1"></a>$$E<span class="co">[</span><span class="ot">Y \mid X = x</span><span class="co">]</span> = p \cdot \bar{Y}_{\text{obs}}(x) + (1-p) \cdot \underbrace{E[Y \mid X = x, \text{missing}]}_{\text{unknown}}.$$</span>
+<span id="cb29-260"><a href="#cb29-260" aria-hidden="true" tabindex="-1"></a>The unknown conditional mean lies in $<span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>$ (because $Y$ is binary), giving the *sharp* worst-case bounds:</span>
+<span id="cb29-261"><a href="#cb29-261" aria-hidden="true" tabindex="-1"></a>$$p\,\bar{Y}_{\text{obs}}(x) \;\le\; E[Y \mid X{=}x] \;\le\; p\,\bar{Y}_{\text{obs}}(x) + (1-p).$$</span>
+<span id="cb29-262"><a href="#cb29-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-265"><a href="#cb29-265" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-266"><a href="#cb29-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: worst-case-bounds</span></span>
+<span id="cb29-267"><a href="#cb29-267" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb29-268"><a href="#cb29-268" aria-hidden="true" tabindex="-1"></a>lo_y1 <span class="ot">&lt;-</span> p <span class="sc">*</span> y1;             hi_y1 <span class="ot">&lt;-</span> p <span class="sc">*</span> y1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb29-269"><a href="#cb29-269" aria-hidden="true" tabindex="-1"></a>lo_y0 <span class="ot">&lt;-</span> p <span class="sc">*</span> y0;             hi_y0 <span class="ot">&lt;-</span> p <span class="sc">*</span> y0 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> p)</span>
+<span id="cb29-270"><a href="#cb29-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-271"><a href="#cb29-271" aria-hidden="true" tabindex="-1"></a>ate_lo <span class="ot">&lt;-</span> lo_y1 <span class="sc">-</span> hi_y0      <span class="co"># smallest ATE: arm 1 low, arm 0 high</span></span>
+<span id="cb29-272"><a href="#cb29-272" aria-hidden="true" tabindex="-1"></a>ate_hi <span class="ot">&lt;-</span> hi_y1 <span class="sc">-</span> lo_y0      <span class="co"># largest:      arm 1 high, arm 0 low</span></span>
+<span id="cb29-273"><a href="#cb29-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-274"><a href="#cb29-274" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ATE_lo =</span> ate_lo, <span class="at">ATE_hi =</span> ate_hi, <span class="at">width =</span> ate_hi <span class="sc">-</span> ate_lo)</span>
+<span id="cb29-275"><a href="#cb29-275" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-276"><a href="#cb29-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-277"><a href="#cb29-277" aria-hidden="true" tabindex="-1"></a>Without any further assumption, the data + 30% missingness leaves the ATE pinned only to $<span class="co">[</span><span class="ot">-0.22, 0.38</span><span class="co">]</span>$ --- wide enough that we cannot even sign the effect.</span>
+<span id="cb29-278"><a href="#cb29-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-279"><a href="#cb29-279" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tighter bounds via monotone selection</span></span>
+<span id="cb29-280"><a href="#cb29-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-281"><a href="#cb29-281" aria-hidden="true" tabindex="-1"></a>A mild (and often credible) assumption: those *lost* to follow-up are weakly *less* likely to be employed than those we observed in the same arm. Formally, $E<span class="co">[</span><span class="ot">Y \mid X{=}x, \text{missing}</span><span class="co">]</span> \le \bar{Y}_{\text{obs}}(x)$. This tightens the upper bound (the missing group can't contribute more than $\bar{Y}_{\text{obs}}$), leaving the lower bound unchanged:</span>
+<span id="cb29-282"><a href="#cb29-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-285"><a href="#cb29-285" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-286"><a href="#cb29-286" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: mts-bounds</span></span>
+<span id="cb29-287"><a href="#cb29-287" aria-hidden="true" tabindex="-1"></a>hi_y1_mts <span class="ot">&lt;-</span> y1   <span class="co"># MTS: replace 1 with Y_obs</span></span>
+<span id="cb29-288"><a href="#cb29-288" aria-hidden="true" tabindex="-1"></a>hi_y0_mts <span class="ot">&lt;-</span> y0</span>
+<span id="cb29-289"><a href="#cb29-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-290"><a href="#cb29-290" aria-hidden="true" tabindex="-1"></a>ate_lo_mts <span class="ot">&lt;-</span> lo_y1 <span class="sc">-</span> hi_y0_mts</span>
+<span id="cb29-291"><a href="#cb29-291" aria-hidden="true" tabindex="-1"></a>ate_hi_mts <span class="ot">&lt;-</span> hi_y1_mts <span class="sc">-</span> lo_y0</span>
+<span id="cb29-292"><a href="#cb29-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-293"><a href="#cb29-293" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ATE_lo =</span> ate_lo_mts, <span class="at">ATE_hi =</span> ate_hi_mts, <span class="at">width =</span> ate_hi_mts <span class="sc">-</span> ate_lo_mts)</span>
+<span id="cb29-294"><a href="#cb29-294" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-295"><a href="#cb29-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-296"><a href="#cb29-296" aria-hidden="true" tabindex="-1"></a>The width drops from $0.60$ to $0.42$. The interval still crosses zero --- an 11 pp underlying effect is too small for one mild assumption to settle the sign at 30% missing --- but the bounds *are* informative now.</span>
+<span id="cb29-297"><a href="#cb29-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-298"><a href="#cb29-298" aria-hidden="true" tabindex="-1"></a><span class="fu">### The identified set as inequality CLS via `lpSolve`</span></span>
+<span id="cb29-299"><a href="#cb29-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-300"><a href="#cb29-300" aria-hidden="true" tabindex="-1"></a>Both bounds above came from closed-form arithmetic. With more constraints --- multiple monotonicity assumptions, or a parameter that's not just $\mu_1 - \mu_0$ --- the closed-form gets unwieldy. Phrase it instead as a **linear program** over the feasible region.</span>
+<span id="cb29-301"><a href="#cb29-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-302"><a href="#cb29-302" aria-hidden="true" tabindex="-1"></a>Reparameterize from the regression coefficients to the conditional means $\bm{\mu} = (\mu_0, \mu_1)$ where $\mu_x = E<span class="co">[</span><span class="ot">Y \mid X{=}x</span><span class="co">]</span>$. The MTS bounds become four inequalities:</span>
+<span id="cb29-303"><a href="#cb29-303" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-304"><a href="#cb29-304" aria-hidden="true" tabindex="-1"></a>0.452 \le \mu_0 \le 0.646, \qquad 0.530 \le \mu_1 \le 0.757.</span>
+<span id="cb29-305"><a href="#cb29-305" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb29-306"><a href="#cb29-306" aria-hidden="true" tabindex="-1"></a>The ATE is $\mu_1 - \mu_0 = \bm{c}'\bm{\mu}$ with $\bm{c} = (-1, 1)'$.</span>
+<span id="cb29-307"><a href="#cb29-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-310"><a href="#cb29-310" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb29-311"><a href="#cb29-311" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: lp-bounds</span></span>
+<span id="cb29-312"><a href="#cb29-312" aria-hidden="true" tabindex="-1"></a>A   <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>), <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>), <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
+<span id="cb29-313"><a href="#cb29-313" aria-hidden="true" tabindex="-1"></a>dir <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"&gt;="</span>, <span class="st">"&lt;="</span>, <span class="st">"&gt;="</span>, <span class="st">"&lt;="</span>)</span>
+<span id="cb29-314"><a href="#cb29-314" aria-hidden="true" tabindex="-1"></a>rhs <span class="ot">&lt;-</span> <span class="fu">c</span>(lo_y0, hi_y0_mts, lo_y1, hi_y1_mts)</span>
+<span id="cb29-315"><a href="#cb29-315" aria-hidden="true" tabindex="-1"></a>c_ate <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb29-316"><a href="#cb29-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-317"><a href="#cb29-317" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ATE_lo =</span> <span class="fu">lp</span>(<span class="st">"min"</span>, c_ate, A, dir, rhs)<span class="sc">$</span>objval,</span>
+<span id="cb29-318"><a href="#cb29-318" aria-hidden="true" tabindex="-1"></a>  <span class="at">ATE_hi =</span> <span class="fu">lp</span>(<span class="st">"max"</span>, c_ate, A, dir, rhs)<span class="sc">$</span>objval)</span>
+<span id="cb29-319"><a href="#cb29-319" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-320"><a href="#cb29-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-321"><a href="#cb29-321" aria-hidden="true" tabindex="-1"></a>Same answer (<span class="in">`ATE_lo`</span> ≈ −0.12, <span class="in">`ATE_hi`</span> ≈ 0.30), but now the recipe extends to any number of constraints. Adding another assumption is just another row in <span class="in">`A`</span>, <span class="in">`dir`</span>, <span class="in">`rhs`</span>.</span>
+<span id="cb29-322"><a href="#cb29-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-323"><a href="#cb29-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-324"><a href="#cb29-324" aria-hidden="true" tabindex="-1"></a><span class="fu">## What CLS is for, in one sentence</span></span>
+<span id="cb29-325"><a href="#cb29-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-326"><a href="#cb29-326" aria-hidden="true" tabindex="-1"></a>The Wald test handles most "is this restriction true?" questions without ever computing the restricted estimator. CLS earns its place when you need the *restricted estimator itself*: imposing a theoretical structure as the headline regression (equality form), or estimating an *identified set* when the data alone do not pin $\bm{\beta}$ down (inequality form). Both reduce to the same idea: minimize SSE on a restricted set of parameter values.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

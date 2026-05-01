@@ -1,5 +1,5 @@
 ---
-title: "12. Panel Data"
+title: "13. Panel Data"
 subtitle: "Pooled, between, and within estimators; difference-in-differences; dynamic panels"
 ---
 
