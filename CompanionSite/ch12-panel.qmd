@@ -466,6 +466,135 @@ cat("FE slopes:  ", round(coef(within_fit), 4), "\n")
 
 The slope coefficients on the time-varying regressors match the FE estimates, confirming the Mundlak equivalence. The coefficients on the group means capture the between-group relationships that FE removes.
 
+## Endogeneity in the panel: FE-IV
+
+Fixed effects handle endogeneity from time-invariant unobservables ($u_i$). They do *not* handle endogeneity from a time-varying regressor that is correlated with the time-varying error ($\mathbb{E}[x_{it} e_{it}] \ne 0$). For that we need both fixed effects *and* an instrumental variable --- the **FE-IV** estimator.
+
+The model:
+$$
+y_{it} = \bm{x}_{it}'\bm{\beta} + u_i + e_{it}, \qquad \mathbb{E}[\bm{z}_{it} e_{it}] = 0,
+$$
+with $\bm{z}_{it}$ an external instrument for the (potentially endogenous) regressors $\bm{x}_{it}$. Crucially, the instrument may itself be correlated with the fixed effect: $\mathbb{E}[\bm{z}_{it} u_i] \ne 0$ in general. (Think of an instrument with an "always present" individual-level component, like a geographic exposure measure.)
+
+### Why pooled IV fails
+
+The pooled IV moment condition is
+$$
+\mathbb{E}[\bm{z}_{it}(y_{it} - \bm{x}_{it}'\bm{\beta})] \;=\; \mathbb{E}[\bm{z}_{it} u_i] + \mathbb{E}[\bm{z}_{it} e_{it}].
+$$
+The second term is zero by assumption, but the first is not. So pooled IV is inconsistent whenever the instrument is correlated with the fixed effect.
+
+We can see this with a small simulation. Build a panel where $x$ is endogenous (correlated with the time-varying error) and the instrument $z$ has both a fixed-effect component and an idiosyncratic component:
+
+```{r}
+#| label: feiv-dgp
+set.seed(42)
+N <- 200; T <- 5
+n_obs <- N * T
+ids   <- rep(1:N, each = T)
+years <- rep(1:T, N)
+
+u   <- rnorm(N)            # individual fixed effect (unit-level)
+u_i <- u[ids]              # broadcast to the panel
+
+eta <- rnorm(n_obs)        # idiosyncratic part of instrument
+nu  <- rnorm(n_obs)        # time-varying error in the structural eq
+xi  <- rnorm(n_obs)        # extra noise in the first stage
+v   <- 0.7 * nu + xi       # first-stage error correlated with nu => x endogenous
+
+z   <- u_i + eta           # INSTRUMENT: contains a fixed-effect component
+x   <- z + v               # endogenous regressor
+e   <- nu                  # structural error
+y   <- 1 + 0.5 * x + u_i + e
+
+panel <- data.frame(id = ids, year = years, y = y, x = x, z = z)
+```
+
+By construction:
+
+- $\mathbb{E}[z_{it} e_{it}] = \mathbb{E}[(u_i + \eta_{it})\nu_{it}] = 0$ — the instrument *is* exogenous to the time-varying error.
+- $\mathbb{E}[z_{it} u_i] = \mathbb{E}[u_i^2 + \eta_{it} u_i] = \text{Var}(u_i) \ne 0$ — but it is correlated with the fixed effect.
+- $\mathbb{E}[x_{it} e_{it}] = 0.7\,\text{Var}(\nu) \ne 0$ — and $x$ is endogenous, so OLS is biased.
+
+```{r}
+#| label: feiv-naive
+#| message: false
+library(plm); library(estimatr); library(lmtest); library(sandwich)
+options(digits = 4)
+
+pdat <- pdata.frame(panel, index = c("id", "year"))
+
+## Pooled OLS: biased because x is endogenous to e
+ols_pool <- plm(y ~ x, data = pdat, model = "pooling")
+
+## Pooled IV: biased because z is correlated with u_i
+iv_pool  <- plm(y ~ x | z, data = pdat, model = "pooling")
+
+## Fixed effects (no IV): biased because x is still endogenous to e (FE only removes u)
+fe_only  <- plm(y ~ x, data = pdat, model = "within")
+
+c(
+  truth        = 0.5,
+  pooled_OLS   = unname(coef(ols_pool)["x"]),
+  pooled_IV    = unname(coef(iv_pool)["x"]),
+  FE_only      = unname(coef(fe_only)["x"])
+)
+```
+
+All three are biased: pooled OLS because $x$ correlates with $e$, pooled IV because $z$ correlates with $u_i$, FE-only because the within transformation removes $u_i$ but does nothing about the endogeneity of $x$ in $e$.
+
+### The within IV estimator
+
+Apply the within (time-demeaning) transformation to the model. The fixed effect drops out:
+$$
+y_{it} - \bar{y}_{i\cdot} \;=\; (\bm{x}_{it} - \bar{\bm{x}}_{i\cdot})'\bm{\beta} + (e_{it} - \bar{e}_{i\cdot}).
+$$
+Run IV on the demeaned variables, using the demeaned instrument:
+$$
+\hat{\bm{\beta}}_{\text{FE-IV}} \;=\; \Bigl(\sum_{i,t} \tilde{\bm{z}}_{it}\tilde{\bm{x}}_{it}'\Bigr)^{-1}\sum_{i,t} \tilde{\bm{z}}_{it}\tilde{y}_{it},
+\qquad \tilde{a}_{it} = a_{it} - \bar{a}_{i\cdot}.
+$$
+In R, `plm(..., model = "within")` with the IV syntax does this automatically. We pass instruments after the `|`:
+
+```{r}
+#| label: feiv-fit
+fe_iv <- plm(y ~ x | z, data = pdat, model = "within")
+
+c(truth = 0.5, pooled_IV = unname(coef(iv_pool)["x"]),
+  FE_IV = unname(coef(fe_iv)["x"]))
+```
+
+FE-IV recovers the truth (≈ 0.5). The within transformation knocks out the bias from $u_i$ that wrecks pooled IV; the IV step knocks out the bias from $\mathbb{E}[x e] \ne 0$ that wrecks FE-only.
+
+### Identifying restriction: strict exogeneity
+
+The FE-IV moment condition uses the *demeaned* instrument and the *demeaned* error. Since $\bar{e}_{i\cdot} = T^{-1}\sum_s e_{is}$ contains every period's error, the requirement is not just contemporaneous orthogonality $\mathbb{E}[z_{it} e_{it}] = 0$ but the stronger
+$$
+\boxed{\mathbb{E}[\bm{z}_{it} e_{is}] = 0 \quad \text{for all } t, s} \qquad (\text{strict exogeneity}).
+$$
+This rules out, for example, an instrument that responds to past structural shocks (feedback). For a contemporaneous-only instrument, FE-IV is generally *inconsistent* even though pooled IV with the same instrument might be valid (in a different counterfactual world). It's a real cost of using fixed effects.
+
+### Cluster-robust standard errors
+
+The default `plm` standard errors assume independent errors *within* each panel observation. They almost never apply: the within transformation mechanically introduces correlation across periods within the same unit (each demeaned observation contains a piece of every period), and the structural error $e_{it}$ is itself usually persistent within $i$. The fix is **cluster-robust standard errors at the unit level**:
+
+```{r}
+#| label: feiv-cluster
+naive_se   <- sqrt(diag(vcov(fe_iv)))
+cluster_se <- sqrt(diag(vcovHC(fe_iv, cluster = "group", type = "HC1")))
+
+cbind(coef       = coef(fe_iv),
+      naive_SE   = naive_se,
+      cluster_SE = cluster_se)
+```
+
+The cluster-robust SE is the right one to report. With small numbers of clusters ($N$, the number of units) the wild cluster bootstrap is more reliable than the asymptotic sandwich --- but for moderate $N$ the asymptotic version is fine.
+
+### A real application
+
+The Dube--Vargas walkthrough in [chapter 11](ch10-iv.qmd#when-tsls-with-controls-isnt-late-dube-vargas-2013) is exactly this estimator: the Colombian municipality panel with year fixed effects, an interaction instrument $E_i \times P_t$, and cluster-robust standard errors at the department level. See that chapter for the substantive payoff and for the BBMT critique of the LATE interpretation.
+
+
 ## Dynamic panels and Arellano--Bond GMM
 
 When the model includes a lagged dependent variable, fixed effects estimation is inconsistent (Nickell bias, $O(1/T)$). Arellano and Bond (1991) proposed first-differencing the equation and using lagged levels as instruments:

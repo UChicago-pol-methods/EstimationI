@@ -592,6 +592,103 @@ cat("\nSargan J-stat:", round(J, 3), "  p-value:", round(1 - pchisq(J, 1), 3), "
 ```
 
 
+## Comparing IV coefficients across two independent samples
+
+A common question: *is the causal effect the same in subgroup A as in subgroup B?* Run IV separately in each subgroup, then test whether the two slope estimates are statistically different.
+
+Setup: two independent random samples (e.g., women and men) with the same model in each:
+$$
+y_{ji} = \bm{x}_{ji}'\bm{\beta}_j + e_{ji}, \quad \mathbb{E}[\bm{z}_{ji} e_{ji}] = 0, \qquad j \in \{1, 2\}.
+$$
+Each sample is just identified ($\dim \bm{z}_{ji} = \dim \bm{x}_{ji}$). Test $H_0: \bm{\beta}_1 = \bm{\beta}_2$.
+
+Each estimator is asymptotically normal with the standard IV sandwich variance:
+$$
+\sqrt{n}\bigl(\hat{\bm{\beta}}_j - \bm{\beta}_j\bigr) \xrightarrow{d} N(0, V_j), \qquad
+V_j = Q_j^{-1} \Omega_j Q_j^{-1\prime}.
+$$
+Because the two samples come from disjoint individuals, $\hat{\bm{\beta}}_1$ and $\hat{\bm{\beta}}_2$ are *asymptotically independent*. So the variance of the difference is the *sum* of the individual variances --- no covariance term:
+$$
+\sqrt{n}\Bigl((\hat{\bm{\beta}}_1 - \bm{\beta}_1) - (\hat{\bm{\beta}}_2 - \bm{\beta}_2)\Bigr) \xrightarrow{d} N(0, V_1 + V_2),
+$$
+$$
+W_n = n(\hat{\bm{\beta}}_1 - \hat{\bm{\beta}}_2)'\bigl(\hat{V}_1 + \hat{V}_2\bigr)^{-1}(\hat{\bm{\beta}}_1 - \hat{\bm{\beta}}_2) \xrightarrow{d} \chi^2_k.
+$$
+
+A simulated example. Generate two samples with potentially different slopes $\beta_1, \beta_2$:
+
+```{r}
+#| label: two-sample-iv-dgp
+set.seed(42)
+
+make_sample <- function(beta, n) {
+  z <- rnorm(n)
+  v <- rnorm(n)
+  e <- 0.6 * v + rnorm(n, sd = 0.5)
+  x <- 1.5 * z + v             # x is endogenous
+  y <- 1 + beta * x + e
+  data.frame(y = y, x = x, z = z)
+}
+
+n <- 1500
+women <- make_sample(beta = 0.5, n)
+men   <- make_sample(beta = 0.7, n)        # different effect by 0.2
+```
+
+Fit IV separately in each sample with a heteroskedasticity-robust variance:
+
+```{r}
+#| label: two-sample-iv-fit
+iv_w <- iv_robust(y ~ x | z, data = women)
+iv_m <- iv_robust(y ~ x | z, data = men)
+
+c(women_beta = unname(coef(iv_w)["x"]),
+  men_beta   = unname(coef(iv_m)["x"]),
+  women_se   = unname(iv_w$std.error["x"]),
+  men_se     = unname(iv_m$std.error["x"]))
+```
+
+Form the Wald statistic by hand. The slope is one-dimensional, so the variance of the difference is just $\hat{V}_1 + \hat{V}_2$ (a sum of scalars):
+
+```{r}
+#| label: two-sample-iv-wald
+b_diff   <- coef(iv_w)["x"] - coef(iv_m)["x"]
+v_diff   <- iv_w$std.error["x"]^2 + iv_m$std.error["x"]^2
+
+W_stat <- b_diff^2 / v_diff                   # one restriction
+p_W    <- 1 - pchisq(W_stat, df = 1)
+
+c(diff = unname(b_diff),
+  SE_diff = unname(sqrt(v_diff)),
+  W = unname(W_stat),
+  p = unname(p_W))
+```
+
+The estimated difference (≈ −0.2) is large relative to its standard error, the Wald statistic is well into the rejection region, and the p-value is essentially zero --- as it should be, since the DGP gave us $\beta_w = 0.5$, $\beta_m = 0.7$.
+
+A quick size check: rerun with the *same* slope in both samples, and the test should fail to reject:
+
+```{r}
+#| label: two-sample-iv-size
+set.seed(42)
+women_eq <- make_sample(beta = 0.6, n)
+men_eq   <- make_sample(beta = 0.6, n)        # same slope
+
+iv_w_eq <- iv_robust(y ~ x | z, data = women_eq)
+iv_m_eq <- iv_robust(y ~ x | z, data = men_eq)
+
+W_eq <- (coef(iv_w_eq)["x"] - coef(iv_m_eq)["x"])^2 /
+        (iv_w_eq$std.error["x"]^2 + iv_m_eq$std.error["x"]^2)
+c(W = unname(W_eq), p = 1 - pchisq(W_eq, df = 1))
+```
+
+Correct size: under the null the test fails to reject.
+
+The same template extends to $k > 1$ regressors --- replace the scalar variances by their sandwich $\hat V_1, \hat V_2$ matrices and use the matrix-form Wald
+$W_n = n(\hat\beta_1 - \hat\beta_2)'(\hat V_1 + \hat V_2)^{-1}(\hat\beta_1 - \hat\beta_2)$
+distributed as $\chi^2_k$ under $H_0$.
+
+
 ## When TSLS-with-controls isn't LATE: Dube & Vargas (2013)
 
 Up to here we have presented IV under heterogeneity as estimating a LATE on compliers. That story is exactly correct for the **Wald** estimator (binary $Z$, no covariates). It is *not* generally correct for **TSLS with covariates** — which is what almost all applied IV papers actually report.
