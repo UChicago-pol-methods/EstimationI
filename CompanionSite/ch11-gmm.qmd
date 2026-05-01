@@ -10,7 +10,8 @@ This chapter demonstrates the Generalized Method of Moments (GMM) framework comp
 1. How does GMM unify OLS, IV, and 2SLS under a single framework of moment conditions?
 2. What is the optimal weighting matrix, and how does efficient GMM achieve the semiparametric variance bound?
 3. How does the J-test detect misspecification in overidentified models?
-4. How can nonlinear GMM handle problems like missing data?
+4. What is the GMM "trinity" --- Wald, distance, and J-test --- and how does the GMM endogeneity test replace Durbin--Wu--Hausman under heteroskedasticity?
+5. How can nonlinear GMM handle problems like missing data?
 
 ```{r}
 #| label: setup
@@ -393,6 +394,160 @@ rej_rates
 
 Under valid instruments, the rejection rate should be near 0.05 (the nominal size). Under the invalid instrument, the rejection rate should be substantially higher.
 
+## Wald, distance, and endogeneity tests in GMM
+
+The J-test is one of a family of GMM-based tests. The **Wald test** (for parameter restrictions) and the **distance test** (LR-style) round out the GMM "trinity" --- analogs of $t$/$F$, LR, and Sargan from classical inference, but valid under heteroskedasticity. A close cousin, the **GMM endogeneity test**, is the heteroskedasticity-robust generalization of Durbin--Wu--Hausman.
+
+### Wald test in GMM
+
+For testing $H_0: r(\bm{\beta}) = \bm{\theta}_0$ with $q$ restrictions, the Wald statistic is
+$$
+W = n\,(r(\hat{\bm{\beta}}) - \bm{\theta}_0)'\,\hat{\bm{V}}_{\theta}^{-1}\,(r(\hat{\bm{\beta}}) - \bm{\theta}_0) \xrightarrow{d} \chi^2_q,
+$$
+with $\hat{\bm{V}}_\theta = \hat{\bm{R}}'\,\hat{\bm{V}}_\beta\,\hat{\bm{R}}$ and $\hat{\bm{R}} = \partial r / \partial \bm{\beta}$ (delta method). For a single linear restriction this reduces to a $z$-statistic squared.
+
+Test whether the slope in our two-step fit equals the true value $0.5$:
+
+```{r}
+#| label: gmm-wald
+b_hat <- coef(fit_2step)["X"]
+v_hat <- vcov(fit_2step)["X", "X"]
+
+W_stat <- (b_hat - 0.5)^2 / v_hat
+p_W    <- 1 - pchisq(W_stat, df = 1)
+c(beta_hat = b_hat, W = W_stat, p = p_W)
+```
+
+For multi-restriction or nonlinear hypotheses the same logic extends via the gradient $\hat{\bm{R}}$.
+
+### Distance test
+
+The distance test is the criterion-based analog of the likelihood ratio: estimate the model with and without the restriction (both via efficient GMM), then take the difference of the minimized criteria.
+$$
+D = \tilde{J} - \hat{J} \xrightarrow{d} \chi^2_q, \qquad \tilde{J} = J_n(\tilde{\bm{\beta}}_{R}), \quad \hat{J} = J_n(\hat{\bm{\beta}}).
+$$
+Two practical advantages over Wald: (i) it is *invariant to reparameterization* (Wald can give different answers for $\beta_1 = 1$ vs.\ $1/\beta_1 = 1$); (ii) it uses the same criterion that produces the J-test, so all the inferential machinery is already on hand.
+
+Test the same hypothesis $\beta_X = 0.5$ via the distance form. The "restricted" GMM substitutes the value of $\beta_X$ and re-optimizes only over the intercept:
+
+```{r}
+#| label: gmm-distance
+## Build the GMM criterion at fixed beta_X = 0.5 (one-parameter problem in the intercept)
+gmm_criterion_fixed <- function(b0, beta_X = 0.5, Y, X, Z, W) {
+  beta <- c(b0, beta_X)
+  g_bar <- colMeans(Z * as.numeric(Y - X %*% beta))
+  n <- nrow(X)
+  as.numeric(n * t(g_bar) %*% W %*% g_bar)
+}
+
+## Reuse the efficient weight from the unrestricted two-step fit
+e_unr   <- as.numeric(Y - Xmat %*% coef(fit_2step))
+Omega_R <- (t(Zmat2) %*% diag(e_unr^2) %*% Zmat2) / n
+W_R     <- solve(Omega_R)
+
+## Restricted optimization over the intercept only
+restricted <- optimize(gmm_criterion_fixed, interval = c(-2, 4),
+                       Y = Y, X = Xmat, Z = Zmat2, W = W_R)
+J_R <- restricted$objective
+
+## Unrestricted J at the two-step estimator
+e_un   <- as.numeric(Y - Xmat %*% coef(fit_2step))
+g_un   <- colMeans(Zmat2 * e_un)
+J_U    <- as.numeric(n * t(g_un) %*% W_R %*% g_un)
+
+D_stat <- J_R - J_U
+p_D    <- 1 - pchisq(D_stat, df = 1)
+c(J_restricted = J_R, J_unrestricted = J_U, D = D_stat, p = p_D)
+```
+
+Both the Wald and the distance tests should fail to reject (the true slope is $0.5$). The two test statistics are asymptotically equivalent for linear restrictions, so the $p$-values track each other closely.
+
+### GMM endogeneity test (the DWH analog)
+
+The **classical Durbin--Wu--Hausman test** compares OLS to IV estimates and tests whether the difference is zero --- but its null distribution requires conditional homoskedasticity (so that $\text{Avar}(\hat{\bm{\beta}}_{IV}) - \text{Avar}(\hat{\bm{\beta}}_{OLS})$ is positive semidefinite). Under heteroskedasticity, the difference need not be PSD and the inverse can fail.
+
+The **GMM endogeneity test** (Hansen Thm.\ 13.16) is the heteroskedasticity-robust generalization. The setup: model
+$$
+Y_i = \bm{x}_{1i}'\bm{\beta}_1 + Y_{2i}'\bm{\beta}_2 + e_i, \quad \mathbb{E}[\bm{z}_{1i}e_i] = \mathbb{E}[\bm{z}_{2i}e_i] = 0,
+$$
+with $Y_2$ a regressor whose endogeneity status is in question. The key insight: under $H_0:\mathbb{E}[Y_2 e] = 0$, $Y_2$ is itself a valid additional instrument. Two-step efficient GMM, run twice:
+
+- $\bar{J}$: instruments are $(\bm{z}_1, \bm{z}_2)$ alone. Always valid.
+- $\hat{J}$: instruments include $Y_2$ as well. Valid iff $H_0$ holds.
+
+The criterion difference
+$$
+C = \hat{J} - \bar{J} \xrightarrow{d} \chi^2_{k_2} \quad \text{under } H_0,
+$$
+where $k_2 = \dim(Y_2)$. Same null hypothesis as DWH, no homoskedasticity needed.
+
+A worked example. Build a DGP with two regressors --- $X_1$ known endogenous (we instrument it), $X_2$ that we want to *test* for endogeneity. We deliberately make $X_2$ endogenous through an error correlation, so the test should reject.
+
+```{r}
+#| label: gmm-endog-dgp
+set.seed(7)
+n <- 1500
+z1 <- rnorm(n); z2 <- rnorm(n); z3 <- rnorm(n); z4 <- rnorm(n)
+u1 <- rnorm(n); u2 <- rnorm(n); nu <- rnorm(n)
+
+x1 <- 0.6 * z1 + 0.3 * z2 + u1                # instruments: z1, z2
+x2 <- 0.6 * z3 + 0.3 * z4 + u2                # instruments: z3, z4
+e  <- nu + 0.4 * u2                            # X_2 IS endogenous (e ~ u2)
+y  <- 1 + 0.5 * x1 + 0.3 * x2 + e
+
+de <- data.frame(y = y, x1 = x1, x2 = x2,
+                 z1 = z1, z2 = z2, z3 = z3, z4 = z4)
+```
+
+Run two-step GMM under both instrument sets and form $C$:
+
+```{r}
+#| label: gmm-endog-test
+fit_bar <- gmm(y ~ x1 + x2, ~ z1 + z2 + z3 + z4,
+               data = de, type = "twoStep")
+fit_hat <- gmm(y ~ x1 + x2, ~ z1 + z2 + z3 + z4 + x2,
+               data = de, type = "twoStep")
+
+J_bar <- specTest(fit_bar)$test[1, 1]
+J_hat <- specTest(fit_hat)$test[1, 1]
+
+C_stat <- J_hat - J_bar
+p_C    <- 1 - pchisq(C_stat, df = 1)        # k_2 = 1
+c(J_bar = J_bar, J_hat = J_hat, C = C_stat, p = p_C)
+```
+
+The criterion blows up when we add $X_2$ as an instrument because $X_2$ disagrees with the (genuinely valid) $z$'s --- exactly the signal that $X_2$ is endogenous.
+
+A sanity check: redo the simulation with $X_2$ truly exogenous, and the test should *not* reject:
+
+```{r}
+#| label: gmm-endog-sanity
+set.seed(7)
+e_clean <- nu                                  # no u2 contamination
+y_clean <- 1 + 0.5 * x1 + 0.3 * x2 + e_clean
+de_clean <- de; de_clean$y <- y_clean
+
+fit_bar <- gmm(y ~ x1 + x2, ~ z1 + z2 + z3 + z4,
+               data = de_clean, type = "twoStep")
+fit_hat <- gmm(y ~ x1 + x2, ~ z1 + z2 + z3 + z4 + x2,
+               data = de_clean, type = "twoStep")
+C_clean <- specTest(fit_hat)$test[1, 1] - specTest(fit_bar)$test[1, 1]
+c(C = C_clean, p = 1 - pchisq(C_clean, df = 1))
+```
+
+When $X_2$ is genuinely exogenous, $C$ is small and the $p$-value is large --- correct size.
+
+### The GMM trinity at a glance
+
+| Test | Tests | Requires | Distribution under $H_0$ | Invariant to reparameterization? |
+|---|---|---|---|---|
+| **Wald** | $r(\bm{\beta}) = \bm{\theta}_0$ | unrestricted GMM only | $\chi^2_q$ | No |
+| **Distance** | $r(\bm{\beta}) = \bm{\theta}_0$ | restricted *and* unrestricted GMM | $\chi^2_q$ | Yes |
+| **J-test** | $\mathbb{E}[g_i(\bm{\beta})] = 0$ (model spec) | efficient weight matrix | $\chi^2_{\ell - k}$ | N/A |
+| **Endogeneity ($C$)** | $\mathbb{E}[Y_2 e] = 0$ | two efficient GMM fits | $\chi^2_{k_2}$ | (subset overid form of distance) |
+
+Recommendation: Wald for linear restrictions (cheapest, equivalent to distance asymptotically), distance for nonlinear restrictions (invariant), J-test as a routine specification check, and the endogeneity test in place of classical Hausman whenever you might face heteroskedasticity --- which is essentially always.
+
 ## Nonlinear GMM: custom moment functions
 
 The `gmm` package also accepts user-defined moment functions for nonlinear models. The moment function takes parameters $\theta$ and data $x$, and returns an $n \times \ell$ matrix of moment contributions.
@@ -757,5 +912,6 @@ The key insight from GMM: by specifying moment conditions rather than a full par
 - **Efficient GMM** sets $W = \hat\Omega^{-1}$ (the inverse of the moment covariance), minimizing asymptotic variance. Two-step and iterated procedures achieve this.
 - **2SLS is efficient only under homoskedasticity**. Under heteroskedasticity, efficient GMM provides tighter estimates.
 - **The J-test** is a natural diagnostic for overidentified models. It tests whether the moment conditions are mutually consistent.
+- **Wald, distance, and the GMM endogeneity test** form a unified hypothesis-testing toolkit. The GMM endogeneity test replaces classical Durbin--Wu--Hausman under heteroskedasticity.
 - **Nonlinear GMM** (custom moment functions) handles problems like missing data (Abrevaya & Donald) and MTE estimation.
 - **The semiparametric efficiency bound** (Chamberlain, 1987): efficient GMM extracts the maximum information from moment conditions without distributional assumptions.
