@@ -42,6 +42,8 @@ website:
             href: ch12-panel.qmd
           - text: "14. Fixed Effects and Modern DiD"
             href: ch13-fixed-effects.qmd
+          - text: "15. AIPW and Double Robustness"
+            href: ch14-aipw.qmd
     right:
       - icon: github
         href: https://github.com/UChicago-pol-methods/EstimationI

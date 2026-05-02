@@ -40,3 +40,4 @@ install.packages(c("ggplot2", "MASS", "car", "carData", "sensemakr",
 | 8 | [11. GMM](ch11-gmm.qmd) | Moment conditions, efficient weighting, J-test, missing data |
 | 9 | [12. Panel Data](ch12-panel.qmd) | panelView, pooled/between/within, DiD, clustering, Arellano--Bond GMM |
 | 9 | [13. Fixed Effects and Modern DiD](ch13-fixed-effects.qmd) | RE, Hausman test, CRE, Callaway--Sant'Anna, fect, matrix completion |
+| — | [15. AIPW and Double Robustness](ch14-aipw.qmd) | Influence functions, Neyman orthogonality, semiparametric efficiency |
