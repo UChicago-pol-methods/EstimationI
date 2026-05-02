@@ -114,6 +114,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         inprob: "\\xrightarrow{p}",
         indist: "\\xrightarrow{d}",
         bhat: "\\hat{\\boldsymbol{\\beta}}",
+        bm: ["\\boldsymbol{#1}", 1],
         N: "\\mathcal{N}",
         tr: "\\text{tr}",
         rank: "\\text{rank}",
@@ -219,20 +220,28 @@ window.Quarto = {
  <span class="dropdown-text">9. Hypothesis Testing</span></a>
   </li>  
         <li>
+    <a class="dropdown-item" href="./ch09b-cls.html">
+ <span class="dropdown-text">10. Constrained Least Squares</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="./ch10-iv.html">
- <span class="dropdown-text">10. Instrumental Variables and 2SLS</span></a>
+ <span class="dropdown-text">11. Instrumental Variables and 2SLS</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./ch11-gmm.html">
- <span class="dropdown-text">11. GMM</span></a>
+ <span class="dropdown-text">12. GMM</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./ch12-panel.html">
- <span class="dropdown-text">12. Panel Data</span></a>
+ <span class="dropdown-text">13. Panel Data</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./ch13-fixed-effects.html">
- <span class="dropdown-text">13. Fixed Effects and Modern DiD</span></a>
+ <span class="dropdown-text">14. Fixed Effects and Modern DiD</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch14-aipw.html">
+ <span class="dropdown-text">15. AIPW and Double Robustness</span></a>
   </li>  
     </ul>
   </li>
@@ -1688,7 +1697,7 @@ DIAGNOSTICS:
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb112" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "13. Fixed Effects and Modern DiD"</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "14. Fixed Effects and Modern DiD"</span></span>
 <span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Random effects, Hausman test, CRE, dynamic panels, and new DiD methods"</span></span>
 <span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a></span>

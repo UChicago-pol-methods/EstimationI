@@ -114,6 +114,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         inprob: "\\xrightarrow{p}",
         indist: "\\xrightarrow{d}",
         bhat: "\\hat{\\boldsymbol{\\beta}}",
+        bm: ["\\boldsymbol{#1}", 1],
         N: "\\mathcal{N}",
         tr: "\\text{tr}",
         rank: "\\text{rank}",
@@ -237,6 +238,10 @@ window.Quarto = {
         <li>
     <a class="dropdown-item" href="./ch13-fixed-effects.html">
  <span class="dropdown-text">14. Fixed Effects and Modern DiD</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch14-aipw.html">
+ <span class="dropdown-text">15. AIPW and Double Robustness</span></a>
   </li>  
     </ul>
   </li>
@@ -773,7 +778,7 @@ F \;=\; \frac{(\text{SSE}_R - \text{SSE}_U)/q}{\text{SSE}_U/(n - k)},
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/UChicago-pol-methods\.github\.io\/EstimationI\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
