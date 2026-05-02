@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>15. AIPW and Double Robustness – Estimation I: Computational Companion</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-3bbbbd466991e281563892c5dce73c3d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+  MathJax = {
+    tex: {
+      macros: {
+        E: "\\mathbb{E}",
+        Var: "\\text{Var}",
+        Cov: "\\text{Cov}",
+        plim: "\\text{plim}",
+        inprob: "\\xrightarrow{p}",
+        indist: "\\xrightarrow{d}",
+        bhat: "\\hat{\\boldsymbol{\\beta}}",
+        bm: ["\\boldsymbol{#1}", 1],
+        N: "\\mathcal{N}",
+        tr: "\\text{tr}",
+        rank: "\\text{rank}",
+        SE: "\\text{SE}",
+        diag: "\\text{diag}"
+      }
+    }
+  };
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Estimation I: Computational Companion</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapters" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapters</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapters">    
+        <li>
+    <a class="dropdown-item" href="./ch01-review.html">
+ <span class="dropdown-text">1. Probability and Linear Algebra</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch02-cef-blp.html">
+ <span class="dropdown-text">2. The CEF and Best Linear Predictor</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch03-ols.html">
+ <span class="dropdown-text">3. Multivariate OLS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch04-sensitivity.html">
+ <span class="dropdown-text">4. Sensitivity and Leverage</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch05-gls.html">
+ <span class="dropdown-text">5. Efficiency and GLS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch06-small-sample.html">
+ <span class="dropdown-text">6. Small Sample Inference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch07-probit.html">
+ <span class="dropdown-text">7. Probit, Poisson QMLE, and Nonlinear Models</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch08-asymptotics.html">
+ <span class="dropdown-text">8. Asymptotics</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch09-testing.html">
+ <span class="dropdown-text">9. Hypothesis Testing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch09b-cls.html">
+ <span class="dropdown-text">10. Constrained Least Squares</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch10-iv.html">
+ <span class="dropdown-text">11. Instrumental Variables and 2SLS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch11-gmm.html">
+ <span class="dropdown-text">12. GMM</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch12-panel.html">
+ <span class="dropdown-text">13. Panel Data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch13-fixed-effects.html">
+ <span class="dropdown-text">14. Fixed Effects and Modern DiD</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./ch14-aipw.html">
+ <span class="dropdown-text">15. AIPW and Double Robustness</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/UChicago-pol-methods/EstimationI"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-simulation-dgp" id="toc-the-simulation-dgp" class="nav-link active" data-scroll-target="#the-simulation-dgp"><span class="header-section-number">1</span> The simulation DGP</a></li>
+  <li><a href="#three-baseline-estimators" id="toc-three-baseline-estimators" class="nav-link" data-scroll-target="#three-baseline-estimators"><span class="header-section-number">2</span> Three baseline estimators</a></li>
+  <li><a href="#the-aipw-estimator" id="toc-the-aipw-estimator" class="nav-link" data-scroll-target="#the-aipw-estimator"><span class="header-section-number">3</span> The AIPW estimator</a></li>
+  <li><a href="#the-influence-function" id="toc-the-influence-function" class="nav-link" data-scroll-target="#the-influence-function"><span class="header-section-number">4</span> The influence function</a></li>
+  <li><a href="#neyman-orthogonality" id="toc-neyman-orthogonality" class="nav-link" data-scroll-target="#neyman-orthogonality"><span class="header-section-number">5</span> Neyman orthogonality</a></li>
+  <li><a href="#double-robustness" id="toc-double-robustness" class="nav-link" data-scroll-target="#double-robustness"><span class="header-section-number">6</span> Double robustness</a></li>
+  <li><a href="#perturbation-experiment-first-order-insensitivity" id="toc-perturbation-experiment-first-order-insensitivity" class="nav-link" data-scroll-target="#perturbation-experiment-first-order-insensitivity"><span class="header-section-number">7</span> Perturbation experiment: first-order insensitivity</a></li>
+  <li><a href="#why-aipw-achieves-the-efficiency-bound" id="toc-why-aipw-achieves-the-efficiency-bound" class="nav-link" data-scroll-target="#why-aipw-achieves-the-efficiency-bound"><span class="header-section-number">8</span> Why AIPW achieves the efficiency bound</a></li>
+  <li><a href="#connections-back-to-the-course" id="toc-connections-back-to-the-course" class="nav-link" data-scroll-target="#connections-back-to-the-course"><span class="header-section-number">9</span> Connections back to the course</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">15. AIPW and Double Robustness</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Influence functions, Neyman orthogonality, and the augmented IPW estimator</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Under randomization, the difference in means <span class="math inline">\(\hat\tau_{DM} = \bar Y_1 - \bar Y_0\)</span> is unbiased for the average treatment effect (ATE). So why bother with anything more elaborate? Two answers run through HW2–HW5:</p>
+<ol type="1">
+<li><strong>Variance reduction.</strong> Adjusting for baseline covariates <span class="math inline">\(X\)</span> that predict <span class="math inline">\(Y\)</span> shrinks the residual variance that drives the sampling distribution. Lin’s interacted regression and the inverse-probability-weighted (IPW) estimator are two distinct ways to do this; the <strong>augmented IPW (AIPW)</strong> estimator combines both.</li>
+<li><strong>Robustness.</strong> AIPW is <em>doubly robust</em>: it is consistent if either the outcome model <span class="math inline">\(\widehat\mu_d(x)\)</span> or the propensity <span class="math inline">\(\widehat e(x)\)</span> is correctly specified — you do not need both. And it is <em>first-order insensitive</em> to estimation error in <span class="math inline">\(\widehat\mu_d\)</span>: noisy nuisance estimates do not pollute the limiting distribution.</li>
+</ol>
+<p>This chapter ties together the simulation thread that runs through HW2 Part II, HW4 Problems 4–6, and HW5 Problems 4–5. The vocabulary — influence function, Neyman orthogonality, semiparametric efficiency — belongs to modern semiparametric estimation, but the underlying machinery (CEF + LLN + CLT + Slutsky) is exactly what we built in Chapters 2 and 8.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">4</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20260502</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>summarise_estimators <span class="ot">&lt;-</span> <span class="cf">function</span>(mat, truth) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimator =</span> <span class="fu">colnames</span>(mat),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">bias =</span> <span class="fu">colMeans</span>(mat) <span class="sc">-</span> truth,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd   =</span> <span class="fu">apply</span>(mat, <span class="dv">2</span>, sd),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmse =</span> <span class="fu">sqrt</span>(<span class="fu">colMeans</span>((mat <span class="sc">-</span> truth)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="the-simulation-dgp" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="the-simulation-dgp"><span class="header-section-number">1</span> The simulation DGP</h2>
+<p>We use the design from HW2: a nonlinear baseline CEF and smooth treatment-effect heterogeneity. The covariate <span class="math inline">\(X\)</span> predicts both potential outcomes, so adjustment can reduce variance.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tau_true <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sigma    <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dgp <span class="ot">&lt;-</span> <span class="cf">function</span>(n, <span class="at">p =</span> <span class="fl">0.5</span>) {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  X      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  eps    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">sd =</span> sigma)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  Y0     <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> X<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> eps</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  Y1     <span class="ot">&lt;-</span> Y0 <span class="sc">+</span> tau_true <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> (X<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  D      <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  Y      <span class="ot">&lt;-</span> D <span class="sc">*</span> Y1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> D) <span class="sc">*</span> Y0</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">Y =</span> Y, <span class="at">D =</span> D, <span class="at">X =</span> X, <span class="at">Y0 =</span> Y0, <span class="at">Y1 =</span> Y1)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Note that the conditional means <span class="math display">\[
+\mu_0(x) = 2x + 0.5x^2, \qquad \mu_1(x) = 2x + 0.5x^2 + 1 + 0.8(x^2 - 1)
+\]</span> are quadratic in <span class="math inline">\(X\)</span>, so a <em>linear</em> outcome model <span class="math inline">\(Y \sim D + X\)</span> (without interactions or squares) is misspecified. We will exploit this misspecification when we test double robustness.</p>
+</section>
+<section id="three-baseline-estimators" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="three-baseline-estimators"><span class="header-section-number">2</span> Three baseline estimators</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">mean</span>(d<span class="sc">$</span>Y[d<span class="sc">$</span>D <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span> <span class="fu">mean</span>(d<span class="sc">$</span>Y[d<span class="sc">$</span>D <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Lin (interacted) regression: OLS slope on D in</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="do">##   Y ~ 1 + D + (X - Xbar) + D*(X - Xbar)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>lin <span class="ot">&lt;-</span> <span class="cf">function</span>(d) {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  Xc <span class="ot">&lt;-</span> d<span class="sc">$</span>X <span class="sc">-</span> <span class="fu">mean</span>(d<span class="sc">$</span>X)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(d<span class="sc">$</span>Y <span class="sc">~</span> d<span class="sc">$</span>D <span class="sc">+</span> Xc <span class="sc">+</span> d<span class="sc">$</span>D<span class="sc">:</span>Xc)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unname</span>(<span class="fu">coef</span>(fit)[<span class="st">"d$D"</span>])</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="do">## IPW with known propensity p</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>ipw <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>) {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(d<span class="sc">$</span>D <span class="sc">*</span> d<span class="sc">$</span>Y <span class="sc">/</span> p <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D) <span class="sc">*</span> d<span class="sc">$</span>Y <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>All three estimators are consistent for <span class="math inline">\(\tau\)</span> under randomization, but they exploit randomization in different ways:</p>
+<ul>
+<li><span class="math inline">\(\hat\tau_{DM}\)</span> uses only that <span class="math inline">\(\E[Y \mid D = d] = \E[Y(d)]\)</span> when <span class="math inline">\(D\)</span> is independent of potential outcomes.</li>
+<li><span class="math inline">\(\hat\tau_{Lin}\)</span> adds covariate adjustment via OLS with treatment <span class="math inline">\(\times\)</span> covariate interactions; FWL shows it is a difference of <em>residualized</em> means.</li>
+<li><span class="math inline">\(\hat\tau_{IPW}\)</span> reweights observed outcomes so each unit’s contribution to its arm’s mean is unbiased for the marginal <span class="math inline">\(\E[Y(d)]\)</span>.</li>
+</ul>
+<p>A short Monte Carlo:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>mc_baselines <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">replicate</span>(B, {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">DM =</span> <span class="fu">dm</span>(d), <span class="at">Lin =</span> <span class="fu">lin</span>(d), <span class="at">IPW =</span> <span class="fu">ipw</span>(d))</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_estimators</span>(mc_baselines, tau_true)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    estimator      bias     sd   rmse
+DM         DM -0.004975 0.2022 0.2022
+Lin       Lin -0.004085 0.1563 0.1563
+IPW       IPW -0.006291 0.2119 0.2119</code></pre>
+</div>
+</div>
+<p>All three estimators are essentially unbiased. The Lin estimator has the smallest standard deviation because it uses the predictive content of <span class="math inline">\(X\)</span>. The IPW estimator has the <em>largest</em> standard deviation here — weighting alone, without an outcome model, throws away information. AIPW will fix that.</p>
+</section>
+<section id="the-aipw-estimator" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="the-aipw-estimator"><span class="header-section-number">3</span> The AIPW estimator</h2>
+<p>Let <span class="math inline">\(\mu_d(x) = \E[Y(d) \mid X = x]\)</span> and let <span class="math inline">\(\widehat\mu_d(x)\)</span> be a fitted outcome model. The AIPW estimator is <span class="math display">\[
+\widehat\tau_{\text{AIPW}}
+\;=\;
+\frac{1}{n}\sum_{i=1}^n
+\Bigl[
+\widehat\mu_1(X_i) - \widehat\mu_0(X_i)
+\;+\; \tfrac{D_i}{p}\bigl(Y_i - \widehat\mu_1(X_i)\bigr)
+\;-\; \tfrac{1-D_i}{1-p}\bigl(Y_i - \widehat\mu_0(X_i)\bigr)
+\Bigr].
+\]</span></p>
+<p>Two ways to read this:</p>
+<ul>
+<li><strong>Outcome regression with an IPW correction.</strong> The first term <span class="math inline">\(\widehat\mu_1 - \widehat\mu_0\)</span> averages the predicted treatment effect at each <span class="math inline">\(X_i\)</span>. The remaining terms are mean-zero IPW residuals that <em>correct</em> for misspecification of <span class="math inline">\(\widehat\mu_d\)</span>.</li>
+<li><strong>IPW with an outcome-regression control variate.</strong> Equivalently, it is the IPW estimator with <span class="math inline">\(\widehat\mu_d(X_i)\)</span> subtracted as a covariate that has known mean zero in expectation.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>aipw <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_fit =</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                   m <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> d, <span class="at">subset =</span> (D <span class="sc">==</span> arm))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">predict</span>(m, <span class="at">newdata =</span> d)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                 }) {</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">1</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  mu0 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">0</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(mu1 <span class="sc">-</span> mu0</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>       <span class="sc">+</span> d<span class="sc">$</span>D <span class="sc">/</span> p       <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu1)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>       <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p) <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu0))</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Adding AIPW to the Monte Carlo:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mc_all <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">replicate</span>(B, {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">DM   =</span> <span class="fu">dm</span>(d),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Lin  =</span> <span class="fu">lin</span>(d),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPW  =</span> <span class="fu">ipw</span>(d),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">AIPW =</span> <span class="fu">aipw</span>(d))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_estimators</span>(mc_all, tau_true)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     estimator     bias     sd   rmse
+DM          DM 0.001312 0.1943 0.1943
+Lin        Lin 0.001418 0.1534 0.1533
+IPW        IPW 0.001949 0.2058 0.2058
+AIPW      AIPW 0.002561 0.1278 0.1278</code></pre>
+</div>
+</div>
+<p>AIPW (with a correctly specified quadratic outcome model) and Lin are essentially indistinguishable. Both beat DM, and both crush IPW.</p>
+</section>
+<section id="the-influence-function" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="the-influence-function"><span class="header-section-number">4</span> The influence function</h2>
+<p>Every <span class="math inline">\(\sqrt{n}\)</span>-consistent estimator that satisfies a CLT can be written as a sample average of an i.i.d. mean-zero random variable plus a negligible remainder: <span class="math display">\[
+\sqrt{n}(\widehat\tau - \tau)
+\;=\; \frac{1}{\sqrt{n}}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1).
+\]</span> The function <span class="math inline">\(\psi(Z)\)</span> is the <strong>influence function</strong> of <span class="math inline">\(\widehat\tau\)</span>. Its variance is the asymptotic variance of <span class="math inline">\(\widehat\tau\)</span>.</p>
+<p>For the AIPW estimator with the <em>true</em> <span class="math inline">\(\mu_d\)</span>, direct calculation gives <span class="math display">\[
+\psi(Z) \;=\; \mu_1(X) - \mu_0(X) - \tau
+\;+\; \tfrac{D}{p}\bigl(Y - \mu_1(X)\bigr)
+\;-\; \tfrac{1-D}{1-p}\bigl(Y - \mu_0(X)\bigr).
+\]</span> Three checks: (i) <span class="math inline">\(\E[\psi(Z)] = 0\)</span>, since <span class="math inline">\(\E[\mu_1(X) - \mu_0(X)] = \tau\)</span> and the IPW correction terms have mean zero by <span class="math inline">\(D \perp (Y(1), Y(0), X)\)</span>. (ii) An i.i.d. CLT applies. (iii) <span class="math inline">\(\Var(\psi(Z))\)</span> admits the decomposition (HW2 Problem 6 + law of total variance) <span class="math display">\[
+\Var(\psi(Z)) \;=\; \E\!\left[\frac{\sigma_1^2(X)}{p} + \frac{\sigma_0^2(X)}{1-p}\right] \;+\; \Var(\mu_1(X) - \mu_0(X)),
+\]</span> where <span class="math inline">\(\sigma_d^2(x) = \Var(Y(d) \mid X = x)\)</span>.</p>
+<p>We can verify the IF representation numerically. Compute <span class="math inline">\(\widehat\psi_i\)</span> in each replication, check that its sample second moment matches the Monte Carlo variance of <span class="math inline">\(\sqrt{n}\,\widehat\tau_{\text{AIPW}}\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>if_aipw <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mu_fit =</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                      m <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> d, <span class="at">subset =</span> (D <span class="sc">==</span> arm))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">predict</span>(m, <span class="at">newdata =</span> d)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                    }) {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">1</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  mu0 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">0</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  tau_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(mu1 <span class="sc">-</span> mu0</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> d<span class="sc">$</span>D <span class="sc">/</span> p       <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu1)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p) <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu0))</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  psi <span class="ot">&lt;-</span> (mu1 <span class="sc">-</span> mu0</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>          <span class="sc">+</span> d<span class="sc">$</span>D <span class="sc">/</span> p       <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu1)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p) <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu0)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span> tau_hat)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">tau =</span> tau_hat, <span class="at">var_psi =</span> <span class="fu">mean</span>(psi<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>vp <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">if_aipw</span>(d)<span class="sc">$</span>var_psi</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">mean_var_psi_over_n =</span> <span class="fu">mean</span>(vp) <span class="sc">/</span> n,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">mc_var_aipw         =</span> <span class="fu">var</span>(mc_all[, <span class="st">"AIPW"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mean_var_psi_over_n         mc_var_aipw 
+            0.01718             0.01634 </code></pre>
+</div>
+</div>
+<p>The two numbers match: the empirical second moment of <span class="math inline">\(\widehat\psi_i\)</span> divided by <span class="math inline">\(n\)</span> is a consistent estimator of <span class="math inline">\(\Var(\widehat\tau_{\text{AIPW}})\)</span>. This is the standard error formula you should report: <span class="math display">\[
+\widehat{\mathrm{SE}}(\widehat\tau_{\text{AIPW}}) \;=\; \sqrt{\widehat V / n}, \qquad
+\widehat V \;=\; \frac{1}{n}\sum_i \widehat\psi_i^2.
+\]</span></p>
+</section>
+<section id="neyman-orthogonality" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="neyman-orthogonality"><span class="header-section-number">5</span> Neyman orthogonality</h2>
+<p>The reason AIPW is forgiving of estimation error in <span class="math inline">\(\widehat\mu_d\)</span> is an exact orthogonality identity. Since <span class="math inline">\(D \perp X\)</span> with <span class="math inline">\(\E[D] = p\)</span>, <span class="math display">\[
+\E\!\left[1 - \tfrac{D}{p} \,\Big|\, X\right] = 0,
+\]</span> and therefore for <em>any</em> deterministic function <span class="math inline">\(\Delta\)</span>, <span class="math display">\[
+\E\!\left[\bigl(1 - \tfrac{D}{p}\bigr)\,\Delta(X)\right] = 0.
+\]</span> This is the <strong>Neyman orthogonality</strong> condition. A direct subtraction shows that the gap between feasible AIPW (with <span class="math inline">\(\widehat\mu_d\)</span>) and infeasible AIPW (with the true <span class="math inline">\(\mu_d\)</span>) is <span class="math display">\[
+\widehat\tau_{\text{AIPW}} - \widehat\tau_\star
+\;=\;
+\frac{1}{n}\sum_i
+\Bigl[\bigl(1 - \tfrac{D_i}{p}\bigr)(\widehat\mu_1 - \mu_1)(X_i)
+- \bigl(1 - \tfrac{1-D_i}{1-p}\bigr)(\widehat\mu_0 - \mu_0)(X_i)\Bigr].
+\]</span> Each summand has mean zero by Neyman orthogonality. Under sample splitting (so <span class="math inline">\(\widehat\mu_d\)</span> is independent of the units in the sum) and <span class="math inline">\(L^2\)</span>-consistency of <span class="math inline">\(\widehat\mu_d\)</span>, conditional Chebyshev gives the remainder as <span class="math inline">\(o_p(n^{-1/2})\)</span>. Slutsky’s lemma then transfers the CLT for <span class="math inline">\(\widehat\tau_\star\)</span> to the feasible estimator: <span class="math display">\[
+\sqrt{n}\bigl(\widehat\tau_{\text{AIPW}} - \tau\bigr) \;\xrightarrow{d}\; N\!\bigl(0, \Var(\psi(Z))\bigr).
+\]</span> A quick numerical check that the orthogonality identity holds:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(<span class="at">n =</span> <span class="dv">50000</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sin</span>(x) <span class="sc">+</span> x<span class="sc">^</span><span class="dv">3</span>                <span class="co"># arbitrary fixed function</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D <span class="sc">/</span> <span class="fl">0.5</span>) <span class="sc">*</span> <span class="fu">g</span>(d<span class="sc">$</span>X))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.005167</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((<span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D) <span class="sc">/</span> <span class="fl">0.5</span>) <span class="sc">*</span> <span class="fu">g</span>(d<span class="sc">$</span>X))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.005167</code></pre>
+</div>
+</div>
+<p>Both sample averages are essentially zero. If you replace <span class="math inline">\(p = 0.5\)</span> with the wrong value, they are not.</p>
+</section>
+<section id="double-robustness" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="double-robustness"><span class="header-section-number">6</span> Double robustness</h2>
+<p>The orthogonality story above used the correct propensity <span class="math inline">\(p\)</span>. The doubly-robust property is stronger: AIPW is consistent if <strong>either</strong> <span class="math inline">\(\widehat\mu_d\)</span> or the propensity is correctly specified — not both required.</p>
+<p>We test this by misspecifying each piece in turn. Use <span class="math inline">\(\widehat\mu_d(x) \equiv \bar Y_d\)</span> (the within-arm sample mean, ignoring <span class="math inline">\(X\)</span> entirely) and a wrong propensity <span class="math inline">\(\tilde p = 0.35\)</span> (the true <span class="math inline">\(p\)</span> is <span class="math inline">\(0.5\)</span>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>mu_constant <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) <span class="fu">rep</span>(<span class="fu">mean</span>(d<span class="sc">$</span>Y[d<span class="sc">$</span>D <span class="sc">==</span> arm]), <span class="fu">nrow</span>(d))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>mu_quadratic <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> d, <span class="at">subset =</span> (D <span class="sc">==</span> arm))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(m, <span class="at">newdata =</span> d)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>dr_grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome    =</span> <span class="fu">c</span>(<span class="st">"correct (quadratic)"</span>, <span class="st">"wrong (within-arm mean)"</span>),</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">propensity =</span> <span class="fu">c</span>(<span class="st">"correct (p=0.5)"</span>, <span class="st">"wrong (p=0.35)"</span>),</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">nrow</span>(dr_grid))</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(dr_grid))) {</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  mu  <span class="ot">&lt;-</span> <span class="cf">if</span> (dr_grid<span class="sc">$</span>outcome[k]    <span class="sc">==</span> <span class="st">"correct (quadratic)"</span>) mu_quadratic <span class="cf">else</span> mu_constant</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  pp  <span class="ot">&lt;-</span> <span class="cf">if</span> (dr_grid<span class="sc">$</span>propensity[k] <span class="sc">==</span> <span class="st">"correct (p=0.5)"</span>)    <span class="fl">0.5</span>         <span class="cf">else</span> <span class="fl">0.35</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aipw</span>(d, <span class="at">p =</span> pp, <span class="at">mu_fit =</span> mu)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  results[[k]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome    =</span> dr_grid<span class="sc">$</span>outcome[k],</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">propensity =</span> dr_grid<span class="sc">$</span>propensity[k],</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">bias       =</span> <span class="fu">mean</span>(est) <span class="sc">-</span> tau_true,</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd         =</span> <span class="fu">sd</span>(est),</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmse       =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((est <span class="sc">-</span> tau_true)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="fu">do.call</span>(rbind, results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  outcome      propensity      bias     sd   rmse
+1     correct (quadratic) correct (p=0.5) -0.002998 0.1326 0.1326
+2 wrong (within-arm mean) correct (p=0.5)  0.002086 0.2002 0.2002
+3     correct (quadratic)  wrong (p=0.35)  0.003819 0.1355 0.1355
+4 wrong (within-arm mean)  wrong (p=0.35)  0.005368 0.1969 0.1970</code></pre>
+</div>
+</div>
+<p>All four cells are unbiased — including the “both wrong” cell. That looks too good. The reason is subtle and worth understanding: the “wrong” outcome model <span class="math inline">\(\widehat\mu_d \equiv \bar Y_d\)</span> is wrong about the <em>conditional</em> mean <span class="math inline">\(\mu_d(x)\)</span>, but it still converges to the correct <em>marginal</em> mean <span class="math inline">\(\E[Y(d)]\)</span>. A short calculation shows this is exactly what AIPW needs.</p>
+<p>Let <span class="math inline">\(m_d(X)\)</span> be the probability limit of <span class="math inline">\(\widehat\mu_d(X)\)</span>. Using <span class="math inline">\(D \perp (Y(0), Y(1), X)\)</span> and <span class="math inline">\(\E[D] = p\)</span> (the true propensity, possibly different from the assumed <span class="math inline">\(\tilde p\)</span>): <span class="math display">\[
+\plim \widehat\tau_{\text{AIPW}}
+\;=\;
+\E[m_1(X) - m_0(X)]
+\;+\; \tfrac{p}{\tilde p}\bigl(\E[Y(1)] - \E[m_1(X)]\bigr)
+\;-\; \tfrac{1-p}{1-\tilde p}\bigl(\E[Y(0)] - \E[m_0(X)]\bigr).
+\]</span> Two ways to make this collapse to <span class="math inline">\(\tau\)</span>: set <span class="math inline">\(\tilde p = p\)</span> (so the ratios are 1, leaving <span class="math inline">\(\E[Y(1)] - \E[Y(0)] = \tau\)</span>), or set <span class="math inline">\(\E[m_d(X)] = \E[Y(d)]\)</span> (so each line collapses to <span class="math inline">\(\E[Y(d)]\)</span> regardless of the ratio). The within-arm sample mean satisfies the second condition for free, even when it badly misses the conditional mean.</p>
+<p>To genuinely break double robustness we need an outcome model whose probability limit does <em>not</em> match the marginal mean. A trivial example: <span class="math inline">\(\widehat\mu_d(x) \equiv 0\)</span>, with the wrong propensity.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mu_zero <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(d))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>est_truly_wrong <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aipw</span>(d, <span class="at">p =</span> <span class="fl">0.35</span>, <span class="at">mu_fit =</span> mu_zero)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(est_truly_wrong) <span class="sc">-</span> tau_true,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd   =</span> <span class="fu">sd</span>(est_truly_wrong))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  bias     sd 
+0.7600 0.2528 </code></pre>
+</div>
+</div>
+<p>Now AIPW is biased. The lesson: <strong>AIPW is consistent whenever the IPW correction has correct expectation in the limit</strong>, which happens iff (a) the propensity is correct, or (b) the outcome model converges to something with the right unconditional mean. Standard “doubly robust” wording is correct but understates how forgiving AIPW actually is for marginal estimands.</p>
+</section>
+<section id="perturbation-experiment-first-order-insensitivity" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="perturbation-experiment-first-order-insensitivity"><span class="header-section-number">7</span> Perturbation experiment: first-order insensitivity</h2>
+<p>Neyman orthogonality predicts that <em>small</em> errors in <span class="math inline">\(\widehat\mu_d\)</span> should produce only second-order bias. We can see this directly. Define <span class="math display">\[
+\widehat\mu_d^{(\lambda)}(x) \;=\; (1 - \lambda)\,\widehat\mu_d(x) + \lambda\,\bar Y_d, \qquad \lambda \in [0, 1],
+\]</span> which interpolates between the correct quadratic outcome model (<span class="math inline">\(\lambda = 0\)</span>) and the constant misspecified model (<span class="math inline">\(\lambda = 1\)</span>). Plot bias and SD as <span class="math inline">\(\lambda\)</span> moves.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>lambdas <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>B_pert  <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>pert <span class="ot">&lt;-</span> <span class="fu">lapply</span>(lambdas, <span class="cf">function</span>(lam) {</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B_pert, {</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    mu_lambda <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>      mq <span class="ot">&lt;-</span> <span class="fu">mu_quadratic</span>(d, arm)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>      mc <span class="ot">&lt;-</span> <span class="fu">mu_constant</span>(d, arm)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">-</span> lam) <span class="sc">*</span> mq <span class="sc">+</span> lam <span class="sc">*</span> mc</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aipw</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">mu_fit =</span> mu_lambda)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">lambda =</span> lam,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">bias   =</span> <span class="fu">mean</span>(est) <span class="sc">-</span> tau_true,</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">sd     =</span> <span class="fu">sd</span>(est))</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>pert_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, pert)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>pert_long <span class="ot">&lt;-</span> <span class="fu">reshape</span>(pert_df,</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>                     <span class="at">varying =</span> <span class="fu">c</span>(<span class="st">"bias"</span>, <span class="st">"sd"</span>),</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>                     <span class="at">v.names =</span> <span class="st">"value"</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>                     <span class="at">timevar =</span> <span class="st">"metric"</span>,</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>                     <span class="at">times   =</span> <span class="fu">c</span>(<span class="st">"bias"</span>, <span class="st">"sd"</span>),</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>                     <span class="at">direction =</span> <span class="st">"long"</span>)</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pert_long, <span class="fu">aes</span>(lambda, value)) <span class="sc">+</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> metric, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"First-order insensitivity to nuisance error"</span>,</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"AIPW with mu_lambda = (1 - lambda) * mu_quadratic + lambda * Ybar"</span>,</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(lambda),</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ch14-aipw_files/figure-html/perturbation-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Bias stays at zero across the entire range of <span class="math inline">\(\lambda\)</span> — because the propensity is correct, the doubly-robust property holds at every <span class="math inline">\(\lambda\)</span>. The standard deviation rises as <span class="math inline">\(\lambda\)</span> grows, but only because we are throwing away the variance reduction from the outcome model, not because the estimator becomes biased. This is the empirical signature of Neyman orthogonality: the <em>bias</em> from misspecification is second order, while the <em>variance</em> gain from a good outcome model is first order.</p>
+</section>
+<section id="why-aipw-achieves-the-efficiency-bound" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="why-aipw-achieves-the-efficiency-bound"><span class="header-section-number">8</span> Why AIPW achieves the efficiency bound</h2>
+<p>Hahn (1998) showed that under randomization (or, more generally, unconfoundedness with overlap), the <strong>semiparametric efficiency bound</strong> for estimating <span class="math inline">\(\tau\)</span> is exactly <span class="math display">\[
+V^{*} \;=\; \E\!\left[\frac{\sigma_1^2(X)}{p} + \frac{\sigma_0^2(X)}{1-p}\right] + \Var(\mu_1(X) - \mu_0(X)).
+\]</span> This is the smallest asymptotic variance achievable by any regular estimator under nonparametric assumptions on the CEFs. Comparing to the influence function calculation above, <span class="math inline">\(\Var(\psi(Z)) = V^*\)</span>: the AIPW estimator with a consistent outcome model is <strong>asymptotically efficient</strong>.</p>
+<p>Compare to the asymptotic variance of the difference in means under Bernoulli randomization, <span class="math display">\[
+n\Var(\widehat\tau_{DM}) \;\to\; \frac{\Var(Y(1))}{p} + \frac{\Var(Y(0))}{1-p}.
+\]</span> Decomposing <span class="math inline">\(\Var(Y(d)) = \E[\sigma_d^2(X)] + \Var(\mu_d(X))\)</span> and subtracting, <span class="math display">\[
+n\Var(\widehat\tau_{DM}) - V^* \;=\; \frac{\Var(\mu_1(X))}{p} + \frac{\Var(\mu_0(X))}{1-p} - \Var(\mu_1(X) - \mu_0(X)).
+\]</span> At <span class="math inline">\(p = 1/2\)</span> this collapses to <span class="math inline">\(\Var(\mu_1(X) + \mu_0(X)) \ge 0\)</span>, with equality iff the covariates carry no information about <span class="math inline">\(\mu_d\)</span>. So the gain over difference-in-means is exactly the variation in CEFs that AIPW can <em>predict</em>; what is left is the within-CEF residual variance that no amount of adjustment can remove.</p>
+</section>
+<section id="connections-back-to-the-course" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="connections-back-to-the-course"><span class="header-section-number">9</span> Connections back to the course</h2>
+<p>Three threads of the course meet here:</p>
+<ul>
+<li><strong>Chapter 2 (CEF and BLP).</strong> AIPW is built around <span class="math inline">\(\mu_d(x) = \E[Y(d) \mid X = x]\)</span>. The variance reduction comes from the same place as the BLP MSE decomposition: replacing <span class="math inline">\(Y\)</span> by <span class="math inline">\(\E[Y \mid X]\)</span> removes the <span class="math inline">\(X\)</span>-predictable variation.</li>
+<li><strong>Chapter 5 (Efficiency and GLS).</strong> GLS achieves the Gauss–Markov bound by reweighting; AIPW achieves the semiparametric bound by reweighting <em>and</em> mean-adjusting. In both cases, “efficiency” means: extract every bit of predictable structure before averaging.</li>
+<li><strong>Chapter 8 (Asymptotics).</strong> The whole argument is a CLT-plus-Slutsky exercise. The remainder is <span class="math inline">\(o_p(n^{-1/2})\)</span>, so it disappears under <span class="math inline">\(\sqrt n\)</span> scaling. The only thing that survives is the influence-function CLT.</li>
+</ul>
+<p>What is genuinely new is the <strong>orthogonality</strong> identity, which lets noisy nuisance estimates not corrupt the limiting distribution. That is the workhorse of modern semiparametric inference — DoubleML, targeted learning, automatic debiased ML — but the algebra in this chapter is all there is to it for the ATE under randomization.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/UChicago-pol-methods\.github\.io\/EstimationI\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "15. AIPW and Double Robustness"</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Influence functions, Neyman orthogonality, and the augmented IPW estimator"</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>Under randomization, the difference in means $\hat\tau_{DM} = \bar Y_1 - \bar Y_0$ is unbiased for the average treatment effect (ATE). So why bother with anything more elaborate? Two answers run through HW2--HW5:</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Variance reduction.** Adjusting for baseline covariates $X$ that predict $Y$ shrinks the residual variance that drives the sampling distribution. Lin's interacted regression and the inverse-probability-weighted (IPW) estimator are two distinct ways to do this; the **augmented IPW (AIPW)** estimator combines both.</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Robustness.** AIPW is *doubly robust*: it is consistent if either the outcome model $\widehat\mu_d(x)$ or the propensity $\widehat e(x)$ is correctly specified --- you do not need both. And it is *first-order insensitive* to estimation error in $\widehat\mu_d$: noisy nuisance estimates do not pollute the limiting distribution.</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>This chapter ties together the simulation thread that runs through HW2 Part II, HW4 Problems 4--6, and HW5 Problems 4--5. The vocabulary --- influence function, Neyman orthogonality, semiparametric efficiency --- belongs to modern semiparametric estimation, but the underlying machinery (CEF + LLN + CLT + Slutsky) is exactly what we built in Chapters 2 and 8.</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">4</span>)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20260502</span>)</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>summarise_estimators <span class="ot">&lt;-</span> <span class="cf">function</span>(mat, truth) {</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimator =</span> <span class="fu">colnames</span>(mat),</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">bias =</span> <span class="fu">colMeans</span>(mat) <span class="sc">-</span> truth,</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd   =</span> <span class="fu">apply</span>(mat, <span class="dv">2</span>, sd),</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmse =</span> <span class="fu">sqrt</span>(<span class="fu">colMeans</span>((mat <span class="sc">-</span> truth)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## The simulation DGP</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>We use the design from HW2: a nonlinear baseline CEF and smooth treatment-effect heterogeneity. The covariate $X$ predicts both potential outcomes, so adjustment can reduce variance.</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dgp</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>tau_true <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>sigma    <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>dgp <span class="ot">&lt;-</span> <span class="cf">function</span>(n, <span class="at">p =</span> <span class="fl">0.5</span>) {</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>  X      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>  eps    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">sd =</span> sigma)</span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>  Y0     <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> X<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> eps</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>  Y1     <span class="ot">&lt;-</span> Y0 <span class="sc">+</span> tau_true <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> (X<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>  D      <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p)</span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>  Y      <span class="ot">&lt;-</span> D <span class="sc">*</span> Y1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> D) <span class="sc">*</span> Y0</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">Y =</span> Y, <span class="at">D =</span> D, <span class="at">X =</span> X, <span class="at">Y0 =</span> Y0, <span class="at">Y1 =</span> Y1)</span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>Note that the conditional means</span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>\mu_0(x) = 2x + 0.5x^2, \qquad \mu_1(x) = 2x + 0.5x^2 + 1 + 0.8(x^2 - 1)</span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>are quadratic in $X$, so a *linear* outcome model $Y \sim D + X$ (without interactions or squares) is misspecified. We will exploit this misspecification when we test double robustness.</span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Three baseline estimators</span></span>
+<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-66"><a href="#cb20-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-67"><a href="#cb20-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: baselines</span></span>
+<span id="cb20-68"><a href="#cb20-68" aria-hidden="true" tabindex="-1"></a>dm <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">mean</span>(d<span class="sc">$</span>Y[d<span class="sc">$</span>D <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span> <span class="fu">mean</span>(d<span class="sc">$</span>Y[d<span class="sc">$</span>D <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb20-69"><a href="#cb20-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-70"><a href="#cb20-70" aria-hidden="true" tabindex="-1"></a><span class="do">## Lin (interacted) regression: OLS slope on D in</span></span>
+<span id="cb20-71"><a href="#cb20-71" aria-hidden="true" tabindex="-1"></a><span class="do">##   Y ~ 1 + D + (X - Xbar) + D*(X - Xbar)</span></span>
+<span id="cb20-72"><a href="#cb20-72" aria-hidden="true" tabindex="-1"></a>lin <span class="ot">&lt;-</span> <span class="cf">function</span>(d) {</span>
+<span id="cb20-73"><a href="#cb20-73" aria-hidden="true" tabindex="-1"></a>  Xc <span class="ot">&lt;-</span> d<span class="sc">$</span>X <span class="sc">-</span> <span class="fu">mean</span>(d<span class="sc">$</span>X)</span>
+<span id="cb20-74"><a href="#cb20-74" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(d<span class="sc">$</span>Y <span class="sc">~</span> d<span class="sc">$</span>D <span class="sc">+</span> Xc <span class="sc">+</span> d<span class="sc">$</span>D<span class="sc">:</span>Xc)</span>
+<span id="cb20-75"><a href="#cb20-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unname</span>(<span class="fu">coef</span>(fit)[<span class="st">"d$D"</span>])</span>
+<span id="cb20-76"><a href="#cb20-76" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-77"><a href="#cb20-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-78"><a href="#cb20-78" aria-hidden="true" tabindex="-1"></a><span class="do">## IPW with known propensity p</span></span>
+<span id="cb20-79"><a href="#cb20-79" aria-hidden="true" tabindex="-1"></a>ipw <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>) {</span>
+<span id="cb20-80"><a href="#cb20-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(d<span class="sc">$</span>D <span class="sc">*</span> d<span class="sc">$</span>Y <span class="sc">/</span> p <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D) <span class="sc">*</span> d<span class="sc">$</span>Y <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p))</span>
+<span id="cb20-81"><a href="#cb20-81" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-82"><a href="#cb20-82" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-83"><a href="#cb20-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-84"><a href="#cb20-84" aria-hidden="true" tabindex="-1"></a>All three estimators are consistent for $\tau$ under randomization, but they exploit randomization in different ways:</span>
+<span id="cb20-85"><a href="#cb20-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-86"><a href="#cb20-86" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$\hat\tau_{DM}$ uses only that $\E<span class="co">[</span><span class="ot">Y \mid D = d</span><span class="co">]</span> = \E<span class="co">[</span><span class="ot">Y(d)</span><span class="co">]</span>$ when $D$ is independent of potential outcomes.</span>
+<span id="cb20-87"><a href="#cb20-87" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$\hat\tau_{Lin}$ adds covariate adjustment via OLS with treatment $\times$ covariate interactions; FWL shows it is a difference of *residualized* means.</span>
+<span id="cb20-88"><a href="#cb20-88" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>$\hat\tau_{IPW}$ reweights observed outcomes so each unit's contribution to its arm's mean is unbiased for the marginal $\E<span class="co">[</span><span class="ot">Y(d)</span><span class="co">]</span>$.</span>
+<span id="cb20-89"><a href="#cb20-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-90"><a href="#cb20-90" aria-hidden="true" tabindex="-1"></a>A short Monte Carlo:</span>
+<span id="cb20-91"><a href="#cb20-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-94"><a href="#cb20-94" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-95"><a href="#cb20-95" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: mc-baselines</span></span>
+<span id="cb20-96"><a href="#cb20-96" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb20-97"><a href="#cb20-97" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb20-98"><a href="#cb20-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-99"><a href="#cb20-99" aria-hidden="true" tabindex="-1"></a>mc_baselines <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">replicate</span>(B, {</span>
+<span id="cb20-100"><a href="#cb20-100" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb20-101"><a href="#cb20-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">DM =</span> <span class="fu">dm</span>(d), <span class="at">Lin =</span> <span class="fu">lin</span>(d), <span class="at">IPW =</span> <span class="fu">ipw</span>(d))</span>
+<span id="cb20-102"><a href="#cb20-102" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb20-103"><a href="#cb20-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-104"><a href="#cb20-104" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_estimators</span>(mc_baselines, tau_true)</span>
+<span id="cb20-105"><a href="#cb20-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-106"><a href="#cb20-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-107"><a href="#cb20-107" aria-hidden="true" tabindex="-1"></a>All three estimators are essentially unbiased. The Lin estimator has the smallest standard deviation because it uses the predictive content of $X$. The IPW estimator has the *largest* standard deviation here --- weighting alone, without an outcome model, throws away information. AIPW will fix that.</span>
+<span id="cb20-108"><a href="#cb20-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-109"><a href="#cb20-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-110"><a href="#cb20-110" aria-hidden="true" tabindex="-1"></a><span class="fu">## The AIPW estimator</span></span>
+<span id="cb20-111"><a href="#cb20-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-112"><a href="#cb20-112" aria-hidden="true" tabindex="-1"></a>Let $\mu_d(x) = \E<span class="co">[</span><span class="ot">Y(d) \mid X = x</span><span class="co">]</span>$ and let $\widehat\mu_d(x)$ be a fitted outcome model. The AIPW estimator is</span>
+<span id="cb20-113"><a href="#cb20-113" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-114"><a href="#cb20-114" aria-hidden="true" tabindex="-1"></a>\widehat\tau_{\text{AIPW}}</span>
+<span id="cb20-115"><a href="#cb20-115" aria-hidden="true" tabindex="-1"></a>\;=\;</span>
+<span id="cb20-116"><a href="#cb20-116" aria-hidden="true" tabindex="-1"></a>\frac{1}{n}\sum_{i=1}^n</span>
+<span id="cb20-117"><a href="#cb20-117" aria-hidden="true" tabindex="-1"></a>\Bigl[</span>
+<span id="cb20-118"><a href="#cb20-118" aria-hidden="true" tabindex="-1"></a>\widehat\mu_1(X_i) - \widehat\mu_0(X_i)</span>
+<span id="cb20-119"><a href="#cb20-119" aria-hidden="true" tabindex="-1"></a>\;+\; \tfrac{D_i}{p}\bigl(Y_i - \widehat\mu_1(X_i)\bigr)</span>
+<span id="cb20-120"><a href="#cb20-120" aria-hidden="true" tabindex="-1"></a>\;-\; \tfrac{1-D_i}{1-p}\bigl(Y_i - \widehat\mu_0(X_i)\bigr)</span>
+<span id="cb20-121"><a href="#cb20-121" aria-hidden="true" tabindex="-1"></a>\Bigr].</span>
+<span id="cb20-122"><a href="#cb20-122" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-123"><a href="#cb20-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-124"><a href="#cb20-124" aria-hidden="true" tabindex="-1"></a>Two ways to read this:</span>
+<span id="cb20-125"><a href="#cb20-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-126"><a href="#cb20-126" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Outcome regression with an IPW correction.** The first term $\widehat\mu_1 - \widehat\mu_0$ averages the predicted treatment effect at each $X_i$. The remaining terms are mean-zero IPW residuals that *correct* for misspecification of $\widehat\mu_d$.</span>
+<span id="cb20-127"><a href="#cb20-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**IPW with an outcome-regression control variate.** Equivalently, it is the IPW estimator with $\widehat\mu_d(X_i)$ subtracted as a covariate that has known mean zero in expectation.</span>
+<span id="cb20-128"><a href="#cb20-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-131"><a href="#cb20-131" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-132"><a href="#cb20-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: aipw</span></span>
+<span id="cb20-133"><a href="#cb20-133" aria-hidden="true" tabindex="-1"></a>aipw <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>,</span>
+<span id="cb20-134"><a href="#cb20-134" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mu_fit =</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb20-135"><a href="#cb20-135" aria-hidden="true" tabindex="-1"></a>                   m <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> d, <span class="at">subset =</span> (D <span class="sc">==</span> arm))</span>
+<span id="cb20-136"><a href="#cb20-136" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">predict</span>(m, <span class="at">newdata =</span> d)</span>
+<span id="cb20-137"><a href="#cb20-137" aria-hidden="true" tabindex="-1"></a>                 }) {</span>
+<span id="cb20-138"><a href="#cb20-138" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">1</span>)</span>
+<span id="cb20-139"><a href="#cb20-139" aria-hidden="true" tabindex="-1"></a>  mu0 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">0</span>)</span>
+<span id="cb20-140"><a href="#cb20-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(mu1 <span class="sc">-</span> mu0</span>
+<span id="cb20-141"><a href="#cb20-141" aria-hidden="true" tabindex="-1"></a>       <span class="sc">+</span> d<span class="sc">$</span>D <span class="sc">/</span> p       <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu1)</span>
+<span id="cb20-142"><a href="#cb20-142" aria-hidden="true" tabindex="-1"></a>       <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p) <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu0))</span>
+<span id="cb20-143"><a href="#cb20-143" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-144"><a href="#cb20-144" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-145"><a href="#cb20-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-146"><a href="#cb20-146" aria-hidden="true" tabindex="-1"></a>Adding AIPW to the Monte Carlo:</span>
+<span id="cb20-147"><a href="#cb20-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-150"><a href="#cb20-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-151"><a href="#cb20-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: mc-aipw</span></span>
+<span id="cb20-152"><a href="#cb20-152" aria-hidden="true" tabindex="-1"></a>mc_all <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">replicate</span>(B, {</span>
+<span id="cb20-153"><a href="#cb20-153" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb20-154"><a href="#cb20-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">DM   =</span> <span class="fu">dm</span>(d),</span>
+<span id="cb20-155"><a href="#cb20-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">Lin  =</span> <span class="fu">lin</span>(d),</span>
+<span id="cb20-156"><a href="#cb20-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">IPW  =</span> <span class="fu">ipw</span>(d),</span>
+<span id="cb20-157"><a href="#cb20-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">AIPW =</span> <span class="fu">aipw</span>(d))</span>
+<span id="cb20-158"><a href="#cb20-158" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb20-159"><a href="#cb20-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-160"><a href="#cb20-160" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_estimators</span>(mc_all, tau_true)</span>
+<span id="cb20-161"><a href="#cb20-161" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-162"><a href="#cb20-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-163"><a href="#cb20-163" aria-hidden="true" tabindex="-1"></a>AIPW (with a correctly specified quadratic outcome model) and Lin are essentially indistinguishable. Both beat DM, and both crush IPW.</span>
+<span id="cb20-164"><a href="#cb20-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-165"><a href="#cb20-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-166"><a href="#cb20-166" aria-hidden="true" tabindex="-1"></a><span class="fu">## The influence function</span></span>
+<span id="cb20-167"><a href="#cb20-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-168"><a href="#cb20-168" aria-hidden="true" tabindex="-1"></a>Every $\sqrt{n}$-consistent estimator that satisfies a CLT can be written as a sample average of an i.i.d. mean-zero random variable plus a negligible remainder:</span>
+<span id="cb20-169"><a href="#cb20-169" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-170"><a href="#cb20-170" aria-hidden="true" tabindex="-1"></a>\sqrt{n}(\widehat\tau - \tau)</span>
+<span id="cb20-171"><a href="#cb20-171" aria-hidden="true" tabindex="-1"></a>\;=\; \frac{1}{\sqrt{n}}\sum_{i=1}^n \psi(Z_i) \;+\; o_p(1).</span>
+<span id="cb20-172"><a href="#cb20-172" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-173"><a href="#cb20-173" aria-hidden="true" tabindex="-1"></a>The function $\psi(Z)$ is the **influence function** of $\widehat\tau$. Its variance is the asymptotic variance of $\widehat\tau$.</span>
+<span id="cb20-174"><a href="#cb20-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-175"><a href="#cb20-175" aria-hidden="true" tabindex="-1"></a>For the AIPW estimator with the *true* $\mu_d$, direct calculation gives</span>
+<span id="cb20-176"><a href="#cb20-176" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-177"><a href="#cb20-177" aria-hidden="true" tabindex="-1"></a>\psi(Z) \;=\; \mu_1(X) - \mu_0(X) - \tau</span>
+<span id="cb20-178"><a href="#cb20-178" aria-hidden="true" tabindex="-1"></a>\;+\; \tfrac{D}{p}\bigl(Y - \mu_1(X)\bigr)</span>
+<span id="cb20-179"><a href="#cb20-179" aria-hidden="true" tabindex="-1"></a>\;-\; \tfrac{1-D}{1-p}\bigl(Y - \mu_0(X)\bigr).</span>
+<span id="cb20-180"><a href="#cb20-180" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-181"><a href="#cb20-181" aria-hidden="true" tabindex="-1"></a>Three checks: (i) $\E<span class="co">[</span><span class="ot">\psi(Z)</span><span class="co">]</span> = 0$, since $\E<span class="co">[</span><span class="ot">\mu_1(X) - \mu_0(X)</span><span class="co">]</span> = \tau$ and the IPW correction terms have mean zero by $D \perp (Y(1), Y(0), X)$. (ii) An i.i.d. CLT applies. (iii) $\Var(\psi(Z))$ admits the decomposition (HW2 Problem 6 + law of total variance)</span>
+<span id="cb20-182"><a href="#cb20-182" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-183"><a href="#cb20-183" aria-hidden="true" tabindex="-1"></a>\Var(\psi(Z)) \;=\; \E<span class="sc">\!</span>\left<span class="co">[</span><span class="ot">\frac{\sigma_1^2(X)}{p} + \frac{\sigma_0^2(X)}{1-p}\right</span><span class="co">]</span> \;+\; \Var(\mu_1(X) - \mu_0(X)),</span>
+<span id="cb20-184"><a href="#cb20-184" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-185"><a href="#cb20-185" aria-hidden="true" tabindex="-1"></a>where $\sigma_d^2(x) = \Var(Y(d) \mid X = x)$.</span>
+<span id="cb20-186"><a href="#cb20-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-187"><a href="#cb20-187" aria-hidden="true" tabindex="-1"></a>We can verify the IF representation numerically. Compute $\widehat\psi_i$ in each replication, check that its sample second moment matches the Monte Carlo variance of $\sqrt{n}\,\widehat\tau_{\text{AIPW}}$.</span>
+<span id="cb20-188"><a href="#cb20-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-191"><a href="#cb20-191" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-192"><a href="#cb20-192" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: if-check</span></span>
+<span id="cb20-193"><a href="#cb20-193" aria-hidden="true" tabindex="-1"></a>if_aipw <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>,</span>
+<span id="cb20-194"><a href="#cb20-194" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mu_fit =</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb20-195"><a href="#cb20-195" aria-hidden="true" tabindex="-1"></a>                      m <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> d, <span class="at">subset =</span> (D <span class="sc">==</span> arm))</span>
+<span id="cb20-196"><a href="#cb20-196" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">predict</span>(m, <span class="at">newdata =</span> d)</span>
+<span id="cb20-197"><a href="#cb20-197" aria-hidden="true" tabindex="-1"></a>                    }) {</span>
+<span id="cb20-198"><a href="#cb20-198" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">1</span>)</span>
+<span id="cb20-199"><a href="#cb20-199" aria-hidden="true" tabindex="-1"></a>  mu0 <span class="ot">&lt;-</span> <span class="fu">mu_fit</span>(d, <span class="dv">0</span>)</span>
+<span id="cb20-200"><a href="#cb20-200" aria-hidden="true" tabindex="-1"></a>  tau_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(mu1 <span class="sc">-</span> mu0</span>
+<span id="cb20-201"><a href="#cb20-201" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">+</span> d<span class="sc">$</span>D <span class="sc">/</span> p       <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu1)</span>
+<span id="cb20-202"><a href="#cb20-202" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p) <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu0))</span>
+<span id="cb20-203"><a href="#cb20-203" aria-hidden="true" tabindex="-1"></a>  psi <span class="ot">&lt;-</span> (mu1 <span class="sc">-</span> mu0</span>
+<span id="cb20-204"><a href="#cb20-204" aria-hidden="true" tabindex="-1"></a>          <span class="sc">+</span> d<span class="sc">$</span>D <span class="sc">/</span> p       <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu1)</span>
+<span id="cb20-205"><a href="#cb20-205" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p) <span class="sc">*</span> (d<span class="sc">$</span>Y <span class="sc">-</span> mu0)</span>
+<span id="cb20-206"><a href="#cb20-206" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span> tau_hat)</span>
+<span id="cb20-207"><a href="#cb20-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">tau =</span> tau_hat, <span class="at">var_psi =</span> <span class="fu">mean</span>(psi<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb20-208"><a href="#cb20-208" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-209"><a href="#cb20-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-210"><a href="#cb20-210" aria-hidden="true" tabindex="-1"></a>vp <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb20-211"><a href="#cb20-211" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb20-212"><a href="#cb20-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">if_aipw</span>(d)<span class="sc">$</span>var_psi</span>
+<span id="cb20-213"><a href="#cb20-213" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">mean_var_psi_over_n =</span> <span class="fu">mean</span>(vp) <span class="sc">/</span> n,</span>
+<span id="cb20-216"><a href="#cb20-216" aria-hidden="true" tabindex="-1"></a>  <span class="at">mc_var_aipw         =</span> <span class="fu">var</span>(mc_all[, <span class="st">"AIPW"</span>]))</span>
+<span id="cb20-217"><a href="#cb20-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-218"><a href="#cb20-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-219"><a href="#cb20-219" aria-hidden="true" tabindex="-1"></a>The two numbers match: the empirical second moment of $\widehat\psi_i$ divided by $n$ is a consistent estimator of $\Var(\widehat\tau_{\text{AIPW}})$. This is the standard error formula you should report:</span>
+<span id="cb20-220"><a href="#cb20-220" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-221"><a href="#cb20-221" aria-hidden="true" tabindex="-1"></a>\widehat{\mathrm{SE}}(\widehat\tau_{\text{AIPW}}) \;=\; \sqrt{\widehat V / n}, \qquad</span>
+<span id="cb20-222"><a href="#cb20-222" aria-hidden="true" tabindex="-1"></a>\widehat V \;=\; \frac{1}{n}\sum_i \widehat\psi_i^2.</span>
+<span id="cb20-223"><a href="#cb20-223" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-224"><a href="#cb20-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-225"><a href="#cb20-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-226"><a href="#cb20-226" aria-hidden="true" tabindex="-1"></a><span class="fu">## Neyman orthogonality</span></span>
+<span id="cb20-227"><a href="#cb20-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-228"><a href="#cb20-228" aria-hidden="true" tabindex="-1"></a>The reason AIPW is forgiving of estimation error in $\widehat\mu_d$ is an exact orthogonality identity. Since $D \perp X$ with $\E<span class="co">[</span><span class="ot">D</span><span class="co">]</span> = p$,</span>
+<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-230"><a href="#cb20-230" aria-hidden="true" tabindex="-1"></a>\E<span class="sc">\!</span>\left<span class="co">[</span><span class="ot">1 - \tfrac{D}{p} \,\Big|\, X\right</span><span class="co">]</span> = 0,</span>
+<span id="cb20-231"><a href="#cb20-231" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-232"><a href="#cb20-232" aria-hidden="true" tabindex="-1"></a>and therefore for *any* deterministic function $\Delta$,</span>
+<span id="cb20-233"><a href="#cb20-233" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-234"><a href="#cb20-234" aria-hidden="true" tabindex="-1"></a>\E<span class="sc">\!</span>\left<span class="co">[</span><span class="ot">\bigl(1 - \tfrac{D}{p}\bigr)\,\Delta(X)\right</span><span class="co">]</span> = 0.</span>
+<span id="cb20-235"><a href="#cb20-235" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-236"><a href="#cb20-236" aria-hidden="true" tabindex="-1"></a>This is the **Neyman orthogonality** condition. A direct subtraction shows that the gap between feasible AIPW (with $\widehat\mu_d$) and infeasible AIPW (with the true $\mu_d$) is</span>
+<span id="cb20-237"><a href="#cb20-237" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-238"><a href="#cb20-238" aria-hidden="true" tabindex="-1"></a>\widehat\tau_{\text{AIPW}} - \widehat\tau_\star</span>
+<span id="cb20-239"><a href="#cb20-239" aria-hidden="true" tabindex="-1"></a>\;=\;</span>
+<span id="cb20-240"><a href="#cb20-240" aria-hidden="true" tabindex="-1"></a>\frac{1}{n}\sum_i</span>
+<span id="cb20-241"><a href="#cb20-241" aria-hidden="true" tabindex="-1"></a>\Bigl[\bigl(1 - \tfrac{D_i}{p}\bigr)(\widehat\mu_1 - \mu_1)(X_i)</span>
+<span id="cb20-242"><a href="#cb20-242" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>\bigl(1 - \tfrac{1-D_i}{1-p}\bigr)(\widehat\mu_0 - \mu_0)(X_i)\Bigr].</span>
+<span id="cb20-243"><a href="#cb20-243" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-244"><a href="#cb20-244" aria-hidden="true" tabindex="-1"></a>Each summand has mean zero by Neyman orthogonality. Under sample splitting (so $\widehat\mu_d$ is independent of the units in the sum) and $L^2$-consistency of $\widehat\mu_d$, conditional Chebyshev gives the remainder as $o_p(n^{-1/2})$. Slutsky's lemma then transfers the CLT for $\widehat\tau_\star$ to the feasible estimator:</span>
+<span id="cb20-245"><a href="#cb20-245" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-246"><a href="#cb20-246" aria-hidden="true" tabindex="-1"></a>\sqrt{n}\bigl(\widehat\tau_{\text{AIPW}} - \tau\bigr) \;\xrightarrow{d}\; N<span class="sc">\!</span>\bigl(0, \Var(\psi(Z))\bigr).</span>
+<span id="cb20-247"><a href="#cb20-247" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-248"><a href="#cb20-248" aria-hidden="true" tabindex="-1"></a>A quick numerical check that the orthogonality identity holds:</span>
+<span id="cb20-249"><a href="#cb20-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-252"><a href="#cb20-252" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-253"><a href="#cb20-253" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: orthogonality-check</span></span>
+<span id="cb20-254"><a href="#cb20-254" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(<span class="at">n =</span> <span class="dv">50000</span>)</span>
+<span id="cb20-255"><a href="#cb20-255" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sin</span>(x) <span class="sc">+</span> x<span class="sc">^</span><span class="dv">3</span>                <span class="co"># arbitrary fixed function</span></span>
+<span id="cb20-256"><a href="#cb20-256" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D <span class="sc">/</span> <span class="fl">0.5</span>) <span class="sc">*</span> <span class="fu">g</span>(d<span class="sc">$</span>X))</span>
+<span id="cb20-257"><a href="#cb20-257" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((<span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>D) <span class="sc">/</span> <span class="fl">0.5</span>) <span class="sc">*</span> <span class="fu">g</span>(d<span class="sc">$</span>X))</span>
+<span id="cb20-258"><a href="#cb20-258" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-259"><a href="#cb20-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-260"><a href="#cb20-260" aria-hidden="true" tabindex="-1"></a>Both sample averages are essentially zero. If you replace $p = 0.5$ with the wrong value, they are not.</span>
+<span id="cb20-261"><a href="#cb20-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-262"><a href="#cb20-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-263"><a href="#cb20-263" aria-hidden="true" tabindex="-1"></a><span class="fu">## Double robustness</span></span>
+<span id="cb20-264"><a href="#cb20-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-265"><a href="#cb20-265" aria-hidden="true" tabindex="-1"></a>The orthogonality story above used the correct propensity $p$. The doubly-robust property is stronger: AIPW is consistent if **either** $\widehat\mu_d$ or the propensity is correctly specified --- not both required.</span>
+<span id="cb20-266"><a href="#cb20-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-267"><a href="#cb20-267" aria-hidden="true" tabindex="-1"></a>We test this by misspecifying each piece in turn. Use $\widehat\mu_d(x) \equiv \bar Y_d$ (the within-arm sample mean, ignoring $X$ entirely) and a wrong propensity $\tilde p = 0.35$ (the true $p$ is $0.5$).</span>
+<span id="cb20-268"><a href="#cb20-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-271"><a href="#cb20-271" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-272"><a href="#cb20-272" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dr-grid</span></span>
+<span id="cb20-273"><a href="#cb20-273" aria-hidden="true" tabindex="-1"></a>mu_constant <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) <span class="fu">rep</span>(<span class="fu">mean</span>(d<span class="sc">$</span>Y[d<span class="sc">$</span>D <span class="sc">==</span> arm]), <span class="fu">nrow</span>(d))</span>
+<span id="cb20-274"><a href="#cb20-274" aria-hidden="true" tabindex="-1"></a>mu_quadratic <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb20-275"><a href="#cb20-275" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> <span class="fu">I</span>(X<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> d, <span class="at">subset =</span> (D <span class="sc">==</span> arm))</span>
+<span id="cb20-276"><a href="#cb20-276" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(m, <span class="at">newdata =</span> d)</span>
+<span id="cb20-277"><a href="#cb20-277" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-278"><a href="#cb20-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-279"><a href="#cb20-279" aria-hidden="true" tabindex="-1"></a>dr_grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb20-280"><a href="#cb20-280" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome    =</span> <span class="fu">c</span>(<span class="st">"correct (quadratic)"</span>, <span class="st">"wrong (within-arm mean)"</span>),</span>
+<span id="cb20-281"><a href="#cb20-281" aria-hidden="true" tabindex="-1"></a>  <span class="at">propensity =</span> <span class="fu">c</span>(<span class="st">"correct (p=0.5)"</span>, <span class="st">"wrong (p=0.35)"</span>),</span>
+<span id="cb20-282"><a href="#cb20-282" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb20-283"><a href="#cb20-283" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-284"><a href="#cb20-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-285"><a href="#cb20-285" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">nrow</span>(dr_grid))</span>
+<span id="cb20-286"><a href="#cb20-286" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(dr_grid))) {</span>
+<span id="cb20-287"><a href="#cb20-287" aria-hidden="true" tabindex="-1"></a>  mu  <span class="ot">&lt;-</span> <span class="cf">if</span> (dr_grid<span class="sc">$</span>outcome[k]    <span class="sc">==</span> <span class="st">"correct (quadratic)"</span>) mu_quadratic <span class="cf">else</span> mu_constant</span>
+<span id="cb20-288"><a href="#cb20-288" aria-hidden="true" tabindex="-1"></a>  pp  <span class="ot">&lt;-</span> <span class="cf">if</span> (dr_grid<span class="sc">$</span>propensity[k] <span class="sc">==</span> <span class="st">"correct (p=0.5)"</span>)    <span class="fl">0.5</span>         <span class="cf">else</span> <span class="fl">0.35</span></span>
+<span id="cb20-289"><a href="#cb20-289" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb20-290"><a href="#cb20-290" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb20-291"><a href="#cb20-291" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aipw</span>(d, <span class="at">p =</span> pp, <span class="at">mu_fit =</span> mu)</span>
+<span id="cb20-292"><a href="#cb20-292" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb20-293"><a href="#cb20-293" aria-hidden="true" tabindex="-1"></a>  results[[k]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb20-294"><a href="#cb20-294" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome    =</span> dr_grid<span class="sc">$</span>outcome[k],</span>
+<span id="cb20-295"><a href="#cb20-295" aria-hidden="true" tabindex="-1"></a>    <span class="at">propensity =</span> dr_grid<span class="sc">$</span>propensity[k],</span>
+<span id="cb20-296"><a href="#cb20-296" aria-hidden="true" tabindex="-1"></a>    <span class="at">bias       =</span> <span class="fu">mean</span>(est) <span class="sc">-</span> tau_true,</span>
+<span id="cb20-297"><a href="#cb20-297" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd         =</span> <span class="fu">sd</span>(est),</span>
+<span id="cb20-298"><a href="#cb20-298" aria-hidden="true" tabindex="-1"></a>    <span class="at">rmse       =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((est <span class="sc">-</span> tau_true)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb20-299"><a href="#cb20-299" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-300"><a href="#cb20-300" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-301"><a href="#cb20-301" aria-hidden="true" tabindex="-1"></a><span class="fu">do.call</span>(rbind, results)</span>
+<span id="cb20-302"><a href="#cb20-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-303"><a href="#cb20-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-304"><a href="#cb20-304" aria-hidden="true" tabindex="-1"></a>All four cells are unbiased --- including the "both wrong" cell. That looks too good. The reason is subtle and worth understanding: the "wrong" outcome model $\widehat\mu_d \equiv \bar Y_d$ is wrong about the *conditional* mean $\mu_d(x)$, but it still converges to the correct *marginal* mean $\E<span class="co">[</span><span class="ot">Y(d)</span><span class="co">]</span>$. A short calculation shows this is exactly what AIPW needs.</span>
+<span id="cb20-305"><a href="#cb20-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-306"><a href="#cb20-306" aria-hidden="true" tabindex="-1"></a>Let $m_d(X)$ be the probability limit of $\widehat\mu_d(X)$. Using $D \perp (Y(0), Y(1), X)$ and $\E<span class="co">[</span><span class="ot">D</span><span class="co">]</span> = p$ (the true propensity, possibly different from the assumed $\tilde p$):</span>
+<span id="cb20-307"><a href="#cb20-307" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-308"><a href="#cb20-308" aria-hidden="true" tabindex="-1"></a>\plim \widehat\tau_{\text{AIPW}}</span>
+<span id="cb20-309"><a href="#cb20-309" aria-hidden="true" tabindex="-1"></a>\;=\;</span>
+<span id="cb20-310"><a href="#cb20-310" aria-hidden="true" tabindex="-1"></a>\E<span class="co">[</span><span class="ot">m_1(X) - m_0(X)</span><span class="co">]</span></span>
+<span id="cb20-311"><a href="#cb20-311" aria-hidden="true" tabindex="-1"></a>\;+\; \tfrac{p}{\tilde p}\bigl(\E<span class="co">[</span><span class="ot">Y(1)</span><span class="co">]</span> - \E<span class="co">[</span><span class="ot">m_1(X)</span><span class="co">]</span>\bigr)</span>
+<span id="cb20-312"><a href="#cb20-312" aria-hidden="true" tabindex="-1"></a>\;-\; \tfrac{1-p}{1-\tilde p}\bigl(\E<span class="co">[</span><span class="ot">Y(0)</span><span class="co">]</span> - \E<span class="co">[</span><span class="ot">m_0(X)</span><span class="co">]</span>\bigr).</span>
+<span id="cb20-313"><a href="#cb20-313" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-314"><a href="#cb20-314" aria-hidden="true" tabindex="-1"></a>Two ways to make this collapse to $\tau$: set $\tilde p = p$ (so the ratios are 1, leaving $\E<span class="co">[</span><span class="ot">Y(1)</span><span class="co">]</span> - \E<span class="co">[</span><span class="ot">Y(0)</span><span class="co">]</span> = \tau$), or set $\E<span class="co">[</span><span class="ot">m_d(X)</span><span class="co">]</span> = \E<span class="co">[</span><span class="ot">Y(d)</span><span class="co">]</span>$ (so each line collapses to $\E<span class="co">[</span><span class="ot">Y(d)</span><span class="co">]</span>$ regardless of the ratio). The within-arm sample mean satisfies the second condition for free, even when it badly misses the conditional mean.</span>
+<span id="cb20-315"><a href="#cb20-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-316"><a href="#cb20-316" aria-hidden="true" tabindex="-1"></a>To genuinely break double robustness we need an outcome model whose probability limit does *not* match the marginal mean. A trivial example: $\widehat\mu_d(x) \equiv 0$, with the wrong propensity.</span>
+<span id="cb20-317"><a href="#cb20-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-320"><a href="#cb20-320" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-321"><a href="#cb20-321" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dr-truly-wrong</span></span>
+<span id="cb20-322"><a href="#cb20-322" aria-hidden="true" tabindex="-1"></a>mu_zero <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(d))</span>
+<span id="cb20-323"><a href="#cb20-323" aria-hidden="true" tabindex="-1"></a>est_truly_wrong <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb20-324"><a href="#cb20-324" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb20-325"><a href="#cb20-325" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aipw</span>(d, <span class="at">p =</span> <span class="fl">0.35</span>, <span class="at">mu_fit =</span> mu_zero)</span>
+<span id="cb20-326"><a href="#cb20-326" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-327"><a href="#cb20-327" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(est_truly_wrong) <span class="sc">-</span> tau_true,</span>
+<span id="cb20-328"><a href="#cb20-328" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd   =</span> <span class="fu">sd</span>(est_truly_wrong))</span>
+<span id="cb20-329"><a href="#cb20-329" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-330"><a href="#cb20-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-331"><a href="#cb20-331" aria-hidden="true" tabindex="-1"></a>Now AIPW is biased. The lesson: **AIPW is consistent whenever the IPW correction has correct expectation in the limit**, which happens iff (a) the propensity is correct, or (b) the outcome model converges to something with the right unconditional mean. Standard "doubly robust" wording is correct but understates how forgiving AIPW actually is for marginal estimands.</span>
+<span id="cb20-332"><a href="#cb20-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-333"><a href="#cb20-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-334"><a href="#cb20-334" aria-hidden="true" tabindex="-1"></a><span class="fu">## Perturbation experiment: first-order insensitivity</span></span>
+<span id="cb20-335"><a href="#cb20-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-336"><a href="#cb20-336" aria-hidden="true" tabindex="-1"></a>Neyman orthogonality predicts that *small* errors in $\widehat\mu_d$ should produce only second-order bias. We can see this directly. Define</span>
+<span id="cb20-337"><a href="#cb20-337" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-338"><a href="#cb20-338" aria-hidden="true" tabindex="-1"></a>\widehat\mu_d^{(\lambda)}(x) \;=\; (1 - \lambda)\,\widehat\mu_d(x) + \lambda\,\bar Y_d, \qquad \lambda \in <span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>,</span>
+<span id="cb20-339"><a href="#cb20-339" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-340"><a href="#cb20-340" aria-hidden="true" tabindex="-1"></a>which interpolates between the correct quadratic outcome model ($\lambda = 0$) and the constant misspecified model ($\lambda = 1$). Plot bias and SD as $\lambda$ moves.</span>
+<span id="cb20-341"><a href="#cb20-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-344"><a href="#cb20-344" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb20-345"><a href="#cb20-345" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: perturbation</span></span>
+<span id="cb20-346"><a href="#cb20-346" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb20-347"><a href="#cb20-347" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 3.5</span></span>
+<span id="cb20-348"><a href="#cb20-348" aria-hidden="true" tabindex="-1"></a>lambdas <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
+<span id="cb20-349"><a href="#cb20-349" aria-hidden="true" tabindex="-1"></a>B_pert  <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb20-350"><a href="#cb20-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-351"><a href="#cb20-351" aria-hidden="true" tabindex="-1"></a>pert <span class="ot">&lt;-</span> <span class="fu">lapply</span>(lambdas, <span class="cf">function</span>(lam) {</span>
+<span id="cb20-352"><a href="#cb20-352" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B_pert, {</span>
+<span id="cb20-353"><a href="#cb20-353" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">dgp</span>(n)</span>
+<span id="cb20-354"><a href="#cb20-354" aria-hidden="true" tabindex="-1"></a>    mu_lambda <span class="ot">&lt;-</span> <span class="cf">function</span>(d, arm) {</span>
+<span id="cb20-355"><a href="#cb20-355" aria-hidden="true" tabindex="-1"></a>      mq <span class="ot">&lt;-</span> <span class="fu">mu_quadratic</span>(d, arm)</span>
+<span id="cb20-356"><a href="#cb20-356" aria-hidden="true" tabindex="-1"></a>      mc <span class="ot">&lt;-</span> <span class="fu">mu_constant</span>(d, arm)</span>
+<span id="cb20-357"><a href="#cb20-357" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">-</span> lam) <span class="sc">*</span> mq <span class="sc">+</span> lam <span class="sc">*</span> mc</span>
+<span id="cb20-358"><a href="#cb20-358" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb20-359"><a href="#cb20-359" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aipw</span>(d, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">mu_fit =</span> mu_lambda)</span>
+<span id="cb20-360"><a href="#cb20-360" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb20-361"><a href="#cb20-361" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">lambda =</span> lam,</span>
+<span id="cb20-362"><a href="#cb20-362" aria-hidden="true" tabindex="-1"></a>             <span class="at">bias   =</span> <span class="fu">mean</span>(est) <span class="sc">-</span> tau_true,</span>
+<span id="cb20-363"><a href="#cb20-363" aria-hidden="true" tabindex="-1"></a>             <span class="at">sd     =</span> <span class="fu">sd</span>(est))</span>
+<span id="cb20-364"><a href="#cb20-364" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb20-365"><a href="#cb20-365" aria-hidden="true" tabindex="-1"></a>pert_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, pert)</span>
+<span id="cb20-366"><a href="#cb20-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-367"><a href="#cb20-367" aria-hidden="true" tabindex="-1"></a>pert_long <span class="ot">&lt;-</span> <span class="fu">reshape</span>(pert_df,</span>
+<span id="cb20-368"><a href="#cb20-368" aria-hidden="true" tabindex="-1"></a>                     <span class="at">varying =</span> <span class="fu">c</span>(<span class="st">"bias"</span>, <span class="st">"sd"</span>),</span>
+<span id="cb20-369"><a href="#cb20-369" aria-hidden="true" tabindex="-1"></a>                     <span class="at">v.names =</span> <span class="st">"value"</span>,</span>
+<span id="cb20-370"><a href="#cb20-370" aria-hidden="true" tabindex="-1"></a>                     <span class="at">timevar =</span> <span class="st">"metric"</span>,</span>
+<span id="cb20-371"><a href="#cb20-371" aria-hidden="true" tabindex="-1"></a>                     <span class="at">times   =</span> <span class="fu">c</span>(<span class="st">"bias"</span>, <span class="st">"sd"</span>),</span>
+<span id="cb20-372"><a href="#cb20-372" aria-hidden="true" tabindex="-1"></a>                     <span class="at">direction =</span> <span class="st">"long"</span>)</span>
+<span id="cb20-373"><a href="#cb20-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-374"><a href="#cb20-374" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pert_long, <span class="fu">aes</span>(lambda, value)) <span class="sc">+</span></span>
+<span id="cb20-375"><a href="#cb20-375" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-376"><a href="#cb20-376" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> metric, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb20-377"><a href="#cb20-377" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"First-order insensitivity to nuisance error"</span>,</span>
+<span id="cb20-378"><a href="#cb20-378" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"AIPW with mu_lambda = (1 - lambda) * mu_quadratic + lambda * Ybar"</span>,</span>
+<span id="cb20-379"><a href="#cb20-379" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(lambda),</span>
+<span id="cb20-380"><a href="#cb20-380" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>)</span>
+<span id="cb20-381"><a href="#cb20-381" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-382"><a href="#cb20-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-383"><a href="#cb20-383" aria-hidden="true" tabindex="-1"></a>Bias stays at zero across the entire range of $\lambda$ --- because the propensity is correct, the doubly-robust property holds at every $\lambda$. The standard deviation rises as $\lambda$ grows, but only because we are throwing away the variance reduction from the outcome model, not because the estimator becomes biased. This is the empirical signature of Neyman orthogonality: the *bias* from misspecification is second order, while the *variance* gain from a good outcome model is first order.</span>
+<span id="cb20-384"><a href="#cb20-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-385"><a href="#cb20-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-386"><a href="#cb20-386" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why AIPW achieves the efficiency bound</span></span>
+<span id="cb20-387"><a href="#cb20-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-388"><a href="#cb20-388" aria-hidden="true" tabindex="-1"></a>Hahn (1998) showed that under randomization (or, more generally, unconfoundedness with overlap), the **semiparametric efficiency bound** for estimating $\tau$ is exactly</span>
+<span id="cb20-389"><a href="#cb20-389" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-390"><a href="#cb20-390" aria-hidden="true" tabindex="-1"></a>V^{*} \;=\; \E<span class="sc">\!</span>\left<span class="co">[</span><span class="ot">\frac{\sigma_1^2(X)}{p} + \frac{\sigma_0^2(X)}{1-p}\right</span><span class="co">]</span> + \Var(\mu_1(X) - \mu_0(X)).</span>
+<span id="cb20-391"><a href="#cb20-391" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-392"><a href="#cb20-392" aria-hidden="true" tabindex="-1"></a>This is the smallest asymptotic variance achievable by any regular estimator under nonparametric assumptions on the CEFs. Comparing to the influence function calculation above, $\Var(\psi(Z)) = V^*$: the AIPW estimator with a consistent outcome model is **asymptotically efficient**.</span>
+<span id="cb20-393"><a href="#cb20-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-394"><a href="#cb20-394" aria-hidden="true" tabindex="-1"></a>Compare to the asymptotic variance of the difference in means under Bernoulli randomization,</span>
+<span id="cb20-395"><a href="#cb20-395" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-396"><a href="#cb20-396" aria-hidden="true" tabindex="-1"></a>n\Var(\widehat\tau_{DM}) \;\to\; \frac{\Var(Y(1))}{p} + \frac{\Var(Y(0))}{1-p}.</span>
+<span id="cb20-397"><a href="#cb20-397" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-398"><a href="#cb20-398" aria-hidden="true" tabindex="-1"></a>Decomposing $\Var(Y(d)) = \E<span class="co">[</span><span class="ot">\sigma_d^2(X)</span><span class="co">]</span> + \Var(\mu_d(X))$ and subtracting,</span>
+<span id="cb20-399"><a href="#cb20-399" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-400"><a href="#cb20-400" aria-hidden="true" tabindex="-1"></a>n\Var(\widehat\tau_{DM}) - V^* \;=\; \frac{\Var(\mu_1(X))}{p} + \frac{\Var(\mu_0(X))}{1-p} - \Var(\mu_1(X) - \mu_0(X)).</span>
+<span id="cb20-401"><a href="#cb20-401" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-402"><a href="#cb20-402" aria-hidden="true" tabindex="-1"></a>At $p = 1/2$ this collapses to $\Var(\mu_1(X) + \mu_0(X)) \ge 0$, with equality iff the covariates carry no information about $\mu_d$. So the gain over difference-in-means is exactly the variation in CEFs that AIPW can *predict*; what is left is the within-CEF residual variance that no amount of adjustment can remove.</span>
+<span id="cb20-403"><a href="#cb20-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-404"><a href="#cb20-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-405"><a href="#cb20-405" aria-hidden="true" tabindex="-1"></a><span class="fu">## Connections back to the course</span></span>
+<span id="cb20-406"><a href="#cb20-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-407"><a href="#cb20-407" aria-hidden="true" tabindex="-1"></a>Three threads of the course meet here:</span>
+<span id="cb20-408"><a href="#cb20-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-409"><a href="#cb20-409" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Chapter 2 (CEF and BLP).** AIPW is built around $\mu_d(x) = \E<span class="co">[</span><span class="ot">Y(d) \mid X = x</span><span class="co">]</span>$. The variance reduction comes from the same place as the BLP MSE decomposition: replacing $Y$ by $\E<span class="co">[</span><span class="ot">Y \mid X</span><span class="co">]</span>$ removes the $X$-predictable variation.</span>
+<span id="cb20-410"><a href="#cb20-410" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Chapter 5 (Efficiency and GLS).** GLS achieves the Gauss--Markov bound by reweighting; AIPW achieves the semiparametric bound by reweighting *and* mean-adjusting. In both cases, "efficiency" means: extract every bit of predictable structure before averaging.</span>
+<span id="cb20-411"><a href="#cb20-411" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Chapter 8 (Asymptotics).** The whole argument is a CLT-plus-Slutsky exercise. The remainder is $o_p(n^{-1/2})$, so it disappears under $\sqrt n$ scaling. The only thing that survives is the influence-function CLT.</span>
+<span id="cb20-412"><a href="#cb20-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-413"><a href="#cb20-413" aria-hidden="true" tabindex="-1"></a>What is genuinely new is the **orthogonality** identity, which lets noisy nuisance estimates not corrupt the limiting distribution. That is the workhorse of modern semiparametric inference --- DoubleML, targeted learning, automatic debiased ML --- but the algebra in this chapter is all there is to it for the ATE under randomization.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
