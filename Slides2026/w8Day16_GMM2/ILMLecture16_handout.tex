@@ -131,23 +131,23 @@ $$\hat\beta_{\text{gmm}} = \arg\min_\beta\; n\,\bar{g}_n(\beta)' W\, \bar{g}_n(\
 %--- Slide 3: J-Test Intuition ---
 \begin{frame}{The Overidentification Test: Intuition}
 
-When $\ell > k$, the model imposes \textbf{testable restrictions}.
+\textbf{Goal: a specification test of our identifying assumptions.} We assumed $\mathbb{E}[Z_i e_i] = 0$. If \textit{any} of those moments is wrong (instrument correlates with $e$, wrong functional form, bad exclusion), GMM is inconsistent --- we want a check.
 
 \medskip
-\textbf{Under correct specification:}
-$$\mathbb{E}[g_i(\beta)] = 0 \quad\Rightarrow\quad \bar{g}_n(\hat\beta) \approx 0$$
-
-Even at the minimizer, $\bar{g}_n(\hat\beta) \neq 0$ in finite samples. But it should be \textit{close} to zero.
-
-\medskip
-\textbf{Test logic:}
-\begin{itemize}
-\item \textbf{Small} $J(\hat\beta)$: Moment conditions are approximately satisfied $\Rightarrow$ model OK
-\item \textbf{Large} $J(\hat\beta)$: Cannot simultaneously satisfy all moments $\Rightarrow$ \alert{misspecification}
+\textbf{Why overidentification gives leverage.}
+\begin{itemize}\itemsep=1pt
+\item $\ell = k$ (just identified): FOC sets $\bar g_n(\hat\beta) = 0$ exactly --- \alert{nothing to test}.
+\item $\ell > k$: only $k$ linear combinations of $\bar g_n$ are pinned to zero by the FOC. The remaining $\ell - k$ are \textit{free} to disagree with zero --- that is what we test.
 \end{itemize}
 
 \medskip
-The criterion value $J = J(\hat\beta_{\text{gmm}})$ is a natural test statistic for:
+\textbf{Test logic:}
+\begin{itemize}\itemsep=1pt
+\item \textbf{Small} $J(\hat\beta)$: moments jointly compatible $\Rightarrow$ no evidence against the model
+\item \textbf{Large} $J(\hat\beta)$: no $\beta$ satisfies all moments at once $\Rightarrow$ \alert{misspecification}
+\end{itemize}
+
+\smallskip
 $$H_0: \mathbb{E}[Ze] = 0 \qquad\text{vs.}\qquad H_1: \mathbb{E}[Ze] \neq 0$$
 
 \end{frame}
@@ -163,15 +163,31 @@ Reject $H_0$ if $J > \chi^2_{\ell-k,1-\alpha}$.
 \end{thm}
 
 \medskip
-\textbf{Degrees of freedom} $= \ell - k =$ number of overidentifying restrictions.
-
-\medskip
-\textbf{Requirements:}
-\begin{itemize}
-\item Must use an \textit{efficient} weight matrix ($\hat W = \hat\Omega^{-1}$)
+\textbf{Notes:}
+\begin{itemize}\itemsep=2pt
+\item Degrees of freedom $= \ell - k =$ number of overidentifying restrictions
 \item Generalizes the Sargan test (which assumed homoskedasticity)
 \item When $\ell = k$ (just identified): $J = 0$ always --- \alert{no test possible}
 \end{itemize}
+
+\end{frame}
+
+%--- Slide 4b: Why the efficient weight matrix? ---
+\begin{frame}{Why the Efficient Weight $\hat\Omega^{-1}$?}
+
+The choice of weight matrix is what makes $J$ a clean $\chi^2$.
+
+\medskip
+Under $H_0$, the sample moments are asymptotically normal:
+$$\sqrt{n}\,\bar g_n(\hat\beta) \;\xrightarrow{d}\; \mathcal N\!\bigl(0,\;V_g\bigr), \qquad V_g \propto \Omega.$$
+
+\medskip
+\textbf{Standardizing.} Recall: if $X \sim \mathcal N(0,\Sigma)$, then $X'\Sigma^{-1}X \sim \chi^2$. The inverse-variance weight is what converts a Gaussian vector into a $\chi^2$ scalar.
+
+\medskip
+\textbf{In GMM.} Weighting $\bar g_n$ by $\hat\Omega^{-1}$ does the same job --- it standardizes the moments by their (inverse) variance. With any other $\hat W$,
+$$J = n\,\bar g_n' \hat W \bar g_n \;\xrightarrow{d}\; \sum_{j=1}^{\ell-k} \lambda_j \chi^2_{1,j},$$
+a \textit{weighted sum} of $\chi^2$'s with unknown coefficients $\lambda_j$. No clean reference distribution.
 
 \end{frame}
 
@@ -190,7 +206,6 @@ Reject $H_0$ if $J > \chi^2_{\ell-k,1-\alpha}$.
 \begin{itemize}
 \item \alert{No power if all instruments are invalid in the same direction} --- moments are all ``wrong'' together, J-test cannot detect this
 \item Requires $\ell > k$ (overidentification)
-\item Requires efficient weight matrix for $\chi^2$ distribution
 \item Rejection tells you \textit{something} is wrong, but not \textit{what}
 \end{itemize}
 
@@ -214,12 +229,11 @@ specTest(gmm_men)
 # J-test      ?   2    ?
 \end{lstlisting}
 
-\smallskip
-\textbf{Interpretation} ($\ell - k = 7 - 5 = 2$ degrees of freedom):
-\begin{itemize}
-\item The test assesses whether the linear projection restriction holds for both missing and complete data subpopulations
-\item \textbf{Fail to reject:} The restriction that $x = z'\gamma + \xi$ is the same for observed and missing cases is supported
-\item \textbf{Reject:} Missingness may depend on unobservables, violating Assumption 1
+\textbf{Interpretation} ($\ell - k = 7 - 5 = 2$ d.f.):
+\begin{itemize}\itemsep=1pt
+\item Tests whether the linear projection $x = z'\gamma + \xi$ holds for both observed and missing cases
+\item \textbf{Fail to reject:} the projection is stable across observed/missing
+\item \textbf{Reject:} missingness depends on unobservables, violating Assumption 1
 \end{itemize}
 
 \end{frame}
@@ -229,12 +243,33 @@ specTest(gmm_men)
 %========================================================
 \section{Hypothesis Testing}
 
+%--- Slide 7a: Preview of the three tests ---
+\begin{frame}{From Specification to Parameter Restrictions}
+
+The J-test asked: \textit{is the model correctly specified?} ($H_0: \mathbb{E}[g_i(\beta)] = 0$.)
+
+\medskip
+We now ask a different question: \textit{given the model, does a particular parameter restriction hold?}
+$$H_0: r(\beta) = \theta_0, \qquad r:\mathbb{R}^k\to\mathbb{R}^q$$
+e.g.\ $\beta_2 = 0$, $\beta_2 = \beta_3$, $\beta_2/\beta_3 = 1$, or a nonlinear policy quantity.
+
+\medskip
+GMM gives two natural statistics for this question (a third, the score / LM test, we won't cover):
+\begin{itemize}\itemsep=2pt
+\item \textbf{Wald} (Thm 13.8) --- uses the unrestricted estimator only; familiar from $t$/$F$, now nonlinear-capable
+\item \textbf{Distance} (Thm 13.12) --- compares restricted vs.\ unrestricted criterion values; the GMM analogue of the LR test, invariant to reparameterization
+\end{itemize}
+
+\end{frame}
+
 %--- Slide 7: The Wald Test (Thm 13.8) ---
 \begin{frame}{The Wald Test (Hansen Thm.~13.8)}
 
-Test $H_0: \theta = \theta_0$ where $\theta = r(\beta)$ for a known function $r: \mathbb{R}^k \to \mathbb{R}^q$.
+We have used $t$/$F$-statistics since Lecture 1. The Wald test is the GMM generalization --- now $r$ can be \textit{nonlinear}, and $\hat V_\beta$ is the sandwich (no homoskedasticity assumption).
 
-\medskip
+\smallskip
+Test $H_0: \theta = \theta_0$ where $\theta = r(\beta)$.
+
 \begin{thm}[13.8: Wald Test]
 Under $H_0$, as $n \to \infty$:
 $$W = n(\hat\theta - \theta_0)'\hat V_\theta^{-1}(\hat\theta - \theta_0) \xrightarrow{d} \chi^2_q$$
@@ -242,10 +277,7 @@ where $\hat V_\theta = \hat R'\hat V_\beta \hat R$ and $\hat R = \frac{\partial}
 \end{thm}
 
 \smallskip
-\textbf{Special case:} Testing $\beta_j = 0$: $W = \hat\beta_j^2 / \widehat{\text{Var}}(\hat\beta_j) = t_j^2 \xrightarrow{d} \chi^2_1$
-
-\medskip
-\textbf{Familiar:} This is exactly the $t$-test (squared) we have been using throughout the course, now justified by GMM asymptotics.
+\textbf{Familiar special case:} Linear $r$ with $H_0: \beta_j = 0$ gives $W = \hat\beta_j^2 / \widehat{\text{Var}}(\hat\beta_j) = t_j^2 \xrightarrow{d} \chi^2_1$ --- the squared $t$-statistic.
 
 \end{frame}
 
@@ -267,8 +299,67 @@ $$D = \tilde J - \hat J \xrightarrow{d} \chi^2_q$$
 \begin{itemize}\itemsep=1pt
 \item \alert{Invariant to reparameterization}---the Wald statistic is not
 \item Analogous to the likelihood ratio test (criterion-based)
-\item Thm 13.13: If $\tilde\Omega = \hat\Omega$, then $D \geq 0$; for linear $r$, $D = W$
 \end{itemize}
+
+\end{frame}
+
+%--- Slide 8b: When does D agree with W? (Thm 13.13) ---
+\begin{frame}{When Does the Distance Test Agree with Wald? (Thm 13.13)}
+
+When the same weight matrix $\hat\Omega^{-1}$ is used for both restricted and unrestricted fits:
+\begin{itemize}\itemsep=2pt
+\item $D \geq 0$ always --- the restricted minimum cannot fall below the unrestricted one (it is the same objective, optimized over a smaller set).
+\item For \textit{linear} restrictions $r(\beta) = R\beta - \theta_0$, $D = W$ exactly: the two tests deliver the same number.
+\end{itemize}
+
+\medskip
+\textbf{Consequence.} Wald and Distance can disagree only when $r$ is nonlinear --- and there, the Distance test is preferred (invariant).
+
+\medskip
+\textit{Why $D = W$ in the linear case?} (Next slide.)
+
+\end{frame}
+
+%--- Slide 8c: Constrained GMM via Efficient Minimum Distance ---
+\begin{frame}{From Efficient Minimum Distance to CGMM (Hansen \S8.25 $\to$ 13.19)}
+
+\small
+\textbf{Chapter 8 setup.} Given an unrestricted estimator $\hat\beta$ with asymptotic variance $V$, the most efficient estimator imposing $R'\beta = c$ is the closest point to $\hat\beta$ in the Mahalanobis metric induced by $V$:
+$$\tilde\beta \;=\; \arg\min_\beta\;(\hat\beta - \beta)'V^{-1}(\hat\beta - \beta) \quad \text{s.t.} \quad R'\beta = c.$$
+
+\textbf{Lagrange.} $L = (\hat\beta - \beta)'V^{-1}(\hat\beta - \beta) + 2\lambda'(R'\beta - c)$.
+\begin{itemize}\itemsep=1pt
+\item FOC in $\beta$: $V^{-1}(\hat\beta - \beta) = R\lambda \;\Rightarrow\; \hat\beta - \beta = VR\lambda$.
+\item Plug into $R'\beta = c$: $\;\lambda = (R'VR)^{-1}(R'\hat\beta - c)$.
+\end{itemize}
+
+\textbf{Closed form (Hansen Ch.~8):} $\tilde\beta = \hat\beta - VR(R'VR)^{-1}(R'\hat\beta - c).$
+
+\medskip
+\textbf{Specialize to efficient GMM.} Take $V = \hat V_\beta = (\hat Q'\hat\Omega^{-1}\hat Q)^{-1}$ (Thm 13.11). Out pops the CGMM estimator (Thm 13.19):
+$$\boxed{\;\hat\beta_{\text{cgmm}} \;=\; \hat\beta_{\text{gmm}} \;-\; \hat V_\beta R(R'\hat V_\beta R)^{-1}(R'\hat\beta_{\text{gmm}} - c).\;}$$
+
+\end{frame}
+
+%--- Slide 8d: Proof of D = W ---
+\begin{frame}{Proof of $D = W$ for Linear $r$ (Hansen's Path)}
+
+\small
+Two ingredients in hand:
+\begin{itemize}\itemsep=2pt
+\item \textbf{(13.11)} $\hat V_\beta = (\hat Q'\hat\Omega^{-1}\hat Q)^{-1}$.
+\item \textbf{(13.19)} $\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}} = -\hat V_\beta R(R'\hat V_\beta R)^{-1}u$, with $u := R'\hat\beta_{\text{gmm}} - c$.
+\end{itemize}
+
+\medskip
+\textbf{Compute $D$.} For linear moments, expanding $J$ around $\hat\beta_{\text{gmm}}$ kills the cross term via the unrestricted FOC, leaving:
+$$D = J(\hat\beta_{\text{cgmm}}) - J(\hat\beta_{\text{gmm}}) = n(\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}})'\hat V_\beta^{-1}(\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}}).$$
+
+Substitute (13.19); the inner $\hat V_\beta\,\hat V_\beta^{-1}\,\hat V_\beta$ collapses to $\hat V_\beta$:
+$$D = n\,u'(R'\hat V_\beta R)^{-1}(R'\hat V_\beta R)(R'\hat V_\beta R)^{-1}u \;=\; n\,u'(R'\hat V_\beta R)^{-1}u.$$
+
+\medskip
+\textbf{Match to $W$.} Since $\hat V_\theta = R'\hat V_\beta R$, $\;D = n\,u'\hat V_\theta^{-1}u = W$. \qed
 
 \end{frame}
 
@@ -303,22 +394,20 @@ $$D = \tilde J - \hat J \xrightarrow{d} \chi^2_q$$
 
 \textbf{Question:} Are \textit{specific} instruments valid?
 
-\medskip
-Partition $Z = (Z_a, Z_b)$ where:
-\begin{itemize}
-\item $Z_a$ ($\ell_a$ instruments): believed to be valid ($\mathbb{E}[Z_a e] = 0$)
-\item $Z_b$ ($\ell_b$ instruments): questionable ($\mathbb{E}[Z_b e] \stackrel{?}{=} 0$)
+\smallskip
+Partition $Z = (Z_a, Z_b)$:
+\begin{itemize}\itemsep=1pt
+\item $Z_a$ ($\ell_a$ instruments): believed valid, $\mathbb{E}[Z_a e] = 0$
+\item $Z_b$ ($\ell_b$ instruments): questionable, $\mathbb{E}[Z_b e] \stackrel{?}{=} 0$
 \end{itemize}
 Require $\ell_a > k$ so $Z_a$ alone identifies the model.
 
-\smallskip
 \begin{thm}[13.15: Subset Overidentification Test]
-Let $\tilde J$ use only $Z_a$ and $\hat J$ use all $Z = (Z_a, Z_b)$. Then:
-$$C = \hat J - \tilde J \xrightarrow{d} \chi^2_{\ell_b}$$
-under $H_0: \mathbb{E}[Z_b e] = 0$.
+Let $\tilde J$ use only $Z_a$ and $\hat J$ use all $Z = (Z_a, Z_b)$. Under $H_0: \mathbb{E}[Z_b e] = 0$,
+$$C = \hat J - \tilde J \xrightarrow{d} \chi^2_{\ell_b}.$$
 \end{thm}
 
-\medskip
+\smallskip
 \textbf{Special case:} If $Z_a$ is just-identified ($\ell_a = k$), then $\tilde J = 0$ and $C = \hat J$ is the standard J-test.
 
 \end{frame}
@@ -685,19 +774,19 @@ where $\hat e = Y - X\hat\beta_{\text{gmm}}$ from the \textit{original} sample. 
 \toprule
 \textbf{Test} & \textbf{Distribution} & \textbf{Purpose} \\
 \midrule
-J-test (Thm 13.14) & $\chi^2_{\ell-k}$ & Model specification \\[3pt]
-Wald (Thm 13.8) & $\chi^2_q$ & Parameter restrictions \\[3pt]
-Distance (Thm 13.12) & $\chi^2_q$ & Parameter restrictions (invariant) \\[3pt]
-Subset overid (Thm 13.15) & $\chi^2_{\ell_b}$ & Validity of specific instruments \\[3pt]
-Endogeneity (Thm 13.16) & $\chi^2_{k_2}$ & Exogeneity of regressors \\[3pt]
-Constrained (Thm 13.10) & --- & Efficient estimation under $H_0$ \\[3pt]
+J-test (Thm 13.14) & $\chi^2_{\ell-k}$ & Model specification \\[2pt]
+Wald (Thm 13.8) & $\chi^2_q$ & Parameter restrictions \\[2pt]
+Distance (Thm 13.12) & $\chi^2_q$ & Parameter restrictions (invariant) \\[2pt]
+Subset overid (Thm 13.15) & $\chi^2_{\ell_b}$ & Validity of specific instruments \\[2pt]
+Endogeneity (Thm 13.16) & $\chi^2_{k_2}$ & Exogeneity of regressors \\[2pt]
+Constrained (Thm 13.10) & --- & Efficient estimation under $H_0$ \\[2pt]
 Bootstrap & --- & Finite-sample inference \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \smallskip
-\textbf{All tests are:} valid under heteroskedasticity, derived from the GMM criterion function, and applicable to both linear and nonlinear models.
+\textbf{All tests:} valid under heteroskedasticity, derived from the GMM criterion, applicable to linear and nonlinear models.
 
 \end{frame}
 
@@ -734,22 +823,15 @@ Chamberlain showed that no semiparametric estimator can have asymptotic variance
 \toprule
 & \textbf{When to use} & \textbf{Advantages} & \textbf{Cost} \\
 \midrule
-\textbf{OLS/GLS} & $\mathbb{E}[Xe]\!=\!0$ (no endogeneity) & Simple, efficient under assumptions & Biased if endogenous \\[3pt]
-\textbf{2SLS} & Endogeneity, homoskedastic & Simple, familiar & Inefficient under heterosked. \\[3pt]
-\textbf{GMM} & Endogeneity, heteroskedastic & Efficient, flexible, testable & More complex \\[3pt]
+\textbf{OLS/GLS} & $\mathbb{E}[Xe]\!=\!0$ (no endogeneity) & Simple, efficient under assumptions & Biased if endogenous \\
+\textbf{2SLS} & Endogeneity, homoskedastic & Simple, familiar & Inefficient under heterosked. \\
+\textbf{GMM} & Endogeneity, heteroskedastic & Efficient, flexible, testable & More complex \\
 \textbf{MLE} & Full distribution known & Most efficient (Cram\'er--Rao) & Misspecification bias \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\smallskip
-\textbf{Decision rule:}
-\begin{itemize}\itemsep=1pt
-\item No endogeneity? $\Rightarrow$ OLS/GLS
-\item Endogeneity + homoskedasticity + few instruments? $\Rightarrow$ 2SLS
-\item Endogeneity + heteroskedasticity or many instruments? $\Rightarrow$ \textbf{GMM}
-\item Full distributional knowledge? $\Rightarrow$ MLE
-\end{itemize}
+\textbf{Decision rule:} OLS/GLS if no endogeneity; 2SLS if endogenous + homoskedastic; \textbf{GMM} if endogenous + heteroskedastic or many instruments; MLE if the full distribution is known.
 
 \end{frame}
 
