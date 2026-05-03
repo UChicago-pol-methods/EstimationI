@@ -143,7 +143,7 @@ where $\bm{M}_2=\bm{I}-\bm{P}_2$ and $\bm{P}_2=\bm{X}_2(\bm{X}_2'\bm{X}_2)^{-1}\
 \begin{frame}{Why Open Up $(\bm{X}'\bm{X})^{-1}$?}
 \begin{itemize}
 \item Every OLS coefficient can be traced back to specific variation in the data.\pause
-\item $\bm{\hat{\beta}}_1$ does \emph{not} use all the variation in $\bm{X}_1$---only the part that the other regressors cannot explain.\pause
+\item $\bm{\hat{\beta}}_1$ does \emph{not} use all the variation in $\bm{X}_1$, only the part that the other regressors cannot explain.\pause
 \item \alert{The Schur complement tells you exactly which variation in the data identifies each coefficient.}
 \end{itemize}
 \pause
@@ -203,7 +203,7 @@ $$\hat{\bm{\beta}}_1=(\bm{X}_1'\bm{M}_2\bm{X}_1)^{-1}\bm{X}_1'\bm{M}_2\bm{y}$$
 \begin{itemize}
 \item FWL claim: the coefficient $\bm{\hat{\beta}}_2$ from the full regression is \emph{identical} to the coefficient from regressing residualized $\bm{y}$ on residualized $\bm{X}_2$.\pause
 \item That is, we can first project $\bm{y}$ and $\bm{X}_2$ into the orthogonal complement of the column space of $\bm{X}_1$, then regress one on the other.\pause
-\item Recall: $\bm{M}_1 = \bm{I} - \bm{X}_1(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'$ is the ``residual maker''---$\bm{M}_1\bm{q}$ produces the residuals of any variable $\bm{q}$ regressed on $\bm{X}_1$.
+\item Recall: $\bm{M}_1 = \bm{I} - \bm{X}_1(\bm{X}_1'\bm{X}_1)^{-1}\bm{X}_1'$ is the ``residual maker'': $\bm{M}_1\bm{q}$ produces the residuals of any variable $\bm{q}$ regressed on $\bm{X}_1$.
 \end{itemize}
 \end{frame}
 
@@ -301,7 +301,7 @@ Continuing---collect $\hat{\beta}_2$ terms on the left, everything else on the r
 \bm{X}_2'\bm{M}_1\bm{X}_2\bm{\hat{\beta}}_2&=\bm{X}'_2\bm{M}_1\bm{y} \tag{$\bm{I}-\bm{P}_1=\bm{M}_1$}\\[4pt]
 \bm{\hat{\beta}}_2&=(\bm{X}_2'\bm{M}_1\bm{X}_2)^{-1}\bm{X}'_2\bm{M}_1\bm{y} \tag{solve for $\hat{\beta}_2$}
 \end{align*}
-This is the FWL result: $\hat{\beta}_2$ from the full regression equals the coefficient from regressing $\bm{M}_1\bm{y}$ on $\bm{M}_1\bm{X}_2$---residual on residual.
+This is the FWL result: $\hat{\beta}_2$ from the full regression equals the coefficient from regressing $\bm{M}_1\bm{y}$ on $\bm{M}_1\bm{X}_2$ (residual on residual).
 \end{frame}
 
 
@@ -500,7 +500,7 @@ Prestige$flag <- abs(rst) > 2
 \end{columns}
 \smallskip
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50, boxsep=2pt, top=2pt, bottom=2pt]
-High leverage + large residual = investigate. It may be a data error, an outlier, or the most interesting observation in your dataset.
+High leverage with a large residual is the case to investigate: a candidate for a data error, an outlier, or a substantively distinctive observation.
 \end{tcolorbox}
 \end{frame}
 
@@ -513,7 +513,7 @@ High leverage + large residual = investigate. It may be a data error, an outlier
 \begin{itemize}
 \item So far: we derived $\hat{\beta}$ assuming we included the right regressors.\pause
 \item In practice, we always leave something out. The question is whether it matters.\pause
-\item An estimator is \textbf{biased} if $E[\hat{\beta}|\bm{X}]\neq\beta$---on average across samples, we get the wrong answer.\pause
+\item An estimator is \textbf{biased} if $E[\hat{\beta}|\bm{X}]\neq\beta$: on average across samples, we get the wrong answer.\pause
 \item The FWL result gives us the tool to quantify this: we already showed that $\hat{\beta}_1$ depends on what else is in the model. Now we ask: what if $\bm{X}_2$ \emph{should} be in the model but isn't?
 \end{itemize}
 \end{frame}
@@ -554,7 +554,7 @@ Derivation of $\bm{\hat{\beta}}_1$:
 
 $$\widehat{\text{bias}} = \underbrace{(\bm{X}_1'\bm{X}_1)^{-1}(\bm{X}_1'\bm{X}_2)}_{\text{Imbalance: how well does }X_1\text{ predict }X_2}\times\underbrace{\bm{\hat{\beta}}_2}_{\text{Impact: effect of }X_2\text{ on }Y}$$
 \begin{itemize}
-\item $(\bm{X}_1'\bm{X}_1)^{-1}(\bm{X}_1'\bm{X}_2)$ are the coefficients from regressing $\bm{X}_2$ on $\bm{X}_1$---how much do the confounders differ across treatment groups?\pause
+\item $(\bm{X}_1'\bm{X}_1)^{-1}(\bm{X}_1'\bm{X}_2)$ are the coefficients from regressing $\bm{X}_2$ on $\bm{X}_1$: how much do the confounders differ across treatment groups?\pause
 \item $\bm{\hat{\beta}}_2$ is how much $X_2$ matters for $Y$, holding $X_1$ constant.\pause
 \item Bias is large only when \emph{both} are large: a confounder must be imbalanced \emph{and} consequential.\pause
 \item The problem: $\bm{X}_1$ and $\bm{X}_2$ are multivariate, so the bias is a matrix product that is hard to sign. We need a scalar summary.
@@ -760,7 +760,7 @@ summary(sensitivity)
 plot(sensitivity)
 \end{lstlisting}
 \vspace{1ex}
-\textbf{Key question:} How strong would an \emph{unobserved} confounder need to be---relative to the observed confounder $Z$---to explain away the estimated effect of $D$?
+\textbf{Key question:} How strong would an \emph{unobserved} confounder need to be (relative to the observed confounder $Z$) to explain away the estimated effect of $D$?
 \end{frame}
 
 % Slide 4: Interpreting the Diagnostic Outputs
