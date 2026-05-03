@@ -153,7 +153,7 @@ The control function makes identification transparent: we ``control for'' the en
 
 \begin{frame}{IV Has No Finite Moments}
 \begin{itemize}
-\item A striking result (Kinal 1980, Kiviet): the IV estimator has at most $q=l-k$ moments, where $q$ is the number of overidentifying restrictions.
+\item A striking result (Kinal 1980, Kiviet): the IV estimator has at most $q=\ell-k$ moments, where $q$ is the number of overidentifying restrictions.
 \item When just identified ($q=0$): IV has \alert{no expectation} and \alert{no variance}.
 \item Why?  Consider $\hat{\beta}_{IV}=(Z'X)^{-1}Z'Y$.  The denominator $Z'X$ can be arbitrarily close to zero, creating Cauchy-like tails.
 \item Consequences:
@@ -211,7 +211,7 @@ E(\hat{\beta}_{IV})-\beta&\approx (E(X'P_ZX))^{-1}E(v'P_Ze)\\
 \end{align*}
 where the cross terms vanish because $E[Z'v]=0$.
 
-Using $E[v'P_Zv]=\sigma_v^2\cdot p$ and $E[v'P_Ze]=\sigma_{ev}\cdot p$ (where $p=l$ is the number of instruments):
+Using $E[v'P_Zv]=\sigma_v^2\cdot p$ and $E[v'P_Ze]=\sigma_{ev}\cdot p$ (where $p=\ell$ is the number of instruments):
 $$E(\hat{\beta}_{IV})-\beta\approx (E[\pi'Z'Z\pi]+\sigma_v^2 p)^{-1}\sigma_{ev}\cdot p$$
 \end{frame}
 
@@ -320,7 +320,7 @@ $$C=\hat{J}-\bar{J}\xrightarrow{d}\chi^2_{k_2} \quad \text{under } H_0.$$
 
 \begin{frame}{Testing Overidentifying Restrictions: Sargan Test}
 \begin{itemize}
-\item When $l>k$, we have $q=l-k$ ``extra'' moment conditions.
+\item When $\ell>k$, we have $q=\ell-k$ ``extra'' moment conditions.
 \item If the model is correct, all moment conditions should be approximately satisfied.
 \item The \textbf{Sargan test} (also called Hansen's $J$-test):
 $$J = n\cdot\hat{e}'P_Z\hat{e}/\hat{\sigma}^2 \sim \chi^2_q \quad \text{under } H_0$$

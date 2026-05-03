@@ -283,11 +283,12 @@ B &= \underbrace{\frac{\gamma_0+\gamma_1\alpha_0}{1-\gamma_1\alpha_1}}_{\text{co
 \begin{itemize}
 \item Agents \textbf{choose} their treatment based on expected gains (Roy 1951).
 \item Potential outcomes: $Y_i(1)=\bm{x}_i'\beta_1+e_{1i}$, \; $Y_i(0)=\bm{x}_i'\beta_0+e_{0i}$.
-\item Selection rule: individual chooses treatment if net benefit exceeds threshold:
+\item Selection rule: chooses treatment if net benefit exceeds threshold:
 $$D_i = \mathbb{1}\{\bm{z}_i'\gamma + \eta_i > 0\}, \qquad \eta_i = e_{1i}-e_{0i}$$
-\item If $\eta_i$ and $e_{1i}$ are correlated:
+\item Then $\eta_i$ is the \textbf{idiosyncratic gain} ($\tau_i = \bm{x}_i'(\beta_1{-}\beta_0)+\eta_i$); selecting on $\eta_i$ is \textbf{selection on gains}.
+\item Mechanically $\text{Cov}(\eta_i,e_{1i})=\text{Var}(e_{1i})-\text{Cov}(e_{1i},e_{0i})\neq 0$, so
 $$\mathbb{E}[e_{1i}\mid D_i=1]=\mathbb{E}[e_{1i}\mid \bm{z}_i'\gamma+\eta_i>0]\neq 0$$
-\item OLS on the treated sample is \alert{biased} --- we only observe outcomes for those who chose treatment.
+and OLS on the treated sample is \alert{biased}.
 \item If $\bm{z}$ includes variables excluded from $\bm{x}$, we have an \textbf{exclusion restriction}.
 \end{itemize}
 \end{frame}
@@ -297,15 +298,15 @@ $$\mathbb{E}[e_{1i}\mid D_i=1]=\mathbb{E}[e_{1i}\mid \bm{z}_i'\gamma+\eta_i>0]\n
 \begin{itemize}
 \item \textbf{Question:} Does holding office increase personal wealth?
 $$\text{Wealth}_i = \beta_0 + \beta_1\;\text{HeldOffice}_i + \bm{x}_i'\gamma + e_i$$
+\item Map to the framework: $D_i=\text{HeldOffice}_i$; $Y_i(1),Y_i(0)$ are wealth with/without office; $\eta_i$ is the idiosyncratic gain from holding office.
 \item Problem: Who runs for office? Who wins?
 \begin{itemize}
 \item Wealthier individuals may be more likely to run and win
 \item More politically connected individuals may both win and accumulate wealth
 \item Selection on gains: those who expect to profit most from office seek it out
 \end{itemize}
-\item Observed difference $=$ \textcolor{blue}{ATT} $+$ \textcolor{darkpurple}{Selection bias}:
-$$\mathbb{E}[\text{Wealth}\mid \text{Office}=1]-\mathbb{E}[\text{Wealth}\mid \text{Office}=0]$$
-\item \textbf{IV solution:} Use close election outcomes (regression discontinuity / Lee 2008) as an instrument --- winning a close race is quasi-random.
+\item OLS recovers the observed difference, which mixes the causal effect with $\mathbb{E}[e_{1i}\mid D_i\!=\!1]\neq 0$:
+$$\mathbb{E}[\text{Wealth}\mid D_i\!=\!1]-\mathbb{E}[\text{Wealth}\mid D_i\!=\!0] = \textcolor{blue}{\text{ATT}} + \textcolor{darkpurple}{\text{Selection bias}}$$
 \end{itemize}
 \end{frame}
 
@@ -327,7 +328,7 @@ $$\mathbb{E}[\tau_i\mid D=1]\neq \mathbb{E}[\tau_i] \quad\Rightarrow\quad \textc
 
 \begin{frame}{The Common Thread}
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-In all three cases --- measurement error, simultaneity, selection --- the core problem is $\mathbb{E}[\bm{x}e]\neq 0$.  The solution: find an instrument $Z$.
+Measurement error, simultaneity, and selection all produce $\mathbb{E}[\bm{x}e]\neq 0$. IV identifies $\beta$ using an instrument $Z$.
 \end{tcolorbox}
 \vspace{0.3cm}
 \begin{center}
@@ -337,7 +338,7 @@ In all three cases --- measurement error, simultaneity, selection --- the core p
 \midrule
 Measurement error & Noise in $\bm{x}$ enters error & Second measure of $\bm{x}^*$\\
 Simultaneity & $Y$ and $X$ jointly determined & Exogenous shifter of one eq.\\
-Selection/omitted var. & Choice correlated with $e$ & Excluded exogenous variable\\
+Selection/omitted var. & Choice correlated with $e$ & Exogenous shifter of choice\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -352,10 +353,10 @@ Selection/omitted var. & Choice correlated with $e$ & Excluded exogenous variabl
 \begin{itemize}
 \item $Y$ is a linear function of exogenous variables $\bm{x}_1$ and endogenous variables $\bm{y}_2$:
 $$Y_1=\bm{x}_1'\beta_1+\bm{y}_2'\beta_2+e, \qquad \mathbb{E}[\bm{y}_2 e]\neq 0$$
-\item \textbf{Instruments:} $\bm{z}=(\bm{z}_1', \bm{z}_2')'$, dimension $l\times 1$:
+\item \textbf{Instruments:} $\bm{z}=(\bm{z}_1', \bm{z}_2')'$, dimension $\ell\times 1$:
 \begin{itemize}
 \item $\bm{z}_1 = \bm{x}_1$: included instruments (the exogenous regressors), dimension $k_1$
-\item $\bm{z}_2$: excluded instruments, dimension $l_2 \geq k_2$
+\item $\bm{z}_2$: excluded instruments, dimension $\ell_2 \geq k_2$
 \end{itemize}
 \item Writing $\bm{x}=(\bm{x}_1', \bm{y}_2')'$ of dimension $k=k_1+k_2$:
 $$Y_1 = \bm{x}'\beta + e$$
@@ -369,14 +370,14 @@ $$Y_1 = \bm{x}'\beta + e$$
 \begin{enumerate}
 \item \textbf{Exogeneity:}  $\mathbb{E}[\bm{z}e]=0$ \quad (instrument uncorrelated with structural error)
 \item \textbf{Relevance:}  $\text{rank}\;\mathbb{E}[\bm{z}\bm{x}']=k$ \quad (instruments predict endogenous regressors)
-\item \textbf{Order condition:}  $l\geq k$ \quad (at least as many instruments as regressors)
+\item \textbf{Order condition:}  $\ell\geq k$ \quad (at least as many instruments as regressors)
 \end{enumerate}
 \end{tcolorbox}
 \vspace{0.2cm}
 \begin{itemize}
-\item When $l=k$: \textbf{just identified} (exactly as many instruments as regressors)
-\item When $l>k$: \textbf{overidentified} ($q=l-k$ overidentifying restrictions)
-\item When $l<k$: \textbf{underidentified} (cannot estimate $\beta$)
+\item When $\ell=k$: \textbf{just identified} (exactly as many instruments as regressors)
+\item When $\ell>k$: \textbf{overidentified} ($q=\ell-k$ overidentifying restrictions)
+\item When $\ell<k$: \textbf{underidentified} (cannot estimate $\beta$)
 \end{itemize}
 \medskip
 \small\alert{Aside.}\, \emph{Lagged values of the endogenous regressor are sometimes proposed as instruments.  Whether the exclusion restriction holds depends on the autocorrelation structure of the structural error --- developed in Lecture 18 (dynamic panels).}
@@ -405,10 +406,10 @@ $$Y_1 = \bm{x}'\beta + e$$
 \vspace{0.1cm}
 \small
 \begin{itemize}
-\item $U$ (dashed, unobserved): \textbf{confounder} of $X$ and $Y$ --- the source of $\mathbb{E}[Xe]\neq 0$.
-\item \textbf{Relevance:} arrow $Z\to X$ --- the instrument moves the regressor.
-\item \textbf{Exogeneity:} \emph{no} arrow $U\to Z$ --- the instrument is unconfounded.
-\item \textbf{Exclusion:} \emph{no} direct arrow $Z\to Y$ --- $Z$ affects $Y$ \emph{only through} $X$.
+\item $U$ (dashed, unobserved): \textbf{confounder} of $X$ and $Y$; the source of $\mathbb{E}[Xe]\neq 0$.
+\item \textbf{Relevance:} arrow $Z\to X$; the instrument moves the regressor.
+\item \textbf{Exogeneity:} \emph{no} arrow $U\to Z$; the instrument is unconfounded.
+\item \textbf{Exclusion:} \emph{no} direct arrow $Z\to Y$; $Z$ affects $Y$ \emph{only through} $X$.
 \end{itemize}
 \end{frame}
 
@@ -433,13 +434,51 @@ $$\text{GDP/capita}_i = \beta_1\;\text{Latitude}_i + \beta_2\;\underbrace{\text{
 \subsection{Reduced Form}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}{Why the Reduced Form?}
+\begin{itemize}
+\item OLS on the structural equation $Y_1 = \bm{x}'\beta + e$ is biased: $\mathbb{E}[\bm{x}e]\neq 0$.
+\item But $\bm{z}$ is exogenous, so OLS \emph{regressions on $\bm{z}$} are consistent. Two are useful:
+\begin{itemize}
+\item \textbf{First stage:} project $\bm{y}_2$ on $\bm{z}$ to get coefficients $\Gamma$.
+\item \textbf{Reduced form for $Y$:} project $Y_1$ on $\bm{z}$ to get coefficients $\lambda$.
+\end{itemize}
+\item These projections are tied to the structural $\beta$ via the map $\lambda = \bar{\Gamma}\beta$, where
+$$\bar{\Gamma} = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{x}']$$
+is the projection of the full regressor vector $\bm{x}=(\bm{x}_1', \bm{y}_2')'$ on $\bm{z}$.
+\item \textbf{Plan:} estimate $\hat{\lambda}, \hat{\Gamma}$ by OLS, then recover $\beta$ by inverting $\lambda = \bar{\Gamma}\beta$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Reduced-Form Coefficients: Glossary}
+\small
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{ll}
+\toprule
+\textbf{Symbol} & \textbf{Definition / role}\\
+\midrule
+$\Gamma$ & First stage: $\bm{y}_2 = \Gamma'\bm{z}+\bm{u}_2$, with $\Gamma = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{y}_2']$\\
+$\Gamma_{12},\;\Gamma_{22}$ & Sub-blocks of $\Gamma$ on included ($\bm{z}_1$) / excluded ($\bm{z}_2$) instruments\\
+$\bar{\Gamma}$ & Project full regressor $\bm{x}=(\bm{x}_1',\bm{y}_2')'$ on $\bm{z}$: $\;\bar{\Gamma}=\bigl[\begin{smallmatrix}\bm{I}_{k_1}&\Gamma_{12}\\ \bm{0}&\Gamma_{22}\end{smallmatrix}\bigr]$\\
+$\lambda$ & Reduced form for $Y$: $\;Y_1 = \lambda'\bm{z}+u_1$, with $\lambda = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}Y_1]$\\
+$\lambda_1,\;\lambda_2$ & Sub-blocks of $\lambda$ on $\bm{z}_1$ / $\bm{z}_2$\\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.3cm}
+\textbf{Key relation:} $\lambda = \bar{\Gamma}\beta$. Inverting this map recovers the structural $\beta$.
+\end{frame}
+
+
 \begin{frame}{Reduced Form: Definitions}
 \begin{itemize}
-\item The \textbf{reduced form} is the linear projection of each endogenous variable on the instruments $\bm{z}$:
-$$\bm{y}_2 = \Gamma'\bm{z}+\bm{u}_2, \qquad \Gamma = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{y}_2'], \qquad \mathbb{E}[\bm{z}\bm{u}_2']=0$$
-\item Because $\bm{z}$ is exogenous, OLS \textbf{consistently estimates} $\Gamma$ --- this is what makes IV work.
 \item Partition $\Gamma$ to match $\bm{z}=(\bm{z}_1', \bm{z}_2')'$:
-$$\bm{y}_2 = \Gamma_{12}'\bm{z}_1+\Gamma_{22}'\bm{z}_2+\bm{u}_2$$
+$$\bm{y}_2 = \Gamma_{12}'\bm{z}_1+\Gamma_{22}'\bm{z}_2+\bm{u}_2, \qquad \Gamma = \begin{bmatrix}\Gamma_{12}\\ \Gamma_{22}\end{bmatrix}.$$
+\begin{itemize}
+\item $\Gamma_{12}$ ($k_1\times k_2$): coefficients on the included instruments $\bm{z}_1$.
+\item $\Gamma_{22}$ ($\ell_2\times k_2$): coefficients on the excluded instruments $\bm{z}_2$.
+\end{itemize}
 \item Now project the full regressor vector $\bm{x}=(\bm{x}_1', \bm{y}_2')'$ on $\bm{z}$. Since $\bm{z}_1=\bm{x}_1$, the projection of $\bm{x}_1$ is $\bm{x}_1$ itself:
 $$\bar{\Gamma} = \mathbb{E}[\bm{z}\bm{z}']^{-1}\mathbb{E}[\bm{z}\bm{x}'] = \begin{bmatrix} \bm{I}_{k_1} & \Gamma_{12}\\ \bm{0} & \Gamma_{22}\end{bmatrix}$$
 \end{itemize}
@@ -461,6 +500,24 @@ $$\begin{bmatrix} \bm{I}_{k_1} & \Gamma_{12}\\ \bm{0} & \Gamma_{22}\end{bmatrix}
 \end{frame}
 
 
+\begin{frame}{Putting It Together}
+\begin{itemize}
+\item We now have two consistent OLS regressions:
+\begin{itemize}
+\item First stage: $\hat{\Gamma}\xrightarrow{p}\Gamma$
+\item Reduced form for $Y$: $\hat{\lambda}\xrightarrow{p}\lambda$
+\end{itemize}
+\item Linked by the structural map $\lambda = \bar{\Gamma}\beta$: a system of $\ell$ linear equations in $k$ unknowns.
+\item If $\bar{\Gamma}$ has rank $k$ (the \textbf{rank condition}), $\beta$ is uniquely pinned down by $\lambda$ and $\bar{\Gamma}$: the reduced form identifies the structural parameters.
+\item Two cases follow:
+\begin{itemize}
+\item $\ell=k$ (just identified): invert the map, $\hat{\beta} = \bar{\hat{\Gamma}}^{-1}\hat{\lambda}$.
+\item $\ell>k$ (overidentified): more equations than unknowns; need 2SLS to combine them.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}{Reduced Form: The AJR Example}
 \begin{itemize}
 \item \textbf{Structural equation} (what we want):
@@ -468,9 +525,9 @@ $$\text{GDP}_i = \beta_1\;\text{Lat}_i + \beta_2\;\text{Institutions}_i + e_i$$
 \item \textbf{First stage} (reduced form for $\bm{y}_2$):
 $$\text{Institutions}_i = \underbrace{\Gamma_{12}}_{\text{Lat coeff}}\;\text{Lat}_i + \underbrace{\Gamma_{22}}_{\text{Mortality coeff}}\;\text{SettlerMort}_i + u_{2i}$$
 \item \textbf{Reduced form for $Y$}:
-$$\text{GDP}_i = \underbrace{\lambda_1}_{=\beta_1+\Gamma_{12}\beta_2}\;\text{Lat}_i + \underbrace{\lambda_2}_{=\Gamma_{22}\beta_2}\;\text{SettlerMort}_i + u_{1i}$$
-\item $\lambda_2$ is the ``reduced form effect'' of settler mortality on GDP.
-\item The structural parameter: $\beta_2 = \lambda_2 / \Gamma_{22}$ \quad (ratio of reduced form to first stage).
+$$\text{GDP}_i = \lambda_1\;\text{Lat}_i + \lambda_2\;\text{SettlerMort}_i + u_{1i}$$
+\item \textbf{Invert the map} $\lambda = \bar{\Gamma}\beta$. With $\bar{\Gamma}$ upper-triangular, back-substitute:
+$$\begin{bmatrix}\lambda_1\\ \lambda_2\end{bmatrix} = \begin{bmatrix} 1 & \Gamma_{12}\\ 0 & \Gamma_{22}\end{bmatrix}\begin{bmatrix}\beta_1\\ \beta_2\end{bmatrix} \;\Longrightarrow\; \beta_2 = \frac{\lambda_2}{\Gamma_{22}}, \;\; \beta_1 = \lambda_1 - \Gamma_{12}\beta_2.$$
 \end{itemize}
 \end{frame}
 
@@ -479,10 +536,10 @@ $$\text{GDP}_i = \underbrace{\lambda_1}_{=\beta_1+\Gamma_{12}\beta_2}\;\text{Lat
 \begin{itemize}
 \item $\beta$ is \textbf{identified} if it is the unique solution to the moment conditions:
 $$\mathbb{E}[\bm{z}(Y_1-\bm{x}'\beta)]=0$$
-\item This is a system of $l$ equations in $k$ unknowns.
-\item \textbf{Just identified} ($l=k$): unique solution $\beta = (\mathbb{E}[\bm{z}\bm{x}'])^{-1}\mathbb{E}[\bm{z}Y_1]$
+\item This is a system of $\ell$ equations in $k$ unknowns.
+\item \textbf{Just identified} ($\ell=k$): unique solution $\beta = (\mathbb{E}[\bm{z}\bm{x}'])^{-1}\mathbb{E}[\bm{z}Y_1]$
 \item Equivalently: if $\bar{\Gamma}$ has rank $k$, then $\beta=(\bar{\Gamma}'\bar{\Gamma})^{-1}\bar{\Gamma}'\lambda$.
-\item \textbf{Overidentified} ($l>k$): system is overdetermined.
+\item \textbf{Overidentified} ($\ell>k$): system is overdetermined.
 \begin{itemize}
 \item No exact solution in general --- we need a method to combine the moment conditions.
 \item \alert{Foreshadowing:} this is exactly the problem GMM solves (Lecture 15).
@@ -498,7 +555,7 @@ $$\mathbb{E}[\bm{z}(Y_1-\bm{x}'\beta)]=0$$
 
 \begin{frame}{IV Estimator: Just-Identified Case}
 \begin{itemize}
-\item When $l=k$, the \textbf{IV estimator} is the sample analogue of the moment condition:
+\item When $\ell=k$, the \textbf{IV estimator} is the sample analogue of the moment condition:
 $$\hat{\beta}_{IV} = (Z'X)^{-1}Z'Y$$
 \item Decompose:
 \begin{align*}
@@ -515,7 +572,7 @@ $$\hat{\beta}_{IV} = (Z'X)^{-1}Z'Y$$
 \item \textbf{ILS}: Estimate reduced forms by OLS, then recover $\beta$.
 \item Reduced form estimates:
 $$\hat{\Gamma} = (Z'Z)^{-1}Z'X, \qquad \hat{\lambda} = (Z'Z)^{-1}Z'Y$$
-\item When $l=k$: $\hat{\beta}_{ILS} = \hat{\Gamma}^{-1}\hat{\lambda}$
+\item When $\ell=k$: $\hat{\beta}_{ILS} = \hat{\Gamma}^{-1}\hat{\lambda}$
 \item Show equivalence:
 \begin{align*}
 \hat{\beta}_{ILS} &= [(Z'Z)^{-1}Z'X]^{-1}(Z'Z)^{-1}Z'Y\\
@@ -534,10 +591,8 @@ $$\hat{\Gamma} = (Z'Z)^{-1}Z'X, \qquad \hat{\lambda} = (Z'Z)^{-1}Z'Y$$
 $$\hat{\beta}_{Wald} = \frac{\bar{Y}_{Z=1}-\bar{Y}_{Z=0}}{\bar{X}_{Z=1}-\bar{X}_{Z=0}} = \frac{\text{Reduced form effect on } Y}{\text{First stage effect on } X}$$
 \item Intuition: scale the \textbf{intent-to-treat} (ITT) effect by the first-stage compliance rate.
 \item This is a ratio of two consistent estimators --- a \textbf{ratio estimator}.
+\item \textbf{Canonical setting:} \textbf{randomized binary encouragement designs}. $Z$ is randomly assigned (lottery, mailing, eligibility); $X$ is binary take-up. Random assignment delivers exogeneity; the first stage measures compliance. The draft lottery (next slide) is a textbook example.
 \end{itemize}
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-The Wald/IV estimator is the ratio of the reduced form to the first stage.  This ``ratio'' structure is central to understanding IV.
-\end{tcolorbox}
 \end{frame}
 
 
@@ -560,7 +615,7 @@ $$\hat{\beta}_{Wald} = \frac{\text{ITT on turnout}}{\text{First stage compliance
 
 \begin{frame}{Two-Stage Least Squares}
 \begin{itemize}
-\item When $l>k$ (overidentified), we need 2SLS.
+\item When $\ell>k$ (overidentified), we need 2SLS.
 \item \textbf{Stage 1:}  Regress $X$ on $Z$:
 $$\hat{X} = P_Z X, \qquad P_Z = Z(Z'Z)^{-1}Z'$$
 \item \textbf{Stage 2:}  Regress $Y$ on $\hat{X}$:
@@ -572,7 +627,7 @@ $$\hat{\beta}_{2SLS} = (\hat{X}'\hat{X})^{-1}\hat{X}'Y = (X'P_ZX)^{-1}X'P_ZY$$
 
 \begin{frame}{2SLS = IV When Just Identified}
 \begin{itemize}
-\item When $l=k$, $P_Z = Z(Z'Z)^{-1}Z'$ and:
+\item When $\ell=k$, $P_Z = Z(Z'Z)^{-1}Z'$ and:
 \begin{align*}
 \hat{\beta}_{2SLS}&=(\hat{X}'\hat{X})^{-1}\hat{X}'Y\\
 &=(X'P_ZX)^{-1}X'P_ZY\\
@@ -602,6 +657,46 @@ summary(fit_iv)
 \end{frame}
 
 
+\begin{frame}{Why Discuss ILS?}
+\begin{itemize}
+\item In modern practice, 2SLS dominates: it works for any $\ell\geq k$ and reduces to ILS when $\ell=k$.
+\item ILS is a throwback to the \textbf{Cowles Commission} (1940s--50s; Haavelmo, Koopmans, Marschak, Theil) and its \textbf{simultaneous-equations} worldview.
+\item That framework was built for systems where many things are jointly determined:
+\begin{itemize}
+\item \textbf{Supply and demand:} $p,q$ pinned down at the intersection; supply shifters identify demand, demand shifters identify supply.
+\item \textbf{Strategic interaction:} best responses depend on rivals' choices (Cournot, Stackelberg).
+\item \textbf{Macro feedback:} consumption $\leftrightarrow$ income, investment $\leftrightarrow$ output.
+\end{itemize}
+\item The Angrist-Imbens revolution shifted IV practice toward single endogenous regressors with quasi-experimental instruments. The vocabulary (``first stage,'' ``reduced form,'' ``identification'') is inherited from Cowles; the multi-equation machinery has mostly receded.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Real-World Instruments: Four Common Sources}
+\begin{enumerate}
+\item \textbf{Experimental assignment with imperfect compliance.} Random offer of treatment (canvassing, voucher, training) when take-up is incomplete. Ex: Gerber \& Green GOTV mailings (assigned $\to$ contacted $\to$ turnout); MTO housing vouchers.
+\item \textbf{Explicit administrative random assignment.} Lotteries and random bureaucratic processes. Ex: Vietnam draft lottery (Angrist 1990); reservation of village council seats for women (Chattopadhyay \& Duflo 2004); random assignment of cases to judges (Aizer \& Doyle 2015).
+\item \textbf{Weather fluctuations and global price shocks.} Local economic conditions move with exogenous external forces. Ex: rainfall and civil war (Miguel, Satyanath, Sergenti 2004); commodity-price shocks and conflict (Brückner \& Ciccone 2010; Bazzi \& Blattman 2014).
+\item \textbf{Bartik / shift-share instruments.} National sectoral shocks $\times$ predetermined local exposure shares. Ex: China import shock (Autor, Dorn, Hanson 2013) $\to$ local import competition $\to$ wages, vote polarization.
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Real-World Instruments (continued)}
+\begin{enumerate}\setcounter{enumi}{4}
+\item \textbf{Nonrandom thresholds on running variables (RD as IV).} An arbitrary cutoff of a continuous covariate flips treatment status; near the threshold the running variable acts as an instrument.
+\begin{itemize}
+\item Population thresholds triggering mayoral powers, fiscal rules, or council size (Pettersson-Lidbom 2012 on Swedish municipalities; Italian and Brazilian municipal studies).
+\item Arbitrary eligibility cutoffs for resource allocation: IRA tax-credit thresholds (Zikai Li); Title I funding; Maimonides' rule for class size (Angrist \& Lavy 1999).
+\end{itemize}
+\item \textbf{Technology rollouts shaped by preexisting geography.} A new technology diffuses according to terrain or infrastructure that predates the outcome of interest, so reception is exogenous to it.
+\begin{itemize}
+\item Broadcast signal strength at the advent of radio/TV: Yanagizawa-Drott (2014) on Rwandan radio and genocide; DellaVigna et al.\ (2014) on Serbian TV in Croatia; Adena et al.\ (2015) on radio and the rise of the Nazis.
+\end{itemize}
+\end{enumerate}
+\end{frame}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Asymptotic Theory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -620,16 +715,16 @@ $$\xrightarrow{p}\; (Q_{XZ}Q_{ZZ}^{-1}Q_{ZX})^{-1}Q_{XZ}Q_{ZZ}^{-1}\underbrace{E
 
 \begin{frame}{Just-Identified IV: Asymptotic Distribution}
 \begin{itemize}
-\item For just-identified IV ($l=k$), $\hat{\beta}_{IV}=(Z'X)^{-1}Z'Y$, and
+\item For just-identified IV ($\ell=k$), $\hat{\beta}_{IV}=(Z'X)^{-1}Z'Y$, and
 $$\sqrt{n}(\hat{\beta}_{IV}-\beta) = \left(\frac{Z'X}{n}\right)^{-1}\frac{Z'e}{\sqrt{n}}.$$
-\item WLLN: $\dfrac{Z'X}{n}\xrightarrow{p}Q\equiv\mathbb{E}[\bm{z}\bm{x}']$ ($k\times k$ since $l=k$).
+\item WLLN: $\dfrac{Z'X}{n}\xrightarrow{p}Q\equiv\mathbb{E}[\bm{z}\bm{x}']$ ($k\times k$ since $\ell=k$).
 \item CLT: $\dfrac{Z'e}{\sqrt{n}}\xrightarrow{d} N(0,\Omega)$, $\Omega\equiv\mathbb{E}[\bm{z}\bm{z}'e^2]$.
 \item Slutsky:
 \end{itemize}
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
 $$\sqrt{n}(\hat{\beta}_{IV}-\beta)\xrightarrow{d} N\!\left(0,\;Q^{-1}\Omega\, Q^{-1\prime}\right).$$
 \end{tcolorbox}
-The general 2SLS sandwich (next slide) reduces to this when $l=k$.
+The general 2SLS sandwich (next slide) reduces to this when $\ell=k$.
 \end{frame}
 
 
@@ -703,9 +798,9 @@ $$W_n = n(\hat{\beta}_1-\hat{\beta}_2)'\bigl(\hat{V}_1+\hat{V}_2\bigr)^{-1}(\hat
 \begin{itemize}
 \item The IV estimator solves the \textbf{sample moment condition}:
 $$\frac{1}{n}\sum_{i=1}^n Z_i(Y_i - X_i'\beta) = 0$$
-\item This is a system of $l$ equations in $k$ unknowns.
-\item When $l=k$: exactly identified, unique solution.
-\item When $l>k$: overidentified, no exact solution.
+\item This is a system of $\ell$ equations in $k$ unknowns.
+\item When $\ell=k$: exactly identified, unique solution.
+\item When $\ell>k$: overidentified, no exact solution.
 \item \textbf{2SLS resolves this} by using a specific weighting matrix:
 $$\hat{\beta}_{2SLS} = \arg\min_\beta \left[\frac{1}{n}\sum Z_i(Y_i-X_i'\beta)\right]'(Z'Z/n)^{-1}\left[\frac{1}{n}\sum Z_i(Y_i-X_i'\beta)\right]$$
 \end{itemize}
@@ -723,11 +818,6 @@ Recall the workflow from Lecture 6:
 \item \textbf{Moment condition:} $\mathbb{E}[Z_i(Y_i - X_i'\beta)]=0$\quad (replacing $X_i$ with $Z_i$).
 \item \textbf{Estimator:} $\hat{\beta}_{IV}=(Z'X)^{-1}Z'Y$.
 \end{enumerate}
-
-\medskip\pause
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{The key move:}  When the OLS moment condition $\mathbb{E}[X_i e_i]=0$ fails, IV does not abandon the moment-condition framework---it \alert{substitutes a different, credible moment condition}.  The question remains: \emph{why should this moment hold?}
-\end{tcolorbox}
 \end{frame}
 
 
