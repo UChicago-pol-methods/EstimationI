@@ -102,48 +102,82 @@ text}{fg=darkpurple}
 \section{Control Function}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Control Function Regression}
+\begin{frame}{From 2SLS to Control Function}
+\textbf{Recap.}  2SLS replaces $\bm{x}_2$ with its projection on the instruments, $\hat{\bm{x}}_2=P_Z\bm{x}_2$.  Splitting $\bm{x}_2$ accordingly,
+$$\bm{x}_2=\hat{\bm{x}}_2+\hat{u}_2,$$
+the endogeneity lives entirely in the first-stage residual $\hat{u}_2$, since $\hat{\bm{x}}_2$ is a function of the exogenous $\bm{z}$.
+
+\medskip
+\textbf{Two ways to neutralize $\hat{u}_2$:}
 \begin{itemize}
-\item Structural model with endogenous $X_2$:
-$$Y=\bm{x}_1'\beta_1+\bm{x}_2'\beta_2+e$$
-$$\bm{x}_2=\Gamma'_{12}\bm{z}_1+\Gamma'_{22}\bm{z}_2+u_2$$
-\item The \textbf{control function} approach directly models the dependence between $e$ and $u_2$:
-$$e=u_2'\alpha+v, \qquad \alpha=(E[u_2u_2'])^{-1}E[u_2e], \qquad E[u_2v]=0$$
-\item Substituting into the structural equation:
-$$Y=X_1'\beta_1+X_2'\beta_2+u_2'\alpha+v$$
-\item After controlling for $u_2$: $E[X_1v]=E[X_2v]=E[u_2v]=0$.
+\item \alert{2SLS:} \emph{drop} $\hat{u}_2$ and regress $Y$ on $\hat{\bm{x}}_2$.
+\item \alert{Control function:} \emph{add} $\hat{u}_2$ as a regressor.  Holding $\hat{u}_2$ fixed, the only remaining variation in $\bm{x}_2$ is the exogenous $\hat{\bm{x}}_2$.
 \end{itemize}
 \end{frame}
 
 
-\begin{frame}{Control Function: Implementation}
+\begin{frame}{Control Function: Regression and Recipe}
+\textbf{Linear-projection assumption.}  Let $\alpha=(E[u_2u_2'])^{-1}E[u_2e]$ so that
+$$e=u_2'\alpha+v,\qquad E[u_2v]=0.$$
+Substituting into the structural equation $Y=\bm{x}_1'\beta_1+\bm{x}_2'\beta_2+e$ gives a regression in which every regressor is orthogonal to the new error:
+$$Y=\bm{x}_1'\beta_1+\bm{x}_2'\beta_2+u_2'\alpha+v.$$
+
+\medskip
+\textbf{Two-step recipe.}
+\begin{enumerate}
+\item OLS first stage; save residuals $\hat{u}_2$.
+\item OLS of $Y$ on $\bm{x}_1$, $\bm{x}_2$, and $\hat{u}_2$.
+\end{enumerate}
+Under homoskedasticity, the resulting $\hat{\beta}_2$ coincides numerically with 2SLS.
+\end{frame}
+
+
+\begin{frame}{Hausman Endogeneity Test}
+\textbf{Maintained assumption: $\bm{z}$ is a valid instrument.}  Under that assumption the test asks whether IV is \emph{necessary}, not whether the IV is correct.
 \begin{itemize}
-\item \textbf{Step 1:} Estimate the first stage by OLS to get residuals:
-$$\hat{u}_{2i}=X_{2i}-\hat{\Gamma}'_{12}Z_{1i}-\hat{\Gamma}'_{22}Z_{2i}$$
-\item \textbf{Step 2:} Include $\hat{u}_2$ as an additional regressor:
-$$Y=X\hat{\beta}+\hat{U}_2\hat{\alpha}+\hat{v}$$
-\item This is ``subtracting off the endogenous part'' of $X_2$.
-\item Under homoskedasticity, the control function estimator of $\beta$ is numerically identical to 2SLS.
-\item The coefficient $\hat{\alpha}$ directly tests endogeneity --- if $\alpha=0$, then $X_2$ is exogenous.
+\item $H_0$: $\bm{x}_2$ exogenous.  Both OLS and IV are consistent; OLS is efficient.
+\item $H_1$: $\bm{x}_2$ endogenous.  Only IV is consistent.
 \end{itemize}
+A large gap between $\hat{\beta}_{OLS}$ and $\hat{\beta}_{IV}$ is evidence against $H_0$:
+$$H=(\hat{\beta}_{IV}-\hat{\beta}_{OLS})'\bigl[\text{Avar}(\hat{\beta}_{IV})-\text{Avar}(\hat{\beta}_{OLS})\bigr]^{-1}(\hat{\beta}_{IV}-\hat{\beta}_{OLS})\xrightarrow{d}\chi^2_{k_2}.$$
+
+\medskip
+\textbf{Control-function shortcut.}  In the CF regression, $\bm{x}_2$ is exogenous iff $\alpha=0$.  The OLS $t$-test on $\hat{\alpha}$ is asymptotically equivalent to $H$, so endogeneity is read off a single coefficient.
+
+\medskip
+\alert{If validity is in doubt, the test conflates the two: rejection has more than one source.}
 \end{frame}
 
 
 \begin{frame}[fragile]{R: Control Function}
 \begin{lstlisting}
 # Step 1: First stage
-first_stage <- lm(X2 ~ Z1 + Z2, data = dat)
-dat$u2_hat <- residuals(first_stage)
-
-# Step 2: Structural equation with control
-cf_reg <- lm(Y ~ X1 + X2 + u2_hat, data = dat)
-summary(cf_reg)
-# coef on u2_hat tests endogeneity (t-test on alpha)
-# coef on X2 is the IV estimate of beta_2
+fs <- lm(X2 ~ Z1 + Z2, data = dat)
+dat$u2_hat <- residuals(fs)
+# Step 2: Augmented regression
+cf <- lm(Y ~ X1 + X2 + u2_hat, data = dat)
+summary(cf)
+# t on u2_hat: Hausman test (valid)
+# coef on X2:  IV point estimate; SE is WRONG
+# For correct inference on beta_2, use 2SLS:
+estimatr::iv_robust(Y ~ X1+X2 | X1+Z1+Z2, data = dat)
 \end{lstlisting}
-\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-The control function makes identification transparent: we ``control for'' the endogenous component of $X_2$.  The $t$-test on $\hat{\alpha}$ is equivalent to the Hausman test.
-\end{tcolorbox}
+\small The second-stage OLS SE on $\bm{x}_2$ ignores estimation of $\hat{u}_2$ and uses $\hat{\sigma}_v^2$ in place of $\hat{\sigma}_e^2$.
+\end{frame}
+
+
+\begin{frame}[fragile]{Bootstrapping Both Stages}
+\textbf{Pairs bootstrap.}  Resample $(Y_i, \bm{x}_{1i}, \bm{x}_{2i}, \bm{z}_i)$ with replacement, redo \emph{both} stages each draw.  Recomputing $\hat{u}_2$ on every replicate is what propagates first-stage uncertainty.
+\begin{lstlisting}
+B <- 1000; beta2_boot <- numeric(B)
+for (b in seq_len(B)) {
+  d <- dat[sample(nrow(dat), replace = TRUE), ]
+  d$u2_hat <- residuals(lm(X2 ~ Z1 + Z2, data = d))
+  beta2_boot[b] <- coef(lm(Y ~ X1+X2+u2_hat, data = d))["X2"]
+}
+quantile(beta2_boot, c(0.025, 0.975))  # percentile 95% CI
+\end{lstlisting}
+\small \textbf{Report the percentile CI, not a bootstrap SE} (Hansen).  Just-identified 2SLS has \emph{infinite} finite-sample variance (next section), so a bootstrap SE targets a quantity that does not exist.  The percentile CI is built from empirical quantiles and remains well defined.
 \end{frame}
 
 
@@ -158,8 +192,8 @@ The control function makes identification transparent: we ``control for'' the en
 \item Why?  Consider $\hat{\beta}_{IV}=(Z'X)^{-1}Z'Y$.  The denominator $Z'X$ can be arbitrarily close to zero, creating Cauchy-like tails.
 \item Consequences:
 \begin{itemize}
-\item The \textbf{bootstrap fails} in the just-identified case --- it requires finite variance.
-\item ``Bias'' is not well-defined in the usual sense --- we work with approximate bias instead.
+\item Do \emph{not} report bootstrap standard errors: they target a variance that does not exist (Hansen).  Percentile CIs, built from empirical quantiles, are still well defined.
+\item ``Bias'' is not well-defined in the usual sense; we work with approximate bias instead.
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -294,18 +328,6 @@ An $F$ of 100 means IV is $\sim$1\% as biased as OLS.  An $F$ of 5 means $\sim$2
 \section{Testing}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{Testing Endogeneity: Durbin-Wu-Hausman Test}
-\begin{itemize}
-\item If $X$ is exogenous, both OLS and IV are consistent, but OLS is efficient (BLUE).
-\item If $X$ is endogenous, only IV is consistent.
-\item The \textbf{Hausman test} compares the two:
-$$H=(\hat{\beta}_{IV}-\hat{\beta}_{OLS})'[Avar(\hat{\beta}_{IV})-Avar(\hat{\beta}_{OLS})]^{-1}(\hat{\beta}_{IV}-\hat{\beta}_{OLS})\sim \chi^2_{k_2}$$
-\item Rejecting $H_0$: either $X$ is endogenous \textbf{or} $Z$ is an invalid instrument.
-\item Equivalent to testing $\hat{\alpha}=0$ in the control function regression.
-\end{itemize}
-\end{frame}
-
-
 \begin{frame}{DWH $\to$ GMM Distance Form}
 \begin{itemize}
 \item The classical Hausman statistic
@@ -424,23 +446,23 @@ LATE is \textbf{instrument-dependent}: different instruments $\Rightarrow$ diffe
 \end{frame}
 
 
-\begin{frame}{When Is TSLS \emph{Actually} LATE? (Blandhol et al.\ 2025)}
+\begin{frame}{When Is 2SLS \emph{Actually} LATE? (Blandhol et al.\ 2025)}
 \begin{itemize}
-\item The LATE interpretation of TSLS hides a requirement: \alert{rich covariates},
+\item The LATE interpretation of 2SLS hides a requirement: \alert{rich covariates},
 $$\mathbb{E}[Z\mid X] = \mathbb{L}[Z\mid X].$$
 The conditional mean of $Z$ given $X$ must coincide with its linear projection.
 \item Holds automatically when there are no covariates (the Wald case), the spec is \emph{saturated} in $X$, or $Z\perp X$ by design.
-\item Otherwise the TSLS estimand mixes complier effects with always-taker effects, and \emph{some always-taker weights are necessarily negative} --- it is not even a non-negatively-weighted average of subgroup treatment effects.
+\item Otherwise the 2SLS estimand mixes complier effects with always-taker effects, and \emph{some always-taker weights are necessarily negative} --- it is not even a non-negatively-weighted average of subgroup treatment effects.
 \item In a survey of 99 published IV-with-covariates papers, BBMT find \emph{one} that used a saturated specification.
 \end{itemize}
 \end{frame}
 
 
-\begin{frame}{TSLS-LATE: Practical Workflow (BBMT 2025)}
+\begin{frame}{2SLS-LATE: Practical Workflow (BBMT 2025)}
 \begin{enumerate}\itemsep=4pt
-\item \textbf{Report TSLS without covariates} if exogeneity doesn't require them.  Avoid kitchen-sink controls --- adding covariates makes rich covariates \emph{less} likely to hold.
+\item \textbf{Report 2SLS without covariates} if exogeneity doesn't require them.  Avoid kitchen-sink controls --- adding covariates makes rich covariates \emph{less} likely to hold.
 \item \textbf{Report the Ramsey RESET test} for a regression of $Z$ on $X$ (R: \texttt{lmtest::resettest}; Stata: \texttt{estat ovtest}).  The null is rich covariates; rejection means the LATE interpretation fails.
-\item \textbf{If RESET rejects, estimate $\beta_{\text{rich}}$ via DDML PLIV} and report alongside TSLS.  R packages: \texttt{ddml}, \texttt{DoubleML}.
+\item \textbf{If RESET rejects, estimate $\beta_{\text{rich}}$ via DDML PLIV} and report alongside 2SLS.  R packages: \texttt{ddml}, \texttt{DoubleML}.
 \item \textbf{If $Z$ is binary, also report the unconditional ACR/LATE.}  Equals the unconditional LATE when treatment is binary; estimated via DDML or IPSW (Słoczyński et al.\ 2024).
 \end{enumerate}
 \medskip
@@ -683,7 +705,7 @@ $$\hat{\theta}_{GMM}=\arg\min_\theta \left[\frac{1}{n}\sum_{i=1}^n g(W_i,\theta)
 \begin{frame}{Summary}
 \begin{enumerate}
 \item The \textbf{control function} makes endogeneity correction explicit by adding $\hat{u}_2$ as a regressor.
-\item IV has \alert{no finite moments} when just identified --- bootstrap fails.
+\item IV has \alert{no finite moments} when just identified; report percentile CIs, not bootstrap SEs.
 \item IV is always less precise than OLS: $Avar(\hat{\beta}_{IV})=Avar(\hat{\beta}_{OLS})/\rho^2_{xz}$.
 \item IV bias $\approx$ OLS bias $\times\frac{1}{1+F}$; weak instruments ($F<10$) are dangerous.
 \item The \textbf{Hausman test} detects endogeneity; \textbf{Sargan test} detects invalid instruments.
