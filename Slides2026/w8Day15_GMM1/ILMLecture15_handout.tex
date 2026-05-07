@@ -13,9 +13,11 @@
 \usepackage{amsmath}
 \usepackage{bbold}
 \usepackage{tcolorbox}
-% Fix missing bold-italic sans-serif font shapes
-\DeclareFontShape{OT1}{cmss}{bx}{it}{<->ssub*cmss/bx/sl}{}
-\DeclareFontShape{OT1}{cmss}{b}{it}{<->ssub*cmss/bx/sl}{}
+% Fix missing bold-italic / bold-slanted sans-serif font shapes (substitute to bx/n)
+\DeclareFontShape{OT1}{cmss}{bx}{it}{<->ssub*cmss/bx/n}{}
+\DeclareFontShape{OT1}{cmss}{bx}{sl}{<->ssub*cmss/bx/n}{}
+\DeclareFontShape{OT1}{cmss}{b}{it}{<->ssub*cmss/bx/n}{}
+\DeclareFontShape{OT1}{cmss}{b}{sl}{<->ssub*cmss/bx/n}{}
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{structure}{fg= blue}
 \definecolor{trial}{cmyk}{1,0,0, 0}
@@ -191,118 +193,34 @@ GLS & $\bar X_i\Sigma^{-1}(Y_i - \bar X_i'\beta)$ & $\hat\beta_{GLS}$ \\
 
 \medskip
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
-\textbf{Key insight:} All the estimators we have studied are \textit{method of moments estimators} --- they solve $\bar{g}_n(\hat\beta) = 0$. GMM generalizes to the overidentified case.
+\textbf{Key insight:} All the estimators we have studied are \textit{method of moments estimators}: they solve $\bar{g}_n(\hat\beta) = 0$.  GMM generalizes to the overidentified case.
 \end{tcolorbox}
 
 \end{frame}
 
-%--- Slide: Where Do Moment Conditions Come From? ---
-\begin{frame}{Where Do Moment Conditions Come From?}
+%--- Slide: Overidentified IV in the Wild ---
+\begin{frame}{Overidentified IV in the Wild}
 
-The table shows that every estimator \emph{solves} moment conditions.  But where do the conditions come from?
-
-\medskip\pause
-They come from \textbf{substantive claims about the world}---not from algebra.
-
-\medskip\pause
-A theory says something about what is exogenous, what is excludable, or where randomization occurs.  That claim translates into an orthogonality condition $\mathbb{E}[g(W_i,\theta)]=0$.  The estimator follows.
-
-\medskip\pause
-\alert{The hard part is the translation.}  The same research question can lead to different moment conditions depending on what you are willing to assume.
+In published work, $\ell > k$ is the rule, not the exception.  Each row below has more instruments than endogenous regressors, so no $\hat\beta$ can satisfy every sample moment exactly.
 
 \medskip
-We'll see this with two examples.
-
-\end{frame}
-
-%--- Slide: Example 1 Setup ---
-\begin{frame}{Example 1: Does Media Affect Political Attitudes?}
-
-Kern \& Hainmueller (2009) study whether exposure to West German television reduced support for the East German regime.
-
-\medskip\pause
-\textbf{The question:} Does media exposure ($X$) affect regime support ($Y$)?
-
-\medskip\pause
-\textbf{The problem:} People who watch more television may differ from those who don't.  If media consumption reflects pre-existing dissatisfaction, OLS confounds the effect of media with the effect of prior attitudes.
-
-\medskip\pause
-What moment condition should we write down?  That depends on what we think is generating the variation in $X$.
-
-\end{frame}
-
-%--- Slide: Example 1 Two Claims ---
-\begin{frame}{Two Claims, Two Moment Conditions}
-
-\textbf{Claim A:} Media consumption is determined by geography (terrain blocks the signal).  After controlling for observables, exposure is unrelated to unobserved attitudes.
-$$\mathbb{E}[X_i \, e_i] = 0 \qquad \Longrightarrow \qquad \text{OLS}$$
-
-\pause
-\textbf{Claim B:} Even geographic variation is suspect---people in ``no signal'' areas may differ in other ways.  But signal availability ($Z$) shifts exposure without directly affecting attitudes.
-$$\mathbb{E}[Z_i \, e_i] = 0 \qquad \Longrightarrow \qquad \text{IV}$$
-
-\pause
-Kern \& Hainmueller make Claim B.  The instrument is geographic signal availability.  \alert{The theory determines the moment condition.  The moment condition determines the estimator.}
-
-\end{frame}
-
-%--- Slide: Example 2 Setup ---
-\begin{frame}{Example 2: Does Winning Office Help You Win Again?}
-
-Lee (2008) studies the \textbf{incumbency advantage}: does holding office give you an electoral edge next time?
-
-\medskip\pause
-\textbf{The problem:} Winners and losers differ in quality, funding, and district partisanship.  The moment condition $\mathbb{E}[D_i \, e_i] = 0$ (where $D_i = $ won) is not credible.
-
-\medskip\pause
-\textbf{The design:} In very close elections, who wins is approximately random.  A candidate who wins with 50.1\% is comparable to one who loses with 49.9\%.
-
-\medskip\pause
-This is a \textbf{local} claim: the theory doesn't say winning is random everywhere---only near the threshold.  The moment condition must reflect this.
-
-\end{frame}
-
-%--- Slide: Example 2 Local Moment Condition ---
-\begin{frame}{A Local Claim $\Rightarrow$ A Local Moment Condition}
-
-In a regression discontinuity design, we estimate the treatment effect at the cutoff $c$ using observations nearby.
-
-\medskip\pause
-Local linear regression solves a \textbf{kernel-weighted} moment condition:
-$$\mathbb{E}\!\left[K_h(X_i - c) \cdot
-\begin{pmatrix} 1 \\ X_i - c \end{pmatrix}
-\!\left(Y_i - \alpha - \tau D_i - \beta(X_i - c)\right)\right] = 0$$
-
-where $K_h$ is a kernel that downweights observations far from $c$.
-
-\medskip\pause
-This is recognizably a weighted OLS moment condition.  But the \textbf{kernel weight encodes the theoretical claim}: only observations near the cutoff satisfy the ``as good as random'' condition.
-
-\medskip\pause
-The bandwidth $h$ reflects how far from the cutoff you trust the continuity assumption.  Wider $h$: more data, more precision, but the claim is more fragile.  Narrower $h$: more credible, but noisier.
-
-\end{frame}
-
-%--- Slide: Synthesis ---
-\begin{frame}{Three Claims, Three Moment Conditions}
-
-\renewcommand{\arraystretch}{1.6}
-\begin{tabular}{lll}
+\renewcommand{\arraystretch}{1.05}
+\footnotesize
+\begin{tabular}{p{3.0cm}p{2.3cm}p{4.4cm}p{2.4cm}}
 \toprule
-\textbf{Theoretical claim} & \textbf{Moment condition} & \textbf{Estimator} \\
+\textbf{Study} & \textbf{Endog.\ $X$} & \textbf{Instruments $Z$ ($\ell$)} & \textbf{Outcome $Y$} \\
 \midrule
-Treatment is randomly assigned & $\mathbb{E}[D_i \, e_i] = 0$ & OLS \\
-Instrument is excludable & $\mathbb{E}[Z_i \, e_i] = 0$ & IV / 2SLS \\
-Local randomization at cutoff & $\mathbb{E}[K_h(X_i) \, D_i \, e_i] = 0$ & Local linear RD \\
+Angrist (1990) & veteran status & cohort-specific draft eligibility (3--4) & log wages \\
+Miguel et al.\ (2004) & GDP growth & rainfall growth + 1 lag (2) & civil conflict (Africa) \\
+Dube \& Vargas (2013) & commodity income & oil + coffee price shocks $\times$ producer (2) & Colombian conflict \\
+Nunn (2008) & slave exports & distances to 4 trade destinations (4) & log GDP per capita \\
 \bottomrule
 \end{tabular}
 \renewcommand{\arraystretch}{1.0}
+\normalsize
 
-\medskip\pause
-Each row reflects a \emph{different} claim about where the exogenous variation comes from.  Stronger claims (top) use more data.  Weaker claims (bottom) use less, but are more credible.
-
-\medskip\pause
-The moment condition framework makes these tradeoffs explicit.  When you have \emph{more} moment conditions than parameters---as with multiple instruments---GMM tells you how to combine them optimally and how to test whether they are mutually consistent.
+\smallskip
+The first row is genuinely experimental: each cohort's draft-eligibility ceiling gives a separate random instrument for veteran status.  The other rows rest on excludability arguments.  GMM combines $\ell > k$ moments and tests whether they agree (Lecture 16).
 
 \end{frame}
 
@@ -342,7 +260,7 @@ $$\boxed{J(\beta) = n\,\bar{g}_n(\beta)' W\, \bar{g}_n(\beta)}$$
 \item $J(\beta) \geq 0$ for all $\beta$ (since $W > 0$)
 \item When $W = I_\ell$: $J(\beta) = n\|\bar{g}_n(\beta)\|^2$ (Euclidean distance)
 \item The factor $n$ is for distributional convenience
-\item \alert{Different choices of $W$ yield different estimators} --- and different efficiency
+\item \alert{Different choices of $W$ yield different estimators} with different efficiency
 \end{itemize}
 
 \smallskip
@@ -416,23 +334,17 @@ $$\boxed{V_\beta = (Q'WQ)^{-1}(Q'W\Omega WQ)(Q'WQ)^{-1}}$$
 
 \end{frame}
 
-%--- Slide 11: What Is the Best Weighting? ---
-\begin{frame}{What Is the Best Weighting?}
+%--- Slide 11: Why Inverse-Variance Weighting? ---
+\begin{frame}{Why Inverse-Variance Weighting?}
 
-\textbf{Question:} Which $W$ minimizes $V_\beta$?
+\textbf{Toy case: two uncorrelated unbiased estimators of $\beta$.}  Let $\hat\beta_1$, $\hat\beta_2$ have asymptotic variances $V_1$, $V_2$.  The linear combination $\hat\beta_w = w\hat\beta_1 + (1-w)\hat\beta_2$ has variance $w^2 V_1 + (1-w)^2 V_2$, minimized at
+$$w^* = \frac{V_2}{V_1+V_2}.$$
+The noisier estimator gets less weight: weight by inverse variance.  That is what ``as close as possible'' means once measurements differ in precision.
 
-\bigskip
-\textbf{Intuition:} We want to weight moments that are
-\begin{itemize}
-\item \textit{more informative} (high signal) $\Rightarrow$ weight up
-\item \textit{less noisy} (low variance) $\Rightarrow$ weight up
-\end{itemize}
-
-\bigskip
-The variance of the sample moments is $\Omega = \mathbb{E}[g_ig_i']$. So \alert{weight inversely to their variance}: $W = \Omega^{-1}$.
-
-\bigskip
-\textbf{Analogy:} Just like GLS weights observations by the inverse of $\text{Var}(e_i)$, efficient GMM weights \textit{moment conditions} by the inverse of their covariance.
+\medskip
+\textbf{The matrix analog.}  With $\ell$ moment conditions, $\bar g_n(\beta)$ has covariance $\Omega = \mathbb{E}[g_i g_i']$.  The natural extension is
+$$\boxed{W = \Omega^{-1}}$$
+which downweights noisy moments and corrects for correlations.  Same idea as GLS, applied to moments rather than observations.
 
 \end{frame}
 
@@ -538,7 +450,7 @@ where $\hat Q = \frac{1}{n}\sum Z_iX_i'$ and $\hat\Omega$ uses residuals from th
 \medskip
 \textbf{Efficient iterated GMM} ($\hat W = \hat\Omega^{-1}$):
 $$\hat V_\beta = \left(\hat Q'\hat\Omega^{-1}\hat Q\right)^{-1}$$
-The sandwich simplifies --- just like GLS vs.\ OLS variance formulas.
+The sandwich simplifies; same simplification as GLS vs.\ OLS.
 
 \medskip
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
@@ -778,7 +690,7 @@ replacing the linear $\mathbb{E}[ZX']$.
 \end{block}
 
 \smallskip
-\textbf{Example:} The Abrevaya \& Donald missing data model is nonlinear --- Block 3 contains $\gamma_0\alpha_0$ (product of parameters).
+\textbf{Example:} The Abrevaya \& Donald missing data model is nonlinear: Block 3 contains $\gamma_0\alpha_0$, a product of parameters.
 
 \end{frame}
 
