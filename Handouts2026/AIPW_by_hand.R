@@ -1,10 +1,11 @@
-# AIPW by hand on the Bertrand-Mullainathan audit study
+# AIPW by hand on Project STAR (Tennessee class-size experiment)
 # Companion to Handouts2026/AIPW_review_handout.pdf
 #
-# Bertrand & Mullainathan (2004) sent ~4870 resumes to job ads in Boston
-# and Chicago with names randomly assigned to signal applicant race.
-#   D = 1 if African-American-sounding name, 0 otherwise (randomized)
-#   Y = 1 if the employer called back
+# Project STAR randomized Tennessee students (within schools) to small or
+# regular-sized kindergarten classes. We treat the small-vs-regular
+# comparison as a clean RCT (dropping the "regular + aide" arm).
+#   D = 1 for small class, 0 for regular class
+#   Y = kindergarten reading score (continuous)
 # Treatment effect of interest: tau = E[Y(1) - Y(0)].
 #
 # The script: (1) difference in means, (2) outcome regressions, (3) the
@@ -14,14 +15,24 @@
 # sample-split folds. A single in-sample fit is used here for clarity.
 
 library(AER)
-data("ResumeNames")
+data("STAR")
 
-Y    <- as.numeric(ResumeNames$call == "yes")
-D    <- as.numeric(ResumeNames$ethnicity == "afam")
-X_df <- ResumeNames[, c("gender", "quality", "city", "jobs", "experience",
-                        "honors", "computer", "college")]
+covars <- c("gender", "ethnicity", "birth", "lunchk", "schoolk",
+            "experiencek", "tethnicityk")
+dat <- subset(STAR,
+              !is.na(stark) & !is.na(readk) &
+              stark %in% c("small", "regular") &
+              ethnicity %in% c("cauc", "afam"))    # 99% of the sample
+dat <- dat[complete.cases(dat[, covars]), ]
+dat$ethnicity <- droplevels(dat$ethnicity)
+dat$D <- as.numeric(dat$stark == "small")
+dat$Y <- dat$readk
+
+Y    <- dat$Y
+D    <- dat$D
+X_df <- dat[, covars]
 n    <- length(Y)
-p    <- mean(D)                         # ~ 0.5 by construction
+p    <- mean(D)                         # within-school randomization
 
 ## 1. Difference in means and its SE
 tau_dm <- mean(Y[D == 1]) - mean(Y[D == 0])
@@ -31,11 +42,11 @@ se_dm  <- sqrt(var(Y[D == 1]) / sum(D == 1) +
 ## 2. Outcome models, separately by arm
 ##    Correct specification of mu_d is not required for consistency under
 ##    randomization, but a better fit lowers the AIPW asymptotic variance.
-dat  <- cbind(Y = Y, X_df)
-fit1 <- lm(Y ~ ., data = dat, subset = D == 1)
-fit0 <- lm(Y ~ ., data = dat, subset = D == 0)
-mu1  <- predict(fit1, newdata = X_df)
-mu0  <- predict(fit0, newdata = X_df)
+dat_fit <- cbind(Y = Y, X_df)
+fit1    <- lm(Y ~ ., data = dat_fit, subset = D == 1)
+fit0    <- lm(Y ~ ., data = dat_fit, subset = D == 0)
+mu1     <- predict(fit1, newdata = X_df)
+mu0     <- predict(fit0, newdata = X_df)
 
 ## 3. AIPW estimator (the slide-3 formula, by hand)
 psi <- mu1 - mu0 +
@@ -64,7 +75,11 @@ results <- data.frame(
 )
 print(results, row.names = FALSE, digits = 4)
 
-cat(sprintf("\nWald statistic, AIPW, H0: tau = 0:  z = %.2f\n", wald))
+R2_mu1 <- summary(fit1)$r.squared
+R2_mu0 <- summary(fit0)$r.squared
+cat(sprintf("\nOutcome-model R^2: arm 1 = %.3f,  arm 0 = %.3f\n",
+            R2_mu1, R2_mu0))
+cat(sprintf("Wald statistic, AIPW, H0: tau = 0:  z = %.2f\n", wald))
 cat(sprintf("SE ratio AIPW/DM:                    %.3f\n", se_aipw / se_dm))
 cat(sprintf("Implied variance reduction:          %.0f%%\n",
             100 * (1 - (se_aipw / se_dm)^2)))
