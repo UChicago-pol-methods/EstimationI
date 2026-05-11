@@ -201,7 +201,7 @@ GLS & $\bar X_i\Sigma^{-1}(Y_i - \bar X_i'\beta)$ & $\hat\beta_{GLS}$ \\
 %--- Slide: Overidentified IV in the Wild ---
 \begin{frame}{Overidentified IV in the Wild}
 
-In published work, $\ell > k$ is the rule, not the exception.  Each row below has more instruments than endogenous regressors, so no $\hat\beta$ can satisfy every sample moment exactly.
+Each row below has more instruments than endogenous regressors, so no $\hat\beta$ can satisfy every sample moment exactly.
 
 \medskip
 \renewcommand{\arraystretch}{1.05}
@@ -219,8 +219,6 @@ Nunn (2008) & slave exports & distances to 4 trade destinations (4) & log GDP pe
 \renewcommand{\arraystretch}{1.0}
 \normalsize
 
-\smallskip
-The first row is genuinely experimental: each cohort's draft-eligibility ceiling gives a separate random instrument for veteran status.  The other rows rest on excludability arguments.  GMM combines $\ell > k$ moments and tests whether they agree (Lecture 16).
 
 \end{frame}
 
@@ -310,6 +308,39 @@ where $P_Z = Z(Z'Z)^{-1}Z'$ is the projection matrix --- exactly the 2SLS formul
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
 \textbf{Takeaway:} 2SLS is a \textit{one-step} GMM estimator. But $(Z'Z)^{-1}$ is not always the best weight matrix.
 \end{tcolorbox}
+
+\end{frame}
+
+%--- Slide: Worked Example -- Mean and Variance Functions ---
+\begin{frame}{Worked Example: Mean and Variance Together}
+
+\textbf{Political-economy setup.}  For each state $i$, $Y_i$ is a survey-based measure of state opinion liberalism and $X_i$ contains demographic and partisan covariates.  Smaller-sample states yield noisier measurements, so the error variance depends on observables $Z_i$ (intercept and $1/n_i$, where $n_i$ is the respondent count):
+\begin{align*}
+Y_i &= X_i'\beta + e_i, & \mathbb{E}[X_i e_i] &= 0 \\
+e_i^2 &= Z_i'\gamma + \eta_i, & \mathbb{E}[Z_i \eta_i] &= 0
+\end{align*}
+
+\textbf{Stack the moment conditions.}  With parameters $\theta = (\beta', \gamma')'$,
+$$g_i(\theta) = \begin{pmatrix} X_i(Y_i - X_i'\beta) \\ Z_i\big((Y_i - X_i'\beta)^2 - Z_i'\gamma\big) \end{pmatrix}, \qquad \mathbb{E}[g_i(\theta)] = 0.$$
+
+The system is just-identified: $k + \ell$ moments for the $k + \ell$ parameters in $\theta$.
+
+\end{frame}
+
+%--- Slide: Worked Example, Part 2 -- Solve and Connect ---
+\begin{frame}{Worked Example: Solving the Sample Analog}
+
+Set the sample analog to zero, $\bar g_n(\hat\theta) = 0$.  The two blocks decouple sequentially.
+
+\medskip
+\textbf{Mean block} (top $k$ moments).  Setting $\sum_i X_i(Y_i - X_i'\hat\beta) = 0$ gives ordinary least squares:
+$$\hat\beta = (X'X)^{-1}X'Y.$$
+
+\textbf{Variance block} (bottom $\ell$ moments).  Form residuals $\hat e_i = Y_i - X_i'\hat\beta$.  Setting $\sum_i Z_i(\hat e_i^2 - Z_i'\hat\gamma) = 0$ gives a regression of squared residuals on $Z$:
+$$\hat\gamma = (Z'Z)^{-1}Z'\hat e^2.$$
+
+\medskip
+$\hat\gamma$ is a parametric estimate of the variance function $\mathrm{Var}(e_i \mid Z_i)$, built on top of $\hat\beta$.  \alert{How does $\hat\beta$'s sampling noise propagate into $\hat\gamma$?}  The sandwich formula on the next slide answers this for the full vector $\hat\theta$.
 
 \end{frame}
 
