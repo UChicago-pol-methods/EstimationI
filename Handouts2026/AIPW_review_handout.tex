@@ -1,0 +1,179 @@
+\documentclass[aspectratio=169, handout, t]{beamer}
+
+\mode<presentation> {
+\setbeamercovered{transparent}
+  \usetheme{Boadilla}
+
+\renewcommand{\familydefault}{cmss}
+\usepackage{bm}
+\useinnertheme{rectangles}
+}
+\usepackage{amsmath}
+\usepackage{bbold}
+\usepackage{tcolorbox}
+\DeclareFontShape{OT1}{cmss}{bx}{it}{<->ssub*cmss/bx/n}{}
+\DeclareFontShape{OT1}{cmss}{bx}{sl}{<->ssub*cmss/bx/n}{}
+\DeclareFontShape{OT1}{cmss}{b}{it}{<->ssub*cmss/bx/n}{}
+\DeclareFontShape{OT1}{cmss}{b}{sl}{<->ssub*cmss/bx/n}{}
+\setbeamercolor{normal text}{fg=black}
+\setbeamercolor{structure}{fg= blue}
+\definecolor{trial}{cmyk}{1,0,0, 0}
+\definecolor{trial2}{cmyk}{0.00,0,1, 0}
+\definecolor{darkgreen}{rgb}{0,.4, 0.1}
+\definecolor{darkpurple}{rgb}{0.4, 0, 0.6}
+\usepackage{array}
+\beamertemplatesolidbackgroundcolor{white}
+\setbeamercolor{alerted text}{fg=darkpurple}
+\setbeamertemplate{caption}[numbered]
+
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{colortbl}
+\usepackage{booktabs}
+
+\renewcommand{\familydefault}{cmss}
+
+\newtheorem{prop}{Proposition}
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}{Definition}
+
+\setbeamertemplate{navigation symbols}{}
+\useoutertheme{miniframes}
+
+\newcommand{\plim}{\operatorname*{plim}}
+
+\title[PLSC 30700]{Review: Doubly Robust Estimation of an ATE}
+\subtitle{AIPW, Influence Functions, and Neyman Orthogonality}
+\author{Robert Gulotty}
+\institute[Chicago]{University of Chicago}
+
+\begin{document}
+
+%--- Slide 1: Title ---
+\begin{frame}
+\titlepage
+\end{frame}
+
+%--- Slide 2: Three Baselines ---
+\begin{frame}{Three Baselines, Three Defects}
+
+A GOTV field experiment assigns canvass $D_i \in \{0,1\}$ with $\Pr(D_i = 1) = p$, independent of potential outcomes $(Y_i(0), Y_i(1))$ and covariates $X_i$.  Target:
+$$\tau = \mathbb{E}[Y(1) - Y(0)].$$
+
+\medskip
+Three consistent estimators, each with a single weakness:
+\begin{itemize}\itemsep=3pt
+\item \textbf{Difference in means.}  $\hat\tau_{DM} = \bar Y_1 - \bar Y_0$.  Uses randomization, ignores everything about $X_i$.
+\item \textbf{Outcome regression.}  $\hat\tau_{OR} = \tfrac{1}{n}\sum_i \big[\hat\mu_1(X_i) - \hat\mu_0(X_i)\big]$.  Consistent only if $\hat\mu_d \to \mu_d(x) = \mathbb{E}[Y(d)\mid X = x]$.
+\item \textbf{Inverse-probability weighting.}  $\hat\tau_{IPW} = \tfrac{1}{n}\sum_i \big[\tfrac{D_iY_i}{p} - \tfrac{(1-D_i)Y_i}{1-p}\big]$.  Reweights observed arms, but throws away the covariate structure.
+\end{itemize}
+
+\medskip
+AIPW splices the regression and the weighting pieces together and inherits the strengths of both.
+
+\end{frame}
+
+%--- Slide 3: The AIPW Estimator ---
+\begin{frame}{The AIPW Estimator}
+
+\begin{defn}[Augmented IPW]
+With $\hat\mu_d(\cdot)$ a fitted outcome model (sample-split, so independent of the units in the sum),
+$$\hat\tau_{\mathrm{AIPW}} = \frac{1}{n}\sum_{i=1}^n \left[\hat\mu_1(X_i) - \hat\mu_0(X_i) + \tfrac{D_i}{p}\big(Y_i - \hat\mu_1(X_i)\big) - \tfrac{1-D_i}{1-p}\big(Y_i - \hat\mu_0(X_i)\big)\right].$$
+\end{defn}
+
+\medskip
+\textbf{Two readings of the same formula.}
+\begin{itemize}\itemsep=2pt
+\item \textit{Outcome regression with an IPW correction.}  Average the predicted treatment effect; the remaining terms are mean-zero residuals that correct for misspecification of $\hat\mu_d$.
+\item \textit{IPW with an outcome-regression control variate.}  Subtract $\hat\mu_d(X_i)$ as a baseline whose expectation does not shift the target, but whose variation absorbs the predictable part of $Y_i$.
+\end{itemize}
+
+\end{frame}
+
+%--- Slide 4: Influence Function Representation ---
+\begin{frame}{Influence Function Representation}
+
+Every $\sqrt n$-consistent, asymptotically normal estimator admits a representation as a sample average of an i.i.d.\ mean-zero random variable plus a vanishing remainder:
+$$\sqrt n (\hat\tau - \tau) = \frac{1}{\sqrt n}\sum_{i=1}^n \psi(Z_i) + o_p(1).$$
+
+$\psi(Z)$ is the \textbf{influence function}.  Its variance is the asymptotic variance of $\hat\tau$.
+
+\medskip
+\textbf{For AIPW evaluated at the \emph{true} $\mu_d$,}
+$$\psi(Z) = \mu_1(X) - \mu_0(X) - \tau + \tfrac{D}{p}\big(Y - \mu_1(X)\big) - \tfrac{1-D}{1-p}\big(Y - \mu_0(X)\big).$$
+
+\medskip
+$\psi$ is the GMM moment function for the scalar parameter $\tau$: $\hat\tau$ solves the just-identified moment condition $n^{-1}\sum_i \psi(Z_i;\tau) = 0$, which is what connects this construction back to GMM.
+
+\end{frame}
+
+%--- Slide 5: CLT for the Infeasible Target ---
+\begin{frame}{CLT for the Infeasible Target}
+
+Let $\hat\tau_\star$ be the AIPW formula evaluated at the truth $\mu_d$ rather than at $\hat\mu_d$:
+$$\hat\tau_\star = \frac{1}{n}\sum_i \big[\mu_1(X_i) - \mu_0(X_i) + \tfrac{D_i}{p}(Y_i - \mu_1(X_i)) - \tfrac{1-D_i}{1-p}(Y_i - \mu_0(X_i))\big].$$
+
+\medskip
+The summands are i.i.d.\ with mean $\tau$, so the standard CLT gives
+$$\boxed{\sqrt n (\hat\tau_\star - \tau) \xrightarrow{d} N(0,\, \mathrm{Var}(\psi(Z))).}$$
+
+\medskip
+\textbf{Why this is not enough.}  $\hat\tau_\star$ is infeasible; the true $\mu_d$ is unknown.  We need to transfer the limit to the feasible $\hat\tau_{\mathrm{AIPW}}$, which means controlling the gap caused by $\hat\mu_d - \mu_d$.  That step is what Neyman orthogonality buys.
+
+\end{frame}
+
+%--- Slide 6: Neyman Orthogonality ---
+\begin{frame}{Neyman Orthogonality}
+
+Under randomization, $D \perp X$ with $\mathbb{E}[D] = p$, so for any deterministic $\Delta(\cdot)$,
+$$\mathbb{E}\!\left[1 - \tfrac{D}{p} \,\middle|\, X\right] = 0 \;\;\Longrightarrow\;\; \mathbb{E}\!\left[\big(1 - \tfrac{D}{p}\big)\Delta(X)\right] = 0.$$
+
+\medskip
+\textbf{Why this matters.}  A direct subtraction shows the gap between feasible and infeasible AIPW is
+$$\hat\tau_{\mathrm{AIPW}} - \hat\tau_\star = \tfrac{1}{n}\sum_i \big[\big(1 - \tfrac{D_i}{p}\big)(\hat\mu_1 - \mu_1)(X_i) - \big(1 - \tfrac{1-D_i}{1-p}\big)(\hat\mu_0 - \mu_0)(X_i)\big].$$
+
+Each summand is conditionally mean zero by the orthogonality identity.  Under sample splitting and $L^2$-consistency of $\hat\mu_d$, Chebyshev (HW4 Q7) bounds the remainder at $o_p(n^{-1/2})$, and Slutsky transfers the CLT to the feasible $\hat\tau_{\mathrm{AIPW}}$.
+
+\end{frame}
+
+%--- Slide 7: Double Robustness ---
+\begin{frame}{Double Robustness}
+
+The orthogonality argument used the \emph{true} propensity $p$.  AIPW is stronger:
+
+\smallskip
+\begin{center}
+\textit{$\hat\tau_{\mathrm{AIPW}}$ is consistent if \alert{either} $\hat\mu_d$ or $\hat p$ is correctly specified.}
+\end{center}
+
+\smallskip
+Let $m_d(X)$ and $\tilde p$ be the probability limits of $\hat\mu_d$ and $\hat p$.  Then
+$$\plim \hat\tau_{\mathrm{AIPW}} = \mathbb{E}[m_1 - m_0] + \tfrac{p}{\tilde p}\big(\mathbb{E}[Y(1)] - \mathbb{E}[m_1]\big) - \tfrac{1-p}{1-\tilde p}\big(\mathbb{E}[Y(0)] - \mathbb{E}[m_0]\big).$$
+
+Two ways this collapses to $\tau$:
+\begin{itemize}\itemsep=2pt
+\item $\tilde p = p$: both ratios equal 1, leaving $\mathbb{E}[Y(1) - Y(0)] = \tau$.
+\item $\mathbb{E}[m_d] = \mathbb{E}[Y(d)]$: each correction term vanishes, leaving the regression piece equal to $\tau$.
+\end{itemize}
+
+\smallskip
+For marginal estimands like the ATE, the second condition is weaker than ``correct outcome model''.  Even $\hat\mu_d \equiv \bar Y_d$ satisfies it: wrong about $\mu_d(x)$, but right about $\mathbb{E}[Y(d)]$.
+
+\end{frame}
+
+%--- Slide 8: Variance, Efficiency, Inference ---
+\begin{frame}{Variance, Efficiency, Inference}
+
+\textbf{Asymptotic variance.}  By the law of total variance (condition on $X$, then on $(X, D)$),
+$$\mathrm{Var}(\psi(Z)) = \mathbb{E}\!\left[\frac{\sigma_1^2(X)}{p} + \frac{\sigma_0^2(X)}{1-p}\right] + \mathrm{Var}\big(\mu_1(X) - \mu_0(X)\big),$$
+with $\sigma_d^2(x) = \mathrm{Var}(Y(d)\mid X = x)$.  This is the semiparametric efficiency bound for $\tau$ (Hahn 1998).
+
+\smallskip
+\textbf{Comparison to difference-in-means.}  Under Bernoulli randomization, $n\,\mathrm{Var}(\hat\tau_{DM}) \to \mathrm{Var}(Y(1))/p + \mathrm{Var}(Y(0))/(1-p)$.  Use $\mathrm{Var}(Y(d)) = \mathbb{E}[\sigma_d^2(X)] + \mathrm{Var}(\mu_d(X))$ to expand both sides; the gap collapses cleanly at $p = 1/2$.
+
+\smallskip
+\textbf{Feasible inference.}  From slide 6, $\sqrt n (\hat\tau_{\mathrm{AIPW}} - \tau) \xrightarrow{d} N(0, \mathrm{Var}(\psi))$.  Estimate $\mathrm{Var}(\psi)$ by the empirical second moment of the plug-in influence function $\hat\psi_i$; the 95\% CI and the Wald statistic for $H_0: \tau = \tau_0$ follow.
+
+\end{frame}
+
+\end{document}
