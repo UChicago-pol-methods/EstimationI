@@ -219,6 +219,8 @@ Nunn (2008) & slave exports & distances to 4 trade destinations (4) & log GDP pe
 \renewcommand{\arraystretch}{1.0}
 \normalsize
 
+\smallskip
+GMM combines all of $Z$ at once, and the overidentifying restrictions become testable (Lecture 16).
 
 \end{frame}
 
@@ -240,9 +242,7 @@ When $\ell = k$: We can solve $\bar{g}_n(\hat\beta) = 0$ exactly.
 When $\ell > k$: There are \alert{more equations than unknowns}. In general, no $\beta$ sets $\bar{g}_n(\beta) = 0$.
 
 \medskip
-\textbf{Intuition:} Think of $\mu = Z'Y$, $G = Z'X$, and $\eta = \mu - G\beta$. We want $\eta$ small. Regressing $\mu$ on $G$:
-$$\tilde\beta = (G'G)^{-1}G'\mu$$
-minimizes $\eta'\eta$. But we can do \textit{better} with weighted least squares...
+The estimator is whatever makes $\bar g_n(\beta)$ \emph{small}.  ``Small'' requires a metric on $\mathbb{R}^\ell$, and the metric is what we have to choose.
 
 \end{frame}
 
@@ -312,8 +312,11 @@ where $P_Z = Z(Z'Z)^{-1}Z'$ is the projection matrix --- exactly the 2SLS formul
 \end{frame}
 
 %--- Slide: Worked Example -- Mean and Variance Functions ---
-\begin{frame}{Worked Example: Mean and Variance Together}
+\begin{frame}{Just-Identified GMM: Mean and Variance}
 
+Before tackling sandwich variance, here is GMM solved analytically in a \emph{just-identified} system.
+
+\medskip
 \textbf{Political-economy setup.}  For each state $i$, $Y_i$ is a survey-based measure of state opinion liberalism and $X_i$ contains demographic and partisan covariates.  Smaller-sample states yield noisier measurements, so the error variance depends on observables $Z_i$ (intercept and $1/n_i$, where $n_i$ is the respondent count):
 \begin{align*}
 Y_i &= X_i'\beta + e_i, & \mathbb{E}[X_i e_i] &= 0 \\
