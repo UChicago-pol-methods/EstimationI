@@ -316,50 +316,89 @@ When the same weight matrix $\hat\Omega^{-1}$ is used for both restricted and un
 \textbf{Consequence.} Wald and Distance can disagree only when $r$ is nonlinear --- and there, the Distance test is preferred (invariant).
 
 \medskip
-\textit{Why $D = W$ in the linear case?} (Next slide.)
+\textit{Why $D = W$ in the linear case?} We work through it over the next four slides: efficient minimum distance (Hansen \S8.25), the Lagrange solution, the specialization to CGMM (Thm 13.19), and the proof.
 
 \end{frame}
 
-%--- Slide 8c: Constrained GMM via Efficient Minimum Distance ---
-\begin{frame}{From Efficient Minimum Distance to CGMM (Hansen \S8.25 $\to$ 13.19)}
+%--- Slide 8c1: Efficient Restricted Estimation (Hansen 8.25) ---
+\begin{frame}{Efficient Restricted Estimation (Hansen \S8.25)}
 
-\small
-\textbf{Chapter 8 setup.} Given an unrestricted estimator $\hat\beta$ with asymptotic variance $V$, the most efficient estimator imposing $R'\beta = c$ is the closest point to $\hat\beta$ in the Mahalanobis metric induced by $V$:
-$$\tilde\beta \;=\; \arg\min_\beta\;(\hat\beta - \beta)'V^{-1}(\hat\beta - \beta) \quad \text{s.t.} \quad R'\beta = c.$$
-
-\textbf{Lagrange.} $L = (\hat\beta - \beta)'V^{-1}(\hat\beta - \beta) + 2\lambda'(R'\beta - c)$.
-\begin{itemize}\itemsep=1pt
-\item FOC in $\beta$: $V^{-1}(\hat\beta - \beta) = R\lambda \;\Rightarrow\; \hat\beta - \beta = VR\lambda$.
-\item Plug into $R'\beta = c$: $\;\lambda = (R'VR)^{-1}(R'\hat\beta - c)$.
-\end{itemize}
-
-\textbf{Closed form (Hansen Ch.~8):} $\tilde\beta = \hat\beta - VR(R'VR)^{-1}(R'\hat\beta - c).$
+\textbf{Problem.} We have an unrestricted estimator $\hat\beta$ with asymptotic variance $V$. We want the most efficient estimator that imposes a linear constraint $R'\beta = c$.
 
 \medskip
-\textbf{Specialize to efficient GMM.} Take $V = \hat V_\beta = (\hat Q'\hat\Omega^{-1}\hat Q)^{-1}$ (Thm 13.11). Out pops the CGMM estimator (Thm 13.19):
-$$\boxed{\;\hat\beta_{\text{cgmm}} \;=\; \hat\beta_{\text{gmm}} \;-\; \hat V_\beta R(R'\hat V_\beta R)^{-1}(R'\hat\beta_{\text{gmm}} - c).\;}$$
+\textbf{Hansen's answer.} Take the point closest to $\hat\beta$ in the metric defined by $V^{-1}$, subject to the constraint:
+$$\tilde\beta \;=\; \arg\min_{\beta\,:\,R'\beta = c}\;(\hat\beta - \beta)'V^{-1}(\hat\beta - \beta).$$
+
+\medskip
+\textbf{Why this metric?} $V^{-1}$ standardizes the deviations of $\hat\beta$ component by component. Directions in which $\hat\beta$ is imprecise get downweighted; directions in which it is precise get heavy weight. The Mahalanobis distance is the GLS analog of squared distance, and it is optimal precisely because it accounts for the precision of $\hat\beta$.
+
+\medskip
+\textbf{Geometric reading.} $\tilde\beta$ is the orthogonal projection of $\hat\beta$ onto the constraint set $\{\beta : R'\beta = c\}$, with orthogonality measured in the $V^{-1}$-inner-product.
+
+\end{frame}
+
+%--- Slide 8c2: Solving the Minimum Distance Problem ---
+\begin{frame}{Solving the Minimum Distance Problem}
+
+\textbf{Lagrangian.}
+$$L \;=\; (\hat\beta - \beta)'V^{-1}(\hat\beta - \beta) + 2\lambda'(R'\beta - c).$$
+
+\smallskip
+\textbf{First-order conditions.}
+\begin{itemize}\itemsep=1pt
+\item In $\beta$: $\;-2V^{-1}(\hat\beta - \beta) + 2R\lambda = 0$, so $\;\hat\beta - \beta = V R \lambda$.
+\item In $\lambda$: $\;R'\beta = c$.
+\end{itemize}
+
+\smallskip
+\textbf{Solve for $\lambda$.} Premultiply the first FOC by $R'$ and apply the constraint:
+$$R'\hat\beta - c \;=\; R'V R\, \lambda \quad\Longrightarrow\quad \lambda \;=\; (R'VR)^{-1}(R'\hat\beta - c).$$
+
+\smallskip
+\textbf{Closed form.} Substituting $\lambda$ back,
+$$\boxed{\;\tilde\beta \;=\; \hat\beta \;-\; V R\,(R'VR)^{-1}(R'\hat\beta - c).\;}$$
+The correction is a $V$-weighted projection of the constraint violation $R'\hat\beta - c$ back onto the parameter space.
+
+\end{frame}
+
+%--- Slide 8c3: From Minimum Distance to CGMM ---
+\begin{frame}{From Minimum Distance to CGMM (Theorem 13.19)}
+
+The Chapter 8 formula gives the efficient restricted estimator for \textit{any} $\hat\beta$ with variance $V$. To get the constrained GMM estimator, plug in the efficient GMM variance.
+
+\medskip
+\textbf{Specialization.} Take
+$$V \;=\; \hat V_\beta \;=\; (\hat Q'\hat\Omega^{-1}\hat Q)^{-1} \quad\text{(Theorem 13.11).}$$
+
+\medskip
+\textbf{Out comes Hansen 13.19.}
+$$\boxed{\;\hat\beta_{\text{cgmm}} \;=\; \hat\beta_{\text{gmm}} \;-\; \hat V_\beta R\,(R'\hat V_\beta R)^{-1}(R'\hat\beta_{\text{gmm}} - c).\;}$$
+
+\medskip
+\textbf{Why this is the right plug-in.} Efficient GMM is asymptotically a GLS estimator: it minimizes a quadratic form in the moments with weight $\hat\Omega^{-1}$, equivalent to minimizing a quadratic form in $\beta - \beta_0$ with weight $\hat V_\beta^{-1}$. Imposing $R'\beta = c$ efficiently is just the constrained version of the same quadratic problem. The minimum-distance step and the GMM step share the metric $\hat V_\beta^{-1}$, which is why the two formulas coincide.
 
 \end{frame}
 
 %--- Slide 8d: Proof of D = W ---
-\begin{frame}{Proof of $D = W$ for Linear $r$ (Hansen's Path)}
+\begin{frame}{Proof of $D = W$ for Linear $r$}
 
-\small
-Two ingredients in hand:
-\begin{itemize}\itemsep=2pt
-\item \textbf{(13.11)} $\hat V_\beta = (\hat Q'\hat\Omega^{-1}\hat Q)^{-1}$.
-\item \textbf{(13.19)} $\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}} = -\hat V_\beta R(R'\hat V_\beta R)^{-1}u$, with $u := R'\hat\beta_{\text{gmm}} - c$.
+\textbf{Two ingredients.}
+\begin{itemize}\itemsep=1pt
+\item Variance: $\hat V_\beta = (\hat Q'\hat\Omega^{-1}\hat Q)^{-1}$ (Thm 13.11).
+\item Constrained shift: $\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}} = -\hat V_\beta R\,(R'\hat V_\beta R)^{-1}u$, where $u := R'\hat\beta_{\text{gmm}} - c$.
 \end{itemize}
 
-\medskip
-\textbf{Compute $D$.} For linear moments, expanding $J$ around $\hat\beta_{\text{gmm}}$ kills the cross term via the unrestricted FOC, leaving:
-$$D = J(\hat\beta_{\text{cgmm}}) - J(\hat\beta_{\text{gmm}}) = n(\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}})'\hat V_\beta^{-1}(\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}}).$$
-
-Substitute (13.19); the inner $\hat V_\beta\,\hat V_\beta^{-1}\,\hat V_\beta$ collapses to $\hat V_\beta$:
-$$D = n\,u'(R'\hat V_\beta R)^{-1}(R'\hat V_\beta R)(R'\hat V_\beta R)^{-1}u \;=\; n\,u'(R'\hat V_\beta R)^{-1}u.$$
+\smallskip
+\textbf{Step 1: expand $J$ around $\hat\beta_{\text{gmm}}$.} The unrestricted FOC is $\partial J/\partial \beta\big|_{\hat\beta_{\text{gmm}}} = 0$, so the linear term in the Taylor expansion drops. For linear moments the quadratic expansion is exact:
+$$D \;=\; J(\hat\beta_{\text{cgmm}}) - J(\hat\beta_{\text{gmm}}) \;=\; n\,(\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}})'\hat V_\beta^{-1}(\hat\beta_{\text{cgmm}} - \hat\beta_{\text{gmm}}).$$
 
 \medskip
-\textbf{Match to $W$.} Since $\hat V_\theta = R'\hat V_\beta R$, $\;D = n\,u'\hat V_\theta^{-1}u = W$. \qed
+\textbf{Step 2: substitute the constrained shift.} The middle factor $\hat V_\beta\,\hat V_\beta^{-1}\,\hat V_\beta$ collapses to $\hat V_\beta$:
+$$D \;=\; n\,u'\,(R'\hat V_\beta R)^{-1}(R'\hat V_\beta R)(R'\hat V_\beta R)^{-1}u \;=\; n\,u'\,(R'\hat V_\beta R)^{-1}u.$$
+
+\medskip
+\textbf{Step 3: match the Wald statistic.} The Wald test uses $\hat V_\theta = R'\hat V_\beta R$, so
+$$D \;=\; n\,u'\,\hat V_\theta^{-1}u \;=\; W. \qquad \blacksquare$$
 
 \end{frame}
 
