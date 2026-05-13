@@ -746,21 +746,155 @@ Constrained estimation is (weakly) more efficient than unconstrained --- if the 
 
 \end{frame}
 
+%--- Slide 22b: The Bootstrap Idea ---
+\begin{frame}{The Bootstrap: The Idea (Efron, 1979)}
+
+The sampling distribution of $\hat\theta$ depends on the unknown population CDF $F$. With $F$ in hand, exact $p$-values and CIs are immediate. We do not have $F$.
+
+\medskip
+\textbf{Efron's substitution.} Replace $F$ with the empirical CDF
+$$\hat F_n(t) = \frac{1}{n}\sum_{i=1}^n \mathbf{1}\{X_i \le t\},$$
+which places mass $1/n$ on each observed datum.
+
+\medskip
+\textbf{Plug-in / bootstrap principle.} For any functional $T(\cdot)$, the bootstrap analog is $T(\hat F_n)$. For sampling distributions,
+$$\mathcal{L}\!\left(\hat\theta - \theta_0 \;\big|\; F\right) \;\approx\; \mathcal{L}\!\left(\hat\theta^{*} - \hat\theta \;\big|\; \hat F_n\right).$$
+
+\medskip
+By Glivenko--Cantelli, $\hat F_n \to F$ uniformly. For sufficiently smooth functionals the approximation is therefore consistent: real-world inference reduces to Monte Carlo inside the sample.
+
+\end{frame}
+
+%--- Slide 22c: The Bootstrap Algorithm ---
+\begin{frame}{The Bootstrap: Algorithm}
+
+\textbf{Nonparametric (pairs) bootstrap.}
+\begin{enumerate}
+\setlength{\itemsep}{2pt}
+\item Compute $\hat\theta$ on the original sample $\{(Y_i, X_i, Z_i)\}_{i=1}^n$.
+\item For $b = 1, \dots, B$:
+   \begin{itemize}
+   \setlength{\itemsep}{1pt}
+   \item Draw $\{(Y_i^*, X_i^*, Z_i^*)\}_{i=1}^n$ with replacement from the original sample.
+   \item Recompute $\hat\theta_b^*$ on the resample.
+   \end{itemize}
+\item Use the empirical distribution of $\hat\theta_b^* - \hat\theta$ as a proxy for the distribution of $\hat\theta - \theta_0$.
+\end{enumerate}
+
+\medskip
+\textbf{What you can read off the resamples:}
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\item Bootstrap SE: $\widehat{\text{SE}}_B(\hat\theta) = \mathrm{sd}(\hat\theta_b^{*})$.
+\item Percentile CI: empirical quantiles of $\{\hat\theta_b^{*}\}$.
+\item Percentile-$t$ CI: empirical quantiles of $t_b^{*} = (\hat\theta_b^{*} - \hat\theta)/\widehat{\text{SE}}(\hat\theta_b^{*})$.
+\end{itemize}
+
+\medskip
+\textbf{How big should $B$ be?} For SEs, $B \approx 200$ is fine; for two-sided CIs, $B \ge 999$; for tail $p$-values, $B \ge 4{,}999$.
+
+\end{frame}
+
+%--- Slide 22d: Asymptotic Refinement ---
+\begin{frame}{Why Bootstrap? Asymptotic Refinement}
+
+If $V_\beta$ and the standard normal already give us a CI, why bother simulating?
+
+\medskip
+\textbf{Edgeworth expansion.} For a smooth pivotal statistic $t = (\hat\theta - \theta_0)/\widehat{\text{SE}}$,
+$$\Pr(t \le x) = \Phi(x) + \frac{p_1(x)\phi(x)}{\sqrt n} + \frac{p_2(x)\phi(x)}{n} + O(n^{-3/2}).$$
+The normal approximation drops every correction term: error is $O(n^{-1/2})$.
+
+\medskip
+\textbf{What the bootstrap captures:}
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\item Bootstrapping $\hat\theta^{*}$ (percentile method) matches only $\Phi(x)$: error remains $O(n^{-1/2})$.
+\item Bootstrapping the pivot $t_b^{*}$ matches the $1/\sqrt n$ term as well: error drops to $O(n^{-1})$.
+\end{itemize}
+
+\medskip
+\textbf{Takeaway from the expansion.} Refinement requires bootstrapping a \textit{pivot}, i.e.\ a statistic whose limiting distribution is free of nuisance parameters. Studentize first, then bootstrap.
+
+\end{frame}
+
+%--- Slide 22e: Bootstrap Variants ---
+\begin{frame}{Bootstrap Variants: Match the DGP}
+
+\begin{itemize}
+\setlength{\itemsep}{4pt}
+\item \textbf{Nonparametric / pairs.} Resample rows of the data. Robust to misspecified conditional moments. Default for i.i.d.\ cross-sections.
+
+\item \textbf{Parametric.} Simulate $Y_i^{*}$ from $F_{\hat\theta}$, e.g.\ $\mathcal{N}(X_i'\hat\beta, \hat\sigma^2)$. Tighter when the parametric model is correct, biased when it is not.
+
+\item \textbf{Residual bootstrap.} Resample residuals $\hat e_i$ and set $Y_i^{*} = X_i'\hat\beta + \hat e_i^{*}$. Imposes conditional homoskedasticity, so do not use under heteroskedasticity.
+
+\item \textbf{Wild bootstrap.} $Y_i^{*} = X_i'\hat\beta + v_i \hat e_i$ with $v_i$ mean zero, unit variance (e.g.\ Rademacher $\pm 1$). Holds $X_i$ fixed, accommodates heteroskedasticity, works well with few clusters.
+
+\item \textbf{Cluster bootstrap.} Resample clusters and keep within-cluster observations together. Required under clustered dependence.
+
+\item \textbf{Block bootstrap.} Resample contiguous blocks. Required for time-series dependence.
+\end{itemize}
+
+\end{frame}
+
 %--- Slide 23: Bootstrap for GMM (Hansen 13.26) ---
 \begin{frame}{Bootstrap for GMM (Hansen \S13.26)}
 
 Standard bootstrap for GMM: resample $(Y_i^*, X_i^*, Z_i^*)$ and re-estimate.
 
 \medskip
-\alert{Problem:} When overidentified, the bootstrap estimator does not satisfy the orthogonality condition $\Rightarrow$ no asymptotic refinement.
+\alert{Problem:} when overidentified, $\bar g_n = \tfrac{1}{n}\sum_i Z_i \hat e_i \neq 0$ in the original sample, so the bootstrap ``population'' violates $\mathbb{E}[g_i(\beta)] = 0$ at $\hat\beta$. The bootstrap estimator does not satisfy the orthogonality condition, and the asymptotic refinement is lost.
 
 \medskip
 \textbf{Solution: Recentered bootstrap} (Hall \& Horowitz, 1996)
-$$\hat\beta_{\text{gmm}}^{**} = (X^{*\prime}Z^*W^*Z^{*\prime}X^*)^{-1}(X^{*\prime}Z^*W^*(Z^{*\prime}Y^* - Z'\hat e))$$
-where $\hat e = Y - X\hat\beta_{\text{gmm}}$ from the \textit{original} sample. Subtracts original residuals' moment contribution to recenter around zero.
+$$\hat\beta_{\text{gmm}}^{**} = (X^{*\prime}Z^*W^*Z^{*\prime}X^*)^{-1}\!\bigl(X^{*\prime}Z^*W^*(Z^{*\prime}Y^* - Z'\hat e)\bigr)$$
+where $\hat e = Y - X\hat\beta_{\text{gmm}}$ comes from the \textit{original} sample. Subtracting $Z'\hat e$ shifts the bootstrap moments back to mean zero at $\hat\beta$, restoring the refinement.
 
-\medskip
-\textbf{Practical advice:} Use bootstrap for confidence intervals (not SEs). Percentile-$t$ bootstrap provides best finite-sample coverage.
+\end{frame}
+
+%--- Slide 23b: Recentered Bootstrap in R ---
+\begin{frame}[fragile]{Recentered Bootstrap in R}
+
+Overidentified 2SLS, three instruments. Percentile-$t$ CI for $\hat\beta_x$. To implement Hall--Horowitz, subtract an offset from $y$ on each resample, chosen so $Z_b'\,\text{off} = \sum_i Z_i \hat e_i$.
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+library(AER); library(sandwich); set.seed(1)
+fit   <- ivreg(y ~ x | z1 + z2 + z3, data = df)
+b.h   <- coef(fit)["x"];  V.h <- vcovHC(fit, "HC1")["x","x"]
+Z     <- model.matrix(~ z1 + z2 + z3, df)
+shift <- crossprod(Z, resid(fit))         # sum_i Z_i e.hat_i (nonzero under overid)
+n <- nrow(df);  B <- 999
+boot <- function() {
+  i   <- sample.int(n, n, replace = TRUE);  Zb <- Z[i, ]
+  off <- as.vector(Zb %*% solve(crossprod(Zb), shift))
+  db  <- df[i, ];  db$y <- db$y - off
+  fb  <- ivreg(y ~ x | z1 + z2 + z3, data = db)
+  (coef(fb)["x"] - b.h) / sqrt(vcovHC(fb, "HC1")["x","x"])
+}
+t.star <- replicate(B, boot())
+ci <- b.h + c(-1, 1) * quantile(abs(t.star), 0.95) * sqrt(V.h)  # percentile-t
+\end{lstlisting}
+
+\end{frame}
+
+%--- Slide 23c: Recentered Bootstrap Practical Advice ---
+\begin{frame}{Recentered Bootstrap: Practical Advice}
+
+\begin{itemize}
+\setlength{\itemsep}{4pt}
+\item \textbf{Use enough replications.} $B \ge 999$ for two-sided 95\% CIs; $B \ge 4{,}999$ for tail $p$-values; for SEs alone, $B \approx 200$ is fine.
+
+\item \textbf{Bootstrap the studentized statistic, not the SE.} Percentile-on-$\hat\beta$ alone forfeits the refinement of the previous slide.
+
+\item \textbf{Always recenter when overidentified.} Dropping the \texttt{shift} term leaves the bootstrap DGP violating $\mathbb{E}[g_i(\beta)] = 0$ at $\hat\beta$, and the refinement is lost.
+
+\item \textbf{Refresh the weight matrix.} For two-step GMM, re-estimate $\hat W^*$ on each resample. Reusing $\hat W$ from the original sample biases coverage in small samples.
+
+\item \textbf{Match resampling to dependence.} Cluster-resample if data are clustered; block-resample for time series; wild bootstrap when clusters are few.
+
+\item \textbf{Report what you ran.} $B$, the resampling unit, the statistic bootstrapped, and the CI rule. Coverage claims depend on each.
+\end{itemize}
 
 \end{frame}
 
