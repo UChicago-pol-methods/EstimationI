@@ -1,5 +1,5 @@
 
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169, handout]{beamer}
 
 %\usepackage[table]{xcolor}
 \mode<presentation> {
@@ -104,49 +104,9 @@ text}{fg=darkpurple}
 \begin{frame}
 \maketitle
 \end{frame}
+
 \section{Intro}
 \setcounter{subsection}{1}
-
-
-\begin{frame}{Where We Are: From GMM to Panel Data}
-\begin{itemize}
-\item In Lectures 15--16 we developed \textbf{GMM} as a unified framework:
-\begin{itemize}
-\item Specify moment conditions $E[\bm{g}(\bm{z}_i,\bm{\theta}_0)]=\bm{0}$
-\item Estimate $\hat{\bm{\theta}}$ by minimizing $\hat{\bm{g}}'\bm{W}\hat{\bm{g}}$
-\item Test overidentifying restrictions with the $J$-statistic
-\end{itemize}\pause
-\item \textbf{Panel data} introduces new structure:
-\begin{itemize}
-\item Repeated observations create natural moment conditions
-\item Unobserved heterogeneity $\alpha_i$ must be controlled
-\item Different assumptions $\Rightarrow$ different moment conditions $\Rightarrow$ different estimators
-\end{itemize}\pause
-\item \textbf{This lecture:} pooled OLS, fixed effects, between estimators as moment-based estimators.\\
-\textbf{Next lecture:} random effects, CRE, and dynamic panel GMM (Arellano-Bond).
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Panel Estimators as Moment Conditions}
-\centering
-\small
-\begin{tabular}{@{}llp{3.8cm}@{}}
-\toprule
-\textbf{Estimator} & \textbf{Moment Condition} & \textbf{Key Assumption} \\
-\midrule
-Pooled OLS & $E[\bm{X}_{it}' e_{it}]=\bm{0}$ & $\alpha_i$ uncorrelated with $\bm{X}$ \\[4pt]
-Fixed Effects & $E[\tilde{\bm{X}}_{it}'\tilde{e}_{it}]=\bm{0}$ & Strict exogeneity (within-unit) \\[4pt]
-Random Effects & $E[\bm{X}_{it}'\nu_{it}]=\bm{0}$ & $\alpha_i$ uncorrelated with $\bm{X}$; GLS weighting \\[4pt]
-Arellano-Bond & $E[Y_{is}\cdot\Delta e_{it}]=0,\; s\leq t\!-\!2$ & Sequential exogeneity; lagged levels as instruments \\
-\bottomrule
-\end{tabular}
-\vspace{6pt}
-
-\begin{itemize}
-\item Each row is a \textbf{GMM estimator} with different instruments and assumptions.\pause
-\item More moment conditions $\Rightarrow$ overidentification $\Rightarrow$ testable with the $J$-test.
-\end{itemize}
-\end{frame}
 
 \begin{frame}{From Cross-Sections to Repeated Observations}
 \begin{itemize}
@@ -165,80 +125,104 @@ Arellano-Bond & $E[Y_{is}\cdot\Delta e_{it}]=0,\; s\leq t\!-\!2$ & Sequential ex
 \setcounter{subsection}{1}
 
 \begin{frame}{Differences in Differences}
-\begin{itemize}
-\item We might collect data over time to rule out certain confounding factors.\pause
-\item Consider a study of the effect (D) of a voter ID law on turnout (Y), observing Texas and Oklahoma before and after the law.\pause
-\begin{itemize}
-\item Comparison one (cross-section, after the law):\\
-\begin{tabular}{lll}
-State&Time&Outcome\\
-\hline
-Texas& After & $Y = M+T+D$\\
-Oklahoma  & After& $Y = O+T$\\
-\end{tabular}\\
-Difference $=(M-O)+D$: confounds the state-level gap with $D$.\pause
-\item Comparison two (time-series, Texas only):\\
-\begin{tabular}{lll}
-State&Time&Outcome\\
-\hline
-Texas& Before & $Y = M$\\
-& After & $Y = M+T+D$\\
-\end{tabular}\\
-Difference $= T+D$: confounds the time trend with $D$.
-\end{itemize}
-\item Neither comparison on its own recovers $D$.
-\end{itemize}
+Voter ID law in Texas; Oklahoma is the control. Turnout $Y$ observed before and after.\\[4pt]
+\textbf{Parameters:} $M$ = Texas baseline (e.g.\ borders Mexico), $O$ = Oklahoma baseline;\\
+$T$ = common period effect (e.g.\ Trump on the ballot), $D$ = effect of the voter ID law.\pause
+
+\vspace{6pt}
+\begin{columns}[T]
+\begin{column}{0.49\textwidth}
+\begin{tcolorbox}[colback=blue!8, colframe=blue, title=Cross-section (after)]
+\centering
+\begin{tabular}{l@{\quad}l}
+Texas & $M+T+D$\\
+Oklahoma & $O+T$\\
+\midrule
+Diff & $(M-O)+D$
+\end{tabular}
+\end{tcolorbox}
+\end{column}
+\begin{column}{0.49\textwidth}
+\begin{tcolorbox}[colback=darkgreen!8, colframe=darkgreen, title=Time-series (Texas)]
+\centering
+\begin{tabular}{l@{\quad}l}
+Before & $M$\\
+After & $M+T+D$\\
+\midrule
+Diff & $T+D$
+\end{tabular}
+\end{tcolorbox}
+\end{column}
+\end{columns}
+\pause\vspace{6pt}
+
+\centering Neither comparison alone recovers $D$.
 \end{frame}
 
 
-\begin{frame}{Diff in Diff}
+\begin{frame}{Difference-in-Differences: Recovering $D$}
+Difference each state across time, then difference the within-state differences.\\[4pt]
 
-\begin{tabular}{lllll}
-State&Time& Outcome& After-Before& dTexas-dOklahoma\\
-\hline
-Texas & Before&$Y = M$\\
- & After&$Y = M+T+D$& T+D\\
- \\
-Oklahoma  &Before& $Y = O$\\
-& After & $Y = O+T$&T\\
-&&&&D
+\begin{tcolorbox}[colback=darkpurple!6, colframe=darkpurple, title=Difference-in-Differences]
+\centering
+\begin{tabular}{l@{\quad}ccc}
+ & Before & After & After $-$ Before\\
+\midrule
+Texas & $M$ & $M+T+D$ & $T+D$\\
+Oklahoma & $O$ & $O+T$ & $T$\\
+\midrule
+\multicolumn{3}{r}{Texas $-$ Oklahoma:} & $\bm{D}$\\
 \end{tabular}
-$$D=dY_{T}-dY_{O}=(Y_{A,T}-Y_{B,T})-(Y_{A,O}-Y_{B,O})$$
+\end{tcolorbox}
+
+\vspace{6pt}
+\centering Within-state differences cancel $M$ and $O$; differencing them cancels $T$.
 \end{frame}
 
 \begin{frame}{Potential Outcomes}
+To define the assumption that lets DD work, restate the setup formally. $D$ stays the effect size; use $G$ for the group indicator.
 \begin{itemize}
-\item Define $D$ as the binary treatment $d\in\{0,1\}$ which tells us if we will be in the treatment category once we get to the second period.
-\item Measurements happen twice, $t\in\{0,1\}$
-\item $Y_t^d$ is the outcome in period $t$ for treatment status $d$.
-\item The outcomes we can observe is $Y_t$ (no d).
-$$Y_t=dY_t^1+(1-d)Y^0_t$$
-\item Counterfactual outcomes: 
+\item $G\in\{0,1\}$: group indicator (1 = treated group, e.g.\ Texas; 0 = control, e.g.\ Oklahoma).
+\item $t\in\{0,1\}$: period (0 = before, 1 = after).
+\item $Y_t^g$: potential outcome in period $t$ if group status were $g$.
+\item Observed outcome: $Y_t = G\,Y_t^1 + (1-G)\,Y_t^0$.
+\item Two are observed, two are counterfactual:
 \begin{itemize}
-\item $Y_t^1|D_t=0$  (Outcomes in a world of treatment among those who weren't)
-\item $Y_t^0|D_t=1$ (Outcomes in a world of control among those who were treated)
+\item $Y_t^1\mid G=0$: Oklahoma's outcome had it been treated.
+\item $Y_t^0\mid G=1$: Texas's outcome had it not been treated.
 \end{itemize}
+\item Unit-level treatment effect: $\delta_i = Y_t^1 - Y_t^0$. Across the population this averages to $D$.
 \end{itemize}
-$$\delta_{i}=Y_{t}^1-Y_{t}^0$$
 \end{frame}
 
 \begin{frame}{Parallel Trends}
+DD recovers $D$ only if Texas and Oklahoma would have moved together absent the law.\\[6pt]
+
+\begin{tcolorbox}[colback=blue!6, colframe=blue, title=Parallel trends assumption]
+\centering
+$$E[Y_{t=1}^0\mid G=1] - E[Y_{t=0}^0\mid G=1] \;=\; E[Y_{t=1}^0\mid G=0] - E[Y_{t=0}^0\mid G=0]$$
+\end{tcolorbox}
+\pause\vspace{4pt}
+
+In the running example: $T$ enters both states the same way, and the baseline gap $M-O$ does not drift over time.\\[4pt]
+\textbf{Violations:}
 \begin{itemize}
-\item Identification assumption/Parallel Trends
-$$E[Y_{t=1}^0|D=1]-E[Y_{t=0}^0|D=1]=E[Y_{t=1}^0|D=0]-E[Y_{t=0}^0|D=0]$$
-\item In previous example, T is the same across states, state level differences $(M-O)$ don't vary over time.
-\item The differences in expected potential non-treatment outcomes are unrelated to belonging to the treated or control group in the post treatment period.
-\item If the treated had not been subjected to treatment, both subpopulations would have experienced the same time trends.
-\item The composition cannot be affected by treatment
+\item Different state-level trends (Texas suburbanizing faster than Oklahoma).
+\item Treatment-induced selection or composition change (voters moving out of Texas after the law).
 \end{itemize}
 \end{frame}
 
-
+\begin{frame}{Parallel Trends, Visually}
+\begin{center}
+\includegraphics[width= 3.2 in]{DIDgraph.png}
+\end{center}
+\small The dotted line is the counterfactual under parallel trends: it follows the comparison group's slope. The gap on the right is the treatment effect.
+\end{frame}
 
 \begin{frame}{Obama Support: The Identification Problem}
 \begin{itemize}
 \item Suppose we want to study the effect of racial co-identification (non-identification) on feeling thermometers of Obama in 2008.
-$$ObamaRating_i=b_0+d_{08} Black_i+\bm{b'_x}\bm{x}_i+e_i$$\pause
+$$ObamaRating_i=b_0+d_O\, Black_i+\bm{b'_x}\bm{x}_i+e_i$$\pause
 \item However, we are worried about the two kinds of omitted factors:
 \begin{itemize}\pause
 \item Time trends (T): Obama ran after a financial crisis and war that might make him popular generally.\pause
@@ -251,31 +235,31 @@ $$ObamaRating_i=b_0+d_{08} Black_i+\bm{b'_x}\bm{x}_i+e_i$$\pause
 \begin{frame}{Obama Support: DiD with a Comparison Candidate}
 \begin{itemize}
 \item We can use a repeated cross section to difference out similar attitudes toward another Democratic candidate.\pause
-$$Kerry_i=b_0+d_{04} Black_i+\bm{b'_x}\bm{x}_i+e_i$$
-\item If we assume that 
+$$Kerry_i=b_0+d_K\, Black_i+\bm{b'_x}\bm{x}_i+e_i$$
+\item If we assume that
 \begin{itemize}
 \item All time varying factors other than the candidate's race affected Black and white people's response to Democratic nominees equally.\pause
-\item All differences in evaluations of D. nominees between Black and white people did not change between 04 and 08.\pause
+\item All differences in evaluations of D. nominees between Black and white people did not change between the Kerry and Obama years.\pause
 \end{itemize}
 \item Then $\delta$ is an estimate of the Average Treatment Effect of the candidate's race on attitudes.
-$$\delta=d_{08}-d_{04}=(\bar{r}_{08,B}-\bar{r}_{08,W})-(\bar{r}_{04,B}-\bar{r}_{04,W})$$
+$$\delta=d_O-d_K=(\bar{r}_{O,B}-\bar{r}_{O,W})-(\bar{r}_{K,B}-\bar{r}_{K,W})$$
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Estimating Differences in Differences}
 \begin{itemize}
-\item Stack 04 and 08 data. Define $yr08_i=1$ for the 2008 survey takers and $B_i=\mathbb{I}(\text{Race="Black"})$.\pause
+\item Stack the Kerry and Obama waves. Define $yr08_i=1$ for 2008 survey takers and $B_i=\mathbb{I}(\text{Race="Black"})$.\pause
 \item \textbf{Unrestricted} (year-specific race effect):
 {\small
 \begin{align*}
-DRating_i=b_{0,08}yr08_i+b_{0,04}(1-yr08_i)+d_{08}yr08_i B_i+d_{04}(1-yr08_i) B_i+\bm{b'_x}\bm{x}_i+e_i
+DRating_i=b_{0,O}\,yr08_i+b_{0,K}\,(1-yr08_i)+d_O\,yr08_i\,B_i+d_K\,(1-yr08_i)\,B_i+\bm{b'_x}\bm{x}_i+e_i
 \end{align*}}\pause
-\item \textbf{Restricted} ($d_{08}=d_{04}\equiv d$):
+\item \textbf{Restricted} ($d_O=d_K\equiv d$):
 {\small
 \begin{align*}
-DRating_i=b_{0,08}yr08_i+b_{0,04}(1-yr08_i)+d B_i+\bm{b'_x}\bm{x}_i+e_i
+DRating_i=b_{0,O}\,yr08_i+b_{0,K}\,(1-yr08_i)+d\,B_i+\bm{b'_x}\bm{x}_i+e_i
 \end{align*}}\pause
-\item The F test of $H_0\!:\,d_{08}=d_{04}$ comparing the two models is the DiD test: the racial co-identification effect is $d_{08}-d_{04}$.
+\item The F test of $H_0\!:\,d_O=d_K$ comparing the two models is the DiD test: the racial co-identification effect is $d_O-d_K$.
 \end{itemize}
 \end{frame}
 
@@ -319,36 +303,6 @@ y08 & 65.2$^{***}$ & 65.9$^{***}$ & 10.6$^{***}$ \\
 \end{center}
 \end{frame}
 
-\begin{frame}{Policy Evaluation}
-\begin{itemize}
-\item Diff-in-diff is often used to study binary policies when we theorize that selection bias is driven by fixed group features.\pause
-\item Key assumption for causal inference: parallel trends:
-\begin{itemize}
-\item The amount of uncontrolled selection bias is not changing over time.
-\item Time trends are the same across groups.
-\end{itemize}\pause
-\item Example of violation of parallel trends: Suppose that Texas and Oklahoma are trending blue, but Texas is closer to flipping, causing both voter ID laws and more investment by Democrats.
-\end{itemize}
-\end{frame}
-
-
-\begin{frame}
-\begin{center}
-\includegraphics[width= 4.5 in]{DIDgraph.png}
-\end{center}
-\end{frame}
-
-
-\begin{frame}{Alternative: Synthetic Control}
-\begin{itemize}
-\item When we are studying aggregates like states, we might not have parallel trends.
-\item However, in some cases we can construct a plausible counterfactual from combinations of untreated units.
-\item The synthetic control approach uses covariates to construct these counterfactual weighted combinations.
-\item Assumes that we have a long time series and the treated unit outcomes lie within the convex hull of untreated outcomes.
-\end{itemize}
-\end{frame}
-
-
 \section{Panel Data}
 \setcounter{subsection}{1}
 
@@ -388,20 +342,20 @@ y08 & 65.2$^{***}$ & 65.9$^{***}$ & 10.6$^{***}$ \\
 \begin{frame}{Panel Example 2: Airline cost structure}
 \begin{itemize}
 \item Consider a population of airlines. Choose one at random.\pause
-\item In each year, $t$, each airline pays $Y_t$ dollars to fly $Z_t$ passengers.\pause
-\item Each airline uses a proprietary technology $A$ which does not vary over time.\pause
-\item We observe N randomly selected Airlines but do not measure $A$. \pause
-\item We want to estimate the way that $Y_t$ responds to $Z_t$, holding constant $A$.
+\item In year $t$, the airline incurs cost $Y_t$ to fly $Z_t$ passengers.\pause
+\item Each airline has a fixed efficiency $A$ (technology, route network, labor contracts) that does not vary over time.\pause
+\item We observe $N$ randomly sampled airlines but do not measure $A$.\pause
+\item Costs scale with passengers, but different airlines spend different amounts to fly the same load. We want the within-airline cost-output elasticity, separating scale economies from efficiency $A$.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Panel Example 3: Candidate Electoral Performance}
 \begin{itemize}
-\item Consider a population of candidates. Choose one at random.
-\item For each year $t$, the candidate receives vote share $Y_t$.
-\item We know each candidate has an underlying charisma $A$ which does not vary over time.
-\item We observe N randomly selected candidates, but do not measure $A$. 
-\item We want to estimate the effect of $Y_{t-1}$ on $Y_t$, holding constant $A$.
+\item Consider a population of candidates. Choose one at random.\pause
+\item In election cycle $t$, the candidate receives vote share $Y_t$.\pause
+\item Each candidate has an underlying charisma $A$ (intrinsic appeal, base of supporters) that does not vary over time.\pause
+\item We observe $N$ randomly sampled candidates across cycles, but do not measure $A$.\pause
+\item Candidates with strong cycles often have strong follow-up cycles, partly because last cycle's success builds name recognition, donor networks, and incumbency benefits, and partly because they have higher charisma. We want the persistence of vote share, $Y_{t-1}\to Y_t$, separating that carryover from $A$.
 \end{itemize}
 \end{frame}
 
@@ -629,25 +583,41 @@ N Clusters  & $$            & $6$          \\
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Within-group estimators}
-\begin{itemize}
-\item Consider the typical panel model: $y_{it}=\gamma x_{it}+f_i+e_{it}$\pause
-\item Assume that $E[e_i|f_i, \bm{x}_{i1},\bm{x}_{i2},\ldots \bm{x}_{iT}]=0\ \quad \forall i$ \pause
-\item But suppose that $E(f_i|x_{it})\neq 0$.  We can dummy for "fixed effects" $f$, producing
-$$\bm{y}=\bm{X\beta}+\bm{Df}+\bm{e}$$\pause
-\item We know from Frisch Waugh Lovell that:
-\begin{align*}
-\hat{\bm{\beta}}&=(\bm{X}'\bm{M}_D\bm{X})^{-1}\bm{X}'\bm{M}_D\bm{y}\\
-\hat{\bm{f}}&=(\bm{D}'\bm{M}_X\bm{D})^{-1}\bm{D}'\bm{M}_X\bm{y}
-\end{align*}\pause
-\item Where $\bm{M}_X=\bm{I}-\bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ and $\bm{M}_D=\bm{I}-\bm{D}(\bm{D}'\bm{D})^{-1}\bm{D}'$  are the idempotent residual makers.
-\item $\hat{\beta}$ and $\hat{f}$ are the "within-group" estimators.
-\end{itemize}
+\begin{frame}{Fixed Effects: Two Equivalent Approaches}
+Panel model $y_{it}=\bm{\beta}'\bm{x}_{it}+\alpha_i+e_{it}$, with $E[e_{it}\mid\alpha_i,\bm{x}_{i\cdot}]=0$ but $E[\alpha_i\mid\bm{x}_{it}]\neq 0$ (so pooled OLS is biased).\\[6pt]
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{tcolorbox}[colback=blue!8, colframe=blue, title=Dummy variables]
+Add one dummy per unit, run OLS:
+$$\bm{y}=\bm{X}\bm{\beta}+\bm{D}\bm{\alpha}+\bm{e}.$$
+The $N$ fitted dummies absorb the unit intercepts.
+\end{tcolorbox}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{tcolorbox}[colback=darkgreen!8, colframe=darkgreen, title={Demean within units, then regress}]
+Subtract each variable's own unit mean and run OLS:
+$$y_{it}-\bar{y}_i=\bm{\beta}'(\bm{x}_{it}-\bar{\bm{x}}_i)+\tilde e_{it}.$$
+The $\alpha_i$ cancels because $\alpha_i-\bar\alpha_i=0$.
+\end{tcolorbox}
+\end{column}
+\end{columns}
+\vspace{4pt}
+
+\textbf{Both produce the same $\hat{\bm{\beta}}$.} Why: Frisch-Waugh-Lovell turns the dummy regression into a regression on within-demeaned variables. The next three slides prove it.
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Why the Two Match: Frisch-Waugh-Lovell}
+By FWL, the slope on $\bm{X}$ in the dummy regression equals OLS run on $\bm{X}$ and $\bm{y}$ after partialling $\bm{D}$ out of both:
+$$\hat{\bm{\beta}}=(\bm{X}'\bm{M}_D\bm{X})^{-1}\bm{X}'\bm{M}_D\bm{y}, \qquad \bm{M}_D=\bm{I}-\bm{D}(\bm{D}'\bm{D})^{-1}\bm{D}'.$$
+$\bm{M}_D$ is the residual maker for the dummy regression: $\bm{M}_D\bm{v}$ is whatever is left of $\bm{v}$ after a regression on the unit dummies alone.\\[6pt]
+
+\textbf{Claim.} For any variable $\bm{v}$, $\bm{M}_D\bm{v}$ is $\bm{v}$ minus its unit mean: $(\bm{M}_D\bm{v})_{it}=v_{it}-\bar{v}_i$. Granted the claim, the dummy estimator runs OLS on the within-demeaned data. The next two slides verify the claim for $N=2$.
+\end{frame}
+
+\begin{frame}{Computing $\bm{M}_D$ for $N=2$}
 \begin{itemize}
-\item Suppose N=2: $\bm{D}=\begin{pmatrix} \bm{i}&\bm{0}\\\bm{0}&\bm{i}\end{pmatrix}$ where $\bm{i}$ is a ($T\times 1$) vector of 1s\pause
+\item $\bm{D}=\begin{pmatrix} \bm{i}&\bm{0}\\\bm{0}&\bm{i}\end{pmatrix}$ where $\bm{i}$ is a ($T\times 1$) vector of 1s.\pause
 \begin{align*}
 \bm{M}_D&=\bm{I}-\bm{D}(\bm{D}'\bm{D})^{-1}\bm{D}'\\\pause
 &=\begin{pmatrix} \bm{I}&\bm{0}\\\bm{0}&\bm{I}\end{pmatrix}-\begin{pmatrix} \bm{i}&\bm{0}\\\bm{0}&\bm{i}\end{pmatrix}\left[\begin{pmatrix} \bm{i}'&\bm{0}\\\bm{0}&\bm{i}'\end{pmatrix}\begin{pmatrix} \bm{i}&\bm{0}\\\bm{0}&\bm{i}\end{pmatrix}\right]^{-1}\begin{pmatrix} \bm{i}'&\bm{0}\\\bm{0}&\bm{i}'\end{pmatrix}\\\pause
@@ -660,32 +630,29 @@ $$\bm{y}=\bm{X\beta}+\bm{Df}+\bm{e}$$\pause
 
 
 
-\begin{frame}
+\begin{frame}{$\bm{M}_D\bm{y}$ Is the Within-Demeaned Vector}
+Writing $\bar{y}_i = \frac{1}{T}\sum_t y_{it}$ for unit $i$'s mean:
 \begin{align*}
-\bm{M}_D\bm{y}&=\begin{pmatrix} \bm{I}-\frac{1}{T}\bm{i}\bm{i}'&\bm{0}\\\bm{0}&\bm{I}-\frac{1}{T}\bm{i}\bm{i}'\end{pmatrix}\bm{y}\\\pause
-&=\begin{pmatrix} \bm{I}-\frac{1}{T}\bm{i}\bm{i}'&\bm{0}\\\bm{0}&\bm{I}-\frac{1}{T}\bm{i}\bm{i}'\end{pmatrix}\begin{pmatrix}\bm{y}_1\\ \bm{y}_2 \end{pmatrix}\\
-&=\begin{pmatrix} y_{11}-\frac{\sum_{t=1}^T y_{1t}}{T}\\
- y_{12}-\frac{\sum_{t=1}^T y_{1t}}{T}\\
- \ldots\\
-  y_{1T}-\frac{\sum_{t=1}^T y_{1t}}{T}\\
-    y_{21}-\frac{\sum_{t=1}^T y_{2t}}{T}\\
-        y_{22}-\frac{\sum_{t=1}^T y_{2t}}{T}\\
-         \ldots\\
-            y_{2T}-\frac{\sum_{t=1}^T y_{2t}}{T}
-            \end{pmatrix}
+\bm{M}_D\bm{y}&=\begin{pmatrix} \bm{I}-\frac{1}{T}\bm{i}\bm{i}'&\bm{0}\\\bm{0}&\bm{I}-\frac{1}{T}\bm{i}\bm{i}'\end{pmatrix}\begin{pmatrix}\bm{y}_1\\ \bm{y}_2 \end{pmatrix}
+=\begin{pmatrix}
+y_{11}-\bar{y}_1\\
+\vdots\\
+y_{1T}-\bar{y}_1\\
+y_{21}-\bar{y}_2\\
+\vdots\\
+y_{2T}-\bar{y}_2
+\end{pmatrix}.
 \end{align*}
+The $i$th block of $\bm{M}_D\bm{y}$ is $\bm{y}_i$ with unit $i$'s own mean subtracted. The same operation applied column-by-column to $\bm{X}$ gives $\bm{M}_D\bm{X}$. Equivalence to the dummy regression is now confirmed.
 \end{frame}
 
-\begin{frame}{Within Estimator}
-Two equivalent ways to estimate:
-\begin{enumerate}
-\item Explicitly controlling for fixed effects $\bm{f}$ and estimating $\hat{\bm{\beta}}=(\bm{X}'\bm{M}_D\bm{X})^{-1}\bm{X}'\bm{M}_D\bm{y}$.\pause
-\item Differencing out the group means:\\
-\end{enumerate}
-$$y_{it}-\bar{y}_i=\bm{\beta}'(\bm{x}_{it}-\bar{\bm{x}}_i)+e_{it}-\bar{e}_i$$
-$$\bm{b}_W=(\bm{S}_{xx}^W)^{-1}\bm{S}_{xy}^W$$
-$$\bm{S}_{xx}^W= \sum_{i=1}^N\sum_{t=1}^T(\bm{x}_{it}-\bar{\bm{x}}_i)(\bm{x}_{it}-\bar{\bm{x}}_i)'$$
-$$\bm{S}_{xy}^W= \sum_{i=1}^N\sum_{t=1}^T(\bm{x}_{it}-\bar{\bm{x}}_i)(y_{it}-\bar{y}_i)'$$
+\begin{frame}{The Within Estimator: Closed Form and Computation}
+Equivalence confirmed: $\bm{M}_D\bm{X}$ and $\bm{M}_D\bm{y}$ are the within-demeaned data, so the FE slope is OLS on those demeaned variables:
+$$\hat{\bm{\beta}}_W=(\bm{S}_{xx}^W)^{-1}\bm{S}_{xy}^W,$$
+$$\bm{S}_{xx}^W=\sum_{i,t}(\bm{x}_{it}-\bar{\bm{x}}_i)(\bm{x}_{it}-\bar{\bm{x}}_i)',\qquad \bm{S}_{xy}^W=\sum_{i,t}(\bm{x}_{it}-\bar{\bm{x}}_i)(y_{it}-\bar{y}_i).$$
+\vspace{2pt}
+
+\textbf{In practice.} Demean every variable by its unit mean and run OLS. The residual degrees of freedom shrink from $NT-k$ to $NT-N-k$ to account for the $N$ estimated unit means.
 \end{frame}
 
 
@@ -711,11 +678,15 @@ y&= \bm{X}\bm{\beta}+\bm{\alpha}\otimes \bm{1}_T+\bm{e}
 \end{frame}
 
 
-\begin{frame}{Fixed Effects and unobserved factors}
-Just as with difference in difference, fixed effects address unobserved effects ($\alpha_i$).
-$$y_{it}=\gamma x_{it}+\alpha_i+e_{it}$$
-The fixed effects transformation again mean deviates the variables, giving us:
-$$y_{it}-\bar{y}_i=\bm{\beta}'(\bm{x}_{it}-\bar{\bm{x}}_i)+\alpha_i-\bar{\alpha}_i+e_{it}-\bar{e}_i$$
+\begin{frame}{Why Demeaning Removes the Unit Effect}
+The FE model writes
+$$y_{it}=\bm{\beta}'\bm{x}_{it}+\alpha_i+e_{it}.$$
+Subtract each variable's unit mean:
+$$y_{it}-\bar{y}_i=\bm{\beta}'(\bm{x}_{it}-\bar{\bm{x}}_i)+(\alpha_i-\bar{\alpha}_i)+(e_{it}-\bar{e}_i).$$
+\textbf{Key step.} Since $\alpha_i$ does not vary in $t$,
+$$\bar{\alpha}_i = \tfrac{1}{T}\sum_{t=1}^T \alpha_i = \alpha_i, \qquad \text{so}\qquad \alpha_i-\bar{\alpha}_i = 0.$$
+The unit effect drops out of the demeaned equation. Demeaning removes $\alpha_i$ without our ever observing or estimating it.\\[4pt]
+What remains, $\tilde y_{it}=\bm{\beta}'\tilde{\bm{x}}_{it}+\tilde e_{it}$, is what OLS on the demeaned data fits.
 \end{frame}
 
 
@@ -788,17 +759,12 @@ Sp_xx = t(Xp)%*%Xp
 
 
 \begin{frame}{Between Regression}
-\begin{itemize}
-\item Part of the variation in $y_{it}$ and $\bm{x}_{it}$ is variation across units and part across time.\pause
-\item The cross sectional part is just:
-\begin{align*}
-\frac{1}{T}(y_{i1}+y_{i2}+\ldots +y_{iT})&=\bm{\beta}'(\frac{1}{T}(\bm{x}_{i1}+\bm{x}_{i2}+\ldots +\bm{x}_{iT}))+\frac{1}{T}(e_{i1}+e_{i2}+\ldots+e_{iT})\\
-\bar{y}_i&=\bm{\beta}'\bar{\bm{x}}_i+\bar{e}_i
-\end{align*}
-Define $\bm{b_B}=(\bm{S}^B_{xx})^{-1}\bm{S}_{xy}^B$.
-$$\bm{S}^B_{xx}= \sum_{i=1}^N\sum_{t=1}^T(\bm{\bar{x}}_{i}-\bar{\bar{\bm{x}}})(\bm{\bar{x}}_{i}-\bar{\bar{\bm{x}}})'=\sum_{i=1}^N T(\bm{\bar{x}}_{i}-\bar{\bar{\bm{x}}})(\bm{\bar{x}}_{i}-\bar{\bar{\bm{x}}})'$$
-$$\bm{S}^B_{xy}= \sum_{i=1}^N\sum_{t=1}^T(\bm{\bar{x}}_{i}-\bar{\bar{\bm{x}}})(\bar{y}_{i}-\bar{\bar{y}})=\sum_{i=1}^N T(\bm{\bar{x}}_{i}-\bar{\bar{\bm{x}}})(\bar{y}_{i}-\bar{\bar{y}})$$
-\end{itemize}
+Within threw away all cross-unit variation; \textbf{between} does the opposite: it uses only cross-unit variation.\\[4pt]
+\textbf{Construction.} Collapse each unit's $T$ observations into one point at its means; run OLS on the resulting $N$-observation cross section:
+$$\bar{y}_i=\bm{\beta}'\bar{\bm{x}}_i+\bar{e}_i, \qquad i=1,\ldots,N.$$
+The slope is $\bm{b}_B=(\bm{S}^B_{xx})^{-1}\bm{S}^B_{xy}$ with
+$$\bm{S}^B_{xx} = \sum_{i=1}^N T\,(\bar{\bm{x}}_i-\bar{\bar{\bm{x}}})(\bar{\bm{x}}_i-\bar{\bar{\bm{x}}})',\qquad \bm{S}^B_{xy} = \sum_{i=1}^N T\,(\bar{\bm{x}}_i-\bar{\bar{\bm{x}}})(\bar{y}_i-\bar{\bar{y}}).$$
+The factor of $T$ keeps these sums on the same scale as $\bm{S}^P$ and $\bm{S}^W$, so $\bm{S}^P=\bm{S}^B+\bm{S}^W$ on the next slide.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -932,12 +898,12 @@ R$^{2}$ & 0.988 & 0.994 & 0.993 \\
 \item \textbf{Hypothesis:} Mass military mobilization during WWI/WWII created political pressure for progressive taxation as a ``conscription of wealth.''
 \item \textbf{Data:} Country-year panel, 20 countries, 1850--1970.
 \begin{itemize}
-\item $Y_{it}$: Top marginal income tax rate
-\item $X_{it}$: War mobilization $\times$ high-mobility indicator
-\item $\alpha_i$: Country fixed effects (e.g.\ institutional differences, colonial legacies)
+\item $Y_{it}$: top marginal income tax rate
+\item $X_{it}$: \texttt{wwihighmobaft} $=$ high-mobilization country $\times$ post-WWI
+\item $\alpha_i$: country fixed effects (institutions, fiscal capacity, colonial legacies)
 \end{itemize}\pause
-\item \textbf{Why fixed effects?} Countries differ systematically in fiscal institutions, political systems, and economic structure. Pooled OLS would confound these with the mobilization effect.
-\item Strict exogeneity plausible: war mobilization driven by geopolitics, not anticipated tax policy.
+\item \textbf{Design.} A within-country DiD: did high-mobilization countries see larger jumps in top rates after the war than low-mobilization countries? Country FE absorb time-invariant differences; the identifying assumption is parallel trends across the two groups absent the war.
+\item \textbf{Inference.} Newey-West SEs (next slide) handle within-country serial correlation.
 \end{itemize}
 \end{frame}
 
@@ -962,6 +928,101 @@ fe_mod2 <- feols(topratep ~ wwihighmobaft +
     vcov = NW(1) ~ country + year)
 \end{lstlisting}
 \end{frame}
+
+
+
+\begin{frame}{Where We Are: From GMM to Panel Data}
+\begin{itemize}
+\item In Lectures 15--16 we developed \textbf{GMM} as a unified framework:
+\begin{itemize}
+\item Specify moment conditions $E[\bm{g}(\bm{z}_i,\bm{\theta}_0)]=\bm{0}$
+\item Estimate $\hat{\bm{\theta}}$ by minimizing $\hat{\bm{g}}'\bm{W}\hat{\bm{g}}$
+\item Test overidentifying restrictions with the $J$-statistic
+\end{itemize}\pause
+\item \textbf{Panel data} introduces new structure:
+\begin{itemize}
+\item Repeated observations create natural moment conditions
+\item Unobserved we are dealing with heterogeneity in $\alpha_i$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Panel Estimators as Moment Conditions}
+\centering
+\small
+\begin{tabular}{@{}llp{3.8cm}@{}}
+\toprule
+\textbf{Estimator} & \textbf{Moment Condition} & \textbf{Key Assumption} \\
+\midrule
+Pooled OLS & $E[\bm{X}_{it}' e_{it}]=\bm{0}$ & $\alpha_i$ uncorrelated with $\bm{X}$ \\[4pt]
+Fixed Effects & $E[\tilde{\bm{X}}_{it}'\tilde{e}_{it}]=\bm{0}$ & Strict exogeneity (within-unit) \\[4pt]
+Random Effects & $E[\bm{X}_{it}'\nu_{it}]=\bm{0}$ & $\alpha_i$ uncorrelated with $\bm{X}$; GLS weighting \\[4pt]
+Arellano-Bond & $E[Y_{is}\cdot\Delta e_{it}]=0,\; s\leq t\!-\!2$ & Sequential exogeneity; lagged levels as instruments \\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+
+\begin{itemize}
+\item Each row is a \textbf{GMM estimator} with different instruments and assumptions.\pause
+\item More moment conditions $\Rightarrow$ overidentification $\Rightarrow$ testable with the $J$-test.
+\end{itemize}
+\end{frame}
+
+
+\section{Synthetic Control (Optional)}
+\setcounter{subsection}{1}
+
+\begin{frame}{When DiD Fails: Synthetic Control}
+\begin{itemize}
+\item DiD recovers $D$ only under parallel trends. For aggregate units (states, countries), one untreated average is rarely a credible counterfactual.
+\item Idea (Abadie \& Gardeazabal 2003; Abadie, Diamond \& Hainmueller 2010): match the treated unit to a \emph{weighted average} of control units in the pre-period; the same weights deliver the post-period counterfactual.
+\item Athey \& Imbens (2017) call it ``arguably the most important innovation in the evaluation literature in the last fifteen years.''
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The Weighting Problem}
+\textbf{Setup.} Treated unit $i=0$, controls $j=1,\dots,J$; pre-period $t\in\mathcal{T}_0$, post-period $t\in\mathcal{T}_1$.\\[4pt]
+\textbf{Find} weights $W = (w_1,\dots,w_J)$ with $w_j\geq 0$, $\sum_j w_j = 1$ that minimise pre-period fit error:
+$$\hat W = \arg\min_W \sum_{t\in\mathcal{T}_0}\!\Big(Y_{0t} - \sum_j w_j Y_{jt}\Big)^{\!2}.$$
+\textbf{Counterfactual and effect:}
+$$\hat Y_{0t}^{\,0} = \sum_j \hat w_j\, Y_{jt}, \qquad \hat\alpha_{0t} = Y_{0t} - \hat Y_{0t}^{\,0} \quad (t\in\mathcal{T}_1).$$
+\pause
+\textbf{What it generalises.} Linear factor model $Y_{it} = \alpha_i D_{it} + \lambda_i'\mu_t + \epsilon_{it}$: SCM lets each unit have its own multi-dimensional loading $\lambda_i$. DiD assumes a single additive unit effect; SCM handles heterogeneous responses to common factors.
+\end{frame}
+
+\begin{frame}{Two Strong Assumptions}
+\begin{tcolorbox}[colback=blue!6, colframe=blue, title=Convex hull]
+\centering
+The treated unit's pre-period outcomes lie inside the convex hull of the controls' pre-period outcomes.
+\end{tcolorbox}
+\vspace{4pt}
+\begin{tcolorbox}[colback=darkgreen!6, colframe=darkgreen, title=Perfect pre-period fit]
+\centering
+There exist weights $W$ such that the pre-period gap $Y_{0t} - \sum_j w_j Y_{jt}$ is zero for every $t\in\mathcal{T}_0$.
+\end{tcolorbox}
+\vspace{4pt}
+Both routinely fail. Ferman \& Pinto (2021): when fit is imperfect, the SCM weights are biased and the bias does \emph{not} vanish as $T_0\to\infty$ if $J$ is fixed. The mechanism is the same attenuation that plagues regression with measurement-error in regressors.
+\end{frame}
+
+\begin{frame}{Recent Fixes}
+\begin{itemize}
+\item \textbf{Powell (2018, RAND WR-1246).} Build a synthetic control for \emph{every} unit, not just the treated. If $\hat w_{ij}$ puts weight $0.4$ on the treated unit when matching unit $i$, then unit $i$'s post-period gap is informative about the treatment effect ($-0.4\times$ it). Also: smooth outcomes before fitting weights to limit attenuation from idiosyncratic noise.
+\item \textbf{Fry (2024, J.\ Econometrics).} GMM-based SC: split controls into ``SC units'' and ``instruments.'' Excluded units instrument for included ones; exclusion holds when idiosyncratic shocks are uncorrelated across units. Asymptotically unbiased as $T_0\to\infty$ with $J$ fixed, even without perfect fit.
+\item Both relax the perfect-fit assumption that drives Ferman-Pinto bias.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Application: Massachusetts 2006 Health Reform}
+\begin{itemize}
+\item \textbf{Question} (Powell 2018): did the 2006 Massachusetts reform (the ACA prototype) reduce mortality?
+\item \textbf{Why not DiD with the national average?} Massachusetts mortality does not track the national average in the pre-period, so the parallel-trend counterfactual is implausible.
+\item \textbf{SCM construction:} weighted average of other states fit to pre-2006 Massachusetts mortality and demographics.
+\item \textbf{Result:} the imperfect-SCM estimator gives a $\approx 3\%$ reduction in the Massachusetts mortality rate. A propensity-score DiD design (Sommers et al.\ 2014) gives comparable directional results, but the SC fit is dramatically better in the pre-period.
+\end{itemize}
+\end{frame}
+
+\section{Summary}
+\setcounter{subsection}{1}
 
 \begin{frame}{Summary}
 \begin{itemize}
