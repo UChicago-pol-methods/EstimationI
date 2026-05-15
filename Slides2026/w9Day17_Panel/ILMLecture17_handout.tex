@@ -485,14 +485,27 @@ Num. obs.    & $90$          & $90$          \\
 \end{frame}
 
 
-\begin{frame}{Assumptions of Pooled Regression: Exogeneity}
-\begin{itemize}
-\item Before turning to fixed effects, ask what pooled OLS needs to be unbiased once the same unit appears $T$ times.
-\item $\bm{y}=\bm{X}\bm{\beta}+\bm{e}$
-\item Strict Exogeneity: $E(e_{it}|\bm{X})=\bm{0}$ for all time periods of $\bm{X}$.
-\item That is, $\bm{X}$ must not have any long-run consequences for $\bm{Y}$.
-\item Moreover, $\bm{X}$ must not itself be a function of past $\bm{Y}$.
-\end{itemize}
+\begin{frame}{Three Flavors of Exogeneity in Panel Data}
+Each panel estimator needs a different version of ``$\bm{x}$ uncorrelated with $\bm{e}$'' across time. Listed weakest to strongest:\\[4pt]
+
+\centering
+\small
+\begin{tabular}{@{}p{3.3cm}p{5.6cm}p{4.6cm}@{}}
+\toprule
+\textbf{Assumption} & \textbf{Formal statement} & \textbf{Used by} \\
+\midrule
+Contemporaneous & $E[e_{it}\mid\bm{x}_{it}]=0$ & Pooled OLS \\
+ & (plus $\alpha_i$ uncorrelated with $\bm{x}_{it}$, else FE) & \\[6pt]
+Sequential (predetermined) & $E[e_{it}\mid\bm{x}_{i1},\ldots,\bm{x}_{it}]=0$ & Arellano-Bond (next lecture) \\
+ & feedback $e_{it}\to\bm{x}_{i,t+1}$ allowed & with lagged $Y$ as a regressor\\[6pt]
+Strict & $E[e_{it}\mid\bm{x}_{i1},\ldots,\bm{x}_{iT}]=0$ for all $t$ & Within (FE), Between \\
+ & no feedback, no anticipation & \\
+\bottomrule
+\end{tabular}
+
+\vspace{8pt}
+\flushleft
+\textbf{What violates strict exogeneity.} Lagged dependent variables on the right-hand side, feedback from $Y$ to future $X$, anticipation of future treatment, time-varying confounders.
 \end{frame}
 
 \begin{frame}{Autocorrelation versus Autoregression}
