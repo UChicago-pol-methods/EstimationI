@@ -170,7 +170,7 @@ $var(\bm{\tilde{\beta}}_{GLS})=\sigma^2(\bm{X}'\Sigma^{-1}\bm{X})^{-1}$
 \end{frame}
 
 \begin{frame}{Random Effects Assumption}
-\begin{columns}
+\begin{columns}[c]
 \begin{column}{0.5\textwidth}
 \begin{itemize}
 \item The random effects assumption is that $Cov[\alpha_i, \bm{x}_{it}]=0$.
@@ -179,7 +179,8 @@ $var(\bm{\tilde{\beta}}_{GLS})=\sigma^2(\bm{X}'\Sigma^{-1}\bm{X})^{-1}$
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
-\includegraphics[width=2.5 in]{ViolationofRandom.pdf}
+\centering
+\includegraphics[width=2 in]{ViolationofRandom.pdf}
 \end{column}
 \end{columns}
 \end{frame}
@@ -471,25 +472,19 @@ phtest(fe_mod, re_mod)   # classical Hausman chi-squared
 \begin{lstlisting}
 library(plm)                     # panel-data toolkit
 data("Produc", package = "Ecdat")# US state production data
-
-dffrost<-data.frame( state = str_replace(toupper(rownames(state.x77)),"\\s","_"),
-frost = state.x77[,"Frost"])%>%mutate(state=ifelse(state=="TENNESSEE", "TENNESSE",state))
-
-Producweather<-Produc%>%left_join(dffrost)
-pdata <- pdata.frame(Producweather, index = c("state", "year"))
-
+dffrost <- data.frame(state = str_replace(toupper(rownames(state.x77)),"\\s","_"),
+                      frost = state.x77[,"Frost"]) %>%
+           mutate(state = ifelse(state=="TENNESSEE","TENNESSE",state))
+Producweather <- Produc %>% left_join(dffrost)
+pdata <- pdata.frame(Producweather, index = c("state","year"))
 pdata$pcap_bar <- Between(log(pdata$pcap))   # == ave(pcap, state)
-pdata$hwy_bar <- Between(log(pdata$hwy))
-pdata$util_bar<- Between(log(pdata$util))
-
-cre_mod <- plm(log(gsp) ~ log(pcap)+log(hwy)+log(util)+pcap_bar+hwy_bar+util_bar+frost,
-               data   = pdata,
-               model  = "random")     # GLS w/ error-components
-
-fe_mod <- plm(log(gsp) ~ log(pcap)+ log(hwy)+log(util),
-               data   = pdata,
-               model  = "within")  
-               
+pdata$hwy_bar  <- Between(log(pdata$hwy))
+pdata$util_bar <- Between(log(pdata$util))
+cre_mod <- plm(log(gsp) ~ log(pcap)+log(hwy)+log(util)
+                 +pcap_bar+hwy_bar+util_bar+frost,
+               data = pdata, model = "random")  # GLS w/ error-components
+fe_mod  <- plm(log(gsp) ~ log(pcap)+log(hwy)+log(util),
+               data = pdata, model = "within")
 \end{lstlisting}
 \end{frame}
 
@@ -710,6 +705,12 @@ summary(ab_mod)
 \item \textbf{Short panels with many lags:} the instrument count grows quadratically in $T$.  Roodman (2009) shows the Sargan test loses power as instruments proliferate --- passing it stops being informative.  ``Collapse lags'' is a band-aid, not a fix.
 \item \textbf{Plausible serial correlation in} $e_{it}$: most political-economy outcomes (vote shares, conflict, regime quality) have persistent unobserved drivers.  When AR(2) rejects, the moment conditions fail by your own diagnostic.
 \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Critical Assessment (cont'd)}
+\begin{itemize}
 \item \textbf{Why it's less common today.}  Applied work has shifted toward design-based identification --- DiD with staggered adoption, RD, shift-share IV with explicit exposure mappings --- where the exclusion restriction is defended from institutional knowledge rather than from a serial-correlation assumption nobody can verify ex ante.
 \end{itemize}
 \begin{tcolorbox}[colback=blue!5, colframe=blue!50]
@@ -795,7 +796,6 @@ Lagged-instrument GMM remains useful as a \emph{benchmark} for dynamic panels, b
 
 \begin{frame}{When Is Random Effects Reasonable?}
 RE assumes $\alpha_i \perp \bm{X}_{it}$: unit heterogeneity is unrelated to covariates.\pause
-\smallskip
 
 \textbf{Plausible settings in political science:}
 \begin{enumerate}\itemsep=1pt
@@ -803,7 +803,6 @@ RE assumes $\alpha_i \perp \bm{X}_{it}$: unit heterogeneity is unrelated to cova
 \item \textbf{Surveys with cluster sampling} --- individuals within randomly selected clusters. The cluster effect is a nuisance, not a confounder.
 \item \textbf{Meta-analysis} --- studies are ``units''; heterogeneity is modeled as random for population-average inference.
 \end{enumerate}\pause
-\smallskip
 
 \textbf{When to be skeptical (most observational panels):}
 \begin{itemize}\itemsep=1pt
@@ -811,7 +810,6 @@ RE assumes $\alpha_i \perp \bm{X}_{it}$: unit heterogeneity is unrelated to cova
 \item States adopt policies endogenously.
 \item Individuals sort into groups based on characteristics that also affect $Y$.
 \end{itemize}
-\smallskip
 \alert{Default:} assume $\alpha_i$ is correlated with $\bm{X}$ and use FE or CRE unless you can argue otherwise.
 \end{frame}
 
