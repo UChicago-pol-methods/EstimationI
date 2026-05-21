@@ -581,6 +581,61 @@ because $\bar{Y}_i$ contains $Y_{it}$ which depends on $e_{it}$, and $\bar{e}_i$
 \end{itemize}
 \end{frame}
 
+\begin{frame}{The Incidental Parameters Problem}
+\begin{itemize}
+\item FE jointly maximizes the likelihood over $\bm{\beta}$ and $N$ nuisance parameters $\alpha_1,\ldots,\alpha_N$.
+\item Each $\hat{\alpha}_i$ uses only $T$ observations: as $N\to\infty$ with $T$ fixed, $\hat{\alpha}_i$ does not converge.\pause
+\item In linear static FE this within-unit noise averages out and $\hat{\bm{\beta}}$ is consistent. In dynamic or nonlinear FE it does not, and $\hat{\bm{\beta}}$ is inconsistent.\pause
+\item \textbf{Canonical case (Neyman \& Scott, 1948).} For $z_{it}\stackrel{iid}{\sim}N(\alpha_i,\sigma_0^2)$ with $\hat{\alpha}_i=\bar{z}_i$,
+\[
+\hat{\sigma}^2_{MLE} = \frac{1}{NT}\sum_{i,t}(z_{it}-\bar{z}_i)^2
+\;\xrightarrow{p}\;\frac{T-1}{T}\sigma_0^2,
+\quad \text{bias}=-\sigma_0^2/T.
+\]
+Vanishes only as $T\to\infty$.\pause
+\item Nickell bias is the same phenomenon when the regressor itself (a lagged DV) is a function of past errors.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Nickell (1981) Bias: AR(1) Derivation}
+\begin{itemize}
+\item AR(1) panel: $y_{it}=\rho\,y_{i,t-1}+\alpha_i+e_{it}$, $\;e_{it}\stackrel{iid}{\sim}(0,\sigma_e^2)$.
+\item Within transformation (with $\bar{y}_{i,-1}=T^{-1}\!\sum_s y_{i,s-1}$):
+$y_{it}-\bar{y}_i = \rho(y_{i,t-1}-\bar{y}_{i,-1}) + (e_{it}-\bar{e}_i)$.\pause
+\item By the AR(1) recursion, $\bar{e}_i$ contains $e_{i,s}$ for $s<t$ (loading on $y_{i,t-1}$) and $\bar{y}_{i,-1}$ contains $y_{i,s}$ for $s\geq t$ (loading on $e_{it}$), so $\text{Cov}(y_{i,t-1}-\bar{y}_{i,-1},\,e_{it}-\bar{e}_i)\neq 0$.\pause
+\item Averaging this covariance over $t$, Nickell shows
+\[
+\operatorname{plim}\hat{\rho}_{FE}-\rho
+=
+-\,\frac{1+\rho}{T-1}\cdot
+\frac{1-\frac{1-\rho^T}{T(1-\rho)}}{1-\dfrac{2\rho}{(T-1)(1-\rho)}\!\left[1-\frac{1-\rho^T}{T(1-\rho)}\right]}
+\;\approx\; -\,\frac{1+\rho}{T-1},
+\]
+\alert{always negative}: FE attenuates the persistence estimate.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Magnitude of Nickell Bias}
+\textbf{Asymptotic bias} $\operatorname{plim}\hat{\rho}_{FE}-\rho$ from the Nickell formula:
+\begin{center}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+            & $T=5$ & $T=10$ & $T=20$ \\
+\midrule
+$\rho=0.2$  & $-0.25$ & $-0.12$ & $-0.06$ \\
+$\rho=0.5$  & $-0.33$ & $-0.16$ & $-0.08$ \\
+$\rho=0.8$  & $-0.43$ & $-0.22$ & $-0.10$ \\
+\bottomrule
+\end{tabular}
+\end{center}\pause
+\begin{itemize}
+\item At $\rho=0.8,\,T=5$, $\hat{\rho}_{FE}\approx 0.37$ even when the truth is $0.8$.
+\item Robust standard errors do not fix this; the bias is in the point estimate.\pause
+\item Three responses: tolerate it when $T$ is large; apply a bias correction (Hahn--Kuersteiner, split-panel jackknife); or replace the FE moment with first-differenced moments (Arellano--Bond, next).
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Arellano-Bond: First Differencing + Instruments}
 \begin{itemize}
 \item \textbf{Step 1:} First-difference to eliminate $\alpha_i$:
